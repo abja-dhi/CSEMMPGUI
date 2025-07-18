@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project>
-  <UserInfo>
-    <Name>John Doe</Name>
-    <Email>john@example.com</Email>
-  </UserInfo>
+<Project type="Project">
   <Settings>
-    <Display>
-      <Theme>Dark</Theme>
-      <FontSize>12</FontSize>
-    </Display>
-    <Notifications enabled="true">
-      <Email>true</Email>
-      <SMS>false</SMS>
-    </Notifications>
+    <EPSG>4326</EPSG>
+    <ProjectDirectory>C:\Projects\MyProject</ProjectDirectory>
   </Settings>
-  <Data>
-    <Entry id="1">
-      <Title>Sample Entry 1</Title>
-      <Value>42</Value>
-    </Entry>
-    <Entry id="2">
-      <Title>Sample Entry 2</Title>
-      <Value>99</Value>
-    </Entry>
-  </Data>
+  
+  <Survey name="Survey1" type="Survey">
+    <Settings>
+      <StartDate>2023-01-01</StartDate>
+      <EndDate>2023-01-10</EndDate>
+    </Settings>
+    <ADCP name="ADCP1" type="ADCP">
+      <Settings>
+        <Frequency>600</Frequency>
+      </Settings>
+    </ADCP>
+    <OBS name="OBS1" type="OBS"/>
+  </Survey>
+
+  <Survey name="Survey2" type="Survey">
+    <WaterSample name="WaterSample" type="WaterSample"/>
+  </Survey>
+
+  <Model name="Model1" type="Model">
+    <Settings>
+      <Grid>grid1.dfsu</Grid>
+    </Settings>
+  </Model>
 </Project>
