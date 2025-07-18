@@ -7,6 +7,32 @@ namespace CSEMMPGUI_v1
     public partial class frmMain : Form
     {
         TreeNode currentNode;
+        private XmlDocument project;
+
+        // Helper Functions
+        private void AddChildNodes(XmlNode xmlNode, TreeNode treeNode)
+        {
+            foreach (XmlNode child in xmlNode.ChildNodes)
+            {
+                // Skip non-elements and <Settings>
+                if (child.NodeType != XmlNodeType.Element || child.Name == "Settings")
+                    continue;
+
+                XmlAttribute typeAttr = child.Attributes?["type"];
+                if (typeAttr != null)
+                {
+                    string displayName = child.Attributes?["name"]?.Value ?? child.Name;
+                    TreeNode childNode = new TreeNode(displayName);
+                    childNode.Tag = child;
+                    treeNode.Nodes.Add(childNode);
+                    AddChildNodes(child, childNode);
+                }
+            }
+        }
+
+        
+
+
         public frmMain()
         {
             InitializeComponent();
@@ -23,14 +49,18 @@ namespace CSEMMPGUI_v1
                 try
                 {
                     // Load the project file
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(fileName);
+                    project.Load(fileName);
                     treeProject.Nodes.Clear();
-                    XmlNode root = doc.DocumentElement;
-                    TreeNode rootNode = new TreeNode(root.Name);
-                    treeProject.Nodes.Add(rootNode);
-                    AddChildNodes(root, rootNode);
-                    treeProject.ExpandAll();
+                    XmlNode root = project.DocumentElement;
+                    if (root.Attributes?["type"] != null)
+                    {
+                        TreeNode rootNode = new TreeNode(root.Attributes["name"]?.Value ?? root.Name);
+                        rootNode.Tag = root;
+                        treeProject.Nodes.Add(rootNode);
+                        AddChildNodes(root, rootNode);
+                        treeProject.ExpandAll();
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +71,7 @@ namespace CSEMMPGUI_v1
 
         private void menuProperties_Click(object sender, EventArgs e)
         {
-            PropertiesPage propertiesPage = new PropertiesPage();
+            PropertiesPage propertiesPage = new PropertiesPage(project);
             var result = propertiesPage.ShowDialog();
             string projectDir = propertiesPage.projectDir;
             string projectName = propertiesPage.projectName;
@@ -60,23 +90,9 @@ namespace CSEMMPGUI_v1
         }
 
 
-        // Helper Functions
-        private void AddChildNodes(XmlNode xmlNode, TreeNode treeNode)
-        {
-            foreach (XmlNode child in xmlNode.ChildNodes)
-            {
-                if (child.NodeType == XmlNodeType.Element)
-                {
-                    TreeNode childNode = new TreeNode(child.Name);
-                    treeNode.Nodes.Add(childNode);
-                    AddChildNodes(child, childNode);
-                }
-            }
-        }
-
         private void menuAddModel_Click(object sender, EventArgs e)
         {
-            AddModel addModel = new AddModel();
+            AddModel addModel = new AddModel(project);
             var result = addModel.ShowDialog();
 
         }
@@ -93,12 +109,31 @@ namespace CSEMMPGUI_v1
 
         private void itemOpen_Click(object sender, EventArgs e)
         {
-            if (currentNode != null)
+            if (currentNode?.Tag is XmlNode xml)
             {
-                // Open the selected node
-                string nodeName = currentNode.Text;
-                MessageBox.Show("Opening: " + nodeName);
-                // Here you would add code to open the specific item, e.g., a model or a file.
+                string type = xml.Attributes["type"]?.Value;
+                string name = xml.Attributes["name"]?.Value ?? xml.Name;
+
+                // Use switch for type-specific windows
+                switch (type)
+                {
+                    case "Project":
+                        PropertiesPage propertiesPage = new PropertiesPage(project);
+                        propertiesPage.ShowDialog();
+                        break;
+                    case "Survey":
+                        // OpenSurveyWindow(xml);
+                        MessageBox.Show("Opening Survey Window for: " + name);
+                        break;
+                    case "ADCP":
+                        // OpenAdcpWindow(xml);
+                        MessageBox.Show("Opening ADCP Window for: " + name);
+                        break;
+                    case "Model":
+                        // OpenModelWindow(xml);
+                        MessageBox.Show("Opening Model Window for: " + name);
+                        break;
+                }
             }
         }
 
@@ -111,6 +146,12 @@ namespace CSEMMPGUI_v1
                 MessageBox.Show("Deleting: " + nodeName);
                 // Here you would add code to open the specific item, e.g., a model or a file.
             }
+        }
+
+        private void treeProject_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            currentNode = e.Node;
+            
         }
     }
 }

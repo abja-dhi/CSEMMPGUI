@@ -12,14 +12,17 @@ using DHI.Generic.MikeZero.DFS;
 using DHI.Generic.MikeZero.DFS.dfsu;
 using DHI.Generic.MikeZero.DFS.dfs123;
 using DHI.Generic.MikeZero.DFS.mesh;
+using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
     public partial class AddModel : Form
     {
-        public AddModel()
+        private XmlDocument project;
+        public AddModel(XmlDocument node)
         {
             InitializeComponent();
+            project = node;
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -78,6 +81,9 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        
+        private void menuSave_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

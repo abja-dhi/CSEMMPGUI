@@ -65,7 +65,7 @@
             // 
             aDCPToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { vesselMountedToolStripMenuItem, seabedLanderToolStripMenuItem });
             aDCPToolStripMenuItem.Name = "aDCPToolStripMenuItem";
-            aDCPToolStripMenuItem.Size = new Size(180, 22);
+            aDCPToolStripMenuItem.Size = new Size(147, 22);
             aDCPToolStripMenuItem.Text = "ADCP";
             // 
             // vesselMountedToolStripMenuItem
@@ -84,13 +84,13 @@
             // oBSToolStripMenuItem
             // 
             oBSToolStripMenuItem.Name = "oBSToolStripMenuItem";
-            oBSToolStripMenuItem.Size = new Size(180, 22);
+            oBSToolStripMenuItem.Size = new Size(147, 22);
             oBSToolStripMenuItem.Text = "OBS";
             // 
             // waterSampleToolStripMenuItem
             // 
             waterSampleToolStripMenuItem.Name = "waterSampleToolStripMenuItem";
-            waterSampleToolStripMenuItem.Size = new Size(180, 22);
+            waterSampleToolStripMenuItem.Size = new Size(147, 22);
             waterSampleToolStripMenuItem.Text = "Water Sample";
             // 
             // AddSurvey

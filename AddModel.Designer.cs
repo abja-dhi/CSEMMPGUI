@@ -63,6 +63,7 @@
             menuSave.Name = "menuSave";
             menuSave.Size = new Size(43, 20);
             menuSave.Text = "Save";
+            menuSave.Click += menuSave_Click;
             // 
             // btnLoad
             // 

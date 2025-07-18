@@ -160,6 +160,7 @@
             treeProject.Size = new Size(200, 437);
             treeProject.TabIndex = 1;
             treeProject.NodeMouseClick += treeProject_NodeMouseClick;
+            treeProject.NodeMouseDoubleClick += treeProject_NodeMouseDoubleClick;
             // 
             // cmenuNode
             // 

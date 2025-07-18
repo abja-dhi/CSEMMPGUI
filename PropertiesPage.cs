@@ -7,14 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
     public partial class PropertiesPage : Form
     {
-        public PropertiesPage()
+        private XmlDocument project;
+        public PropertiesPage(XmlDocument node)
         {
             InitializeComponent();
+            project = node;
         }
         public string projectDir => txtProjectDir.Text;
         public string projectName => txtProjectName.Text;
