@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\CSEMMPGUI_v1\\CSEMMPGUI_v1.csproj": {}
+    "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\CSEMMPGUI_v1\\CSEMMPGUI_v1.csproj": {
+    "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\CSEMMPGUI_v1\\CSEMMPGUI_v1.csproj",
+        "projectUniqueName": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
         "projectName": "CSEMMPGUI_v1",
-        "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\CSEMMPGUI_v1\\CSEMMPGUI_v1.csproj",
+        "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
         "packagesPath": "C:\\Users\\abja\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\CSEMMPGUI_v1\\obj\\",
+        "outputPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\abja\\AppData\\Roaming\\NuGet\\NuGet.Config",

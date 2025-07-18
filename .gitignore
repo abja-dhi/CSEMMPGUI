@@ -1,0 +1,8 @@
+# DFSU files
+*.dfsu
+# pd0 files
+*.pd0
+*.000
+# zip files
+*.zip
+.vs/

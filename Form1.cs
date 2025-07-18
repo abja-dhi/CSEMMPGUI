@@ -6,7 +6,7 @@ namespace CSEMMPGUI_v1
 {
     public partial class frmMain : Form
     {
-
+        TreeNode currentNode;
         public frmMain()
         {
             InitializeComponent();
@@ -79,6 +79,38 @@ namespace CSEMMPGUI_v1
             AddModel addModel = new AddModel();
             var result = addModel.ShowDialog();
 
+        }
+
+        private void treeProject_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                treeProject.SelectedNode = e.Node;
+                currentNode = e.Node;
+                cmenuNode.Show(treeProject, e.Location);
+            }
+        }
+
+        private void itemOpen_Click(object sender, EventArgs e)
+        {
+            if (currentNode != null)
+            {
+                // Open the selected node
+                string nodeName = currentNode.Text;
+                MessageBox.Show("Opening: " + nodeName);
+                // Here you would add code to open the specific item, e.g., a model or a file.
+            }
+        }
+
+        private void itemDelete_Click(object sender, EventArgs e)
+        {
+            if (currentNode != null)
+            {
+                // Open the selected node
+                string nodeName = currentNode.Text;
+                MessageBox.Show("Deleting: " + nodeName);
+                // Here you would add code to open the specific item, e.g., a model or a file.
+            }
         }
     }
 }

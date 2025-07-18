@@ -45,11 +45,11 @@
             menuExamples = new ToolStripMenuItem();
             menuDocumentation = new ToolStripMenuItem();
             treeProject = new TreeView();
-            contextMenuStrip1 = new ContextMenuStrip(components);
+            cmenuNode = new ContextMenuStrip(components);
             itemOpen = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
-            contextMenuStrip1.SuspendLayout();
+            cmenuNode.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -116,13 +116,13 @@
             // menuAddSurvey
             // 
             menuAddSurvey.Name = "menuAddSurvey";
-            menuAddSurvey.Size = new Size(180, 22);
+            menuAddSurvey.Size = new Size(134, 22);
             menuAddSurvey.Text = "Add Survey";
             // 
             // menuAddModel
             // 
             menuAddModel.Name = "menuAddModel";
-            menuAddModel.Size = new Size(180, 22);
+            menuAddModel.Size = new Size(134, 22);
             menuAddModel.Text = "Add Model";
             menuAddModel.Click += menuAddModel_Click;
             // 
@@ -153,29 +153,33 @@
             // 
             // treeProject
             // 
+            treeProject.ContextMenuStrip = cmenuNode;
             treeProject.Dock = DockStyle.Left;
             treeProject.Location = new Point(0, 24);
             treeProject.Name = "treeProject";
             treeProject.Size = new Size(200, 437);
             treeProject.TabIndex = 1;
+            treeProject.NodeMouseClick += treeProject_NodeMouseClick;
             // 
-            // contextMenuStrip1
+            // cmenuNode
             // 
-            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { itemOpen, itemDelete });
-            contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 70);
+            cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemDelete });
+            cmenuNode.Name = "contextMenuStrip1";
+            cmenuNode.Size = new Size(108, 48);
             // 
             // itemOpen
             // 
             itemOpen.Name = "itemOpen";
-            itemOpen.Size = new Size(180, 22);
+            itemOpen.Size = new Size(107, 22);
             itemOpen.Text = "Open";
+            itemOpen.Click += itemOpen_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
-            itemDelete.Size = new Size(180, 22);
+            itemDelete.Size = new Size(107, 22);
             itemDelete.Text = "Delete";
+            itemDelete.Click += itemDelete_Click;
             // 
             // frmMain
             // 
@@ -189,7 +193,7 @@
             Text = "MT Validation Tool";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
-            contextMenuStrip1.ResumeLayout(false);
+            cmenuNode.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -212,7 +216,7 @@
         private ToolStripMenuItem menuAddSurvey;
         private ToolStripMenuItem menuAddModel;
         private TreeView treeProject;
-        private ContextMenuStrip contextMenuStrip1;
+        private ContextMenuStrip cmenuNode;
         private ToolStripMenuItem itemOpen;
         private ToolStripMenuItem itemDelete;
     }
