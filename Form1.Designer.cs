@@ -41,6 +41,7 @@
             menuAddSurvey = new ToolStripMenuItem();
             menuAddModel = new ToolStripMenuItem();
             menuUtilities = new ToolStripMenuItem();
+            processPositionFileToolStripMenuItem = new ToolStripMenuItem();
             menuHelp = new ToolStripMenuItem();
             menuExamples = new ToolStripMenuItem();
             menuDocumentation = new ToolStripMenuItem();
@@ -48,6 +49,7 @@
             cmenuNode = new ContextMenuStrip(components);
             itemOpen = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
+            colorDialog1 = new ColorDialog();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
             SuspendLayout();
@@ -78,7 +80,7 @@
             // 
             menuLoad.Name = "menuLoad";
             menuLoad.Size = new Size(127, 22);
-            menuLoad.Text = "Load...";
+            menuLoad.Text = "Open...";
             menuLoad.Click += menuLoad_Click;
             // 
             // menuSave
@@ -128,9 +130,16 @@
             // 
             // menuUtilities
             // 
+            menuUtilities.DropDownItems.AddRange(new ToolStripItem[] { processPositionFileToolStripMenuItem });
             menuUtilities.Name = "menuUtilities";
             menuUtilities.Size = new Size(58, 20);
             menuUtilities.Text = "Utilities";
+            // 
+            // processPositionFileToolStripMenuItem
+            // 
+            processPositionFileToolStripMenuItem.Name = "processPositionFileToolStripMenuItem";
+            processPositionFileToolStripMenuItem.Size = new Size(181, 22);
+            processPositionFileToolStripMenuItem.Text = "Process Position File";
             // 
             // menuHelp
             // 
@@ -220,5 +229,7 @@
         private ContextMenuStrip cmenuNode;
         private ToolStripMenuItem itemOpen;
         private ToolStripMenuItem itemDelete;
+        private ToolStripMenuItem processPositionFileToolStripMenuItem;
+        private ColorDialog colorDialog1;
     }
 }

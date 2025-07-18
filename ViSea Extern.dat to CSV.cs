@@ -7,22 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
-    public partial class VesselMountedADCP : Form
+    public partial class ViSea_Extern : Form
     {
-        private XmlDocument project;
-        public VesselMountedADCP(XmlDocument node)
+        public ViSea_Extern()
         {
             InitializeComponent();
-            project = node;
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

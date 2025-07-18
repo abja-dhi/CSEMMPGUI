@@ -229,3 +229,8 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.pdb
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.genruntimeconfig.cache
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\ref\CSEMMPGUI_v1.dll
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.ADCP_Configuration.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.OBSVerticalProfile.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.SeabedLanderADCP.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.ViSea_Extern.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.WaterSample.resources

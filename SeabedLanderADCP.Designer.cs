@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class VesselMountedADCP
+    partial class SeabedLanderADCP
     {
         /// <summary>
         /// Required designer variable.
@@ -59,12 +59,6 @@
             tablePosition = new TableLayoutPanel();
             label5 = new Label();
             label4 = new Label();
-            comboBox2 = new ComboBox();
-            label3 = new Label();
-            comboBox1 = new ComboBox();
-            label20 = new Label();
-            comboBox4 = new ComboBox();
-            comboBox3 = new ComboBox();
             button3 = new Button();
             tableInputs = new TableLayoutPanel();
             tableMain = new TableLayoutPanel();
@@ -75,6 +69,12 @@
             label18 = new Label();
             textBox4 = new TextBox();
             txtEchoMax = new TextBox();
+            textBox5 = new TextBox();
+            textBox6 = new TextBox();
+            label3 = new Label();
+            textBox7 = new TextBox();
+            label20 = new Label();
+            textBox8 = new TextBox();
             menuStrip1.SuspendLayout();
             tableConfig.SuspendLayout();
             tableCRPOffsets.SuspendLayout();
@@ -126,7 +126,6 @@
             label1.TabIndex = 1;
             label1.Text = ".000 File";
             label1.TextAlign = ContentAlignment.MiddleCenter;
-            label1.Click += label1_Click;
             // 
             // label2
             // 
@@ -381,14 +380,14 @@
             tablePosition.ColumnCount = 2;
             tablePosition.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tablePosition.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tablePosition.Controls.Add(label5, 0, 2);
-            tablePosition.Controls.Add(label4, 0, 1);
-            tablePosition.Controls.Add(comboBox2, 1, 1);
-            tablePosition.Controls.Add(label3, 0, 0);
-            tablePosition.Controls.Add(comboBox1, 1, 0);
+            tablePosition.Controls.Add(textBox8, 0, 3);
             tablePosition.Controls.Add(label20, 0, 3);
-            tablePosition.Controls.Add(comboBox4, 1, 3);
-            tablePosition.Controls.Add(comboBox3, 1, 2);
+            tablePosition.Controls.Add(textBox7, 1, 2);
+            tablePosition.Controls.Add(label3, 0, 2);
+            tablePosition.Controls.Add(textBox6, 1, 1);
+            tablePosition.Controls.Add(label4, 0, 0);
+            tablePosition.Controls.Add(label5, 0, 1);
+            tablePosition.Controls.Add(textBox5, 1, 0);
             tablePosition.Dock = DockStyle.Fill;
             tablePosition.Location = new Point(4, 83);
             tablePosition.Name = "tablePosition";
@@ -404,7 +403,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(3, 252);
+            label5.Location = new Point(3, 126);
             label5.Name = "label5";
             label5.Size = new Size(14, 15);
             label5.TabIndex = 4;
@@ -413,61 +412,11 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(3, 126);
+            label4.Location = new Point(3, 0);
             label4.Name = "label4";
             label4.Size = new Size(14, 15);
             label4.TabIndex = 2;
             label4.Text = "X";
-            // 
-            // comboBox2
-            // 
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Location = new Point(218, 129);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(121, 23);
-            comboBox2.TabIndex = 3;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(3, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(57, 15);
-            label3.TabIndex = 0;
-            label3.Text = "DateTime";
-            // 
-            // comboBox1
-            // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(218, 3);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(121, 23);
-            comboBox1.TabIndex = 1;
-            // 
-            // label20
-            // 
-            label20.AutoSize = true;
-            label20.Location = new Point(3, 378);
-            label20.Name = "label20";
-            label20.Size = new Size(52, 15);
-            label20.TabIndex = 6;
-            label20.Text = "Heading";
-            // 
-            // comboBox4
-            // 
-            comboBox4.FormattingEnabled = true;
-            comboBox4.Location = new Point(218, 381);
-            comboBox4.Name = "comboBox4";
-            comboBox4.Size = new Size(121, 23);
-            comboBox4.TabIndex = 7;
-            // 
-            // comboBox3
-            // 
-            comboBox3.FormattingEnabled = true;
-            comboBox3.Location = new Point(218, 255);
-            comboBox3.Name = "comboBox3";
-            comboBox3.Size = new Size(121, 23);
-            comboBox3.TabIndex = 5;
             // 
             // button3
             // 
@@ -605,7 +554,53 @@
             txtEchoMax.Size = new Size(89, 23);
             txtEchoMax.TabIndex = 4;
             // 
-            // VesselMountedADCP
+            // textBox5
+            // 
+            textBox5.Location = new Point(218, 3);
+            textBox5.Name = "textBox5";
+            textBox5.Size = new Size(100, 23);
+            textBox5.TabIndex = 5;
+            // 
+            // textBox6
+            // 
+            textBox6.Location = new Point(218, 129);
+            textBox6.Name = "textBox6";
+            textBox6.Size = new Size(100, 23);
+            textBox6.TabIndex = 6;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(3, 252);
+            label3.Name = "label3";
+            label3.Size = new Size(39, 15);
+            label3.TabIndex = 7;
+            label3.Text = "Depth";
+            // 
+            // textBox7
+            // 
+            textBox7.Location = new Point(218, 255);
+            textBox7.Name = "textBox7";
+            textBox7.Size = new Size(100, 23);
+            textBox7.TabIndex = 8;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(218, 378);
+            label20.Name = "label20";
+            label20.Size = new Size(52, 15);
+            label20.TabIndex = 9;
+            label20.Text = "Heading";
+            // 
+            // textBox8
+            // 
+            textBox8.Location = new Point(3, 381);
+            textBox8.Name = "textBox8";
+            textBox8.Size = new Size(100, 23);
+            textBox8.TabIndex = 10;
+            // 
+            // SeabedLanderADCP
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -614,8 +609,8 @@
             Controls.Add(button3);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
-            Name = "VesselMountedADCP";
-            Text = "VesselMountedADCP";
+            Name = "SeabedLanderADCP";
+            Text = "Seabed Lander ADCP";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableConfig.ResumeLayout(false);
@@ -653,9 +648,6 @@
         private TableLayoutPanel tableConfig;
         private TableLayoutPanel tablePosition;
         private Label label4;
-        private ComboBox comboBox2;
-        private Label label3;
-        private ComboBox comboBox1;
         private Label label14;
         private Label label13;
         private Label label10;
@@ -664,7 +656,6 @@
         private TableLayoutPanel tableCRPOffsets;
         private Label label7;
         private Label label5;
-        private ComboBox comboBox3;
         private Label label15;
         private Label label11;
         private TextBox textBox3;
@@ -685,7 +676,11 @@
         private Label label18;
         private TextBox textBox4;
         private TextBox txtEchoMax;
+        private TextBox textBox8;
         private Label label20;
-        private ComboBox comboBox4;
+        private TextBox textBox7;
+        private Label label3;
+        private TextBox textBox6;
+        private TextBox textBox5;
     }
 }
