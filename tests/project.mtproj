@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <UserInfo>
+    <Name>John Doe</Name>
+    <Email>john@example.com</Email>
+  </UserInfo>
+  <Settings>
+    <Display>
+      <Theme>Dark</Theme>
+      <FontSize>12</FontSize>
+    </Display>
+    <Notifications enabled="true">
+      <Email>true</Email>
+      <SMS>false</SMS>
+    </Notifications>
+  </Settings>
+  <Data>
+    <Entry id="1">
+      <Title>Sample Entry 1</Title>
+      <Value>42</Value>
+    </Entry>
+    <Entry id="2">
+      <Title>Sample Entry 2</Title>
+      <Value>99</Value>
+    </Entry>
+  </Data>
+</Project>

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BruTile" Version="5.0.6" />
+    <PackageReference Include="DHI.MikeCore" Version="23.0.3" />
+    <PackageReference Include="DotSpatial.Analysis" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.Compatibility" Version="3.0.1" />
+    <PackageReference Include="DotSpatial.Controls" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.Data" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.GeoAPI" Version="1.7.4.3" />
+    <PackageReference Include="DotSpatial.Modeling.Forms" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.Symbology" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.Symbology.Forms" Version="4.0.656" />
+    <PackageReference Include="DotSpatial.Topology" Version="1.9.0" />
+    <PackageReference Include="GMap.NET.WinForms" Version="2.1.7" />
+    <PackageReference Include="MatplotlibCS" Version="1.0.63" />
+  </ItemGroup>
+
+</Project>
