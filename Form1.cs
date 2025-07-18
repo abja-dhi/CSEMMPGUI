@@ -7,7 +7,7 @@ namespace CSEMMPGUI_v1
     public partial class frmMain : Form
     {
         TreeNode currentNode;
-        private XmlDocument project;
+        XmlDocument project;
 
         // Helper Functions
         private void AddChildNodes(XmlNode xmlNode, TreeNode treeNode)
@@ -36,6 +36,7 @@ namespace CSEMMPGUI_v1
         public frmMain()
         {
             InitializeComponent();
+            
         }
 
 

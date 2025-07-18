@@ -35,6 +35,8 @@
             txtProjectDir = new TextBox();
             txtProjectName = new TextBox();
             button1 = new Button();
+            textBox1 = new TextBox();
+            label4 = new Label();
             SuspendLayout();
             // 
             // txtProjectEPSG
@@ -94,11 +96,30 @@
             button1.Text = "...";
             button1.UseVisualStyleBackColor = true;
             // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(150, 122);
+            textBox1.Multiline = true;
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(297, 210);
+            textBox1.TabIndex = 8;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(33, 125);
+            label4.Name = "label4";
+            label4.Size = new Size(107, 15);
+            label4.TabIndex = 7;
+            label4.Text = "Project Description";
+            // 
             // PropertiesPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(textBox1);
+            Controls.Add(label4);
             Controls.Add(button1);
             Controls.Add(txtProjectName);
             Controls.Add(txtProjectDir);
@@ -123,5 +144,7 @@
         private TextBox txtProjectDir;
         private TextBox txtProjectName;
         private Button button1;
+        private TextBox textBox1;
+        private Label label4;
     }
 }

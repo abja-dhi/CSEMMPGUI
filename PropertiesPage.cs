@@ -29,7 +29,7 @@ namespace CSEMMPGUI_v1
 
         private void PropertiesPage_FormClosed(object sender, FormClosedEventArgs e)
         {
-
+            
         }
     }
 }
