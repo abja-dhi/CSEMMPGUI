@@ -31,6 +31,7 @@
     <Compile Include="plotting.py" />
     <Compile Include="project.py" />
     <Compile Include="survey.py" />
+    <Compile Include="tasks.py" />
     <Compile Include="utils.py" />
     <Compile Include="utils_dfsu.py" />
     <Compile Include="_adcp_position.py" />

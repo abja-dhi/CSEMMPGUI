@@ -17,4 +17,3 @@ def LoadPd0(filepath):
     return {"NBeams": n_beams, "NEnsembles": n_ensembles}
 
 
-def 
