@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project type="Project">
+  <Settings>
+    <Directory>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests</Directory>
+    <Name>Abbas2</Name>
+    <EPSG>326114</EPSG>
+    <Description>Test</Description>
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Test.mtproj</Path>
+  </Settings>
+  <Model type="Model" name="Test5">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_2Mt.dfsu</Path>
+  </Model>
+  <Model type="Model" name="Test6">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
+  </Model>
+  <Survey type="Survey" name="Survey 1">
+    <WaterSample type="Water Sample" name="Water Sample 1">
+      <Sample id="0" DateTime="2024-Dec-22 11:23:34" Depth="133" X="13" Y="2343" SSC="0.13423" Notes="Nothing to mention" />
+      <Sample id="1" DateTime="2022-12-12 15:23:54" Depth="123" X="12" Y="123" SSC="0.34" />
+    </WaterSample>
+  </Survey>
+  <Survey type="Survey" name="Survey 2">
+    <WaterSample type="Water Sample" name="Water Sample 1">
+      <Sample id="0" DateTime="Dec 12, 2023 11:23:43" X="234" />
+    </WaterSample>
+  </Survey>
+  <Survey type="Survey" name="Survey 3">
+    <WaterSample type="Water Sample" name="Water Sample 1">
+      <Sample id="0" DateTime="2023-Dec-12 11:23:34" />
+      <Sample id="1" DateTime="Dec 23, 2015" />
+      <Sample id="2" DateTime="Dec 28," />
+    </WaterSample>
+  </Survey>
+  <Survey type="Survey" name="Survey 4">
+    <WaterSample type="Water Sample" name="Water Sample 1">
+      <Sample id="0" DateTime="Dec 20, 2023" />
+    </WaterSample>
+  </Survey>
+</Project>

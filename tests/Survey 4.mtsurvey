@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Survey type="Survey" name="Survey 4">
+  <WaterSample type="Water Sample" name="Water Sample 1">
+    <Sample id="0" DateTime="Dec 20, 2023" />
+  </WaterSample>
+</Survey>

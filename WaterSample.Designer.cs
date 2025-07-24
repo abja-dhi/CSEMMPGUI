@@ -28,170 +28,221 @@
         /// </summary>
         private void InitializeComponent()
         {
-            menuStrip1 = new MenuStrip();
-            fileToolStripMenuItem = new ToolStripMenuItem();
-            openToolStripMenuItem = new ToolStripMenuItem();
-            saveToolStripMenuItem = new ToolStripMenuItem();
-            tableLayoutPanel1 = new TableLayoutPanel();
-            label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            label4 = new Label();
-            label5 = new Label();
-            label6 = new Label();
-            label7 = new Label();
-            menuStrip1.SuspendLayout();
-            tableLayoutPanel1.SuspendLayout();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WaterSample));
+            menu = new MenuStrip();
+            menuFile = new ToolStripMenuItem();
+            menuNew = new ToolStripMenuItem();
+            menuOpen = new ToolStripMenuItem();
+            menuSave = new ToolStripMenuItem();
+            menuExit = new ToolStripMenuItem();
+            utilitiesToolStripMenuItem = new ToolStripMenuItem();
+            exportToCSVToolStripMenuItem = new ToolStripMenuItem();
+            gridData = new DataGridView();
+            colSampleName = new DataGridViewTextBoxColumn();
+            colDateTime = new DataGridViewTextBoxColumn();
+            colX = new DataGridViewTextBoxColumn();
+            colY = new DataGridViewTextBoxColumn();
+            colDepth = new DataGridViewTextBoxColumn();
+            colSSC = new DataGridViewTextBoxColumn();
+            colNotes = new DataGridViewTextBoxColumn();
+            tableMain = new TableLayoutPanel();
+            lblName = new Label();
+            txtName = new TextBox();
+            menu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)gridData).BeginInit();
+            tableMain.SuspendLayout();
             SuspendLayout();
             // 
-            // menuStrip1
+            // menu
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
-            menuStrip1.Location = new Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(800, 24);
-            menuStrip1.TabIndex = 0;
-            menuStrip1.Text = "menuStrip1";
+            menu.Items.AddRange(new ToolStripItem[] { menuFile, utilitiesToolStripMenuItem });
+            menu.Location = new Point(0, 0);
+            menu.Name = "menu";
+            menu.Size = new Size(800, 24);
+            menu.TabIndex = 0;
+            menu.Text = "menuStrip1";
             // 
-            // fileToolStripMenuItem
+            // menuFile
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, saveToolStripMenuItem });
-            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(37, 20);
-            fileToolStripMenuItem.Text = "File";
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuExit });
+            menuFile.Name = "menuFile";
+            menuFile.Size = new Size(37, 20);
+            menuFile.Text = "File";
             // 
-            // openToolStripMenuItem
+            // menuNew
             // 
-            openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(180, 22);
-            openToolStripMenuItem.Text = "Open...";
+            menuNew.Name = "menuNew";
+            menuNew.Size = new Size(112, 22);
+            menuNew.Text = "New...";
             // 
-            // saveToolStripMenuItem
+            // menuOpen
             // 
-            saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            saveToolStripMenuItem.Size = new Size(180, 22);
-            saveToolStripMenuItem.Text = "Save...";
+            menuOpen.Name = "menuOpen";
+            menuOpen.Size = new Size(112, 22);
+            menuOpen.Text = "Open...";
             // 
-            // tableLayoutPanel1
+            // menuSave
             // 
-            tableLayoutPanel1.ColumnCount = 7;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45.5882339F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54.4117661F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 156F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 95F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 83F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 92F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 169F));
-            tableLayoutPanel1.Controls.Add(label5, 4, 0);
-            tableLayoutPanel1.Controls.Add(label4, 3, 0);
-            tableLayoutPanel1.Controls.Add(label1, 0, 0);
-            tableLayoutPanel1.Controls.Add(label2, 1, 0);
-            tableLayoutPanel1.Controls.Add(label3, 2, 0);
-            tableLayoutPanel1.Controls.Add(label6, 5, 0);
-            tableLayoutPanel1.Controls.Add(label7, 6, 0);
-            tableLayoutPanel1.Dock = DockStyle.Fill;
-            tableLayoutPanel1.Location = new Point(0, 24);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 11.0328636F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 88.96713F));
-            tableLayoutPanel1.Size = new Size(800, 426);
-            tableLayoutPanel1.TabIndex = 1;
+            menuSave.Name = "menuSave";
+            menuSave.Size = new Size(112, 22);
+            menuSave.Text = "Save...";
+            menuSave.Click += menuSave_Click;
             // 
-            // label1
+            // menuExit
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(3, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(60, 15);
-            label1.TabIndex = 0;
-            label1.Text = "Sample ID";
+            menuExit.Name = "menuExit";
+            menuExit.Size = new Size(112, 22);
+            menuExit.Text = "Exit";
             // 
-            // label2
+            // utilitiesToolStripMenuItem
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(96, 0);
-            label2.Name = "label2";
-            label2.Size = new Size(84, 15);
-            label2.TabIndex = 1;
-            label2.Text = "Date Collected";
+            utilitiesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToCSVToolStripMenuItem });
+            utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
+            utilitiesToolStripMenuItem.Size = new Size(58, 20);
+            utilitiesToolStripMenuItem.Text = "Utilities";
             // 
-            // label3
+            // exportToCSVToolStripMenuItem
             // 
-            label3.AutoSize = true;
-            label3.Location = new Point(207, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(14, 15);
-            label3.TabIndex = 2;
-            label3.Text = "X";
+            exportToCSVToolStripMenuItem.Name = "exportToCSVToolStripMenuItem";
+            exportToCSVToolStripMenuItem.Size = new Size(146, 22);
+            exportToCSVToolStripMenuItem.Text = "Export to CSV";
             // 
-            // label4
+            // gridData
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(363, 0);
-            label4.Name = "label4";
-            label4.Size = new Size(14, 15);
-            label4.TabIndex = 3;
-            label4.Text = "Y";
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            gridData.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            gridData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            gridData.Columns.AddRange(new DataGridViewColumn[] { colSampleName, colDateTime, colX, colY, colDepth, colSSC, colNotes });
+            tableMain.SetColumnSpan(gridData, 2);
+            gridData.Dock = DockStyle.Fill;
+            gridData.Location = new Point(3, 28);
+            gridData.Name = "gridData";
+            gridData.Size = new Size(794, 395);
+            gridData.TabIndex = 2;
+            gridData.CellEndEdit += gridData_CellEndEdit;
+            gridData.CellValidating += gridData_CellValidating;
+            gridData.EditingControlShowing += gridData_EditingControlShowing;
             // 
-            // label5
+            // colSampleName
             // 
-            label5.AutoSize = true;
-            label5.Location = new Point(458, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(39, 15);
-            label5.TabIndex = 4;
-            label5.Text = "Depth";
+            colSampleName.HeaderText = "Sample Name";
+            colSampleName.Name = "colSampleName";
+            colSampleName.Width = 150;
             // 
-            // label6
+            // colDateTime
             // 
-            label6.AutoSize = true;
-            label6.Location = new Point(541, 0);
-            label6.Name = "label6";
-            label6.Size = new Size(56, 15);
-            label6.TabIndex = 5;
-            label6.Text = "SSC (g/L)";
+            colDateTime.HeaderText = "DateTime";
+            colDateTime.Name = "colDateTime";
+            colDateTime.Width = 150;
             // 
-            // label7
+            // colX
             // 
-            label7.AutoSize = true;
-            label7.Location = new Point(633, 0);
-            label7.Name = "label7";
-            label7.Size = new Size(38, 15);
-            label7.TabIndex = 6;
-            label7.Text = "Notes";
+            colX.HeaderText = "X";
+            colX.Name = "colX";
+            colX.Width = 70;
+            // 
+            // colY
+            // 
+            colY.HeaderText = "Y";
+            colY.Name = "colY";
+            colY.Width = 70;
+            // 
+            // colDepth
+            // 
+            colDepth.HeaderText = "Depth";
+            colDepth.Name = "colDepth";
+            colDepth.Width = 70;
+            // 
+            // colSSC
+            // 
+            colSSC.HeaderText = "SSC (mg/L)";
+            colSSC.Name = "colSSC";
+            colSSC.Width = 70;
+            // 
+            // colNotes
+            // 
+            colNotes.HeaderText = "Notes";
+            colNotes.Name = "colNotes";
+            colNotes.Width = 300;
+            // 
+            // tableMain
+            // 
+            tableMain.ColumnCount = 2;
+            tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 80F));
+            tableMain.Controls.Add(gridData, 0, 1);
+            tableMain.Controls.Add(lblName, 0, 0);
+            tableMain.Controls.Add(txtName, 1, 0);
+            tableMain.Dock = DockStyle.Fill;
+            tableMain.Location = new Point(0, 24);
+            tableMain.Name = "tableMain";
+            tableMain.RowCount = 2;
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 94F));
+            tableMain.Size = new Size(800, 426);
+            tableMain.TabIndex = 3;
+            // 
+            // lblName
+            // 
+            lblName.AutoSize = true;
+            lblName.Dock = DockStyle.Fill;
+            lblName.Location = new Point(3, 0);
+            lblName.Name = "lblName";
+            lblName.Size = new Size(154, 25);
+            lblName.TabIndex = 3;
+            lblName.Text = "Water Sample Name";
+            lblName.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // txtName
+            // 
+            txtName.Dock = DockStyle.Fill;
+            txtName.Location = new Point(163, 3);
+            txtName.Name = "txtName";
+            txtName.Size = new Size(634, 23);
+            txtName.TabIndex = 4;
             // 
             // WaterSample
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(tableLayoutPanel1);
-            Controls.Add(menuStrip1);
-            MainMenuStrip = menuStrip1;
+            Controls.Add(tableMain);
+            Controls.Add(menu);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = menu;
             Name = "WaterSample";
             Text = "WaterSample";
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
+            FormClosing += WaterSample_FormClosing;
+            menu.ResumeLayout(false);
+            menu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)gridData).EndInit();
+            tableMain.ResumeLayout(false);
+            tableMain.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem openToolStripMenuItem;
-        private ToolStripMenuItem saveToolStripMenuItem;
-        private TableLayoutPanel tableLayoutPanel1;
-        private Label label5;
-        private Label label4;
-        private Label label1;
-        private Label label2;
-        private Label label3;
-        private Label label6;
-        private Label label7;
+        private MenuStrip menu;
+        private ToolStripMenuItem menuFile;
+        private ToolStripMenuItem menuOpen;
+        private ToolStripMenuItem menuSave;
+        private DataGridView gridData;
+        private ToolStripMenuItem menuNew;
+        private ToolStripMenuItem menuExit;
+        private DataGridViewTextBoxColumn colSampleName;
+        private DataGridViewTextBoxColumn colDateTime;
+        private DataGridViewTextBoxColumn colX;
+        private DataGridViewTextBoxColumn colY;
+        private DataGridViewTextBoxColumn colDepth;
+        private DataGridViewTextBoxColumn colSSC;
+        private DataGridViewTextBoxColumn colNotes;
+        private TableLayoutPanel tableMain;
+        private Label lblName;
+        private TextBox txtName;
+        private ToolStripMenuItem utilitiesToolStripMenuItem;
+        private ToolStripMenuItem exportToCSVToolStripMenuItem;
     }
 }

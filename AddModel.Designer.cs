@@ -28,216 +28,121 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddModel));
             menuStrip1 = new MenuStrip();
+            menuFile = new ToolStripMenuItem();
+            menuOpen = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             btnLoad = new Button();
-            lblFilePath = new Label();
+            lblFile = new Label();
             txtFilePath = new TextBox();
             tableLayoutPanel1 = new TableLayoutPanel();
-            tableFileInfo = new TableLayoutPanel();
-            lblStartingTime = new Label();
-            lblNumberOfNodes = new Label();
-            lblNumberOfElements = new Label();
-            lblGeometryType = new Label();
-            lbl5 = new Label();
-            lbl4 = new Label();
-            lbl3 = new Label();
-            lbl2 = new Label();
-            lbl1 = new Label();
+            lblModelName = new Label();
+            txtModelName = new TextBox();
             menuStrip1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
-            tableFileInfo.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { menuSave });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { menuFile });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(800, 24);
             menuStrip1.TabIndex = 0;
             menuStrip1.Text = "menuStrip1";
             // 
+            // menuFile
+            // 
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuOpen, menuSave });
+            menuFile.Name = "menuFile";
+            menuFile.Size = new Size(37, 20);
+            menuFile.Text = "File";
+            // 
+            // menuOpen
+            // 
+            menuOpen.Name = "menuOpen";
+            menuOpen.Size = new Size(180, 22);
+            menuOpen.Text = "Open...";
+            menuOpen.Click += menuOpen_Click;
+            // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(43, 20);
-            menuSave.Text = "Save";
+            menuSave.Size = new Size(180, 22);
+            menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // btnLoad
             // 
             btnLoad.Dock = DockStyle.Fill;
-            btnLoad.Location = new Point(706, 3);
+            btnLoad.Location = new Point(683, 37);
             btnLoad.Name = "btnLoad";
-            btnLoad.Size = new Size(91, 23);
+            btnLoad.Size = new Size(114, 28);
             btnLoad.TabIndex = 1;
             btnLoad.Text = "...";
             btnLoad.UseVisualStyleBackColor = true;
             btnLoad.Click += btnLoad_Click;
             // 
-            // lblFilePath
+            // lblFile
             // 
-            lblFilePath.AutoSize = true;
-            lblFilePath.Dock = DockStyle.Fill;
-            lblFilePath.Location = new Point(3, 0);
-            lblFilePath.Name = "lblFilePath";
-            lblFilePath.Size = new Size(66, 29);
-            lblFilePath.TabIndex = 2;
-            lblFilePath.Text = "File";
-            lblFilePath.TextAlign = ContentAlignment.MiddleCenter;
+            lblFile.AutoSize = true;
+            lblFile.Dock = DockStyle.Fill;
+            lblFile.Location = new Point(3, 34);
+            lblFile.Name = "lblFile";
+            lblFile.Size = new Size(114, 34);
+            lblFile.TabIndex = 2;
+            lblFile.Text = "File";
+            lblFile.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // txtFilePath
             // 
             txtFilePath.Dock = DockStyle.Fill;
-            txtFilePath.Location = new Point(75, 3);
+            txtFilePath.Location = new Point(123, 37);
             txtFilePath.Name = "txtFilePath";
-            txtFilePath.Size = new Size(625, 23);
+            txtFilePath.Size = new Size(554, 23);
             txtFilePath.TabIndex = 3;
-            txtFilePath.Leave += txtFilePath_Leave;
             // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.ColumnCount = 3;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10.2941179F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 89.70588F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 96F));
-            tableLayoutPanel1.Controls.Add(lblFilePath, 0, 0);
-            tableLayoutPanel1.Controls.Add(btnLoad, 2, 0);
-            tableLayoutPanel1.Controls.Add(txtFilePath, 1, 0);
-            tableLayoutPanel1.Controls.Add(tableFileInfo, 1, 1);
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableLayoutPanel1.Controls.Add(lblFile, 0, 1);
+            tableLayoutPanel1.Controls.Add(btnLoad, 2, 1);
+            tableLayoutPanel1.Controls.Add(txtFilePath, 1, 1);
+            tableLayoutPanel1.Controls.Add(lblModelName, 0, 0);
+            tableLayoutPanel1.Controls.Add(txtModelName, 1, 0);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 24);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 3;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 7.160494F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 92.83951F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 84F));
             tableLayoutPanel1.Size = new Size(800, 426);
             tableLayoutPanel1.TabIndex = 4;
             // 
-            // tableFileInfo
+            // lblModelName
             // 
-            tableFileInfo.ColumnCount = 2;
-            tableFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableFileInfo.Controls.Add(lblStartingTime, 1, 4);
-            tableFileInfo.Controls.Add(lblNumberOfNodes, 1, 3);
-            tableFileInfo.Controls.Add(lblNumberOfElements, 1, 2);
-            tableFileInfo.Controls.Add(lblGeometryType, 1, 1);
-            tableFileInfo.Controls.Add(lbl5, 0, 4);
-            tableFileInfo.Controls.Add(lbl4, 0, 3);
-            tableFileInfo.Controls.Add(lbl3, 0, 2);
-            tableFileInfo.Controls.Add(lbl2, 0, 1);
-            tableFileInfo.Controls.Add(lbl1, 0, 0);
-            tableFileInfo.Dock = DockStyle.Fill;
-            tableFileInfo.Location = new Point(75, 32);
-            tableFileInfo.Name = "tableFileInfo";
-            tableFileInfo.RowCount = 6;
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 65F));
-            tableFileInfo.Size = new Size(625, 370);
-            tableFileInfo.TabIndex = 4;
-            tableFileInfo.Visible = false;
+            lblModelName.AutoSize = true;
+            lblModelName.Dock = DockStyle.Fill;
+            lblModelName.Location = new Point(3, 0);
+            lblModelName.Name = "lblModelName";
+            lblModelName.Size = new Size(114, 34);
+            lblModelName.TabIndex = 5;
+            lblModelName.Text = "Model Name";
+            lblModelName.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // lblStartingTime
+            // txtModelName
             // 
-            lblStartingTime.AutoSize = true;
-            lblStartingTime.Dock = DockStyle.Fill;
-            lblStartingTime.Location = new Point(315, 100);
-            lblStartingTime.Name = "lblStartingTime";
-            lblStartingTime.Size = new Size(307, 25);
-            lblStartingTime.TabIndex = 15;
-            lblStartingTime.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblNumberOfNodes
-            // 
-            lblNumberOfNodes.AutoSize = true;
-            lblNumberOfNodes.Dock = DockStyle.Fill;
-            lblNumberOfNodes.Location = new Point(315, 75);
-            lblNumberOfNodes.Name = "lblNumberOfNodes";
-            lblNumberOfNodes.Size = new Size(307, 25);
-            lblNumberOfNodes.TabIndex = 14;
-            lblNumberOfNodes.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblNumberOfElements
-            // 
-            lblNumberOfElements.AutoSize = true;
-            lblNumberOfElements.Dock = DockStyle.Fill;
-            lblNumberOfElements.Location = new Point(315, 50);
-            lblNumberOfElements.Name = "lblNumberOfElements";
-            lblNumberOfElements.Size = new Size(307, 25);
-            lblNumberOfElements.TabIndex = 13;
-            lblNumberOfElements.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblGeometryType
-            // 
-            lblGeometryType.AutoSize = true;
-            lblGeometryType.Dock = DockStyle.Fill;
-            lblGeometryType.Location = new Point(315, 25);
-            lblGeometryType.Name = "lblGeometryType";
-            lblGeometryType.Size = new Size(307, 25);
-            lblGeometryType.TabIndex = 12;
-            lblGeometryType.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lbl5
-            // 
-            lbl5.AutoSize = true;
-            lbl5.Dock = DockStyle.Fill;
-            lbl5.Location = new Point(3, 100);
-            lbl5.Name = "lbl5";
-            lbl5.Size = new Size(306, 25);
-            lbl5.TabIndex = 10;
-            lbl5.Text = "Starting Time";
-            lbl5.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lbl4
-            // 
-            lbl4.AutoSize = true;
-            lbl4.Dock = DockStyle.Fill;
-            lbl4.Location = new Point(3, 75);
-            lbl4.Name = "lbl4";
-            lbl4.Size = new Size(306, 25);
-            lbl4.TabIndex = 8;
-            lbl4.Text = "Number of Nodes";
-            lbl4.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lbl3
-            // 
-            lbl3.AutoSize = true;
-            lbl3.Dock = DockStyle.Fill;
-            lbl3.Location = new Point(3, 50);
-            lbl3.Name = "lbl3";
-            lbl3.Size = new Size(306, 25);
-            lbl3.TabIndex = 4;
-            lbl3.Text = "Number of Elements";
-            lbl3.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lbl2
-            // 
-            lbl2.AutoSize = true;
-            lbl2.Dock = DockStyle.Fill;
-            lbl2.Location = new Point(3, 25);
-            lbl2.Name = "lbl2";
-            lbl2.Size = new Size(306, 25);
-            lbl2.TabIndex = 2;
-            lbl2.Text = "File Geometry Type";
-            lbl2.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lbl1
-            // 
-            lbl1.AutoSize = true;
-            lbl1.Dock = DockStyle.Fill;
-            lbl1.Location = new Point(3, 0);
-            lbl1.Name = "lbl1";
-            lbl1.Size = new Size(306, 25);
-            lbl1.TabIndex = 0;
-            lbl1.Text = "File Information";
-            lbl1.TextAlign = ContentAlignment.MiddleLeft;
+            tableLayoutPanel1.SetColumnSpan(txtModelName, 2);
+            txtModelName.Dock = DockStyle.Fill;
+            txtModelName.Location = new Point(123, 3);
+            txtModelName.Name = "txtModelName";
+            txtModelName.Size = new Size(674, 23);
+            txtModelName.TabIndex = 6;
             // 
             // AddModel
             // 
@@ -246,15 +151,15 @@
             ClientSize = new Size(800, 450);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "AddModel";
             Text = "AddModel";
+            FormClosing += AddModel_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
-            tableFileInfo.ResumeLayout(false);
-            tableFileInfo.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -262,24 +167,18 @@
         #endregion
 
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem menuSave;
+        private ToolStripMenuItem menuFile;
         private Button btnLoad;
-        private Label lblFilePath;
+        private Label lblFile;
         private TextBox txtFilePath;
         private TableLayoutPanel tableLayoutPanel1;
-        private TableLayoutPanel tableFileInfo;
         private Label label5;
         private Label label4;
         private Label label3;
-        private Label lblGeometryType;
         private Label label1;
-        private Label lblStartingTime;
-        private Label lblNumberOfNodes;
-        private Label lblNumberOfElements;
-        private Label lbl5;
-        private Label lbl4;
-        private Label lbl3;
-        private Label lbl2;
-        private Label lbl1;
+        private ToolStripMenuItem menuSave;
+        private Label lblModelName;
+        private TextBox txtModelName;
+        private ToolStripMenuItem menuOpen;
     }
 }

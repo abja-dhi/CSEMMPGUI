@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Survey type="Survey" name="Survey 1">
+  <WaterSample type="Water Sample" name="Water Sample 1">
+    <Sample id="0" DateTime="2024-Dec-22 11:23:34" Depth="133" X="13" Y="2343" SSC="0.13423" Notes="Nothing to mention" />
+    <Sample id="1" DateTime="2022-12-12 15:23:54" Depth="123" X="12" Y="123" SSC="0.34" />
+  </WaterSample>
+</Survey>

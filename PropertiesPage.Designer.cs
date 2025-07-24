@@ -29,108 +29,175 @@
         private void InitializeComponent()
         {
             txtProjectEPSG = new TextBox();
-            label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
+            lblProjectEPSG = new Label();
+            lblProjectDir = new Label();
+            lblProjectName = new Label();
             txtProjectDir = new TextBox();
             txtProjectName = new TextBox();
-            button1 = new Button();
-            textBox1 = new TextBox();
-            label4 = new Label();
+            btnProjectDir = new Button();
+            txtProjectDescription = new TextBox();
+            lblProjectDescription = new Label();
+            tableOrganizer = new TableLayoutPanel();
+            menuMain = new MenuStrip();
+            menuFile = new ToolStripMenuItem();
+            menuSave = new ToolStripMenuItem();
+            tableOrganizer.SuspendLayout();
+            menuMain.SuspendLayout();
             SuspendLayout();
             // 
             // txtProjectEPSG
             // 
-            txtProjectEPSG.Location = new Point(150, 84);
+            txtProjectEPSG.Dock = DockStyle.Fill;
+            txtProjectEPSG.Location = new Point(105, 59);
             txtProjectEPSG.Name = "txtProjectEPSG";
-            txtProjectEPSG.Size = new Size(297, 23);
-            txtProjectEPSG.TabIndex = 0;
+            txtProjectEPSG.Size = new Size(327, 23);
+            txtProjectEPSG.TabIndex = 3;
+            txtProjectEPSG.TextChanged += saveStatus;
             // 
-            // label1
+            // lblProjectEPSG
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(33, 87);
-            label1.Name = "label1";
-            label1.Size = new Size(34, 15);
-            label1.TabIndex = 1;
-            label1.Text = "EPSG";
+            lblProjectEPSG.AutoSize = true;
+            lblProjectEPSG.Dock = DockStyle.Fill;
+            lblProjectEPSG.Location = new Point(3, 56);
+            lblProjectEPSG.Name = "lblProjectEPSG";
+            lblProjectEPSG.Size = new Size(96, 28);
+            lblProjectEPSG.TabIndex = 1;
+            lblProjectEPSG.Text = "EPSG";
             // 
-            // label2
+            // lblProjectDir
             // 
-            label2.AutoSize = true;
-            label2.Location = new Point(33, 30);
-            label2.Name = "label2";
-            label2.Size = new Size(95, 15);
-            label2.TabIndex = 2;
-            label2.Text = "Project Directory";
+            lblProjectDir.AutoSize = true;
+            lblProjectDir.Dock = DockStyle.Fill;
+            lblProjectDir.Location = new Point(3, 28);
+            lblProjectDir.Name = "lblProjectDir";
+            lblProjectDir.Size = new Size(96, 28);
+            lblProjectDir.TabIndex = 2;
+            lblProjectDir.Text = "Project Directory";
             // 
-            // label3
+            // lblProjectName
             // 
-            label3.AutoSize = true;
-            label3.Location = new Point(33, 57);
-            label3.Name = "label3";
-            label3.Size = new Size(79, 15);
-            label3.TabIndex = 3;
-            label3.Text = "Project Name";
+            lblProjectName.AutoSize = true;
+            lblProjectName.Dock = DockStyle.Fill;
+            lblProjectName.Location = new Point(3, 0);
+            lblProjectName.Name = "lblProjectName";
+            lblProjectName.Size = new Size(96, 28);
+            lblProjectName.TabIndex = 3;
+            lblProjectName.Text = "Project Name";
             // 
             // txtProjectDir
             // 
-            txtProjectDir.Location = new Point(150, 31);
+            txtProjectDir.Dock = DockStyle.Fill;
+            txtProjectDir.Location = new Point(105, 31);
             txtProjectDir.Name = "txtProjectDir";
-            txtProjectDir.Size = new Size(297, 23);
-            txtProjectDir.TabIndex = 4;
+            txtProjectDir.Size = new Size(327, 23);
+            txtProjectDir.TabIndex = 1;
+            txtProjectDir.TextChanged += saveStatus;
             // 
             // txtProjectName
             // 
-            txtProjectName.Location = new Point(150, 57);
+            txtProjectName.Dock = DockStyle.Fill;
+            txtProjectName.Location = new Point(105, 3);
             txtProjectName.Name = "txtProjectName";
-            txtProjectName.Size = new Size(297, 23);
-            txtProjectName.TabIndex = 5;
+            txtProjectName.Size = new Size(327, 23);
+            txtProjectName.TabIndex = 0;
+            txtProjectName.TextChanged += saveStatus;
             // 
-            // button1
+            // btnProjectDir
             // 
-            button1.Location = new Point(453, 31);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 6;
-            button1.Text = "...";
-            button1.UseVisualStyleBackColor = true;
+            btnProjectDir.Dock = DockStyle.Fill;
+            btnProjectDir.Location = new Point(438, 31);
+            btnProjectDir.Name = "btnProjectDir";
+            btnProjectDir.Size = new Size(72, 22);
+            btnProjectDir.TabIndex = 2;
+            btnProjectDir.Text = "...";
+            btnProjectDir.UseVisualStyleBackColor = true;
+            btnProjectDir.Click += btnProjectDir_Click;
             // 
-            // textBox1
+            // txtProjectDescription
             // 
-            textBox1.Location = new Point(150, 122);
-            textBox1.Multiline = true;
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(297, 210);
-            textBox1.TabIndex = 8;
+            txtProjectDescription.Dock = DockStyle.Fill;
+            txtProjectDescription.Location = new Point(105, 87);
+            txtProjectDescription.Multiline = true;
+            txtProjectDescription.Name = "txtProjectDescription";
+            txtProjectDescription.Size = new Size(327, 199);
+            txtProjectDescription.TabIndex = 4;
+            txtProjectDescription.TextChanged += saveStatus;
             // 
-            // label4
+            // lblProjectDescription
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(33, 125);
-            label4.Name = "label4";
-            label4.Size = new Size(107, 15);
-            label4.TabIndex = 7;
-            label4.Text = "Project Description";
+            lblProjectDescription.AutoSize = true;
+            lblProjectDescription.Dock = DockStyle.Fill;
+            lblProjectDescription.Location = new Point(3, 84);
+            lblProjectDescription.Name = "lblProjectDescription";
+            lblProjectDescription.Size = new Size(96, 205);
+            lblProjectDescription.TabIndex = 7;
+            lblProjectDescription.Text = "Project Description";
+            // 
+            // tableOrganizer
+            // 
+            tableOrganizer.ColumnCount = 3;
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65F));
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableOrganizer.Controls.Add(lblProjectDir, 0, 1);
+            tableOrganizer.Controls.Add(txtProjectDescription, 1, 3);
+            tableOrganizer.Controls.Add(txtProjectDir, 1, 1);
+            tableOrganizer.Controls.Add(lblProjectDescription, 0, 3);
+            tableOrganizer.Controls.Add(btnProjectDir, 2, 1);
+            tableOrganizer.Controls.Add(txtProjectEPSG, 1, 2);
+            tableOrganizer.Controls.Add(lblProjectEPSG, 0, 2);
+            tableOrganizer.Controls.Add(txtProjectName, 1, 0);
+            tableOrganizer.Controls.Add(lblProjectName, 0, 0);
+            tableOrganizer.Dock = DockStyle.Fill;
+            tableOrganizer.Location = new Point(0, 24);
+            tableOrganizer.Name = "tableOrganizer";
+            tableOrganizer.RowCount = 4;
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 70F));
+            tableOrganizer.Size = new Size(513, 289);
+            tableOrganizer.TabIndex = 9;
+            // 
+            // menuMain
+            // 
+            menuMain.Items.AddRange(new ToolStripItem[] { menuFile });
+            menuMain.Location = new Point(0, 0);
+            menuMain.Name = "menuMain";
+            menuMain.Size = new Size(513, 24);
+            menuMain.TabIndex = 10;
+            menuMain.Text = "menuStrip1";
+            // 
+            // menuFile
+            // 
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave });
+            menuFile.Name = "menuFile";
+            menuFile.Size = new Size(37, 20);
+            menuFile.Text = "File";
+            // 
+            // menuSave
+            // 
+            menuSave.Name = "menuSave";
+            menuSave.Size = new Size(180, 22);
+            menuSave.Text = "Save...";
+            menuSave.Click += menuSave_Click;
             // 
             // PropertiesPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(textBox1);
-            Controls.Add(label4);
-            Controls.Add(button1);
-            Controls.Add(txtProjectName);
-            Controls.Add(txtProjectDir);
-            Controls.Add(label3);
-            Controls.Add(label2);
-            Controls.Add(label1);
-            Controls.Add(txtProjectEPSG);
+            ClientSize = new Size(513, 313);
+            Controls.Add(tableOrganizer);
+            Controls.Add(menuMain);
+            MainMenuStrip = menuMain;
             Name = "PropertiesPage";
             Text = "Project Properties";
-            FormClosed += PropertiesPage_FormClosed;
+            FormClosing += PropertiesPage_FormClosing;
             Load += PropertiesPage_Load;
+            tableOrganizer.ResumeLayout(false);
+            tableOrganizer.PerformLayout();
+            menuMain.ResumeLayout(false);
+            menuMain.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -138,13 +205,17 @@
         #endregion
 
         private TextBox txtProjectEPSG;
-        private Label label1;
-        private Label label2;
-        private Label label3;
+        private Label lblProjectEPSG;
+        private Label lblProjectDir;
+        private Label lblProjectName;
         private TextBox txtProjectDir;
         private TextBox txtProjectName;
-        private Button button1;
-        private TextBox textBox1;
-        private Label label4;
+        private Button btnProjectDir;
+        private TextBox txtProjectDescription;
+        private Label lblProjectDescription;
+        private TableLayoutPanel tableOrganizer;
+        private MenuStrip menuMain;
+        private ToolStripMenuItem menuFile;
+        private ToolStripMenuItem menuSave;
     }
 }

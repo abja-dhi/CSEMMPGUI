@@ -1,5 +1,7 @@
+using DHI.Mike1D.ResultDataAccess;
 using Microsoft.VisualBasic;
 using System.Xml;
+using Python.Runtime;
 
 
 namespace CSEMMPGUI_v1
@@ -7,7 +9,21 @@ namespace CSEMMPGUI_v1
     public partial class frmMain : Form
     {
         TreeNode currentNode;
-        XmlDocument project;
+
+        private void FillTree()
+        {
+            treeProject.Nodes.Clear();
+            XmlNode root = ConfigData.Config.DocumentElement;
+            string name = root.SelectSingleNode("Settings/Name")?.InnerText ?? "Project";
+            if (root.Attributes?["type"] != null)
+            {
+                TreeNode rootNode = new TreeNode(name);
+                rootNode.Tag = root;
+                treeProject.Nodes.Add(rootNode);
+                AddChildNodes(root, rootNode);
+                treeProject.ExpandAll();
+            }
+        }
 
         // Helper Functions
         private void AddChildNodes(XmlNode xmlNode, TreeNode treeNode)
@@ -30,18 +46,126 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        
-
-
-        public frmMain()
+        private int Save()
         {
-            InitializeComponent();
-            
+            if (ConfigData.IsModified)
+            {
+                DialogResult results = MessageBox.Show(
+                    "Do want to save the current project?",
+                    "Unsaved Changes",
+                    MessageBoxButtons.YesNoCancel);
+                if (results == DialogResult.Yes)
+                {
+                    string path = ConfigData.GetProjectPath();
+                    if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                    {
+                        using SaveFileDialog sfd = new SaveFileDialog
+                        {
+                            Filter = "MT Project Files (*.mtproj)|*.mtproj",
+                            Title = "Save Project",
+                            InitialDirectory = ConfigData.GetProjectDir()
+                        };
+                        if (sfd.ShowDialog() == DialogResult.OK)
+                        {
+                            path = sfd.FileName;
+                            if (!Path.GetExtension(path).Equals(".mtproj", StringComparison.OrdinalIgnoreCase))
+                            {
+                                path += ".mtproj";
+                            }
+                            ConfigData.SetProjectPath(path);
+                        }
+                        else
+                        {
+                            return 0; // User cancelled, do not proceed
+                        }
+                    }
+                    ConfigData.Config.Save(path);
+                    return 1; // Save successful
+                }
+                else if (results == DialogResult.No)
+                {
+                    return 1; // User chose not to save, proceed without saving
+                }
+                else
+                {
+                    return 0; // User cancelled, do not proceed
+                }
+            }
+            else
+            {
+                return 1; // No changes to save, proceed without saving
+            }
         }
 
 
-        private void menuLoad_Click(object sender, EventArgs e)
+        private int SaveAs()
         {
+            string path = "";
+            if (ConfigData.IsModified)
+            {
+                using SaveFileDialog sfd = new SaveFileDialog
+                {
+                    Filter = "MT Project Files (*.mtproj)|*.mtproj",
+                    Title = "Save Project",
+                    InitialDirectory = ConfigData.GetProjectDir()
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    path = sfd.FileName;
+                    ConfigData.SetProjectPath(path);
+                }
+                else
+                {
+                    return 0; // User cancelled, do not proceed
+                }
+            }
+            ConfigData.Config.Save(path);
+            return 1; // Save successful
+        }
+
+        public static void DeleteModel(string modelName)
+        {
+            XmlNode root = ConfigData.Config.DocumentElement;
+
+            XmlNode modelToDelete = root.SelectNodes("Model")
+                .Cast<XmlNode>()
+                .FirstOrDefault(m =>
+                    string.Equals(m.Attributes?["name"]?.Value?.Trim(), modelName, StringComparison.OrdinalIgnoreCase));
+
+            if (modelToDelete != null)
+            {
+                root.RemoveChild(modelToDelete);
+            }
+        }
+
+        public frmMain()
+        {
+            string pythonDll = @"C:\Program Files\Python311\python311.dll";
+            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);
+            PythonEngine.Initialize();
+            InitializeComponent();
+            ConfigData.InitializeProject();
+            
+        }
+
+        private void menuNew_Click(object sender, EventArgs e)
+        {
+            int result = Save();
+            if (result == 0)
+            {
+                return; // User cancelled or an error occurred
+            }
+            ConfigData.InitializeProject();
+            FillTree();
+        }
+
+        private void menuOpen_Click(object sender, EventArgs e)
+        {
+            int result = Save();
+            if (result == 0)
+            {
+                return; // User cancelled or an error occurred
+            }
             FileDialog loadProject = new OpenFileDialog();
             loadProject.Filter = "MT Project Files (*.mtproj)|*.mtproj|All Files (*.*)|*.*";
             if (loadProject.ShowDialog() == DialogResult.OK)
@@ -49,18 +173,10 @@ namespace CSEMMPGUI_v1
                 string fileName = loadProject.FileName;
                 try
                 {
+
                     // Load the project file
-                    project.Load(fileName);
-                    treeProject.Nodes.Clear();
-                    XmlNode root = project.DocumentElement;
-                    if (root.Attributes?["type"] != null)
-                    {
-                        TreeNode rootNode = new TreeNode(root.Attributes["name"]?.Value ?? root.Name);
-                        rootNode.Tag = root;
-                        treeProject.Nodes.Add(rootNode);
-                        AddChildNodes(root, rootNode);
-                        treeProject.ExpandAll();
-                    }
+                    ConfigData.Config.Load(fileName);
+                    FillTree();
 
                 }
                 catch (Exception ex)
@@ -70,32 +186,49 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        private void menuProperties_Click(object sender, EventArgs e)
+        private void menuSave_Click(object sender, EventArgs e)
         {
-            PropertiesPage propertiesPage = new PropertiesPage(project);
-            var result = propertiesPage.ShowDialog();
-            string projectDir = propertiesPage.projectDir;
-            string projectName = propertiesPage.projectName;
-            string projectEPSG = propertiesPage.projectEPSG;
-            using (XmlWriter writer = XmlWriter.Create("Test.xml"))
+            string path = ConfigData.GetProjectPath();
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
-                writer.WriteStartDocument();
-                writer.WriteStartElement("Project");
-                writer.WriteElementString("Name", projectName);
-                writer.WriteElementString("Directory", projectDir);
-                writer.WriteElementString("EPSG", projectEPSG);
-                writer.WriteEndElement();
-                writer.WriteEndDocument();
+                using SaveFileDialog sfd = new SaveFileDialog
+                {
+                    Filter = "MT Project Files (*.mtproj)|*.mtproj",
+                    Title = "Save Project",
+                    InitialDirectory = ConfigData.GetProjectDir()
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    path = sfd.FileName;
+                    if (!Path.GetExtension(path).Equals(".mtproj", StringComparison.OrdinalIgnoreCase))
+                    {
+                        path += ".mtproj";
+                    }
+                    ConfigData.SetProjectPath(path);
+                }
+                else
+                {
+                    return; // User cancelled, do not proceed
+                }
             }
-
+            ConfigData.Config.Save(path);
         }
 
-
-        private void menuAddModel_Click(object sender, EventArgs e)
+        private void menuSaveAs_Click(object sender, EventArgs e)
         {
-            AddModel addModel = new AddModel(project);
-            var result = addModel.ShowDialog();
+            int result = SaveAs();
+        }
 
+        private void menuProperties_Click(object sender, EventArgs e)
+        {
+            PropertiesPage propertiesPage = new PropertiesPage();
+            var result = propertiesPage.ShowDialog();
+        }
+
+        private void menuExit_Click(object sender, EventArgs e)
+        {
+            int result = 1;
+            MessageBox.Show("Exiting the application.");
         }
 
         private void treeProject_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -119,7 +252,7 @@ namespace CSEMMPGUI_v1
                 switch (type)
                 {
                     case "Project":
-                        PropertiesPage propertiesPage = new PropertiesPage(project);
+                        PropertiesPage propertiesPage = new PropertiesPage();
                         propertiesPage.ShowDialog();
                         break;
                     case "Survey":
@@ -132,7 +265,8 @@ namespace CSEMMPGUI_v1
                         break;
                     case "Model":
                         // OpenModelWindow(xml);
-                        MessageBox.Show("Opening Model Window for: " + name);
+                        EditModel editModel = new EditModel(name);
+                        editModel.ShowDialog();
                         break;
                 }
             }
@@ -140,19 +274,73 @@ namespace CSEMMPGUI_v1
 
         private void itemDelete_Click(object sender, EventArgs e)
         {
-            if (currentNode != null)
+            if (currentNode?.Tag is XmlNode xml)
             {
-                // Open the selected node
-                string nodeName = currentNode.Text;
-                MessageBox.Show("Deleting: " + nodeName);
-                // Here you would add code to open the specific item, e.g., a model or a file.
+                string type = xml.Attributes["type"]?.Value;
+                string name = xml.Attributes["name"]?.Value ?? xml.Name;
+
+                // Use switch for type-specific windows
+                switch (type)
+                {
+                    case "Project":
+                        PropertiesPage propertiesPage = new PropertiesPage();
+                        propertiesPage.ShowDialog();
+                        break;
+                    case "Survey":
+                        // OpenSurveyWindow(xml);
+                        MessageBox.Show("Opening Survey Window for: " + name);
+                        break;
+                    case "ADCP":
+                        // OpenAdcpWindow(xml);
+                        MessageBox.Show("Opening ADCP Window for: " + name);
+                        break;
+                    case "Model":
+                        // OpenModelWindow(xml);
+                        DeleteModel(name);
+                        break;
+                }
+                FillTree();
             }
         }
 
         private void treeProject_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             currentNode = e.Node;
-            
+            if (e.Node != null)
+            {
+                treeProject.SelectedNode = e.Node;
+                currentNode = e.Node;
+                itemOpen_Click(sender, EventArgs.Empty); // Reuse the existing Open logic
+            }
+        }
+
+        private void menuAddSurvey_Click(object sender, EventArgs e)
+        {
+            AddSurvey addSurvey = new AddSurvey();
+            var result = addSurvey.ShowDialog();
+        }
+
+        private void menuAddModel_Click(object sender, EventArgs e)
+        {
+            AddModel addModel = new AddModel();
+            var result = addModel.ShowDialog();
+            FillTree();
+        }
+
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        private void frmMain_Activated(object sender, EventArgs e)
+        {
+            FillTree();
+        }
+
+        private void menuAboutUs_Click(object sender, EventArgs e)
+        {
+            AboutUs aboutUs = new AboutUs();
+            aboutUs.ShowDialog();
         }
     }
 }

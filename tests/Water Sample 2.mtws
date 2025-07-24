@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<WaterSample type="Water Sample" name="Water Sample 2">
+  <Sample id="0" DateTime="2025-Dec-12" />
+</WaterSample>
+
+
+
+{
+  "function": "compareWaterSamples",
+  "input": XML,
+}
+
+
+def call(json_args):
+  
+  if function == "loadADCP":
+    metadata = json_args.get("input")
+    pd0Path = metadata.get("path")
+    ds = pp.Dataset(pd0Path)
+    return ds
+
+  elif function == "fourBeamPlot":
+    metadata = json_args.get("input")
+    pd0Path = metadata.get("path")
+    ds = pp.Dataset(pd0Path)
+    plot_by = json_args.get("plot_by", "bin")
+    variable = json_args.get("variable", "echo_intensity")
+    ax = ds.four_beam_plot(plot_by=plot_by, variable=variable)
+
+  elif function == "surveyPositionPlot":
+    metadata = json_args.get("input")
+    metadata = pd.read_xml(metadata)
+    fig, ax = subplots()
+    for each item in metadata:
+      pd0Path = item.get("path")
+      ds = pp.Dataset(pd0Path)
+      ds.survey_position_plot(ax=ax, variable="position", label=item.get("label"))
+    return ax
+
+  elif function == "NTUTSSmodel":
+   metadata = json_args.get("input")
+   metadata = pd.read_xml(metadata)
+   water_samples_mask = metadata.type == ["Water Sample"]
+   OBS_mask = metadata.type == ["OBS"]
+   water_samples = metadata[water_samples_mask]
+   OBSs = metadata[OBS_mask]
+
+   return a, b
+
+  elif function == "NTU2SSC":
+   metadata = json_args.get("input")
+   metadata = pd.read_xml(metadata)
+   OBS_mask = metadata.type == ["OBS"]
+   regParameters_mask = metadata.type == ["Regression Parameters"]
+   OBSs = metadata[OBS_mask]
+   regParameters = metadata[regParameters_mask]
+   a = regParameters.a
+   b = regParameters.b
+   for each OBS in OBSs:
+      OBS.NTU2SSC(a=a, b=b)

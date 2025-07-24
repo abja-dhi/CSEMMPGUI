@@ -13,8 +13,12 @@
         "packagesPath": "C:\\Users\\abja\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
           "C:\\Users\\abja\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -34,63 +38,29 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows7.0",
           "dependencies": {
-            "BruTile": {
+            "CsvHelper": {
               "target": "Package",
-              "version": "[5.0.6, )"
+              "version": "[33.1.0, )"
             },
             "DHI.MikeCore": {
               "target": "Package",
               "version": "[23.0.3, )"
             },
-            "DotSpatial.Analysis": {
+            "pythonnet": {
               "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.Compatibility": {
-              "target": "Package",
-              "version": "[3.0.1, )"
-            },
-            "DotSpatial.Controls": {
-              "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.Data": {
-              "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.GeoAPI": {
-              "target": "Package",
-              "version": "[1.7.4.3, )"
-            },
-            "DotSpatial.Modeling.Forms": {
-              "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.Symbology": {
-              "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.Symbology.Forms": {
-              "target": "Package",
-              "version": "[4.0.656, )"
-            },
-            "DotSpatial.Topology": {
-              "target": "Package",
-              "version": "[1.9.0, )"
-            },
-            "GMap.NET.WinForms": {
-              "target": "Package",
-              "version": "[2.1.7, )"
-            },
-            "MatplotlibCS": {
-              "target": "Package",
-              "version": "[1.0.63, )"
+              "version": "[3.0.5, )"
             }
           },
           "imports": [
@@ -112,7 +82,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

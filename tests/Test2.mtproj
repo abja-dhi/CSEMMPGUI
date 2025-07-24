@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project type="Project">
+  <Settings>
+    <Directory>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests</Directory>
+    <Name>AbbasProject</Name>
+    <EPSG>4326</EPSG>
+    <Description>This is a description</Description>
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Test2.mtproj</Path>
+  </Settings>
+  <Model type="Model" name="Model1">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
+  </Model>
+</Project>

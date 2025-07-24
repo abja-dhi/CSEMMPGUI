@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSEMMPGUI_v1", "CSEMMPGUI_v1.csproj", "{FD43657D-5C87-4ECF-8F69-854B991264A6}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "backend", "backend\backend.pyproj", "{47BE56A5-A545-42F7-BB6E-B80579CEFEC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{FD43657D-5C87-4ECF-8F69-854B991264A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD43657D-5C87-4ECF-8F69-854B991264A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD43657D-5C87-4ECF-8F69-854B991264A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47BE56A5-A545-42F7-BB6E-B80579CEFEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47BE56A5-A545-42F7-BB6E-B80579CEFEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

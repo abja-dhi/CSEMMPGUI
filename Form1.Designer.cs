@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             menuStrip1 = new MenuStrip();
             menuProject = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
@@ -50,6 +51,7 @@
             itemOpen = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
+            menuAboutUs = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
             SuspendLayout();
@@ -75,25 +77,28 @@
             menuNew.Name = "menuNew";
             menuNew.Size = new Size(127, 22);
             menuNew.Text = "New...";
+            menuNew.Click += menuNew_Click;
             // 
             // menuLoad
             // 
             menuLoad.Name = "menuLoad";
             menuLoad.Size = new Size(127, 22);
             menuLoad.Text = "Open...";
-            menuLoad.Click += menuLoad_Click;
+            menuLoad.Click += menuOpen_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
             menuSave.Size = new Size(127, 22);
             menuSave.Text = "Save...";
+            menuSave.Click += menuSave_Click;
             // 
             // menuSaveAs
             // 
             menuSaveAs.Name = "menuSaveAs";
             menuSaveAs.Size = new Size(127, 22);
             menuSaveAs.Text = "Save As...";
+            menuSaveAs.Click += menuSaveAs_Click;
             // 
             // menuProperties
             // 
@@ -107,6 +112,7 @@
             menuExit.Name = "menuExit";
             menuExit.Size = new Size(127, 22);
             menuExit.Text = "Exit";
+            menuExit.Click += menuExit_Click;
             // 
             // menuAddLayer
             // 
@@ -120,6 +126,7 @@
             menuAddSurvey.Name = "menuAddSurvey";
             menuAddSurvey.Size = new Size(134, 22);
             menuAddSurvey.Text = "Add Survey";
+            menuAddSurvey.Click += menuAddSurvey_Click;
             // 
             // menuAddModel
             // 
@@ -143,7 +150,7 @@
             // 
             // menuHelp
             // 
-            menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuExamples, menuDocumentation });
+            menuHelp.DropDownItems.AddRange(new ToolStripItem[] { menuExamples, menuDocumentation, menuAboutUs });
             menuHelp.Name = "menuHelp";
             menuHelp.Size = new Size(44, 20);
             menuHelp.Text = "Help";
@@ -151,13 +158,13 @@
             // menuExamples
             // 
             menuExamples.Name = "menuExamples";
-            menuExamples.Size = new Size(157, 22);
+            menuExamples.Size = new Size(180, 22);
             menuExamples.Text = "Examples";
             // 
             // menuDocumentation
             // 
             menuDocumentation.Name = "menuDocumentation";
-            menuDocumentation.Size = new Size(157, 22);
+            menuDocumentation.Size = new Size(180, 22);
             menuDocumentation.Text = "Documentation";
             // 
             // treeProject
@@ -191,6 +198,13 @@
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
+            // menuAboutUs
+            // 
+            menuAboutUs.Name = "menuAboutUs";
+            menuAboutUs.Size = new Size(180, 22);
+            menuAboutUs.Text = "About us";
+            menuAboutUs.Click += menuAboutUs_Click;
+            // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -198,9 +212,12 @@
             ClientSize = new Size(884, 461);
             Controls.Add(treeProject);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "frmMain";
             Text = "MT Validation Tool";
+            Activated += frmMain_Activated;
+            FormClosing += frmMain_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             cmenuNode.ResumeLayout(false);
@@ -231,5 +248,6 @@
         private ToolStripMenuItem itemDelete;
         private ToolStripMenuItem processPositionFileToolStripMenuItem;
         private ColorDialog colorDialog1;
+        private ToolStripMenuItem menuAboutUs;
     }
 }

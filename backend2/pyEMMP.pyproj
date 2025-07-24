@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{b14b185e-c6c6-4b52-9104-946a13f70823}</ProjectGuid>
+    <ProjectHome>..\..\pyEMMP\pyEMMP\</ProjectHome>
+    <StartupFile>main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|PythonCore|3.11</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="adcp.py" />
+    <Compile Include="ctd.py" />
+    <Compile Include="handlers.py" />
+    <Compile Include="model.py" />
+    <Compile Include="pd0.py" />
+    <Compile Include="pd0_old.py" />
+    <Compile Include="plotting.py" />
+    <Compile Include="project.py" />
+    <Compile Include="survey.py" />
+    <Compile Include="utils.py" />
+    <Compile Include="utils_dfsu.py" />
+    <Compile Include="_adcp_position.py" />
+    <Compile Include="_pd0_fields.py" />
+    <Compile Include="main.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
