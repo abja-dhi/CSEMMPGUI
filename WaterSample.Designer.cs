@@ -75,6 +75,7 @@
             menuNew.Name = "menuNew";
             menuNew.Size = new Size(112, 22);
             menuNew.Text = "New...";
+            menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
@@ -122,6 +123,7 @@
             gridData.TabIndex = 2;
             gridData.CellEndEdit += gridData_CellEndEdit;
             gridData.CellValidating += gridData_CellValidating;
+            gridData.CellValueChanged += gridData_CellValueChanged;
             gridData.EditingControlShowing += gridData_EditingControlShowing;
             // 
             // colSampleName
@@ -201,6 +203,7 @@
             txtName.Name = "txtName";
             txtName.Size = new Size(634, 23);
             txtName.TabIndex = 4;
+            txtName.TextChanged += txtName_TextChanged;
             // 
             // WaterSample
             // 

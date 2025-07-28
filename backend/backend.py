@@ -10,8 +10,20 @@ def Call(XML):
         filepath = root.find("Path").text
         results = LoadPd0(filepath)
         
-    elif task_type == "GenerateOutputXML":
-        pass
+    elif task_type == "Extern2CSVSingle":
+        filepath = root.find("Path").text
+        results = Extern2CSVSingle(filepath)
+
+    elif task_type == "Extern2CSVBatch":
+        folderpath = root.find("Path").text
+        results = Extern2CSVBatch(folderpath)
+
+    elif task_type == "GetColumnsFromCSV":
+        filepath = root.find("Path").text
+        header = int(root.find("Header").text)
+        sep = root.find("Sep").text
+        results = GetColumnsFromCSV(filepath, header, sep)
+        print(results)
         
     else:
         return "<Result><Error>Unknown task type</Error></Result>"

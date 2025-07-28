@@ -114,8 +114,10 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\CSEMMPGUI_v1\bin\Deb
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\CSEMMPGUI_v1\bin\Debug\net8.0-windows7.0\runtimes\win-x64\native\state_plane_nad83.pfs
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\CSEMMPGUI_v1\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.AddModel.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.exe
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.deps.json
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.runtimeconfig.json
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.dll
-C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\Python.Runtime.dll
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.pdb
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\Antlr4.Runtime.Standard.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CsvHelper.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\DHI.corlib.dll
@@ -128,6 +130,7 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\DHI.PFS.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\DHI.Projections.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\NetTopologySuite.dll
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\Python.Runtime.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\runtimes\win-x64\native\ufs.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\runtimes\win-x64\native\DHIfl.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\runtimes\win-x64\native\EUM.ubg
@@ -167,8 +170,6 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\refint\CSEMMPGUI_v1.dll
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.pdb
-C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.deps.json
-C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.runtimeconfig.json
-C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\bin\Debug\net8.0-windows7.0\CSEMMPGUI_v1.pdb
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.genruntimeconfig.cache
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\ref\CSEMMPGUI_v1.dll
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.CSVImportOptions.resources

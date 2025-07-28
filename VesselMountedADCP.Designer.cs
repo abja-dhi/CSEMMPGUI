@@ -34,6 +34,7 @@
             menuNew = new ToolStripMenuItem();
             menuOpen = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
+            menuExit = new ToolStripMenuItem();
             lblPD0File = new Label();
             lblPositionFile = new Label();
             txtPD0Path = new TextBox();
@@ -150,7 +151,7 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
@@ -158,20 +159,28 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
+            menuNew.Size = new Size(180, 22);
             menuNew.Text = "New...";
+            menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
             menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(107, 22);
+            menuOpen.Size = new Size(180, 22);
             menuOpen.Text = "Open";
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(107, 22);
+            menuSave.Size = new Size(180, 22);
             menuSave.Text = "Save...";
+            menuSave.Click += menuSave_Click;
+            // 
+            // menuExit
+            // 
+            menuExit.Name = "menuExit";
+            menuExit.Size = new Size(180, 22);
+            menuExit.Text = "Exit";
             // 
             // lblPD0File
             // 
@@ -231,6 +240,7 @@
             btnLoadPosition.TabIndex = 6;
             btnLoadPosition.Text = "...";
             btnLoadPosition.UseVisualStyleBackColor = true;
+            btnLoadPosition.Click += btnLoadPosition_Click;
             // 
             // tableConfig
             // 
@@ -618,7 +628,6 @@
             tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
             tablePosition.Size = new Size(424, 312);
             tablePosition.TabIndex = 8;
-            tablePosition.Visible = false;
             // 
             // lblYColumn
             // 
@@ -739,8 +748,8 @@
             tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
             tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
             tableMain.Controls.Add(boxFileInfo, 0, 0);
-            tableMain.Controls.Add(btnPrintConfig, 1, 2);
             tableMain.Controls.Add(boxPosition, 0, 1);
+            tableMain.Controls.Add(btnPrintConfig, 1, 2);
             tableMain.Controls.Add(boxConfiguration, 1, 0);
             tableMain.Controls.Add(boxMasking, 2, 0);
             tableMain.Dock = DockStyle.Fill;
@@ -851,6 +860,7 @@
             // 
             lblMaxErrorVelocity.AutoSize = true;
             lblMaxErrorVelocity.Dock = DockStyle.Fill;
+            lblMaxErrorVelocity.Enabled = false;
             lblMaxErrorVelocity.Location = new Point(209, 0);
             lblMaxErrorVelocity.Name = "lblMaxErrorVelocity";
             lblMaxErrorVelocity.Size = new Size(97, 28);
@@ -870,11 +880,13 @@
             checkMaskingErrorVelocity.Text = "Mask Error Velocity (m/s)";
             checkMaskingErrorVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingErrorVelocity.UseVisualStyleBackColor = true;
+            checkMaskingErrorVelocity.CheckedChanged += checkMaskingErrorVelocity_CheckedChanged;
             // 
             // lblMinErrorVelocity
             // 
             lblMinErrorVelocity.AutoSize = true;
             lblMinErrorVelocity.Dock = DockStyle.Fill;
+            lblMinErrorVelocity.Enabled = false;
             lblMinErrorVelocity.Location = new Point(108, 0);
             lblMinErrorVelocity.Name = "lblMinErrorVelocity";
             lblMinErrorVelocity.Size = new Size(95, 28);
@@ -885,6 +897,7 @@
             // txtMinErrorVelocity
             // 
             txtMinErrorVelocity.Dock = DockStyle.Fill;
+            txtMinErrorVelocity.Enabled = false;
             txtMinErrorVelocity.Location = new Point(108, 31);
             txtMinErrorVelocity.Name = "txtMinErrorVelocity";
             txtMinErrorVelocity.Size = new Size(95, 23);
@@ -893,6 +906,7 @@
             // txtMaxErrorVelocity
             // 
             txtMaxErrorVelocity.Dock = DockStyle.Fill;
+            txtMaxErrorVelocity.Enabled = false;
             txtMaxErrorVelocity.Location = new Point(209, 31);
             txtMaxErrorVelocity.Name = "txtMaxErrorVelocity";
             txtMaxErrorVelocity.Size = new Size(97, 23);
@@ -922,6 +936,7 @@
             // 
             lblMaxCorrelationMagnitude.AutoSize = true;
             lblMaxCorrelationMagnitude.Dock = DockStyle.Fill;
+            lblMaxCorrelationMagnitude.Enabled = false;
             lblMaxCorrelationMagnitude.Location = new Point(209, 0);
             lblMaxCorrelationMagnitude.Name = "lblMaxCorrelationMagnitude";
             lblMaxCorrelationMagnitude.Size = new Size(97, 28);
@@ -941,11 +956,13 @@
             checkMaskCorrelationMagnitude.Text = "Mask Correlation Magnitude (-)";
             checkMaskCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskCorrelationMagnitude.UseVisualStyleBackColor = true;
+            checkMaskCorrelationMagnitude.CheckedChanged += checkMaskCorrelationMagnitude_CheckedChanged;
             // 
             // lblMinCorrelationMagnitude
             // 
             lblMinCorrelationMagnitude.AutoSize = true;
             lblMinCorrelationMagnitude.Dock = DockStyle.Fill;
+            lblMinCorrelationMagnitude.Enabled = false;
             lblMinCorrelationMagnitude.Location = new Point(108, 0);
             lblMinCorrelationMagnitude.Name = "lblMinCorrelationMagnitude";
             lblMinCorrelationMagnitude.Size = new Size(95, 28);
@@ -956,6 +973,7 @@
             // txtMinCorrelationMagnitude
             // 
             txtMinCorrelationMagnitude.Dock = DockStyle.Fill;
+            txtMinCorrelationMagnitude.Enabled = false;
             txtMinCorrelationMagnitude.Location = new Point(108, 31);
             txtMinCorrelationMagnitude.Name = "txtMinCorrelationMagnitude";
             txtMinCorrelationMagnitude.Size = new Size(95, 23);
@@ -965,6 +983,7 @@
             // txtMaxCorrelationMagnitude
             // 
             txtMaxCorrelationMagnitude.Dock = DockStyle.Fill;
+            txtMaxCorrelationMagnitude.Enabled = false;
             txtMaxCorrelationMagnitude.Location = new Point(209, 31);
             txtMaxCorrelationMagnitude.Name = "txtMaxCorrelationMagnitude";
             txtMaxCorrelationMagnitude.Size = new Size(97, 23);
@@ -995,6 +1014,7 @@
             // 
             lblMaxVelocity.AutoSize = true;
             lblMaxVelocity.Dock = DockStyle.Fill;
+            lblMaxVelocity.Enabled = false;
             lblMaxVelocity.Location = new Point(209, 0);
             lblMaxVelocity.Name = "lblMaxVelocity";
             lblMaxVelocity.Size = new Size(97, 28);
@@ -1014,11 +1034,13 @@
             checkMaskingVelocity.Text = "Mask Current Speed on XY Plane (m/s)";
             checkMaskingVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingVelocity.UseVisualStyleBackColor = true;
+            checkMaskingVelocity.CheckedChanged += checkMaskingVelocity_CheckedChanged;
             // 
             // lblMinVelocity
             // 
             lblMinVelocity.AutoSize = true;
             lblMinVelocity.Dock = DockStyle.Fill;
+            lblMinVelocity.Enabled = false;
             lblMinVelocity.Location = new Point(108, 0);
             lblMinVelocity.Name = "lblMinVelocity";
             lblMinVelocity.Size = new Size(95, 28);
@@ -1029,6 +1051,7 @@
             // txtMinVelocity
             // 
             txtMinVelocity.Dock = DockStyle.Fill;
+            txtMinVelocity.Enabled = false;
             txtMinVelocity.Location = new Point(108, 31);
             txtMinVelocity.Name = "txtMinVelocity";
             txtMinVelocity.Size = new Size(95, 23);
@@ -1037,6 +1060,7 @@
             // txtMaxVelocity
             // 
             txtMaxVelocity.Dock = DockStyle.Fill;
+            txtMaxVelocity.Enabled = false;
             txtMaxVelocity.Location = new Point(209, 31);
             txtMaxVelocity.Name = "txtMaxVelocity";
             txtMaxVelocity.Size = new Size(97, 23);
@@ -1072,11 +1096,13 @@
             checkMaskPercentGood.Text = "Mask Percent Good (%)";
             checkMaskPercentGood.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskPercentGood.UseVisualStyleBackColor = true;
+            checkMaskPercentGood.CheckedChanged += checkMaskPercentGood_CheckedChanged;
             // 
             // lblMinPercentGood
             // 
             lblMinPercentGood.AutoSize = true;
             lblMinPercentGood.Dock = DockStyle.Fill;
+            lblMinPercentGood.Enabled = false;
             lblMinPercentGood.Location = new Point(108, 0);
             lblMinPercentGood.Name = "lblMinPercentGood";
             lblMinPercentGood.Size = new Size(95, 28);
@@ -1087,6 +1113,7 @@
             // txtMinPercentGood
             // 
             txtMinPercentGood.Dock = DockStyle.Fill;
+            txtMinPercentGood.Enabled = false;
             txtMinPercentGood.Location = new Point(108, 31);
             txtMinPercentGood.Name = "txtMinPercentGood";
             txtMinPercentGood.Size = new Size(95, 23);
@@ -1117,6 +1144,7 @@
             // 
             lblMaxEchoIntensity.AutoSize = true;
             lblMaxEchoIntensity.Dock = DockStyle.Fill;
+            lblMaxEchoIntensity.Enabled = false;
             lblMaxEchoIntensity.Location = new Point(209, 0);
             lblMaxEchoIntensity.Name = "lblMaxEchoIntensity";
             lblMaxEchoIntensity.Size = new Size(97, 28);
@@ -1136,11 +1164,13 @@
             checkMaskEchoIntensity.Text = "Mask Echo Intensity (Counts)";
             checkMaskEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskEchoIntensity.UseVisualStyleBackColor = true;
+            checkMaskEchoIntensity.CheckedChanged += checkMaskEchoIntensity_CheckedChanged;
             // 
             // lblMinEchoIntensity
             // 
             lblMinEchoIntensity.AutoSize = true;
             lblMinEchoIntensity.Dock = DockStyle.Fill;
+            lblMinEchoIntensity.Enabled = false;
             lblMinEchoIntensity.Location = new Point(108, 0);
             lblMinEchoIntensity.Name = "lblMinEchoIntensity";
             lblMinEchoIntensity.Size = new Size(95, 28);
@@ -1151,6 +1181,7 @@
             // txtMinEchoIntensity
             // 
             txtMinEchoIntensity.Dock = DockStyle.Fill;
+            txtMinEchoIntensity.Enabled = false;
             txtMinEchoIntensity.Location = new Point(108, 31);
             txtMinEchoIntensity.Name = "txtMinEchoIntensity";
             txtMinEchoIntensity.Size = new Size(95, 23);
@@ -1160,6 +1191,7 @@
             // txtMaxEchoIntensity
             // 
             txtMaxEchoIntensity.Dock = DockStyle.Fill;
+            txtMaxEchoIntensity.Enabled = false;
             txtMaxEchoIntensity.Location = new Point(209, 31);
             txtMaxEchoIntensity.Name = "txtMaxEchoIntensity";
             txtMaxEchoIntensity.Size = new Size(97, 23);
@@ -1195,6 +1227,7 @@
             MainMenuStrip = menuStrip1;
             Name = "VesselMountedADCP";
             Text = "VesselMountedADCP";
+            FormClosing += VesselMountedADCP_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableConfig.ResumeLayout(false);
@@ -1323,5 +1356,6 @@
         private TextBox txtMinErrorVelocity;
         private TextBox txtMaxErrorVelocity;
         private ToolStripMenuItem menuOpen;
+        private ToolStripMenuItem menuExit;
     }
 }

@@ -49,6 +49,8 @@
             panel1 = new Panel();
             treeSurvey = new TreeView();
             tableLayoutPanel1 = new TableLayoutPanel();
+            menuViSeaExtern2CSVSingle = new ToolStripMenuItem();
+            menuViSeaExtern2CSVBatch = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
@@ -156,10 +158,10 @@
             // 
             // menuViSeaExtern2CSV
             // 
+            menuViSeaExtern2CSV.DropDownItems.AddRange(new ToolStripItem[] { menuViSeaExtern2CSVSingle, menuViSeaExtern2CSVBatch });
             menuViSeaExtern2CSV.Name = "menuViSeaExtern2CSV";
             menuViSeaExtern2CSV.Size = new Size(196, 22);
             menuViSeaExtern2CSV.Text = "ViSea Extern.dat to CSV";
-            menuViSeaExtern2CSV.Click += menuViSeaExtern2CSV_Click;
             // 
             // txtSurveyName
             // 
@@ -213,6 +215,19 @@
             tableLayoutPanel1.Size = new Size(684, 437);
             tableLayoutPanel1.TabIndex = 5;
             // 
+            // menuViSeaExtern2CSVSingle
+            // 
+            menuViSeaExtern2CSVSingle.Name = "menuViSeaExtern2CSVSingle";
+            menuViSeaExtern2CSVSingle.Size = new Size(180, 22);
+            menuViSeaExtern2CSVSingle.Text = "Single File";
+            menuViSeaExtern2CSVSingle.Click += menuViSeaExtern2CSVSingle_Click;
+            // 
+            // menuViSeaExtern2CSVBatch
+            // 
+            menuViSeaExtern2CSVBatch.Name = "menuViSeaExtern2CSVBatch";
+            menuViSeaExtern2CSVBatch.Size = new Size(180, 22);
+            menuViSeaExtern2CSVBatch.Text = "Batch Conversion";
+            // 
             // AddSurvey
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -258,5 +273,7 @@
         private TableLayoutPanel tableLayoutPanel1;
         private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuOpen;
+        private ToolStripMenuItem menuViSeaExtern2CSVSingle;
+        private ToolStripMenuItem menuViSeaExtern2CSVBatch;
     }
 }

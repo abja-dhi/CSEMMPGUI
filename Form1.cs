@@ -140,9 +140,6 @@ namespace CSEMMPGUI_v1
 
         public frmMain()
         {
-            string pythonDll = @"C:\Program Files\Python311\python311.dll";
-            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);
-            PythonEngine.Initialize();
             InitializeComponent();
             ConfigData.InitializeProject();
             
@@ -227,8 +224,12 @@ namespace CSEMMPGUI_v1
 
         private void menuExit_Click(object sender, EventArgs e)
         {
-            int result = 1;
-            MessageBox.Show("Exiting the application.");
+            int result = Save();
+            if (result == 0)
+            {
+                return; // User cancelled or an error occurred
+            }
+            Application.Exit();
         }
 
         private void treeProject_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -329,7 +330,7 @@ namespace CSEMMPGUI_v1
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-
+            menuExit_Click(sender, e);  // Call the exit method to handle saving
         }
 
         private void frmMain_Activated(object sender, EventArgs e)

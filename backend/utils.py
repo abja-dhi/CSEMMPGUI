@@ -225,6 +225,117 @@ class Utils:
                     level=class_name
                 )
 
+    @staticmethod
+    def extern_to_csv_single(filepath: str | Path) -> int:
+        colspecs = [
+            (1, 11), (12, 25), (27, 50), (50, 70), (70, 93),
+            (112, 135), (135, 162), (162, 170), (170, 195), (195, 220)
+        ]
+        column_names = [
+            "Date", "Time", "Ensemble", "Latitude", "Longitude",
+            "Speed", "Course", "PosFix", "EastVesselDisplacement", "NorthVesselDisplacement"
+        ]
+
+        
+        fname = filepath.replace(".dat", ".csv")
+        if os.path.exists(fname):
+            print(f"File {fname} already exists, skipping.")
+            return 1
+        try:
+            df = pd.read_fwf(filepath, colspecs=colspecs, names=column_names)
+            df = df.iloc[1:]  # drop header row
+            df["Datetime"] = pd.to_datetime(df["Date"] + " " + df["Time"])
+            df = df.set_index("Datetime").drop(columns=["Date", "Time"])
+
+            df["Ensemble"] = (
+                df["Ensemble"]
+                .str.replace("ENSEMBLE", "", case=False)
+                .str.replace(":", "", regex=False)
+                .str.strip()
+                .astype(int)
+            )
+
+            float_cols = df.columns.difference(["Ensemble"])
+            df[float_cols] = df[float_cols].astype(float)
+
+            df["Latitude"] = df["Latitude"] / 3600
+            df["Longitude"] = df["Longitude"] / 3600
+
+            try:
+                df.to_csv(fname, index_label="DateTime")
+                return 0
+            except Exception as e:
+                print(f"Failed to save {fname}: {e}")
+                return -1
+
+        except Exception as e:
+            print(f"Failed to read {filepath}: {e}")
+            return -1
+
+
+    def extern_to_csv_batch(directory):
+        """
+        Locate, parse, and convert all 'extern.dat' fixed-width files in a directory tree to CSV.
+        
+        Parameters
+        ----------
+        directory : str or Path
+            Root directory to search recursively for extern.dat files.
+        """
+        n_success = 0
+        n_failed = 0
+        n_already_converted = 0
+        print(f"Identifying extern.dat files within {directory}")
+        files = [str(p) for p in Path(directory).rglob("*extern.dat")]
+        print(f"Identified {len(files)} files. Parsing...")
+
+        colspecs = [
+            (1, 11), (12, 25), (27, 50), (50, 70), (70, 93),
+            (112, 135), (135, 162), (162, 170), (170, 195), (195, 220)
+        ]
+        column_names = [
+            "Date", "Time", "Ensemble", "Latitude", "Longitude",
+            "Speed", "Course", "PosFix", "EastVesselDisplacement", "NorthVesselDisplacement"
+        ]
+
+        for file in files:
+            fname = file.replace(".dat", ".csv")
+            if os.path.exists(fname):
+                print(f"File {fname} already exists, skipping.")
+                n_already_converted += 1
+                continue
+            try:
+                df = pd.read_fwf(file, colspecs=colspecs, names=column_names)
+                df = df.iloc[1:]  # drop header row
+                df["Datetime"] = pd.to_datetime(df["Date"] + " " + df["Time"])
+                df = df.set_index("Datetime").drop(columns=["Date", "Time"])
+
+                df["Ensemble"] = (
+                    df["Ensemble"]
+                    .str.replace("ENSEMBLE", "", case=False)
+                    .str.replace(":", "", regex=False)
+                    .str.strip()
+                    .astype(int)
+                )
+
+                float_cols = df.columns.difference(["Ensemble"])
+                df[float_cols] = df[float_cols].astype(float)
+
+                df["Latitude"] = df["Latitude"] / 3600
+                df["Longitude"] = df["Longitude"] / 3600
+
+                try:
+                    df.to_csv(fname, index_label="DateTime")
+                    n_success += 1
+                except Exception as e:
+                    print(f"Failed to save {fname}: {e}")
+                    n_failed += 1
+
+            except Exception as e:
+                print(f"Failed to read {file}: {e}")
+                n_failed += 1
+        return n_success, n_failed, n_already_converted
+
 class ColumnSelectorGUI:
     def __init__(self, filepath: str, variables: list[str], description: str, skiprows: int = 0, sep: str = ',', header: int = 0, sheet_name: int = 0):
         """

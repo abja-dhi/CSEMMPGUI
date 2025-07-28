@@ -1,20 +1,48 @@
+import xml.etree.ElementTree as ET
+import pandas as pd
+
 from .project import Project
 from .survey import Survey
 from .model import Model
 from .adcp import ADCP
 from .pd0 import Pd0Decoder
+from .utils import Utils
+
 
 
 def GenerateOutputXML(xml):
     result = ET.Element("Result")
     for key, value in xml.items():
         ET.SubElement(result, key).text = str(value)
+    return ET.tostring(result, encoding='unicode')
 
 def LoadPd0(filepath):
     pd0 = Pd0Decoder(filepath, cfg={})
     n_beams = pd0._n_beams
     n_ensembles = pd0._n_ensembles
     return {"NBeams": n_beams, "NEnsembles": n_ensembles}
+
+def Extern2CSVSingle(filepath):
+    result = Utils.extern_to_csv_single(filepath)
+    return {"Result": result} # 1: already converted, 0: success, -1: failed
+    
+def Extern2CSVBatch(folderpath):
+    result = Utils.extern_to_csv_batch(folderpath)
+    n_success = result[0]
+    n_failed = result[1]
+    n_already_converted = result[2]
+    return {"NSuccess": n_success, "NFailed": n_failed, "NAlreadyConverted": n_already_converted}
+
+def GetColumnsFromCSV(filepath, header=0, sep=','):
+    try:
+        df = pd.read_csv(filepath, header=header, sep=sep)
+        columns = df.columns.tolist()
+        output = {"NColumns": len(columns)}
+        for i, col in enumerate(columns):
+            output[f"Column{i}"] = col
+        return output
+    except:
+        return {"NColumns": 0}
 
 
 def TestTask(xml):

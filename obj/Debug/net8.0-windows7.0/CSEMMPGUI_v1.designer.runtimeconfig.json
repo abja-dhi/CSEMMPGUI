@@ -13,7 +13,7 @@
     ],
     "additionalProbingPaths": [
       "C:\\Users\\abja\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\anba\\.nuget\\packages",
+      "C:\\Users\\abja\\.nuget\\packages",
       "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
     ],
     "configProperties": {

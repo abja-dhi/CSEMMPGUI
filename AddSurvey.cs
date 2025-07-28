@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Python.Runtime;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -59,8 +60,13 @@ namespace CSEMMPGUI_v1
 
         private void menuADCPVesselMounted_Click(object sender, EventArgs e)
         {
-            VesselMountedADCP vesselMountedADCP = new VesselMountedADCP();
-            vesselMountedADCP.ShowDialog();
+            VesselMountedADCP vesselMountedADCP = new VesselMountedADCP(survey);
+            DialogResult isVesselMountedADCPAdded = vesselMountedADCP.ShowDialog();
+            if (isVesselMountedADCPAdded == DialogResult.OK)
+            {
+                _isSaved = false;
+                FillTree();
+            }
         }
 
         private void menuADCPSeabedLander_Click(object sender, EventArgs e)
@@ -89,11 +95,6 @@ namespace CSEMMPGUI_v1
                 _isSaved = false;
                 FillTree();
             }
-        }
-
-        private void menuViSeaExtern2CSV_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("This feature is not implemented yet.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void menuSave_Click(object sender, EventArgs e)
@@ -331,6 +332,11 @@ namespace CSEMMPGUI_v1
                     // Do nothing, just close
                 }
             }
+        }
+
+        private void menuViSeaExtern2CSVSingle_Click(object sender, EventArgs e)
+        {
+            Tools.ExternToCSV();
         }
     }
 }

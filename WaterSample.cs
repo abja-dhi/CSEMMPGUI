@@ -17,6 +17,7 @@ namespace CSEMMPGUI_v1
         private readonly XmlElement _parentSurvey;
         private XmlElement _waterSample;
         private bool _isSaved = false;
+        private bool _hasChanged = false;
 
         private const string COL_SAMPLE = "colSample";
         private const string COL_DATETIME = "colDateTime";
@@ -39,6 +40,23 @@ namespace CSEMMPGUI_v1
             _waterSample = _parentSurvey.OwnerDocument.CreateElement("WaterSample");
             _waterSample.SetAttribute("type", "Water Sample");
             _waterSample.SetAttribute("name", defaultName);
+            _hasChanged = false;
+        }
+
+        private bool HasValue()
+        {
+            foreach (DataGridViewRow row in gridData.Rows)
+            {
+                if (row.IsNewRow) continue;
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    if (cell.Value != null && !string.IsNullOrWhiteSpace(cell.Value.ToString()))
+                    {
+                        return true; // Found a non-empty cell
+                    }
+                }
+            }    
+            return false; // No non-empty cells found
         }
 
         private static bool RowHasAnyData(DataGridViewRow r)
@@ -51,15 +69,6 @@ namespace CSEMMPGUI_v1
                 }
             }
             return false;
-        }
-
-        private static void ClearChildNodes(XmlElement el)
-        {
-            if (el == null) return;
-            while (el.HasChildNodes)
-            {
-                el.RemoveChild(el.FirstChild);
-            }
         }
 
         private static string GetCellString(DataGridViewRow r, string colName)
@@ -92,7 +101,7 @@ namespace CSEMMPGUI_v1
                 return;
             }
             _waterSample.SetAttribute("name", wsName);
-            ClearChildNodes(_waterSample);
+            Tools.ClearChildNodes(_waterSample);
             XmlDocument doc = _waterSample.OwnerDocument;
 
             for (int i = 0; i < rows.Count; i++)
@@ -159,8 +168,6 @@ namespace CSEMMPGUI_v1
             }
 
             _isSaved = true;
-
-
         }
 
         private void NumericOnly_KeyPress(object sender, KeyPressEventArgs e)
@@ -218,15 +225,15 @@ namespace CSEMMPGUI_v1
         private void menuSave_Click(object sender, EventArgs e)
         {
             SaveWaterSample();
-            if (_isSaved)
-            {
-                this.DialogResult = DialogResult.OK; // Indicate that the form was saved successfully
-            }
         }
 
         private void WaterSample_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_isSaved) return;
+            if (_isSaved)
+            {
+                this.DialogResult = DialogResult.OK; // Indicate that the form was saved successfully
+                return;
+            }
 
             bool hasData = gridData.Rows
                 .Cast<DataGridViewRow>()
@@ -263,6 +270,27 @@ namespace CSEMMPGUI_v1
                 // User chose No, so we can close without saving
                 _parentSurvey.RemoveChild(_waterSample);
             }
+        }
+
+        private void menuNew_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtName_TextChanged(object sender, EventArgs e)
+        {
+            if (HasValue())
+                _hasChanged = true;
+            else
+                _hasChanged = false;
+        }
+
+        private void gridData_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (gridData.IsCurrentCellDirty)
+                _hasChanged = true;
+            else
+                _hasChanged = false;
         }
     }
 }
