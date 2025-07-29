@@ -52,7 +52,7 @@ def TestTask(xml):
 
 
 def model_NTU_to_SSC(xml):
-    'Use multiple OBS depth profiles and sets of water samples to estimate parameters for NTU to SSC relationship taking the linear form SSC = A * NTU + B"
+    "Use multiple OBS depth profiles and sets of water samples to estimate parameters for NTU to SSC relationship taking the linear form SSC = A * NTU + B"
 
     ## block where xml is parsed and data is extracted
     obs_profile_fpaths = xml.get('ObsProfiles', [])# list of OBS profile files, each file contains a single depth profile
@@ -72,7 +72,7 @@ def model_NTU_to_SSC(xml):
     mse = (residuals ** 2).mean()
     rmse = mse ** 0.5
     ssr = (residuals ** 2).sum()/ len(residuals)
-    return {'A': A, 'B': B, 'RMSE': rmse, 'MSE': mse,'SSR' = ssr}}
+    return {'A': A, 'B': B, 'RMSE': rmse, 'MSE': mse, 'SSR' : ssr}
 
 
 
@@ -110,7 +110,7 @@ def model_Bks_to_SSC(xml):
     mse = (residuals ** 2).mean()
     rmse = mse ** 0.5
     ssr = (residuals ** 2).sum()/ len(residuals)
-    return {'A': A, 'B': B, 'RMSE': rmse, 'MSE': mse,'SSR' = ssr}}
+    return {'A': A, 'B': B, 'RMSE': rmse, 'MSE': mse,'SSR' : ssr}
 
 
 
@@ -158,9 +158,9 @@ def ADCP_floodplot(xml):
     # plotting code
 
     if depth_adjusted:
-        fig,ax = adcp.four_beam_floodplot(plot_params)
+        fig, ax = adcp.four_beam_floodplot(plot_params)
     else:
-        fig,ax = adcp.four_beam_meshplot(plot_params)
+        fig, ax = adcp.four_beam_meshplot(plot_params)
 
 
 

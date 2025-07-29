@@ -141,4 +141,34 @@
       </PositionData>
     </VesselMountedADCP>
   </Survey>
+  <SSCModels>
+    <NTU2SSC type="NTU to SSC" name="NTU2SSC 1">
+      <Type> Linear </Type>
+      <Parameters>
+        <P1> 0.4 </P1>
+        <P2> 0.1 </P2>
+      </Parameters>
+      <Stats>
+        <R2> 0.95 </R2>
+        <RMSE> 0.02 </RMSE>
+      </Stats>
+      <IncludedData>
+        <Item id="1" used="True">
+          <Survey>Survey 1</Survey>
+          <DatasetType>Water Sample</DatasetType>
+          <DatasetName>Water Sample 1</DatasetName>
+        </Item>
+      </IncludedData>
+    </NTU2SSC>
+    <Backscatter2SSC type="Backscatter to SSC" name="Backscatter2SSC 1">
+      <Type> Linear </Type>
+      <Parameters>
+        <P1> 0.5 </P1>
+        <P2> 0.05 </P2>
+      </Parameters>
+      <Stats>
+        <R2> 0.90 </R2>
+        <RMSE> 0.03 </RMSE>
+      </Stats>
+  </SSCModels>
 </Project>

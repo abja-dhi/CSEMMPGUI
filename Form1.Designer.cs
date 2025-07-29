@@ -46,12 +46,15 @@
             menuHelp = new ToolStripMenuItem();
             menuExamples = new ToolStripMenuItem();
             menuDocumentation = new ToolStripMenuItem();
+            menuAboutUs = new ToolStripMenuItem();
             treeProject = new TreeView();
             cmenuNode = new ContextMenuStrip(components);
             itemOpen = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
-            menuAboutUs = new ToolStripMenuItem();
+            sSCModelsToolStripMenuItem = new ToolStripMenuItem();
+            nTUSSCToolStripMenuItem = new ToolStripMenuItem();
+            backscatterSSCToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
             SuspendLayout();
@@ -137,7 +140,7 @@
             // 
             // menuUtilities
             // 
-            menuUtilities.DropDownItems.AddRange(new ToolStripItem[] { processPositionFileToolStripMenuItem });
+            menuUtilities.DropDownItems.AddRange(new ToolStripItem[] { processPositionFileToolStripMenuItem, sSCModelsToolStripMenuItem });
             menuUtilities.Name = "menuUtilities";
             menuUtilities.Size = new Size(58, 20);
             menuUtilities.Text = "Utilities";
@@ -158,14 +161,21 @@
             // menuExamples
             // 
             menuExamples.Name = "menuExamples";
-            menuExamples.Size = new Size(180, 22);
+            menuExamples.Size = new Size(157, 22);
             menuExamples.Text = "Examples";
             // 
             // menuDocumentation
             // 
             menuDocumentation.Name = "menuDocumentation";
-            menuDocumentation.Size = new Size(180, 22);
+            menuDocumentation.Size = new Size(157, 22);
             menuDocumentation.Text = "Documentation";
+            // 
+            // menuAboutUs
+            // 
+            menuAboutUs.Name = "menuAboutUs";
+            menuAboutUs.Size = new Size(157, 22);
+            menuAboutUs.Text = "About us";
+            menuAboutUs.Click += menuAboutUs_Click;
             // 
             // treeProject
             // 
@@ -198,12 +208,24 @@
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
-            // menuAboutUs
+            // sSCModelsToolStripMenuItem
             // 
-            menuAboutUs.Name = "menuAboutUs";
-            menuAboutUs.Size = new Size(180, 22);
-            menuAboutUs.Text = "About us";
-            menuAboutUs.Click += menuAboutUs_Click;
+            sSCModelsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nTUSSCToolStripMenuItem, backscatterSSCToolStripMenuItem });
+            sSCModelsToolStripMenuItem.Name = "sSCModelsToolStripMenuItem";
+            sSCModelsToolStripMenuItem.Size = new Size(181, 22);
+            sSCModelsToolStripMenuItem.Text = "SSC Models";
+            // 
+            // nTUSSCToolStripMenuItem
+            // 
+            nTUSSCToolStripMenuItem.Name = "nTUSSCToolStripMenuItem";
+            nTUSSCToolStripMenuItem.Size = new Size(180, 22);
+            nTUSSCToolStripMenuItem.Text = "NTU -> SSC";
+            // 
+            // backscatterSSCToolStripMenuItem
+            // 
+            backscatterSSCToolStripMenuItem.Name = "backscatterSSCToolStripMenuItem";
+            backscatterSSCToolStripMenuItem.Size = new Size(180, 22);
+            backscatterSSCToolStripMenuItem.Text = "Backscatter -> SSC";
             // 
             // frmMain
             // 
@@ -249,5 +271,8 @@
         private ToolStripMenuItem processPositionFileToolStripMenuItem;
         private ColorDialog colorDialog1;
         private ToolStripMenuItem menuAboutUs;
+        private ToolStripMenuItem sSCModelsToolStripMenuItem;
+        private ToolStripMenuItem nTUSSCToolStripMenuItem;
+        private ToolStripMenuItem backscatterSSCToolStripMenuItem;
     }
 }

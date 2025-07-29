@@ -1226,7 +1226,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "VesselMountedADCP";
-            Text = "VesselMountedADCP";
+            Text = "Vessel Mounted ADCP";
             FormClosing += VesselMountedADCP_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
