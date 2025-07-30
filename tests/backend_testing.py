@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     pd0_fpath = r'\\SGSIN1-STOR\Projects\61801596\Working Documents\Data and Calculations\10_Field Survey\Sediment Flux\2022\10. Oct\20221003-TF(F)-Exp2\RawDataRT\20221003-TF(F)-001r.000'
     
-    
+    pd0_fpath = r'Dive05_T3A_sn24156.000'
     
     cfg = {
     "progress_bar": "True",
@@ -34,7 +34,8 @@ if __name__ == "__main__":
     import numpy as np
     pd0 = Pd0Decoder(pd0_fpath, cfg = cfg)
 
-    fixed_leader = pd0._get_fixed_leader()[0]#.to_dict()
+    #fixed_leader = pd0._get_fixed_leader()[0]#.to_dict()
+    fixed_leader = pd0._fixed
 
     datetimes = pd0._get_datetimes()
     dt_diffs = np.diff(datetimes)
