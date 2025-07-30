@@ -159,27 +159,27 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(180, 22);
+            menuNew.Size = new Size(107, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
             menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(180, 22);
+            menuOpen.Size = new Size(107, 22);
             menuOpen.Text = "Open";
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(180, 22);
+            menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(180, 22);
+            menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
             // 
             // lblPD0File
@@ -718,6 +718,7 @@
             btnPrintConfig.TabIndex = 9;
             btnPrintConfig.Text = "View Instrument Config";
             btnPrintConfig.UseVisualStyleBackColor = true;
+            btnPrintConfig.Click += btnPrintConfig_Click;
             // 
             // tableInputs
             // 

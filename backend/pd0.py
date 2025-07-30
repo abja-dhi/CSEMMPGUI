@@ -166,6 +166,7 @@ class Pd0Decoder:
         Parameters:
             file_path (str): Path to the binary PD0 file.
         """
+        
         self.logger = Utils.get_logger()
         self.filepath = Utils._validate_file_path(filepath, Constants._PD0_SUFFIX)
         self.cfg = cfg
@@ -181,15 +182,16 @@ class Pd0Decoder:
         self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
         self._n_cells = self._fixed.number_of_cells_wn
         self._n_beams = self._fixed.number_of_beams
-        self._n_ensembles = self.filesize // self._n_bytes_in_ensemble
+        self._n_ensembles = self.filesize // self._n_bytes_in_ensemble - 3
         self._beam_facing = self._fixed.system_configuration.beam_facing.lower()
         self._depth_cell_length = self._fixed.depth_cell_length_ws
         self._bin_1_distance = self._fixed.bin_1_distance
         self._beam_angle = self._fixed.beam_angle
         self._approximate_n_ensembles = True
+        #self._get_datetimes()
         
-        
-
+    def close(self):
+        self.fobject.close()
 
     def _find_first_ensemble(self, max_iter: int = 100) -> int:
         """
@@ -248,6 +250,7 @@ class Pd0Decoder:
         variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
         return header, fixed_leader, variable_leader
         
+
     def _get_bin_midpoints(self) -> np.ndarray:
         """
         Get the midpoints of the bins.

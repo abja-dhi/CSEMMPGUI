@@ -21,17 +21,24 @@ namespace CSEMMPGUI_v1
 
         public static XmlDocument CallPython(string xmlInputStr)
         {
+            if (!PythonEngine.IsInitialized)
+            {
+                InitPython();
+            }
             using (Py.GIL())
             {
                 dynamic sys = Py.Import("sys");
                 sys.path.append(@"C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI");
                 dynamic backend = Py.Import("backend.backend");
-                string resultXML = backend.Call(xmlInputStr).ToString();
+                string resultXML = backend.Call(xmlInputStr);
+                MessageBox.Show(resultXML);
+                resultXML = resultXML.ToString();
                 Console.WriteLine(resultXML);
                 var doc = new XmlDocument();
                 doc.LoadXml(resultXML);
                 return doc;
             }
+            PythonEngine.Shutdown();
         }
 
         public static string GenerateInput(Dictionary<string, string> inputs)

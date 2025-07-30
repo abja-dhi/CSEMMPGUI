@@ -154,11 +154,13 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.CSVImportOptions.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.EditModel.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.frmMain.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.NTU2SSC.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.OBSVerticalProfile.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.PropertiesPage.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.Properties.Resources.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.SeabedLanderADCP.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.VesselMountedADCP.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.VesselMountedADCPPrintConfig.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.ViSea_Extern.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.WaterSample.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.csproj.GenerateResource.cache

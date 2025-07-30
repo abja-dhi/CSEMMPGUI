@@ -37,6 +37,9 @@
     <Compile Update="VesselMountedADCP.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="VesselMountedADCPPrintConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="ViSea Extern.dat to CSV.cs">
       <SubType>Form</SubType>
     </Compile>

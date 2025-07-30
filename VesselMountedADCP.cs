@@ -541,5 +541,11 @@ namespace CSEMMPGUI_v1
         {
 
         }
+
+        private void btnPrintConfig_Click(object sender, EventArgs e)
+        {
+            VesselMountedADCPPrintConfig vesselMountedADCPPrintConfig = new VesselMountedADCPPrintConfig(txtPD0Path.Text);
+            vesselMountedADCPPrintConfig.ShowDialog();
+        }
     }
 }
