@@ -232,8 +232,8 @@ class ADCPMapCanvas(FigureCanvas):
 
         xrange = max(all_x) - min(all_x)
         yrange = max(all_y) - min(all_y)
-        pad_x = 0.5 * xrange
-        pad_y = 0.5 * yrange
+        pad_x = 2 * xrange
+        pad_y = 2 * yrange
         xlim = (min(all_x) - pad_x, max(all_x) + pad_x)
         ylim = (min(all_y) - pad_y, max(all_y) + pad_y)
         self.ax.set_xlim(xlim)
@@ -241,6 +241,9 @@ class ADCPMapCanvas(FigureCanvas):
         self.ax.set_ylim(min(all_y), max(all_y))
         ctx.add_basemap(self.ax, source=ctx.providers.CartoDB.PositronNoLabels,
                         crs="EPSG:3857", zoom=17, reset_extent=True)
+        
+        self.ax.set_xlim(min(all_x), max(all_x))
+        self.ax.set_ylim(min(all_y), max(all_y))
         import matplotlib.cm as cm
         if isinstance(self.current_cmap, str) and self.current_cmap.startswith("cmo."):
             import cmocean
