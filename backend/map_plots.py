@@ -11,9 +11,13 @@ from backend._adcp_position import ADCPPosition
 from backend.utils import Utils, CSVParser
 from backend.plotting import PlottingShell
 
-#%%
+#%% To DO
 
-util = Utils()
+# allow different aggregation methods for showing beam data
+# allow display of a single bin of data, or selection of a bin at a certian HAB
+
+# filter all data by bottom track 
+# 
 
 #%%
 import os

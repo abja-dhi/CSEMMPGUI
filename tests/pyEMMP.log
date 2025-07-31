@@ -1,0 +1,28 @@
+2025-07-31 11:34:12,136 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:34:12,322 - INFO - (ADCP) Default RSSI coefficients used for beam1, beam2, beam3, beam4 
+2025-07-31 11:36:20,021 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:37:36,749 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:37:44,828 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:37:45,246 - WARNING - (ADCP) Default RSSI coefficients used for beam1, beam2, beam3, beam4 (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:38:12,419 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:38:12,973 - WARNING - (ADCP) Default RSSI coefficients used for beam1, beam2, beam3, beam4 (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:38:58,390 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:38:58,512 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:39:41,207 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:39:41,311 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:40:01,978 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:40:02,478 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:41:23,346 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:41:23,860 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:50:36,209 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:50:36,805 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:50:37,330 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 11:51:19,016 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:51:20,098 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:51:20,836 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 11:57:05,097 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:57:05,793 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:57:06,291 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 11:57:17,668 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 11:57:18,209 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 11:57:18,508 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv

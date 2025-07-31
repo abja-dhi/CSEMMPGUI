@@ -27,8 +27,8 @@ class Constants:
     _DFS0_SUFFIX = [".dfs0"]
     _LOW_NUMBER = -9.0e99
     _HIGH_NUMBER = 9.0e99
-    _OLD_DATETIME = "1950-01-01T00:00:00"
-    _FAR_DATETIME = "2100-01-01T00:00:00"
+    _FAR_PAST_DATETIME = "1950-01-01T00:00:00"
+    _FAR_FUTURE_DATETIME = "2100-01-01T00:00:00"
     
 class Utils:
     @staticmethod

@@ -2,346 +2,20 @@ from pathlib import Path
 from typing import List, Tuple
 import warnings
 import numpy as np
+from numpy.typing import NDArray
 from datetime import datetime, timedelta
-from tqdm import tqdm
 from dateutil import parser
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
 
+from dataclasses import dataclass, field
+from datetime import datetime
 
 from .utils import Utils, Constants, XYZ
 from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
 from ._adcp_position import ADCPPosition, PositionSetupGUI
 from .plotting import PlottingShell
-
-
-class ADCPSetupGUI:
-    """Scrollable ADCP-setup dialog with independent scrolling per pane."""
-
-    # ──────────────────────────────────────────────────────────────────
-    def __init__(self, inst_name: str, master: tk.Tk | tk.Toplevel | None = None):
-        self.top = tk.Toplevel(master)
-        self.top.title(f"ADCP configuration - {inst_name}")
-        self.top.transient(master)
-        self.top.grab_set()
-
-        # ── shared vars ───────────────────────────────────────────────
-        self.name_var = tk.StringVar(self.top, value=inst_name)
-        self.mode_var = tk.StringVar(self.top, value="folder")
-        self.path_var = tk.StringVar(self.top)
-        self.file_vars: dict[str, tk.IntVar] = {}
-        self.cfg: dict | None = None
-        self._active_scroll_widget: tk.Canvas | None = None  # keeps track of which canvas should scroll
-        self.position_files: dict[str, str] = {}
-
-        # ── dynamic parameter list (extend as needed) ────────────────
-        self.param_definitions = [
-            {"name": "magnetic_declination", "label": "Magnetic Declination (°)"       , "var": tk.DoubleVar(master=self.top, value=0.0)    , "widget": "entry"},
-            {"name": "utc_offset", "label": "UTC Offset (minutes)", "var": tk.DoubleVar(master=self.top, value=0.3)     , "widget": "entry"},
-            {"name": "rotation_angle", "label": "Rotation Angle (°)"   , "var": tk.DoubleVar(master=self.top, value=0.5)     , "widget": "entry"},
-            {"name": "offset_x", "label": "Offset X (m)"   , "var": tk.DoubleVar(master=self.top, value=0.0)     , "widget": "entry"},
-            {"name": "offset_y", "label": "Offset Y (m)"   , "var": tk.DoubleVar(master=self.top, value=0.0)     , "widget": "entry"},
-            {"name": "offset_z", "label": "Offset Z (m)"   , "var": tk.DoubleVar(master=self.top, value=0.0)     , "widget": "entry"},
-            {"name": "site_name", "label": "Site Name"   , "var": tk.StringVar(master=self.top, value="")     , "widget": "entry"},
-            {"name": "surveyor", "label": "Surveyor"   , "var": tk.StringVar(master=self.top, value="")     , "widget": "entry"},
-            {"name": "rssi_beam_1", "label": "RSSI Beam 1"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "rssi_beam_2", "label": "RSSI Beam 2"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "rssi_beam_3", "label": "RSSI Beam 3"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "rssi_beam_4", "label": "RSSI Beam 4"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "rssi_beam_5", "label": "RSSI Beam 5"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "rssi_beam_6", "label": "RSSI Beam 6"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "pg_min", "label": "Minimum Percent Good"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "cormag_min", "label": "Minimum Correlation Magnitude"   , "var": tk.IntVar(master=self.top, value=0)     , "widget": "entry"},
-            {"name": "cormag_max", "label": "Maximum Correlation Magnitude"   , "var": tk.IntVar(master=self.top, value=255)     , "widget": "entry"},
-            {"name": "echo_min", "label": "Minimum Echo Intensity"   , "var": tk.IntVar(master=self.top, value=0)     , "widget": "entry"},
-            {"name": "echo_max", "label": "Maximum Echo Intensity"   , "var": tk.IntVar(master=self.top, value=255)     , "widget": "entry"},
-            {"name": "errv_max", "label": "Maximum Error Velocity"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "vel_max", "label": "Maximum Velocity"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "vel_min", "label": "Minimum Velocity"   , "var": tk.DoubleVar(master=self.top, value=0.45)     , "widget": "entry"},
-            {"name": "start_datetime", "label": "Start Date/Time"   , "var": tk.StringVar(master=self.top, value="2000-Jan-01 00:00:00.0")     , "widget": "entry"},
-            {"name": "end_datetime", "label": "End Date/Time"   , "var": tk.StringVar(master=self.top, value="2030-Dec-31 00:00:00.0")     , "widget": "entry"},
-            # {"name": "position_data", "label": "Position Data", "var": tk.StringVar(master=self.top, value="") , "widget": "position_file"},
-        ]
-
-        self._build_widgets()
-        self.top.wait_window()
-
-    # ──────────────────────────────────────────────────────────────────
-    # GUI LAYOUT
-    # ──────────────────────────────────────────────────────────────────
-    def _build_widgets(self):
-        # make dialog resizable
-        self.top.columnconfigure(0, weight=1)
-        self.top.rowconfigure(0, weight=1)
-
-        frm = ttk.Frame(self.top, padding=8)
-        frm.grid(sticky="nsew")
-        for col in (0, 1):
-            frm.columnconfigure(col, weight=1)
-
-        # row 0 – instrument name
-        ttk.Label(frm, text="Instrument name").grid(row=0, column=0, sticky="e")
-        ttk.Entry(frm, textvariable=self.name_var, state="readonly", width=30)\
-            .grid(row=0, column=1, sticky="w", pady=2)
-
-        # row 1 – PD0 source
-        src_lf = ttk.LabelFrame(frm, text="PD0 source")
-        src_lf.grid(row=1, column=0, columnspan=2, sticky="ew", pady=4)
-        ttk.Radiobutton(src_lf, text="Folder", value="folder", variable=self.mode_var,
-                        command=self._reset).pack(side="left", padx=10)
-        ttk.Radiobutton(src_lf, text="Single file", value="file", variable=self.mode_var,
-                        command=self._reset).pack(side="left", padx=10)
-
-        # row 2 – path + button
-        ttk.Entry(frm, textvariable=self.path_var, width=80).grid(row=2, column=0, sticky="ew")
-        ttk.Button(frm, text="Select", command=self._select_path).grid(row=2, column=1, sticky="w")
-
-        # row 3 – scrollable .000 file list
-        frm.rowconfigure(3, weight=1)
-        self._build_file_list_pane(frm, row=3)
-
-        # row 4/5 – scrollable parameters
-        frm.rowconfigure(5, weight=2)
-        self._build_param_pane(frm, label_row=4, canvas_row=5)
-
-        # row 6 – save
-        ttk.Button(frm, text="Save", command=self._save)\
-            .grid(row=6, column=0, columnspan=2, sticky="ew", pady=6)
-
-    # ── file-list pane ────────────────────────────────────────────────
-    def _build_file_list_pane(self, parent: ttk.Frame, row: int):
-        self.file_canvas = tk.Canvas(parent, height=120)
-        self.file_vsb = ttk.Scrollbar(parent, orient="vertical", command=self.file_canvas.yview)
-        self.file_frame = ttk.Frame(self.file_canvas)
-
-        self.file_frame.bind("<Configure>", lambda e: self.file_canvas.configure(
-            scrollregion=self.file_canvas.bbox("all")))
-        self.file_canvas.create_window((0, 0), window=self.file_frame, anchor="nw")
-        self.file_canvas.configure(yscrollcommand=self.file_vsb.set)
-
-        # show only when in folder mode
-        self.file_canvas.grid(row=row, column=0, sticky="nsew")
-        self.file_vsb.grid(row=row, column=1, sticky="ns")
-        self.file_canvas.grid_remove()
-        self.file_vsb.grid_remove()
-
-        # hover-scroll binding
-        self.file_canvas.bind("<Enter>", lambda e: self._bind_mouse(self.file_canvas))
-        self.file_canvas.bind("<Leave>", lambda e: self._unbind_mouse())
-
-    # ── param pane ────────────────────────────────────────────────────
-    def _build_param_pane(self, parent: ttk.Frame, label_row: int, canvas_row: int):
-        lbl = ttk.LabelFrame(parent, text="Additional Parameters")
-        lbl.grid(row=label_row, column=0, columnspan=2, sticky="ew")
-        lbl.columnconfigure(0, weight=1)
-
-        self.param_canvas = tk.Canvas(parent, height=260, width=700)
-        self.param_vsb = ttk.Scrollbar(parent, orient="vertical", command=self.param_canvas.yview)
-        self.param_inner = ttk.Frame(self.param_canvas)
-
-        self.param_inner.bind("<Configure>", lambda e: self.param_canvas.configure(
-            scrollregion=self.param_canvas.bbox("all")))
-        self.param_canvas.create_window((0, 0), window=self.param_inner, anchor="nw")
-        self.param_canvas.configure(yscrollcommand=self.param_vsb.set)
-
-        self.param_canvas.grid(row=canvas_row, column=0, sticky="nsew")
-        self.param_vsb.grid(row=canvas_row, column=1, sticky="ns")
-
-        self.param_canvas.bind("<Enter>", lambda e: self._bind_mouse(self.param_canvas))
-        self.param_canvas.bind("<Leave>", lambda e: self._unbind_mouse())
-
-        self._populate_param_inner()
-
-    def _populate_param_inner(self):
-        for i, prm in enumerate(self.param_definitions):
-            ttk.Label(self.param_inner, text=prm["label"]).grid(row=i, column=0, sticky="e", padx=6, pady=2)
-            wtype = prm["widget"]
-            var = prm["var"]
-
-            if wtype == "entry":
-                ttk.Entry(self.param_inner, textvariable=var, width=40).grid(row=i, column=1, sticky="w")
-            elif wtype == "spinbox":
-                ttk.Spinbox(self.param_inner, from_=prm.get("from_", 0), to=prm.get("to", 100),
-                            increment=prm.get("increment", 1), textvariable=var, width=12).grid(row=i, column=1, sticky="w")
-            elif wtype == "combobox":
-                ttk.Combobox(self.param_inner, textvariable=var, values=prm["values"],
-                             state="readonly", width=38).grid(row=i, column=1, sticky="w")
-            elif wtype == "file":
-                sub = ttk.Frame(self.param_inner)
-                sub.grid(row=i, column=1, sticky="w")
-                ttk.Entry(sub, textvariable=var, width=40).pack(side="left")
-                ttk.Button(sub, text="Select",
-                           command=lambda v=var, t=prm["types"]:
-                           v.set(filedialog.askopenfilename(parent=self.top, filetypes=t))).pack(side="left", padx=3)
-            elif wtype == "position_file":
-                sub = ttk.Frame(self.param_inner)
-                sub.grid(row=i, column=1, sticky="w")
-                ttk.Entry(sub, textvariable=var, width=40, state="readonly").pack(side="left")
-                ttk.Button(self.param_inner, text="Load Position Information",
-                           command=self._open_position_setup, width=30).grid(row=i, column=2, padx=4)
-
-    # ──────────────────────────────────────────────────────────────────
-    # EVENT HELPERS
-    # ──────────────────────────────────────────────────────────────────
-    def _bind_mouse(self, canvas: tk.Canvas):
-        self._active_scroll_widget = canvas
-        self.top.bind_all("<MouseWheel>", self._on_mousewheel)
-
-    def _unbind_mouse(self):
-        self.top.unbind_all("<MouseWheel>")
-        self._active_scroll_widget = None
-
-    def _on_mousewheel(self, event):
-        if self._active_scroll_widget:
-            self._active_scroll_widget.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    # ──────────────────────────────────────────────────────────────────
-    # FILE SELECTION / POPULATE
-    # ──────────────────────────────────────────────────────────────────
-    def _reset(self):
-        self.path_var.set("")
-        for w in self.file_frame.winfo_children():
-            w.destroy()
-        self.file_vars.clear()
-        self.file_canvas.grid_remove()
-        self.file_vsb.grid_remove()
-
-    def _select_path(self):
-        if self.mode_var.get() == "folder":
-            folder = filedialog.askdirectory(parent=self.top, title="Select folder with .000 files")
-            if folder:
-                self._reset()
-                self.path_var.set(folder)
-                self._populate_files(Path(folder))
-        else:
-            f = filedialog.askopenfilename(parent=self.top, title="Select .000 file",
-                                           filetypes=[("PD0 files", "*.000")])
-            if f:
-                self._reset()
-                self.path_var.set(f)
-
-    def _populate_files(self, folder: Path):
-        files = sorted(folder.glob("*.000"))
-        if not files:
-            messagebox.showinfo("No files", "No .000 files found in selected folder.", parent=self.top)
-            return
-        self.file_canvas.grid()
-        self.file_vsb.grid()
-
-        self.position_file_vars = {}
-
-        for i, f in enumerate(files):
-            f_str = str(f)
-            var = tk.IntVar(self.top, value=0)
-            self.file_vars[f_str] = var
-
-            chk = ttk.Checkbutton(self.file_frame, text=f.name, variable=var)
-            chk.grid(row=i, column=0, sticky="w")
-
-            pos_var = tk.StringVar(value="")
-            pos_entry = ttk.Entry(self.file_frame, textvariable=pos_var, width=30, state="readonly")
-            pos_entry.grid(row=i, column=1, padx=5)
-
-            btn = ttk.Button(self.file_frame, text="Load Position Information",
-                            command=lambda file=f, pv=pos_var: self._open_position_setup(file, pv))
-            btn.grid(row=i, column=2, padx=5)
-            btn.state(['!disabled'] if var.get() else ['disabled'])
-
-            # track and bind checkbox
-            self.position_file_vars[f_str] = {"var": pos_var, "btn": btn}
-            var.trace_add("write", lambda *args, v=var, b=btn: b.state(['!disabled'] if v.get() else ['disabled']))
-
-
-    def _open_position_setup(self, file: Path, pos_var: tk.StringVar):
-        gui = PositionSetupGUI(master=self.top)
-        if gui.result:
-            pos_path = f"{Path(file).stem}.pos.cfg"
-            with open(pos_path, "w") as f:
-                for k, v in gui.result.items():
-                    f.write(f"{k} = {v}\n")
-            pos_var.set(pos_path)
-            self.position_files[str(file)] = pos_path
-            messagebox.showinfo("Saved", f"Position info saved as {pos_path}", parent=self.top)
-
-
-
-    # def _open_position_setup(self):
-    #     gui = PositionSetupGUI(master=self.top)
-    #     if gui.result:
-    #         # store in cfg dict later
-    #         self.position_info = gui.result
-    #         var = [i for i in range(len(self.param_definitions)) if self.param_definitions[i]["name"] == "position_data"][0]
-    #         messagebox.showinfo("Saved", "Position information captured.", parent=self.top)
-    #         with open(self.name_var.get() + ".pos.cfg", "w") as f:
-    #             for key, value in gui.result.items():
-    #                 f.write(f"{key} = {value}\n")
-    #         self.param_definitions[var]["var"].set(self.name_var.get() + ".pos.cfg")
-
-    # ──────────────────────────────────────────────────────────────────
-    # SAVE
-    # ──────────────────────────────────────────────────────────────────
-    def _save(self):
-        if self.mode_var.get() == "folder":
-            selected = [p for p, v in self.file_vars.items() if v.get()]
-            positions = [v.get() for v in self.position_file_vars.values() if v["var"].get()]
-            if not selected:
-                messagebox.showerror("Input error", "Choose at least one .000 file.", parent=self.top)
-                return
-            files = selected
-        else:
-            if not self.path_var.get():
-                messagebox.showerror("Input error", "Select a PD0 file.", parent=self.top)
-                return
-            files = [self.path_var.get()]
-
-        self.cfg = {
-            "type": "adcp",
-            "files": files,
-            "positions": positions,
-            **{d["name"]: d["var"].get() for d in self.param_definitions}
-        }
-        self.top.destroy()
-
-    def _populate(self, folder: Path):
-        files = sorted(folder.glob("*.000"))
-        if not files:
-            messagebox.showinfo("No files", "No .000 files found in that folder.", parent=self.top)
-            return
-        self.file_canvas.grid()
-        self.file_scrollbar.grid()
-        for i, f in enumerate(files):
-            v = tk.IntVar(master=self.top, value=1)
-            self.file_vars[str(f)] = v
-            ttk.Checkbutton(self.file_scroll_frame, text=f.name, variable=v).grid(row=i, column=0, sticky="w")
-
-    def _save(self):
-        if not self.path_var.get():
-            messagebox.showerror("Input error", "Please select a PD0 file or folder.", parent=self.top)
-            return
-
-        config = {
-            "type": "adcp",
-            "mode": self.mode_var.get(),
-        }
-
-        if self.mode_var.get() == "folder":
-            selected = [p for p, v in self.file_vars.items() if v.get()]
-            if not selected:
-                messagebox.showerror("Input error", "Choose at least one .000 file.", parent=self.top)
-                return
-            self.files = selected
-        else:
-            self.files = [self.path_var.get()]
-
-        for param in self.param_definitions:
-            config[param["name"]] = param["var"].get()
-
-        self.cfg = config
-        self.top.destroy()
-
-
-
 
 
 class ADCP():
@@ -355,7 +29,7 @@ class ADCP():
         
         Utils.info(
             logger=self.logger,
-            msg=f"Initializing ADCP from configuration file: {cfg}",
+            msg=f"Initializing ADCP {self.name}",
             level=self.__class__.__name__
             )
         
@@ -365,11 +39,14 @@ class ADCP():
         else:
             Utils.error(
                 logger=self.logger,
-                msg=f"ADCP config '{self._config_path}' must contain 'filename' entry with a valid path to a PD0 file.",
+                msg=f"Configuration for {self.name} must contain key 'filename' corresponding to a valid path to a PD0 (.000) file.",
                 exc=ValueError,
                 level=self.__class__.__name__
             )
+            
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
+        
+        
         self.datetimes = None
         self.time_mask = None
         self.fixed_leaders = None
@@ -387,32 +64,121 @@ class ADCP():
         self.absolute_beam_midpoint_positions = None
         self.absolute_beam_midpoint_positions_hab = None
         
-        self._pg_min      = float(self._cfg.get('pg_min'     , Constants._LOW_NUMBER))
-        self._cormag_min  = int(self._cfg.get('cormag_min' , Constants._LOW_NUMBER))
-        self._cormag_max  = int(self._cfg.get('cormag_max' , Constants._HIGH_NUMBER))
-        self._echo_min    = int(self._cfg.get('echo_min'   , Constants._LOW_NUMBER))
-        self._echo_max    = int(self._cfg.get('echo_max'   , Constants._HIGH_NUMBER))
-        self._vel_min     = float(self._cfg.get('vel_min'    , Constants._LOW_NUMBER))
-        self._vel_max     = float(self._cfg.get('vel_max'    , Constants._HIGH_NUMBER))
-        self._err_vel_max = float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER))
-        self._start_datetime = parser.parse(self._cfg.get('start_datetime', Constants._OLD_DATETIME))
-        self._end_datetime = parser.parse(self._cfg.get('end_datetime', Constants._FAR_DATETIME))
         
-        self.rssi_beam_1  = float(self._cfg.get('rssi_beam1'     , 0.41))
-        self.rssi_beam_2  = float(self._cfg.get('rssi_beam2'     , 0.41))
-        self.rssi_beam_3  = float(self._cfg.get('rssi_beam3'     , 0.41))
-        self.rssi_beam_4  = float(self._cfg.get('rssi_beam4'     , 0.41))
+        ## grab masking attributes
+        
+
+
+        @dataclass
+        class MaskParams:
+            pg_min: float = field(metadata={"desc": "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only."})
+            cormag_min: int = field(metadata={"desc": "Minimum correlation magnitude accepted. Applies to masks for beam data only."})
+            cormag_max: int = field(metadata={"desc": "Maximum correlation magnitude accepted. Applies to masks for beam data only."})
+            echo_min: int = field(metadata={"desc": "Minimum echo intensity threshold accepted. Applies to masks for beam data only."})
+            echo_max: int = field(metadata={"desc": "Maximum echo intensity threshold accepted. Applies to masks for beam data only."})
+            vel_min: float = field(metadata={"desc": "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
+            vel_max: float = field(metadata={"desc": "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
+            err_vel_max: float = field(metadata={"desc": "Maximum accepted error velocity (m/s). Applies to masks for velocity data only." })
+            start_datetime: datetime = field(metadata={"desc": "Start time for valid ensemble masking window. Applies to masks for velocity and beam data."})
+            end_datetime: datetime = field(metadata={"desc": "End time for valid ensemble masking window. Applies to masks for velocity and beam data."})
+            first_good_ensemble: int = field(metadata={"desc": "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
+            last_good_ensemble: int = field(metadata={"desc": "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
+
+            
+        self.masking = MaskParams(
+            pg_min=float(self._cfg.get('pg_min', Constants._LOW_NUMBER)),
+            cormag_min=int(self._cfg.get('cormag_min', Constants._LOW_NUMBER)),
+            cormag_max=int(self._cfg.get('cormag_max', Constants._HIGH_NUMBER)),
+            echo_min=int(self._cfg.get('echo_min', Constants._LOW_NUMBER)),
+            echo_max=int(self._cfg.get('echo_max', Constants._HIGH_NUMBER)),
+            vel_min=float(self._cfg.get('vel_min', Constants._LOW_NUMBER)),
+            vel_max=float(self._cfg.get('vel_max', Constants._HIGH_NUMBER)),
+            err_vel_max=float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER)),
+            start_datetime=parser.parse(self._cfg.get('start_datetime', Constants._FAR_PAST_DATETIME)),
+            end_datetime=parser.parse(self._cfg.get('end_datetime', Constants._FAR_FUTURE_DATETIME)),
+            first_good_ensemble=int(self._cfg.get('first_good_ensemble', 1)),
+            last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
+            )
+        
+        
+        @dataclass
+        class ADCPGeometry:
+            beam_facing: str = field(metadata={"desc": "Beam direction (Up/Down)"})
+            n_bins: float = field(metadata={"desc": "Number of bins"})
+            n_beams: float = field(metadata={"desc": "Number of beams"})
+            beam_angle: float = field(metadata={"desc": "Beam angle in degrees from vertical"})
+            bin_1_distance: float = field(metadata={"desc": "Distance to the center of the first bin (m)"})
+            bin_length: float = field(metadata={"desc": "Vertical length of each measurement bin (m)"})
+            bin_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from ADCP to bin centers (m)"})
+            crp_offset_x: float = field(metadata={"desc": "Offset of ADCP from platform CRP (X axis, meters)"})
+            crp_offset_y: float = field(metadata={"desc": "Offset of ADCP from platform CRP(Y axis, meters)"})
+            crp_offset_z: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Z axis, meters)"})
+            crp_rotation_angle: float = field(metadata={"desc": "CCW rotation of ADCP in casing (degrees)"})
+            
+                
+        self.geometry = ADCPGeometry(
+            beam_facing = self._pd0._beam_facing,
+            n_bins = self._pd0._n_cells,
+            n_beams = self._pd0._fixed.number_of_beams,
+            beam_angle=self._pd0._fixed.beam_angle, 
+            bin_1_distance=self._pd0._fixed.bin_1_distance/100,  
+            bin_length= self._pd0._fixed.depth_cell_length_ws/100,  
+            bin_midpoint_distances =  self._pd0._get_bin_midpoints(),
+            crp_offset_x=float(self._cfg.get('crp_offset_x', Constants._LOW_NUMBER)),
+            crp_offset_y=float(self._cfg.get('crp_offset_y', Constants._LOW_NUMBER)),
+            crp_offset_z=float(self._cfg.get('crp_offset_z', Constants._LOW_NUMBER)),
+            crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER))
+            )
+              
+        
+        @dataclass
+        class RSSICoefficients:
+            beam1: float = field(metadata={"desc": "RSSI coefficient for beam 1, from P3 test on TRDI instrument"})
+            beam2: float = field(metadata={"desc": "RSSI coefficient for beam 2, from P3 test on TRDI instrument"})
+            beam3: float = field(metadata={"desc": "RSSI coefficient for beam 3, from P3 test on TRDI instrument"})
+            beam4: float = field(metadata={"desc": "RSSI coefficient for beam 4, from P3 test on TRDI instrument"})
+                    
+        self.rssi = self.load_rssi(self._cfg)
+        
+        
+        @dataclass
+        class ADCPCorrections:
+            magnetic_declination: float = field(metadata={"desc": "Degrees CCW to rotate velocity data to account for magnetic declination"})
+            utc_offset: float = field(metadata={"desc": "Hours to shift ensemble datetimes to account for UTC offset"})
+            transect_shift_x: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (X axis, meters)"})
+            transect_shift_y: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)"})
+            transect_shift_z: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)"})
+            transect_shift_t: float = field(metadata={"desc": "Shifting time of entire ADCP transect for model calibration (time axis, hours)"})
+            
+        
+        self.corrections = ADCPCorrections(
+            magnetic_declination= float(self._cfg.get('magnetic_declination', Constants._LOW_NUMBER)),
+            utc_offset= float(self._cfg.get('utc_offset', Constants._LOW_NUMBER)),
+            transect_shift_x= float(self._cfg.get('transect_shift_x', Constants._LOW_NUMBER)),
+            transect_shift_y= float(self._cfg.get('transect_shift_y', Constants._LOW_NUMBER)),
+            transect_shift_z= float(self._cfg.get('transect_shift_z', Constants._LOW_NUMBER)),
+            transect_shift_t= float(self._cfg.get('transect_shift_t', Constants._LOW_NUMBER)),
+            )
+            
         
         
         self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
         self.position.resample_to(self.get_datetimes())
         
-        self.instrument_depth = float(self._cfg.get('instrument_depth', 0.0))
-        self.instrument_HAB = float(self._cfg.get('instrument_HAB', 0.0))
-        self.plot = Plotting(self)
         
-        self.calculate_beam_geometry()
-        self.print_info()
+        #class BeamData:
+            
+        # self.get_datetimes()
+        # self.plot = Plotting(self)
+        # #self.calculate_beam_geometry()
+        
+        
+        # if hasattr(self.position, "x"):
+        #     print("Position has attribute 'x'")
+        
+        
+
+        #self.print_info()
 
     def __repr__(self) -> str:  # pragma: no cover
         return (
@@ -449,16 +215,16 @@ class ADCP():
         """Return the PD0 object."""
         return self._pd0
     
-    @property
-    def n_beams(self) -> int:
-        """Return the number of beams."""
-        return self._pd0._n_beams
+    # @property
+    # def n_beams(self) -> int:
+    #     """Return the number of beams."""
+    #     return self._pd0._n_beams
     
-    @property
-    def n_cells(self) -> int:
-        """Return the number of cells."""
-        return self._pd0._n_cells
-    n_bins = n_cells  # Alias
+    # @property
+    # def n_cells(self) -> int:
+    #     """Return the number of cells."""
+    #     return self._pd0._n_cells
+    # n_bins = n_cells  # Alias
 
     @property
     def n_ensembles(self) -> int:
@@ -513,7 +279,30 @@ class ADCP():
             The beam angle in degrees.
         """
         return self._pd0._beam_angle
-
+    
+    def load_rssi(self,cfg):
+        defaults_used = []
+        vals = {}
+        for i in range(1, 5):
+            key = f"rssi_beam{i}"
+            val = float(cfg.get(key, 0.41))
+            vals[f"beam{i}"] = val
+            if cfg.get(key) is None:
+                defaults_used.append(f"beam{i}")
+    
+        if defaults_used:
+            
+            msg = f"Default RSSI coefficients used for ADCP {self.name} (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values."
+            
+            Utils.warning(
+                logger=self.logger,
+                msg=msg,
+                level=self.__class__.__name__
+            )
+ 
+    
+        return vals
+        
     def get_fixed_leader(self) -> List[FixedLeader]:
         """
         Get the fixed leader data from the PD0 file.
@@ -525,9 +314,8 @@ class ADCP():
         """
         if self.fixed_leaders is None:
             self.fixed_leaders = self._pd0._get_fixed_leader()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.fixed_leaders = np.array(self.fixed_leaders)[self.time_mask]
+
+        self.fixed_leaders = np.array(self.fixed_leaders)
         return self.fixed_leaders
 
     def get_variable_leader(self) -> List[VariableLeader]:
@@ -541,9 +329,8 @@ class ADCP():
         """
         if self.variable_leaders is None:
             self.variable_leaders = self._pd0._get_variable_leader()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.variable_leaders = np.array(self.variable_leaders)[self.time_mask]
+
+        self.variable_leaders = np.array(self.variable_leaders)
         return self.variable_leaders
 
     def get_datetimes(self) -> List[datetime]:
@@ -560,14 +347,8 @@ class ADCP():
             utc_offset = self._cfg.get("utc_offset", 0)
             for d in range(len(self.datetimes)):
                 self.datetimes[d] += timedelta(hours=float(utc_offset))
-            self.time_mask = (self.datetimes >= self._start_datetime) & (self.datetimes <= self._end_datetime)
-            self.datetimes = self.datetimes[self.time_mask]
-            if self.datetimes.size == 0:
-                Utils.warning(
-                    logger=self.logger,
-                    msg=f"No ensembles found within the specified time range: {self._start_datetime} to {self._end_datetime}. Please check the start_datetime and end_datetime in the {self.name} configuration file ({self._config_path}).",
-                    level=self.__class__.__name__
-                )
+        
+            
         return self.datetimes
             
     def _process_velocity(self, velocity: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -600,10 +381,10 @@ class ADCP():
             u, v = X_rot[:, :, 0], X_rot[:, :, 1]  # Unpack rotated components
 
         t = self.get_datetimes()
-        u = u[self.time_mask, :]
-        v = v[self.time_mask, :]
-        w = w[self.time_mask, :]
-        ev = ev[self.time_mask, :] if self.n_beams > 3 else np.zeros_like(u)
+        u = u
+        v = v
+        w = w
+        ev = ev if self.n_beams > 3 else np.zeros_like(u)
         dt = np.diff(t).astype('timedelta64[s]') / np.timedelta64(1, 's')  # Convert time differences to seconds
         dt = np.append(dt, dt[-1])  # Append last value to match ensemble count
         dt = dt[:, np.newaxis]  # Reshape to (n_ensembles, 1) for broadcasting
@@ -658,23 +439,17 @@ class ADCP():
         """
         if self.echo_intensity is None:
             self.echo_intensity = self._pd0._get_echo_intensity()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.echo_intensity = self.echo_intensity[self.time_mask, :]
+
+        self.echo_intensity = self.echo_intensity
+
         
-    
-        # mask = (
-        #     (self.echo_intensity < self._echo_min) |
-        #     (self.echo_intensity > self._echo_max)
+        # Utils.all_nan(
+        #     arr = self.echo_intensity,
+        #     logger= self.logger,
+        #     msg = f"No valid echo intensity values found within the specified limits: {self._echo_min} to {self._echo_max}. Please check the echo_min and echo_max in the {self.name} instrument configuration.",
+        #     arrname= "echo_intensity",
+        #     class_name= self.__class__.__name__
         # )
-        # #self.echo_intensity[mask] = 32675
-        Utils.all_nan(
-            arr = self.echo_intensity,
-            logger= self.logger,
-            msg = f"No valid echo intensity values found within the specified limits: {self._echo_min} to {self._echo_max}. Please check the echo_min and echo_max in the {self.name} instrument configuration.",
-            arrname= "echo_intensity",
-            class_name= self.__class__.__name__
-        )
         return self.echo_intensity
 
     def get_correlation_magnitude(self) -> np.ndarray:
@@ -688,21 +463,12 @@ class ADCP():
         """
         if self.correlation_magnitude is None:
             self.correlation_magnitude = self._pd0._get_correlation_magnitude()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.correlation_magnitude = self.correlation_magnitude[self.time_mask, :]
-        # mask = (
-        #     (self.correlation_magnitude < self._cormag_min) |
-        #     (self.correlation_magnitude > self._cormag_max)
-        # )
-        # self.correlation_magnitude[mask] = np.nan
-        Utils.all_nan(
-            arr = self.correlation_magnitude,
-            logger= self.logger,
-            msg = f"No valid correlation magnitude values found within the specified limits: {self._cormag_min} to {self._cormag_max}. Please check the cormag_min and cormag_max in the {self.name} instrument configuration ",
-            arrname= "correlation_magnitude",
-            class_name= self.__class__.__name__
-        )
+  
+        self.correlation_magnitude = self.correlation_magnitude
+        
+        
+
+        
         return self.correlation_magnitude
     
     def get_percent_good(self) -> np.ndarray:
@@ -716,18 +482,9 @@ class ADCP():
         """
         if self.percent_good is None:
             self.percent_good = self._pd0._get_percent_good().astype(np.float32)
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.percent_good = self.percent_good[self.time_mask, :]
-        # mask = (self.percent_good < self._pg_min)
-        # self.percent_good[mask] = np.nan
-        Utils.all_nan(
-            arr = self.percent_good,
-            logger= self.logger,
-            msg = f"No valid percent good values found above the minimum threshold: {self._pg_min}. Please check the pg_min in the {self.name} instrument configuration.",
-            arrname= "percent_good",
-            class_name= self.__class__.__name__
-        )
+
+        self.percent_good = self.percent_good
+
         return self.percent_good
     
     def _get_bottom_track(self) -> np.ndarray:
@@ -743,9 +500,9 @@ class ADCP():
             bottom_track = self._pd0._get_bottom_track()
             beam_range_attributes = [f"beam{i+1}_bt_range" for i in range(self.n_beams)]
             self.bottom_track = np.array([[getattr(bt, attr)/100.0 for attr in beam_range_attributes] for bt in bottom_track], dtype=np.float32)
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.bottom_track = self.bottom_track[self.time_mask, :]
+  
+    
+        self.bottom_track = self.bottom_track
         return self.bottom_track
 
     def get_bottom_track(self) -> np.ndarray:
@@ -770,9 +527,8 @@ class ADCP():
         """
         if self.sensor_temperature is None:
             self.sensor_temperature = self._pd0._get_sensor_temperature()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.sensor_temperature = self.sensor_temperature[self.time_mask]
+
+        self.sensor_temperature = self.sensor_temperature
         return self.sensor_temperature
     
     def get_sensor_transmit_pulse_length(self) -> np.ndarray:
@@ -786,10 +542,9 @@ class ADCP():
         """
         if self.sensor_transmit_pulse_length is None:
             self.sensor_transmit_pulse_length = self._pd0._get_sensor_transmit_pulse_length()
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length[self.time_mask]
-        return self.sensor_transmit_pulse_length
+
+            
+        self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length#
 
     def get_absolute_backscatter(self) -> np.ndarray:
         """
@@ -802,9 +557,8 @@ class ADCP():
         """
         if self.absolute_backscatter is None:
             self.absolute_backscatter = self._pd0._get_absolute_backscatter()[0]
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.absolute_backscatter = self.absolute_backscatter[self.time_mask, :, :]
+
+        self.absolute_backscatter = self.absolute_backscatte
         return self.absolute_backscatter
     
     def get_signal_to_noise_ratio(self) -> np.ndarray:
@@ -818,9 +572,9 @@ class ADCP():
         """
         if self.signal_to_noise_ratio is None:
             self.signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
-        if self.time_mask is None:
-            self.get_datetimes()
-        self.signal_to_noise_ratio = self.signal_to_noise_ratio[self.time_mask, :, :]
+
+            
+        self.signal_to_noise_ratio = self.signal_to_noise_ratio
         return self.signal_to_noise_ratio
 
     def get_bin_midpoints(self) -> np.ndarray:
@@ -855,8 +609,82 @@ class ADCP():
             Midpoints of the bins in HAB with shape (n_cells,).
         """
         return self.pd0._get_bin_midpoints_hab()
+
+    def calculate_beam_geometry(self) -> None:
+        """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
+        
+        
+        theta = self.crp_rotation_angle
+        offset_x = self.crp_
+        offset_y = float(self._cfg.get('offset_y', 0.0))
+        offset_z = float(self._cfg.get('offset_z', 0.0))
+        dr = float(self._cfg.get('radial_distance', 0.1))
+        R = Utils.gen_rot_z(theta)
     
-    def calculate_beam_geometry(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        if self.beam_facing == "down":
+            rel_orig = np.array([(dr, 0, 0), (-dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
+        else:
+            rel_orig = np.array([(-dr, 0, 0), (dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
+        rel_orig = np.array([offset_x, offset_y, offset_z]) + rel_orig
+        rel_orig = rel_orig.dot(R).T
+    
+        n_beams, n_cells, n_ensembles = self.n_beams, self.n_cells, self.n_ensembles
+        rel = np.zeros((3, n_beams, n_cells, n_ensembles))
+    
+        bin_mids = self.get_bin_midpoints()
+        if self.beam_facing == "down":
+            z_offsets = -bin_mids
+        else:
+            z_offsets = bin_mids
+    
+        for b in range(n_beams):
+            if b in [0, 1]:
+                R_beam = Utils.gen_rot_y((-1 if b == 0 else 1) * self.beam_angle)
+            else:
+                R_beam = Utils.gen_rot_x((1 if b == 3 else -1) * self.beam_angle)
+    
+            for e in range(n_ensembles):
+                midpoints = np.zeros((3, n_cells))
+                midpoints[2, :] = z_offsets
+                rel[:, b, :, e] = R_beam @ midpoints
+    
+                yaw = self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e]
+                pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
+                roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
+                R_att = Utils.gen_rot_x(roll) @ Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch)
+                rel[:, b, :, e] = (rel[:, b, :, e].T @ R_att).T
+    
+        self.relative_beam_midpoint_positions = XYZ(
+            x=rel[0].transpose(1, 2, 0),
+            y=rel[1].transpose(1, 2, 0),
+            z=rel[2].transpose(1, 2, 0),
+        )
+    
+        # Absolute positions
+        if isinstance(self.position.x, float):
+            xx = np.full(n_ensembles, self.position.x)
+        else:
+            xx = self.position.x
+        if isinstance(self.position.y, float):
+            yy = np.full(n_ensembles, self.position.y)
+        else:
+            yy = self.position.y
+        if isinstance(self.position.z, float):
+            zz = np.full(n_ensembles, self.position.z)
+        else:
+            zz = self.position.z
+    
+        X_base = np.stack([xx, yy, zz])[:, None, :]
+        X_base = np.repeat(X_base, n_cells, axis=1)  # shape (3, n_cells, n_ensembles)
+        X_base = np.repeat(X_base[None, :, :, :], n_beams, axis=0)  # (n_beams, 3, n_cells, n_ensembles)
+    
+        abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
+        abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
+    
+        self.geographic_beam_midpoint_positions = XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
+
+    
+    def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
         """
         Calculate the beam geometry coordinates.
@@ -880,6 +708,7 @@ class ADCP():
                                              (dr, 0, 0),
                                              (0, dr, 0),
                                              (0, -dr, 0)])
+            
         relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
         relative_beam_origin = relative_beam_origin.dot(R).T
         relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
@@ -970,7 +799,10 @@ class ADCP():
                                                         y=absolute_beam_midpoint_positions_hab[1, :, :, :],
                                                         z=absolute_beam_midpoint_positions_hab[2, :, :, :])
         
-        
+
+
+
+            
         
     def _scalar_counts_to_absolute_backscatter(self,E,E_r,k_c,alpha,C,R,Tx_T, Tx_PL, P_DBW):
         """
