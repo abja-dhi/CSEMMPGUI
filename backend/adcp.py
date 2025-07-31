@@ -1260,16 +1260,16 @@ from matplotlib.collections import LineCollection
 import matplotlib as mpl
 
 class Plotting:
-    _CMAPS = {
-        "percent_good": plt.cm.binary,
-        "echo_intensity": plt.cm.turbo,
-        "filtered_echo_intensity": plt.cm.turbo,
-        "correlation_magnitude": plt.cm.nipy_spectral,
-        "absolute_backscatter": plt.cm.turbo,
-        "ntu": plt.cm.turbo,
-        "ssc": plt.cm.turbo,
-        "signal_to_noise_ratio": plt.cm.bone_r,
-    }
+    # _CMAPS = {
+    #     "percent_good": plt.cm.binary,
+    #     "echo_intensity": plt.cm.turbo,
+    #     "filtered_echo_intensity": plt.cm.turbo,
+    #     "correlation_magnitude": plt.cm.nipy_spectral,
+    #     "absolute_backscatter": plt.cm.turbo,
+    #     "ntu": plt.cm.turbo,
+    #     "ssc": plt.cm.turbo,
+    #     "signal_to_noise_ratio": plt.cm.bone_r,
+    # }
     _CBAR_LABELS = {
         "u": "Eastward Velocity (m/s)",
         "v": "Northward Velocity (m/s)",
@@ -1282,7 +1282,7 @@ class Plotting:
 
     
 
-    def flood_plot(self, variable: str, ax: Axes=None, plot_by: str="bin", beam_number: int=1, start_bin: int=None, end_bin: int=None, start_ensemble: int=None, end_ensemble: int=None, vmin: float=None, vmax: float=None) -> Axes:
+    def flood_plot(self, variable: str, ax: Axes=None, plot_by: str="bin", beam_number: int=1, start_bin: int=None, end_bin: int=None, start_ensemble: int=None, end_ensemble: int=None, vmin: float=None, vmax: float=None, cmap: str = 'turbo_r') -> Axes:
         """
         Create a flood plot on the given axes.
 
@@ -1307,7 +1307,7 @@ class Plotting:
                 exc=ValueError,
                 level=self.__class__.__name__
             )
-        cmap = self._CMAPS.get(variable, plt.cm.jet)
+        cmap = cmap #self._CMAPS.get(variable, cmap)
         if variable == "percent_good":
             data = self.adcp.get_percent_good()
         elif variable == "absolute_backscatter":
@@ -1420,7 +1420,7 @@ class Plotting:
         
     def four_beam_flood_plot(self, variable: str, ax: Tuple[Axes, Axes, Axes, Axes] = None, plot_by: str = "bin",
                              start_bin: int = None, end_bin: int = None,
-                             start_ensemble: int = None, end_ensemble: int = None) -> Tuple[Axes, Axes, Axes, Axes]:
+                             start_ensemble: int = None, end_ensemble: int = None, cmap: str = 'turbo_r') -> Tuple[Axes, Axes, Axes, Axes]:
         """
         Create a flood plot for the four beams of the ADCP data.
         Parameters
@@ -1458,7 +1458,8 @@ class Plotting:
                 start_bin=start_bin,
                 end_bin=end_bin,
                 start_ensemble=start_ensemble,
-                end_ensemble=end_ensemble
+                end_ensemble=end_ensemble,
+                cmap = cmap,
             )
 
         return ax

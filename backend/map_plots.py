@@ -158,7 +158,7 @@ class ADCPTransectMap:
 ADCPTransectMap(adcps).plot()
 
 #%%
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QMenuBar, QAction, QComboBox, QToolBar
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.collections import LineCollection
@@ -180,6 +180,7 @@ class ADCPMapCanvas(FigureCanvas):
         self.adcps = adcps
         self.transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
         self.collections = []
+        self.current_cmap = 'turbo_r'
         self.norm = None
         self.hover_index = None
         self.selected_index = None
@@ -222,8 +223,8 @@ class ADCPMapCanvas(FigureCanvas):
 
         xrange = max(all_x) - min(all_x)
         yrange = max(all_y) - min(all_y)
-        pad_x = 1 * xrange
-        pad_y = 1 * yrange
+        pad_x = 0.5 * xrange
+        pad_y = 0.5 * yrange
         xlim = (min(all_x) - pad_x, max(all_x) + pad_x)
         ylim = (min(all_y) - pad_y, max(all_y) + pad_y)
         self.ax.set_xlim(xlim)
@@ -231,7 +232,13 @@ class ADCPMapCanvas(FigureCanvas):
         self.ax.set_ylim(min(all_y), max(all_y))
         ctx.add_basemap(self.ax, source=ctx.providers.CartoDB.PositronNoLabels,
                         crs="EPSG:3857", zoom=17, reset_extent=True)
-        sm = plt.cm.ScalarMappable(cmap='turbo_r', norm=self.norm)
+        import matplotlib.cm as cm
+        if isinstance(self.current_cmap, str) and self.current_cmap.startswith("cmo."):
+            import cmocean
+            cmap_obj = getattr(cmocean.cm, self.current_cmap[4:])
+        else:
+            cmap_obj = self.current_cmap
+        sm = cm.ScalarMappable(cmap=cmap_obj, norm=self.norm)
         sm.set_array([])
         self.fig.colorbar(sm, cax=self.cax, orientation='horizontal', label='Abs. Backscatter')
         self.draw()
@@ -250,7 +257,7 @@ class ADCPMapCanvas(FigureCanvas):
         if self.hover_index is not None:
             self.selected_index = self.hover_index
             self.update_colors()
-            self.adcps[self.selected_index].plot.four_beam_flood_plot(variable='Absolute Backscatter')
+            self.adcps[self.selected_index].plot.four_beam_flood_plot(variable='Absolute Backscatter', cmap = self.current_cmap)
 
     def find_closest_transect(self, x, y, tol):
         min_dist = float("inf")
@@ -274,12 +281,16 @@ class ADCPMapCanvas(FigureCanvas):
             else:
                 lc.set_array(self.backscatter_cache[i])
                 lc.set_color(None)
-                lc.set_cmap("turbo_r")
+                lc.set_cmap(self.current_cmap)
                 lc.set_norm(self.norm)
         self.draw()
 
 
+import matplotlib.pyplot as plt
+import cmocean
+
 class ADCPMainWindow(QMainWindow):
+    current_cmap = 'turbo_r'
     def __init__(self, adcps):
         super().__init__()
         self.setWindowTitle("ADCP Transect Viewer")
@@ -295,6 +306,36 @@ class ADCPMainWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        # Toolbar with colormap selector
+        toolbar = QToolBar("Main Toolbar")
+        self.addToolBar(toolbar)
+
+        self.colormap_selector = QComboBox()
+        cmo_cmaps = [f"cmo.{name}" for name in cmocean.cm.cmapnames]
+        mpl_cmaps = plt.colormaps()
+        self.colormap_selector.addItems(sorted(set(mpl_cmaps + cmo_cmaps)))
+        self.colormap_selector.setCurrentText("turbo_r")
+        self.colormap_selector.currentTextChanged.connect(self.change_colormap)
+
+        toolbar.addWidget(QLabel("Colormap: "))
+        toolbar.addWidget(self.colormap_selector)
+
+        
+    def change_colormap(self, cmap_name):
+        import cmocean
+        if cmap_name.startswith("cmo."):
+            cmap = getattr(cmocean.cm, cmap_name[4:])
+            cmap = getattr(cmocean.cm, cmap_name)
+        else:
+            cmap = cmap_name
+
+        for i, lc in enumerate(self.canvas.collections):
+            if i != self.canvas.selected_index and i != self.canvas.hover_index:
+                lc.set_cmap(cmap)
+                self.canvas.current_cmap = cmap_name
+        self.current_cmap = self.canvas.current_cmap
+        self.canvas.draw()
+
     def update_hover_label(self, index):
         if isinstance(index, int):
             name = self.canvas.adcps[index].name
@@ -309,7 +350,6 @@ class ADCPMainWindow(QMainWindow):
 # window = ADCPMainWindow(adcps)
 # window.show()
 # sys.exit(app.exec_())
-
 
 
 # Usage example:
