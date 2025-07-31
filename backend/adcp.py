@@ -160,7 +160,17 @@ class ADCP():
             transect_shift_t= float(self._cfg.get('transect_shift_t', Constants._LOW_NUMBER)),
             )
             
+        class ADCPTime:
+            n_ensembles: int = field(metadata={"desc": "Number of ensembles in the dataset"})
+            ensemble_datetimes: int = field(metadata={"desc": "DateTime corresponding to each ensemble in the dataset"})
+            ensemble_numbers: NDArray[np.int64] = field(metadata={"desc": "Number corresponding to each ensemble in the dataset. Read directly from source file"})
+          
         
+        # self.time = ADCPTime(
+        #     n_ensembles = )
+        
+            
+            
         
         self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
         self.position.resample_to(self.get_datetimes())
@@ -232,53 +242,53 @@ class ADCP():
         dt = self.get_datetimes()  # Ensure datetimes are loaded
         return dt.shape[0]
 
-    @property
-    def beam_facing(self) -> str:
-        """
-        Return the beam facing direction.
+    # @property
+    # def beam_facing(self) -> str:
+    #     """
+    #     Return the beam facing direction.
         
-        Returns:
-        -------
-        str
-            'up' if the beams are facing upwards, 'down' if they are facing downwards.
-        """
-        return self._pd0._beam_facing
+    #     Returns:
+    #     -------
+    #     str
+    #         'up' if the beams are facing upwards, 'down' if they are facing downwards.
+    #     """
+    #     return self._pd0._beam_facing
 
-    @property
-    def depth_cell_length(self) -> float:
-        """
-        Return the depth cell length in meters.
+    # @property
+    # def depth_cell_length(self) -> float:
+    #     """
+    #     Return the depth cell length in meters.
         
-        Returns:
-        -------
-        float
-            The depth cell length in meters.
-        """
-        return self._pd0._depth_cell_length
+    #     Returns:
+    #     -------
+    #     float
+    #         The depth cell length in meters.
+    #     """
+    #     return self._pd0._depth_cell_length
     
-    @property
-    def bin_1_distance(self) -> float:
-        """
-        Return the distance to the first bin in meters.
+    # @property
+    # def bin_1_distance(self) -> float:
+    #     """
+    #     Return the distance to the first bin in meters.
         
-        Returns:
-        -------
-        float
-            The distance to the first bin in meters.
-        """
-        return self._pd0._bin_1_distance
+    #     Returns:
+    #     -------
+    #     float
+    #         The distance to the first bin in meters.
+    #     """
+    #     return self._pd0._bin_1_distance
     
-    @property
-    def beam_angle(self) -> float:
-        """
-        Return the beam angle in degrees.
+    # @property
+    # def beam_angle(self) -> float:
+    #     """
+    #     Return the beam angle in degrees.
         
-        Returns:
-        -------
-        float
-            The beam angle in degrees.
-        """
-        return self._pd0._beam_angle
+    #     Returns:
+    #     -------
+    #     float
+    #         The beam angle in degrees.
+    #     """
+    #     return self._pd0._beam_angle
     
     def load_rssi(self,cfg):
         defaults_used = []

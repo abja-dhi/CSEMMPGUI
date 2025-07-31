@@ -26,3 +26,7 @@
 2025-07-31 11:57:17,668 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
 2025-07-31 11:57:18,209 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
 2025-07-31 11:57:18,508 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 12:07:28,930 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 12:07:41,208 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 12:07:41,809 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 12:07:42,261 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
