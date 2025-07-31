@@ -47,22 +47,22 @@ class ADCP():
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
         
         
-        self.datetimes = None
-        self.time_mask = None
-        self.fixed_leaders = None
-        self.variable_leaders = None
-        self.velocity = None
-        self.echo_intensity = None
-        self.correlation_magnitude = None
-        self.percent_good = None
-        self.bottom_track = None
-        self.sensor_temperature = None
-        self.sensor_transmit_pulse_length = None
-        self.absolute_backscatter = None
-        self.signal_to_noise_ratio = None
-        self.relative_beam_midpoint_positions = None
-        self.absolute_beam_midpoint_positions = None
-        self.absolute_beam_midpoint_positions_hab = None
+        # self.datetimes = None
+        # self.time_mask = None
+        # self.fixed_leaders = None
+        # self.variable_leaders = None
+        # self.velocity = None
+        # self.echo_intensity = None
+        # self.correlation_magnitude = None
+        # self.percent_good = None
+        # self.bottom_track = None
+        # self.sensor_temperature = None
+        # self.sensor_transmit_pulse_length = None
+        # self.absolute_backscatter = None
+        # self.signal_to_noise_ratio = None
+        # self.relative_beam_midpoint_positions = None
+        # self.absolute_beam_midpoint_positions = None
+        # self.absolute_beam_midpoint_positions_hab = None
         
         
         ## grab masking attributes
@@ -100,6 +100,7 @@ class ADCP():
             last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
             )
         
+
         
         @dataclass
         class ADCPGeometry:
@@ -138,8 +139,12 @@ class ADCP():
             beam3: float = field(metadata={"desc": "RSSI coefficient for beam 3, from P3 test on TRDI instrument"})
             beam4: float = field(metadata={"desc": "RSSI coefficient for beam 4, from P3 test on TRDI instrument"})
                     
-        self.rssi = self.load_rssi(self._cfg)
-        
+        self.rssi = RSSICoefficients(
+            beam1=float(self._cfg.get('rssi_beam1', 0.41)),
+            beam2=float(self._cfg.get('rssi_beam2', 0.41)),
+            beam3=float(self._cfg.get('rssi_beam3', 0.41)),
+            beam4=float(self._cfg.get('rssi_beam4', 0.41))
+            )
         
         @dataclass
         class ADCPCorrections:
@@ -150,7 +155,6 @@ class ADCP():
             transect_shift_z: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)"})
             transect_shift_t: float = field(metadata={"desc": "Shifting time of entire ADCP transect for model calibration (time axis, hours)"})
             
-        
         self.corrections = ADCPCorrections(
             magnetic_declination= float(self._cfg.get('magnetic_declination', Constants._LOW_NUMBER)),
             utc_offset= float(self._cfg.get('utc_offset', Constants._LOW_NUMBER)),
@@ -159,21 +163,53 @@ class ADCP():
             transect_shift_z= float(self._cfg.get('transect_shift_z', Constants._LOW_NUMBER)),
             transect_shift_t= float(self._cfg.get('transect_shift_t', Constants._LOW_NUMBER)),
             )
-            
+        
+        @dataclass    
         class ADCPTime:
             n_ensembles: int = field(metadata={"desc": "Number of ensembles in the dataset"})
             ensemble_datetimes: int = field(metadata={"desc": "DateTime corresponding to each ensemble in the dataset"})
             ensemble_numbers: NDArray[np.int64] = field(metadata={"desc": "Number corresponding to each ensemble in the dataset. Read directly from source file"})
           
         
-        # self.time = ADCPTime(
-        #     n_ensembles = )
+        self.time = ADCPTime(
+            n_ensembles = self._pd0._n_ensembles,
+            ensemble_datetimes = self._get_datetimes(),
+            ensemble_numbers = np.array([i.ensemble_number for i in self._pd0._get_variable_leader()])
+            )
+        
+        
+
+        @dataclass
+        class ADCPBeamData:
+            echo_intensity: np.ndarray = field(metadata={"desc": "Raw echo intensity from each beam. Unitless ADC counts representing backscatter strength."})
+            correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude from each beam, used as a data quality metric."})
+            percent_good: np.ndarray = field(metadata={"desc": "Percentage of good data for each beam and cell, based on instrument quality control logic."})
+            absolute_backscatter: np.ndarray = field(metadata={"desc": "Calibrated absolute backscatter in dB, derived from raw echo intensity using beam-specific corrections."})
+            suspended_solids_concentration: np.ndarray = field(metadata={"desc": "Estimated suspended solids concentration (e.g., mg/L) derived from absolute backscatter using calibration coefficients."})
+            signal_to_noise_ratio: np.ndarray = field(metadata={"desc": "SNR in dB, calculated as the difference between backscatter and instrument noise floor."})
+
+        
+   
+        self.beam_data = ADCPBeamData(
+            echo_intensity=self._pd0._get_echo_intensity(),
+            correlation_magnitude=self._pd0._get_correlation_magnitude(),
+            percent_good=self._pd0._get_percent_good(),
+            absolute_backscatter = self._pd0._get_absolute_backscatter()[0],  # optional if calculated later
+            suspended_solids_concentration=None,  # placeholder until compute 
+            signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
+            )
+
+        # class ADCPModelParams:
+        #     A,B,Water density, etc. 
+        # # self.time = ADCPTime(
+        # #     n_ensembles = )
         
             
-            
+        # adcp.beam_data.absolute_backscatter
+        # adcp.velocity_data.
         
-        self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
-        self.position.resample_to(self.get_datetimes())
+        # self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
+        # self.position.resample_to(self.get_datetimes())
         
         
         #class BeamData:
@@ -220,10 +256,10 @@ class ADCP():
             level=self.__class__.__name__
         )
 
-    @property
-    def pd0(self) -> Pd0Decoder:
-        """Return the PD0 object."""
-        return self._pd0
+    # @property
+    # def pd0(self) -> Pd0Decoder:
+    #     """Return the PD0 object."""
+    #     return self._pd0
     
     # @property
     # def n_beams(self) -> int:
@@ -236,11 +272,11 @@ class ADCP():
     #     return self._pd0._n_cells
     # n_bins = n_cells  # Alias
 
-    @property
-    def n_ensembles(self) -> int:
-        """Return the number of ensembles."""
-        dt = self.get_datetimes()  # Ensure datetimes are loaded
-        return dt.shape[0]
+    # @property
+    # def n_ensembles(self) -> int:
+    #     """Return the number of ensembles."""
+    #     dt = self.get_datetimes()  # Ensure datetimes are loaded
+    #     return dt.shape[0]
 
     # @property
     # def beam_facing(self) -> str:
@@ -290,76 +326,85 @@ class ADCP():
     #     """
     #     return self._pd0._beam_angle
     
-    def load_rssi(self,cfg):
-        defaults_used = []
-        vals = {}
-        for i in range(1, 5):
-            key = f"rssi_beam{i}"
-            val = float(cfg.get(key, 0.41))
-            vals[f"beam{i}"] = val
-            if cfg.get(key) is None:
-                defaults_used.append(f"beam{i}")
+    # def _load_rssi(self,cfg):
+        
+    #     ##ANDY GET RID OF THIS AND ALL OTHER LOGGER ACTIVITIES
+    #     defaults_used = []
+    #     vals = {}
+    #     for i in range(1, 5):
+    #         key = f"rssi_beam{i}"
+    #         val = float(cfg.get(key, 0.41))
+    #         vals[f"beam{i}"] = val
+    #         if cfg.get(key) is None:
+    #             defaults_used.append(f"beam{i}")
     
-        if defaults_used:
+    #     if defaults_used:
             
-            msg = f"Default RSSI coefficients used for ADCP {self.name} (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values."
+    #         msg = f"Default RSSI coefficients used for ADCP {self.name} (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values."
             
-            Utils.warning(
-                logger=self.logger,
-                msg=msg,
-                level=self.__class__.__name__
-            )
+    #         Utils.warning(
+    #             logger=self.logger,
+    #             msg=msg,
+    #             level=self.__class__.__name__
+    #         )
  
     
-        return vals
+    #     return vals
         
-    def get_fixed_leader(self) -> List[FixedLeader]:
-        """
-        Get the fixed leader data from the PD0 file.
+    # def _get_fixed_leader(self) -> List[FixedLeader]:
+    #     """
+    #     Get the fixed leader data from the PD0 file.
         
-        Returns:
-        -------
-        List[FixedLeader]
-            A list of FixedLeader objects containing fixed leader data for each ensemble.
-        """
-        if self.fixed_leaders is None:
-            self.fixed_leaders = self._pd0._get_fixed_leader()
+    #     Returns:
+    #     -------
+    #     List[FixedLeader]
+    #         A list of FixedLeader objects containing fixed leader data for each ensemble.
+    #     """
+    #     if self.fixed_leaders is None:
+    #         self.fixed_leaders = self._pd0._get_fixed_leader()
 
-        self.fixed_leaders = np.array(self.fixed_leaders)
-        return self.fixed_leaders
+    #     self.fixed_leaders = np.array(self.fixed_leaders)
+    #     return self.fixed_leaders
 
-    def get_variable_leader(self) -> List[VariableLeader]:
-        """
-        Get the variable leader data from the PD0 file.
+    # def _get_variable_leader(self) -> List[VariableLeader]:
+    #     """
+    #     Get the variable leader data from the PD0 file.
         
-        Returns:
-        -------
-        List[VariableLeader]
-            A list of VariableLeader objects containing variable leader data for each ensemble.
-        """
-        if self.variable_leaders is None:
-            self.variable_leaders = self._pd0._get_variable_leader()
+    #     Returns:
+    #     -------
+    #     List[VariableLeader]
+    #         A list of VariableLeader objects containing variable leader data for each ensemble.
+    #     """
+    #     if self.variable_leaders is None:
+    #         self.variable_leaders = self._pd0._get_variable_leader()
 
-        self.variable_leaders = np.array(self.variable_leaders)
-        return self.variable_leaders
+    #     self.variable_leaders = np.array(self.variable_leaders)
+    #     return self.variable_leaders
 
-    def get_datetimes(self) -> List[datetime]:
+    def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
         """
         Get the datetimes for each ensemble in the PD0 file.
-        
-        Returns:
+    
+        If enabled, applies UTC offset and transect time shift corrections.
+    
+        Parameters
+        ----------
+        apply_corrections : bool, optional
+            Whether to apply time corrections (default is True).
+    
+        Returns
         -------
         List[datetime]
             A list of datetime objects corresponding to each ensemble.
         """
-        if self.datetimes is None:
-            self.datetimes = self.pd0._get_datetimes()
-            utc_offset = self._cfg.get("utc_offset", 0)
-            for d in range(len(self.datetimes)):
-                self.datetimes[d] += timedelta(hours=float(utc_offset))
-        
-            
-        return self.datetimes
+        datetimes = self._pd0._get_datetimes()
+        if apply_corrections:
+            delta = timedelta(hours=float(self.corrections.utc_offset)) + \
+                    timedelta(hours=float(self.corrections.transect_shift_t))
+            datetimes = [dt + delta for dt in datetimes]
+        return datetimes
+    
+    
             
     def _process_velocity(self, velocity: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -403,7 +448,7 @@ class ADCP():
         dz = w * dt
         return u, v, w, du, dv, dz, ev
         
-    def get_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _get_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Get the velocity data from the PD0 file.
         
@@ -438,7 +483,7 @@ class ADCP():
         self.velocity = (u, v, w, du, dv, dz, ev)
         return self.velocity
     
-    def get_echo_intensity(self) -> np.ndarray:
+    def _get_echo_intensity(self) -> np.ndarray:
         """
         Get the echo intensity data from the PD0 file.
         
@@ -462,7 +507,7 @@ class ADCP():
         # )
         return self.echo_intensity
 
-    def get_correlation_magnitude(self) -> np.ndarray:
+    def _get_correlation_magnitude(self) -> np.ndarray:
         """
         Get the correlation magnitude data from the PD0 file.
         
@@ -481,7 +526,7 @@ class ADCP():
         
         return self.correlation_magnitude
     
-    def get_percent_good(self) -> np.ndarray:
+    def _get_percent_good(self) -> np.ndarray:
         """
         Get the percent good data from the PD0 file.
         
@@ -515,7 +560,7 @@ class ADCP():
         self.bottom_track = self.bottom_track
         return self.bottom_track
 
-    def get_bottom_track(self) -> np.ndarray:
+    def _get_bottom_track(self) -> np.ndarray:
         """
         Get the bottom track data from the PD0 file.
         
@@ -526,7 +571,7 @@ class ADCP():
         """
         return self.bottom_track
 
-    def get_sensor_temperature(self) -> np.ndarray:
+    def _get_sensor_temperature(self) -> np.ndarray:
         """
         Get the sensor temperature data from the PD0 file.
         
@@ -541,7 +586,7 @@ class ADCP():
         self.sensor_temperature = self.sensor_temperature
         return self.sensor_temperature
     
-    def get_sensor_transmit_pulse_length(self) -> np.ndarray:
+    def _get_sensor_transmit_pulse_length(self) -> np.ndarray:
         """
         Get the sensor transmit pulse length data from the PD0 file.
         
@@ -554,73 +599,73 @@ class ADCP():
             self.sensor_transmit_pulse_length = self._pd0._get_sensor_transmit_pulse_length()
 
             
-        self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length#
+    #     self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length#
 
-    def get_absolute_backscatter(self) -> np.ndarray:
-        """
-        Get the absolute backscatter data from the PD0 file.
+    # def _get_absolute_backscatter(self) -> np.ndarray:
+    #     """
+    #     Get the absolute backscatter data from the PD0 file.
         
-        Returns:
-        -------
-        np.ndarray
-            Absolute backscatter data with shape (n_ensembles, n_cells, n_beams).
-        """
-        if self.absolute_backscatter is None:
-            self.absolute_backscatter = self._pd0._get_absolute_backscatter()[0]
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Absolute backscatter data with shape (n_ensembles, n_cells, n_beams).
+    #     """
+    #     if self.absolute_backscatter is None:
+    #         self.absolute_backscatter = self._pd0._get_absolute_backscatter()[0]
 
-        self.absolute_backscatter = self.absolute_backscatte
-        return self.absolute_backscatter
+    #     self.absolute_backscatter = self.absolute_backscatte
+    #     return self.absolute_backscatter
     
-    def get_signal_to_noise_ratio(self) -> np.ndarray:
-        """
-        Get the signal to noise ratio data from the PD0 file.
+    # def _get_signal_to_noise_ratio(self) -> np.ndarray:
+    #     """
+    #     Get the signal to noise ratio data from the PD0 file.
         
-        Returns:
-        -------
-        np.ndarray
-            Signal to noise ratio data with shape (n_ensembles, n_cells, n_beams).
-        """
-        if self.signal_to_noise_ratio is None:
-            self.signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Signal to noise ratio data with shape (n_ensembles, n_cells, n_beams).
+    #     """
+    #     if self.signal_to_noise_ratio is None:
+    #         self.signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
 
             
-        self.signal_to_noise_ratio = self.signal_to_noise_ratio
-        return self.signal_to_noise_ratio
+    #     self.signal_to_noise_ratio = self.signal_to_noise_ratio
+    #     return self.signal_to_noise_ratio
 
-    def get_bin_midpoints(self) -> np.ndarray:
-        """
-        Get the midpoints of the bins.
+    # def _get_bin_midpoints(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins.
         
-        Returns:
-        -------
-        np.ndarray
-            Midpoints of the bins with shape (n_cells,).
-        """
-        return self.pd0._get_bin_midpoints()
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins with shape (n_cells,).
+    #     """
+    #     return self.pd0._get_bin_midpoints()
 
-    def get_bin_midpoints_depth(self) -> np.ndarray:
-        """
-        Get the midpoints of the bins in depth.
+    # def _get_bin_midpoints_depth(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins in depth.
         
-        Returns:
-        -------
-        np.ndarray
-            Midpoints of the bins in depth with shape (n_cells,).
-        """
-        return self.pd0._get_bin_midpoints_depth()
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins in depth with shape (n_cells,).
+    #     """
+    #     return self.pd0._get_bin_midpoints_depth()
 
-    def get_bin_midpoints_hab(self) -> np.ndarray:
-        """
-        Get the midpoints of the bins in height above bed (HAB).
+    # def get_bin_midpoints_hab(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins in height above bed (HAB).
         
-        Returns:
-        -------
-        np.ndarray
-            Midpoints of the bins in HAB with shape (n_cells,).
-        """
-        return self.pd0._get_bin_midpoints_hab()
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins in HAB with shape (n_cells,).
+    #     """
+    #     return self.pd0._get_bin_midpoints_hab()
 
-    def calculate_beam_geometry(self) -> None:
+    def _calculate_beam_geometry(self) -> XYZ:
         """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
         
         
@@ -691,123 +736,124 @@ class ADCP():
         abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
         abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
     
-        self.geographic_beam_midpoint_positions = XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
+    
+        return XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
 
     
-    def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
-        """
-        Calculate the beam geometry coordinates.
-        Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray]: Arrays of x, y, z coordinates for the beams.
-        """
-        theta    = float(self._cfg.get('rotation_angle', 0.0))
-        offset_x = float(self._cfg.get('offset_x', 0.0))
-        offset_y = float(self._cfg.get('offset_y', 0.0))
-        offset_z = float(self._cfg.get('offset_z', 0.0))
-        dr       = float(self._cfg.get('radial_distance', 0.1))
-        bt_range = self._get_bottom_track().T
-        R = Utils.gen_rot_z(theta)
-        if self.beam_facing == "down":
-            relative_beam_origin = np.array([(dr, 0, 0),
-                                             (-dr, 0, 0),
-                                             (0, dr, 0),
-                                             (0, -dr, 0)])
-        else:
-            relative_beam_origin = np.array([(-dr, 0, 0),
-                                             (dr, 0, 0),
-                                             (0, dr, 0),
-                                             (0, -dr, 0)])
+    # def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    #     #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
+    #     """
+    #     Calculate the beam geometry coordinates.
+    #     Returns:
+    #         Tuple[np.ndarray, np.ndarray, np.ndarray]: Arrays of x, y, z coordinates for the beams.
+    #     """
+    #     theta    = float(self._cfg.get('rotation_angle', 0.0))
+    #     offset_x = float(self._cfg.get('offset_x', 0.0))
+    #     offset_y = float(self._cfg.get('offset_y', 0.0))
+    #     offset_z = float(self._cfg.get('offset_z', 0.0))
+    #     dr       = float(self._cfg.get('radial_distance', 0.1))
+    #     bt_range = self._get_bottom_track().T
+    #     R = Utils.gen_rot_z(theta)
+    #     if self.beam_facing == "down":
+    #         relative_beam_origin = np.array([(dr, 0, 0),
+    #                                          (-dr, 0, 0),
+    #                                          (0, dr, 0),
+    #                                          (0, -dr, 0)])
+    #     else:
+    #         relative_beam_origin = np.array([(-dr, 0, 0),
+    #                                          (dr, 0, 0),
+    #                                          (0, dr, 0),
+    #                                          (0, -dr, 0)])
             
-        relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
-        relative_beam_origin = relative_beam_origin.dot(R).T
-        relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
+    #     relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
+    #     relative_beam_origin = relative_beam_origin.dot(R).T
+    #     relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
         
-        if isinstance(self.position.x, float):
-            xx = np.ones(self.n_ensembles) * self.position.x
-        else:
-            xx = self.position.x
-        if isinstance(self.position.y, float):
-            yy = np.ones(self.n_ensembles) * self.position.y
-        else:
-            yy = self.position.y
-        if isinstance(self.position.z, float):
-            zz = np.ones(self.n_ensembles) * self.position.z
-        else:
-            zz = self.position.z
-        X = np.repeat(np.stack([xx, yy, zz])[:, np.newaxis, :], self.n_cells, axis=1)
-        X = np.repeat(X[:, np.newaxis, :, :], self.n_beams, axis=1)
-        X_hab = X.copy()
-        bt_vec = np.full((3, self.n_beams, self.n_ensembles), 0, dtype=float)
+    #     if isinstance(self.position.x, float):
+    #         xx = np.ones(self.n_ensembles) * self.position.x
+    #     else:
+    #         xx = self.position.x
+    #     if isinstance(self.position.y, float):
+    #         yy = np.ones(self.n_ensembles) * self.position.y
+    #     else:
+    #         yy = self.position.y
+    #     if isinstance(self.position.z, float):
+    #         zz = np.ones(self.n_ensembles) * self.position.z
+    #     else:
+    #         zz = self.position.z
+    #     X = np.repeat(np.stack([xx, yy, zz])[:, np.newaxis, :], self.n_cells, axis=1)
+    #     X = np.repeat(X[:, np.newaxis, :, :], self.n_beams, axis=1)
+    #     X_hab = X.copy()
+    #     bt_vec = np.full((3, self.n_beams, self.n_ensembles), 0, dtype=float)
         
-        if any(~np.isnan(bt_range).flatten()):
-            bt_vec[2] = -bt_range
-        for b in range(self.n_beams):
-            beam_midpoints = np.repeat(np.outer((0, 0, 0), np.ones(self.n_cells))[:, :, np.newaxis], self.n_ensembles, axis=2)
-            if self.beam_facing == "down":
-                beam_midpoints[2] += -np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-            else:
-                beam_midpoints[2] += np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-            theta_beam = self.beam_angle
-            Ry_cw = Utils.gen_rot_y(-theta_beam)
-            Rx_cw = Utils.gen_rot_x(-theta_beam)
-            Ry_ccw = Utils.gen_rot_y(theta_beam)
-            Rx_ccw = Utils.gen_rot_x(theta_beam)
+    #     if any(~np.isnan(bt_range).flatten()):
+    #         bt_vec[2] = -bt_range
+    #     for b in range(self.n_beams):
+    #         beam_midpoints = np.repeat(np.outer((0, 0, 0), np.ones(self.n_cells))[:, :, np.newaxis], self.n_ensembles, axis=2)
+    #         if self.beam_facing == "down":
+    #             beam_midpoints[2] += -np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
+    #         else:
+    #             beam_midpoints[2] += np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
+    #         theta_beam = self.beam_angle
+    #         Ry_cw = Utils.gen_rot_y(-theta_beam)
+    #         Rx_cw = Utils.gen_rot_x(-theta_beam)
+    #         Ry_ccw = Utils.gen_rot_y(theta_beam)
+    #         Rx_ccw = Utils.gen_rot_x(theta_beam)
 
-            for e in range(self.n_ensembles):
-                if b == 0:
-                    relative_beam_midpoint_positions[:, 0, :, e] = Ry_cw.dot(beam_midpoints[:, :, e])
-                    bt_vec[:, b, e] = Ry_cw.dot(bt_vec[:, b, e])
-                elif b == 1:
-                    relative_beam_midpoint_positions[:, 1, :, e] = Ry_ccw.dot(beam_midpoints[:, :, e])
-                    bt_vec[:, b, e] = Ry_ccw.dot(bt_vec[:, b, e])
-                elif b == 2:
-                    relative_beam_midpoint_positions[:, 2, :, e] = Rx_ccw.dot(beam_midpoints[:, :, e])
-                    bt_vec[:, b, e] = Rx_ccw.dot(bt_vec[:, b, e])
-                elif b == 3:
-                    relative_beam_midpoint_positions[:, 3, :, e] = Rx_cw.dot(beam_midpoints[:, :, e])
-                    bt_vec[:, b, e] = Rx_cw.dot(bt_vec[:, b, e])
+    #         for e in range(self.n_ensembles):
+    #             if b == 0:
+    #                 relative_beam_midpoint_positions[:, 0, :, e] = Ry_cw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Ry_cw.dot(bt_vec[:, b, e])
+    #             elif b == 1:
+    #                 relative_beam_midpoint_positions[:, 1, :, e] = Ry_ccw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Ry_ccw.dot(bt_vec[:, b, e])
+    #             elif b == 2:
+    #                 relative_beam_midpoint_positions[:, 2, :, e] = Rx_ccw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Rx_ccw.dot(bt_vec[:, b, e])
+    #             elif b == 3:
+    #                 relative_beam_midpoint_positions[:, 3, :, e] = Rx_cw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Rx_cw.dot(bt_vec[:, b, e])
                 
-                if isinstance(self.position.heading, float):
-                    yaw = self.position.heading
-                else:
-                    yaw = self.position.heading[e]
-                if isinstance(self.position.pitch, float):
-                    pitch = self.position.pitch
-                else:
-                    pitch = self.position.pitch[e]
-                if isinstance(self.position.roll, float):
-                    roll = self.position.roll
-                else:
-                    roll = self.position.roll[e]
+    #             if isinstance(self.position.heading, float):
+    #                 yaw = self.position.heading
+    #             else:
+    #                 yaw = self.position.heading[e]
+    #             if isinstance(self.position.pitch, float):
+    #                 pitch = self.position.pitch
+    #             else:
+    #                 pitch = self.position.pitch[e]
+    #             if isinstance(self.position.roll, float):
+    #                 roll = self.position.roll
+    #             else:
+    #                 roll = self.position.roll[e]
                 
-                R = np.dot(Utils.gen_rot_x(roll), Utils.gen_rot_z(yaw).dot(Utils.gen_rot_y(pitch)))
-                relative_beam_midpoint_positions[:, b, :, e] = relative_beam_midpoint_positions[:, b, :, e].T.dot(R).T
-                bt_vec[:, b, e] = bt_vec[:, b, e].dot(R).T
+    #             R = np.dot(Utils.gen_rot_x(roll), Utils.gen_rot_z(yaw).dot(Utils.gen_rot_y(pitch)))
+    #             relative_beam_midpoint_positions[:, b, :, e] = relative_beam_midpoint_positions[:, b, :, e].T.dot(R).T
+    #             bt_vec[:, b, e] = bt_vec[:, b, e].dot(R).T
 
-                X[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-                X_hab[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-                X_hab[2, b, :, e] = relative_beam_midpoint_positions[2, b, :, e] - bt_vec[2, b, e]
+    #             X[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
+    #             X_hab[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
+    #             X_hab[2, b, :, e] = relative_beam_midpoint_positions[2, b, :, e] - bt_vec[2, b, e]
         
-        self.bottom_track = np.abs(bt_vec[2, :, :])
-        instrument_range = (self.bin_1_distance + self.depth_cell_length * self.n_cells) / 100
+    #     self.bottom_track = np.abs(bt_vec[2, :, :])
+    #     instrument_range = (self.bin_1_distance + self.depth_cell_length * self.n_cells) / 100
         
-        relative_beam_midpoint_positions = relative_beam_midpoint_positions.transpose(0, 3, 2, 1)
-        self.bottom_track[self.bottom_track > instrument_range] = bt_range[self.bottom_track > instrument_range]
-        absolute_beam_midpoint_positions = X.copy().transpose(0, 3, 2, 1)
-        absolute_beam_midpoint_positions_hab = X_hab.copy().transpose(0, 3, 2, 1)
-        self.absolute_beam_midpoint_positions_hab = absolute_beam_midpoint_positions_hab
+    #     relative_beam_midpoint_positions = relative_beam_midpoint_positions.transpose(0, 3, 2, 1)
+    #     self.bottom_track[self.bottom_track > instrument_range] = bt_range[self.bottom_track > instrument_range]
+    #     absolute_beam_midpoint_positions = X.copy().transpose(0, 3, 2, 1)
+    #     absolute_beam_midpoint_positions_hab = X_hab.copy().transpose(0, 3, 2, 1)
+    #     self.absolute_beam_midpoint_positions_hab = absolute_beam_midpoint_positions_hab
 
-        self.relative_beam_midpoint_positions = XYZ(x=relative_beam_midpoint_positions[0, :, :, :],
-                                                   y=relative_beam_midpoint_positions[1, :, :, :],
-                                                   z=relative_beam_midpoint_positions[2, :, :, :])
-        self.bottom_track = self.bottom_track.T
-        self.absolute_beam_midpoint_positions = XYZ(x=absolute_beam_midpoint_positions[0, :, :, :],
-                                                    y=absolute_beam_midpoint_positions[1, :, :, :],
-                                                    z=absolute_beam_midpoint_positions[2, :, :, :])
-        self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
-                                                        y=absolute_beam_midpoint_positions_hab[1, :, :, :],
-                                                        z=absolute_beam_midpoint_positions_hab[2, :, :, :])
+    #     self.relative_beam_midpoint_positions = XYZ(x=relative_beam_midpoint_positions[0, :, :, :],
+    #                                                y=relative_beam_midpoint_positions[1, :, :, :],
+    #                                                z=relative_beam_midpoint_positions[2, :, :, :])
+    #     self.bottom_track = self.bottom_track.T
+    #     self.absolute_beam_midpoint_positions = XYZ(x=absolute_beam_midpoint_positions[0, :, :, :],
+    #                                                 y=absolute_beam_midpoint_positions[1, :, :, :],
+    #                                                 z=absolute_beam_midpoint_positions[2, :, :, :])
+    #     self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
+    #                                                     y=absolute_beam_midpoint_positions_hab[1, :, :, :],
+    #                                                     z=absolute_beam_midpoint_positions_hab[2, :, :, :])
         
 
 
@@ -976,6 +1022,8 @@ class ADCP():
                2: self.rssi_beam_2,
                3: self.rssi_beam3,
                4: self.rssi_beam4}
+        
+        
         
         freq_str = self.fixed_leaders[0].system_configuration.frequency
         P_dbw = {"300-kHz": 14, "600-kHz": 9, "75-kHz": 27.3}[freq_str]

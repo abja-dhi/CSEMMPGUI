@@ -30,3 +30,72 @@
 2025-07-31 12:07:41,208 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
 2025-07-31 12:07:41,809 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
 2025-07-31 12:07:42,261 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 15:01:27,765 - ERROR - (Pd0Decoder) Failed to decode variable leader at ensemble 0: [Errno 22] Invalid argument
+2025-07-31 15:03:29,621 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:03:30,267 - WARNING - (ADCP) Default RSSI coefficients used for ADCP 20241009_F3(F)_001r (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values.
+2025-07-31 15:03:30,708 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 15:21:32,919 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:22:06,055 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:22:22,293 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:22:38,502 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:22:58,560 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:22:59,561 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-31 15:23:10,504 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:25:57,223 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:27:48,294 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:34:10,110 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:34:10,897 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:34:10,897 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:34:10,897 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:34:10,897 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:35:06,896 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:35:07,515 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:35:07,515 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:35:07,515 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:35:07,515 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:36:02,672 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:36:03,316 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:36:03,317 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:36:03,317 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:36:03,317 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:36:53,845 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:36:54,570 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:36:54,570 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:36:54,570 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:36:54,570 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:37:32,219 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:37:32,797 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:37:32,797 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:37:32,797 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:37:32,797 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:37:32,813 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:37:32,814 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:37:32,814 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:37:32,814 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:22,222 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:38:22,893 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:22,893 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:22,893 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:22,893 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:22,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:22,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:22,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:22,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:35,829 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:38:36,391 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:36,391 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:36,391 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:36,391 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:36,408 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:36,408 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:36,408 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:36,408 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:54,005 - INFO - (ADCP) Initializing ADCP 20241009_F3(F)_001r
+2025-07-31 15:38:54,604 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:54,605 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:54,605 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:54,605 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-31 15:38:54,621 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-31 15:38:54,621 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-31 15:38:54,621 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-31 15:38:54,621 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.

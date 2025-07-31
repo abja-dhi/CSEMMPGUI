@@ -9,7 +9,7 @@ import os
 import struct
 from typing import List, Dict, Any, Tuple, Literal, Union
 import numpy as np
-from tqdm import tqdm
+
 
 from ._pd0_fields import Pd0Formats, FieldDef
 from .utils import Utils, Constants
@@ -114,32 +114,32 @@ class SystemConfiguration:
                 f"beam_pattern={self.beam_pattern}, frequency={self.frequency}, "
                 f"janus_config={self.janus_config}, beam_angle={self.beam_angle})")
 
-class ExternalFields:
-    def __init__(self, values_dict: Dict[str, any] = None):
-        self.leader_id = next((values_dict[k] for k in ['leader_id', 'LEADER ID'] if k in values_dict), 6241)
-        self.geodetic_datum = next((values_dict[k] for k in ['geodetic_datum', 'GEODETIC DATUM'] if k in values_dict), 'NONE')
-        self.vertical_datum = next((values_dict[k] for k in ['vertical_datum', 'VERTICAL DATUM'] if k in values_dict), 'SEAFLOOR')
-        self.magnetic_declination = next((values_dict[k] for k in ['magnetic_declination', 'MAGNETIC DECLINATION'] if k in values_dict), 0)
-        self.utc_offset = next((values_dict[k] for k in ['utc_offset', 'UTC OFFSET'] if k in values_dict), 0)
-        self.crp_x = next((values_dict[k] for k in ['crp_x', 'CRP X'] if k in values_dict), 0)
-        self.crp_y = next((values_dict[k] for k in ['crp_y', 'CRP Y'] if k in values_dict), 0)
-        self.crp_z = next((values_dict[k] for k in ['crp_z', 'CRP Z'] if k in values_dict), 0)
-        self.site_name = next((values_dict[k] for k in ['site_name', 'SITE NAME'] if k in values_dict), 'NONE')
-        self.surveyor = next((values_dict[k] for k in ['surveyor', 'SURVEYOR'] if k in values_dict), 'NONE')
-        self.deployment_id = next((values_dict[k] for k in ['deployment_id', 'DEPLOYMENT ID'] if k in values_dict), 'NONE')
-        self.x = next((values_dict[k] for k in ['x', 'X'] if k in values_dict), 0)
-        self.y = next((values_dict[k] for k in ['y', 'Y'] if k in values_dict), 0)
-        self.z = next((values_dict[k] for k in ['z', 'Z'] if k in values_dict), 0)
-        self.pitch = next((values_dict[k] for k in ['pitch', 'PITCH'] if k in values_dict), 0)
-        self.roll = next((values_dict[k] for k in ['roll', 'ROLL'] if k in values_dict), 0)
-        self.yaw = next((values_dict[k] for k in ['yaw', 'YAW'] if k in values_dict), 0)
-        self.turbidity = next((values_dict[k] for k in ['turbidity', 'TURBIDITY'] if k in values_dict), 0)
-        self.rssi_beam_1 = next((values_dict[k] for k in ['rssi_beam_1', 'RSSI BEAM 1'] if k in values_dict), 0.45)
-        self.rssi_beam_2 = next((values_dict[k] for k in ['rssi_beam_2', 'RSSI BEAM 2'] if k in values_dict), 0.45)
-        self.rssi_beam_3 = next((values_dict[k] for k in ['rssi_beam_3', 'RSSI BEAM 3'] if k in values_dict), 0.45)
-        self.rssi_beam_4 = next((values_dict[k] for k in ['rssi_beam_4', 'RSSI BEAM 4'] if k in values_dict), 0.45)
-        self.rssi_beam_5 = next((values_dict[k] for k in ['rssi_beam_5', 'RSSI BEAM 5'] if k in values_dict), 0.45)
-        self.rssi_beam_6 = next((values_dict[k] for k in ['rssi_beam_6', 'RSSI BEAM 6'] if k in values_dict), 0.45)
+# class ExternalFields:
+#     def __init__(self, values_dict: Dict[str, any] = None):
+#         self.leader_id = next((values_dict[k] for k in ['leader_id', 'LEADER ID'] if k in values_dict), 6241)
+#         self.geodetic_datum = next((values_dict[k] for k in ['geodetic_datum', 'GEODETIC DATUM'] if k in values_dict), 'NONE')
+#         self.vertical_datum = next((values_dict[k] for k in ['vertical_datum', 'VERTICAL DATUM'] if k in values_dict), 'SEAFLOOR')
+#         self.magnetic_declination = next((values_dict[k] for k in ['magnetic_declination', 'MAGNETIC DECLINATION'] if k in values_dict), 0)
+#         self.utc_offset = next((values_dict[k] for k in ['utc_offset', 'UTC OFFSET'] if k in values_dict), 0)
+#         self.crp_x = next((values_dict[k] for k in ['crp_x', 'CRP X'] if k in values_dict), 0)
+#         self.crp_y = next((values_dict[k] for k in ['crp_y', 'CRP Y'] if k in values_dict), 0)
+#         self.crp_z = next((values_dict[k] for k in ['crp_z', 'CRP Z'] if k in values_dict), 0)
+#         self.site_name = next((values_dict[k] for k in ['site_name', 'SITE NAME'] if k in values_dict), 'NONE')
+#         self.surveyor = next((values_dict[k] for k in ['surveyor', 'SURVEYOR'] if k in values_dict), 'NONE')
+#         self.deployment_id = next((values_dict[k] for k in ['deployment_id', 'DEPLOYMENT ID'] if k in values_dict), 'NONE')
+#         self.x = next((values_dict[k] for k in ['x', 'X'] if k in values_dict), 0)
+#         self.y = next((values_dict[k] for k in ['y', 'Y'] if k in values_dict), 0)
+#         self.z = next((values_dict[k] for k in ['z', 'Z'] if k in values_dict), 0)
+#         self.pitch = next((values_dict[k] for k in ['pitch', 'PITCH'] if k in values_dict), 0)
+#         self.roll = next((values_dict[k] for k in ['roll', 'ROLL'] if k in values_dict), 0)
+#         self.yaw = next((values_dict[k] for k in ['yaw', 'YAW'] if k in values_dict), 0)
+#         self.turbidity = next((values_dict[k] for k in ['turbidity', 'TURBIDITY'] if k in values_dict), 0)
+#         self.rssi_beam_1 = next((values_dict[k] for k in ['rssi_beam_1', 'RSSI BEAM 1'] if k in values_dict), 0.45)
+#         self.rssi_beam_2 = next((values_dict[k] for k in ['rssi_beam_2', 'RSSI BEAM 2'] if k in values_dict), 0.45)
+#         self.rssi_beam_3 = next((values_dict[k] for k in ['rssi_beam_3', 'RSSI BEAM 3'] if k in values_dict), 0.45)
+#         self.rssi_beam_4 = next((values_dict[k] for k in ['rssi_beam_4', 'RSSI BEAM 4'] if k in values_dict), 0.45)
+#         self.rssi_beam_5 = next((values_dict[k] for k in ['rssi_beam_5', 'RSSI BEAM 5'] if k in values_dict), 0.45)
+#         self.rssi_beam_6 = next((values_dict[k] for k in ['rssi_beam_6', 'RSSI BEAM 6'] if k in values_dict), 0.45)
         
 class Ensemble:
     def __init__(self, ensemble_header: Header, fixed_leader: FixedLeader, variable_leader: VariableLeader,
@@ -253,7 +253,7 @@ class Pd0Decoder:
 
     def _get_bin_midpoints(self) -> np.ndarray:
         """
-        Get the midpoints of the bins.
+        Get the midpoints of the bins as function of distance from the transducer. 
         
         Returns:
         -------
@@ -268,20 +268,20 @@ class Pd0Decoder:
         )
         return bin_midpoints / 100.0
     
-    def _get_bin_midpoints_depth(self) -> np.ndarray:
-        """
-        Get the midpoints of the bins in depth.
+    # def _get_bin_midpoints_depth(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins in depth.
         
-        Returns:
-        -------
-        np.ndarray
-            Midpoints of the bins in depth with shape (n_cells,).
-        """
-        if self._beam_facing == "up":
-            bin_midpoints = self._instrument_depth - self._get_bin_midpoints()
-        else:
-            bin_midpoints = self._instrument_depth + self._get_bin_midpoints()
-        return bin_midpoints
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins in depth with shape (n_cells,).
+    #     """
+    #     if self._beam_facing == "up":
+    #         bin_midpoints = self._instrument_depth - self._get_bin_midpoints()
+    #     else:
+    #         bin_midpoints = self._instrument_depth + self._get_bin_midpoints()
+    #     return bin_midpoints
     
     def _get_bin_midpoints_hab(self) -> np.ndarray:
         """
@@ -407,7 +407,7 @@ class Pd0Decoder:
         """
         self.fobject.seek(0)
         fixed_leaders = []
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Fixed Leaders", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[0]
             self.fobject.seek(pos)
             try:
@@ -436,7 +436,7 @@ class Pd0Decoder:
         """
         self.fobject.seek(0)
         variable_leaders = []
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Variable Leaders", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1]
             self.fobject.seek(pos)
             try:
@@ -465,7 +465,7 @@ class Pd0Decoder:
         self.fobject.seek(0)
         datetimes = []
         first_offset = np.sum([Pd0Formats.variable_leader[i].nbytes for i in [0, 1]])
-        for i in tqdm(range(self._n_ensembles), desc="Decoding datetimes", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1] + first_offset
             self.fobject.seek(pos)
             try:
@@ -501,7 +501,7 @@ class Pd0Decoder:
         self.fobject.seek(0)
         data = []
         break_flag = False
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Velocity", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[2]
             self.fobject.seek(pos)
             self._decode_field(Pd0Formats.data_ID_code[0])
@@ -541,7 +541,7 @@ class Pd0Decoder:
         self.fobject.seek(0)
         data = []
         break_flag = False
-        for i in tqdm(range(self._n_ensembles), desc=f"Decoding {labels[name]}", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + address_offsets[name]
             self.fobject.seek(pos)
             self._decode_field(Pd0Formats.data_ID_code[0])
@@ -605,7 +605,7 @@ class Pd0Decoder:
             return []
         self.fobject.seek(0)
         bottom_tracks = []
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Bottom Track", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[6]
             self.fobject.seek(pos)
             try:
@@ -634,7 +634,7 @@ class Pd0Decoder:
         """
         self.fobject.seek(0)
         data = []
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Sensor Temperature", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1] + np.sum([Pd0Formats.variable_leader[i].nbytes for i in range(17)]) - 1
             self.fobject.seek(pos)
             value, _ = self._decode_field(Pd0Formats.variable_leader[17])
@@ -655,7 +655,7 @@ class Pd0Decoder:
         """
         self.fobject.seek(0)
         data = []
-        for i in tqdm(range(self._n_ensembles), desc="Decoding Sensor Transmit Pulse Length", unit="ensemble", disable=not self.progress_bar):
+        for i in range(self._n_ensembles):
             pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[0] + np.sum([Pd0Formats.fixed_leader[i].nbytes for i in range(25)])
             self.fobject.seek(pos)
             value, _ = self._decode_field(Pd0Formats.variable_leader[17])
