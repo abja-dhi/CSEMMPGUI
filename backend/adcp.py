@@ -347,15 +347,19 @@ class ADCPSetupGUI:
 class ADCP():
     def __init__(self, cfg: str | Path, name: str) -> None:
         self.logger = Utils.get_logger()
-        self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
-        self._cfg = Utils._parse_kv_file(self._config_path)
+        #self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
+        self._cfg = cfg #Utils._parse_kv_file(self._config_path)
+        
         self._pd0_path = self._cfg.get("filename", None)
-        self.name = self._cfg.get("name", self._config_path.stem)
+        self.name = self._cfg.get("name", 'MyADCP') #self._cfg.get("name", self._config_path.stem)
+        
         Utils.info(
             logger=self.logger,
             msg=f"Initializing ADCP from configuration file: {cfg}",
             level=self.__class__.__name__
-        )
+            )
+        
+        
         if self._pd0_path is not None:
             self._pd0_path = Utils._validate_file_path(self._pd0_path, Constants._PD0_SUFFIX)
         else:
@@ -392,10 +396,20 @@ class ADCP():
         self._err_vel_max = float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER))
         self._start_datetime = parser.parse(self._cfg.get('start_datetime', Constants._OLD_DATETIME))
         self._end_datetime = parser.parse(self._cfg.get('end_datetime', Constants._FAR_DATETIME))
-        self.position: ADCPPosition | None = ADCPPosition(self._cfg)
+        
+        self.rssi_beam_1  = float(self._cfg.get('rssi_beam1'     , 0.41))
+        self.rssi_beam_2  = float(self._cfg.get('rssi_beam2'     , 0.41))
+        self.rssi_beam_3  = float(self._cfg.get('rssi_beam3'     , 0.41))
+        self.rssi_beam_4  = float(self._cfg.get('rssi_beam4'     , 0.41))
+        
+        
+        self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
+        #self.position.resample_to(self.get_datetimes())
+        
         self.instrument_depth = float(self._cfg.get('instrument_depth', 0.0))
         self.instrument_HAB = float(self._cfg.get('instrument_HAB', 0.0))
         self.plot = Plotting(self)
+        
         self.calculate_beam_geometry()
         self.print_info()
 
@@ -512,7 +526,7 @@ class ADCP():
             self.fixed_leaders = self._pd0._get_fixed_leader()
         if self.time_mask is None:
             self.get_datetimes()
-        self.fixed_leaders = self.fixed_leaders[self.time_mask]
+        self.fixed_leaders = np.array(self.fixed_leaders)[self.time_mask]
         return self.fixed_leaders
 
     def get_variable_leader(self) -> List[VariableLeader]:
@@ -528,7 +542,7 @@ class ADCP():
             self.variable_leaders = self._pd0._get_variable_leader()
         if self.time_mask is None:
             self.get_datetimes()
-        self.variable_leaders = self.variable_leaders[self.time_mask]
+        self.variable_leaders = np.array(self.variable_leaders)[self.time_mask]
         return self.variable_leaders
 
     def get_datetimes(self) -> List[datetime]:
@@ -866,6 +880,7 @@ class ADCP():
         relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
         relative_beam_origin = relative_beam_origin.dot(R).T
         relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
+        
         if isinstance(self.position.x, float):
             xx = np.ones(self.n_ensembles) * self.position.x
         else:
@@ -951,6 +966,288 @@ class ADCP():
         self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
                                                         y=absolute_beam_midpoint_positions_hab[1, :, :, :],
                                                         z=absolute_beam_midpoint_positions_hab[2, :, :, :])
+        
+        
+        
+    def _scalar_counts_to_absolute_backscatter(self,E,E_r,k_c,alpha,C,R,Tx_T, Tx_PL, P_DBW):
+        """
+        Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
+    
+        Parameters
+        ----------
+        E_r : float
+            Measured RSSI amplitude in the absence of any signal (noise), in counts.
+        C : float
+            Constant combining several parameters specific to each instrument.
+        k_c : float
+            Factor to convert amplitude counts to decibels (dB).
+        E : float
+            Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
+        Tx_T : float
+            Tranducer temperature in deg C.
+        R : float
+            Along-beam range to the measurement in meters
+        alpha : float
+            Acoustic absorption (dB/m). 
+        Tx_PL : float
+            Transmit pulse length in dBm.
+        P_DBW : float
+            Transmit pulse power in dBW.
+    
+        Returns
+        -------
+        tuple
+            Tuple containing two elements:
+            - Sv : float
+                Apparent volume scattering strength.
+            - StN : float
+                True signal to noise ratio.
+    
+        Notes
+        -----
+        - The use of the backscatter equation should be limited to ranges beyond π/4 * Rayleigh Distance for the given instrument.
+        - Rayleigh Distance is calculated as transmit pulse length * α / width, representing the distance at which the beam can be considered to have fully formed.
+        - For further details, refer to the original documentation by Deines.
+        - 𝑘_c is a factor used to convert the amplitude counts reported by the ADCP’s receive circuitry to decibels (dB).
+        - 𝐸 is the measured Returned Signal Strength Indicator (RSSI) amplitude reported by the ADCP for each bin along each beam, in counts.
+        - 𝐸_r is the measured RSSI amplitude seen by the ADCP in the absence of any signal (the noise), in counts, and which is constant for a given ADCP.
+        """
+        StN = (10**(k_c * E / 10) - 10**(k_c * E_r / 10)) / (10**(k_c * E_r / 10))
+        L_DBM = 10 * np.log10(Tx_PL)
+        #P_DBW = 10 * np.log10(Tx_Pw)
+        Sv = C + 10 * np.log10((Tx_T + 273.16) * (R**2)) - L_DBM - P_DBW + 2 * alpha * R + 10 * np.log10((10**(0.1 * k_c * (E - E_r)) - 1))
+    
+        return Sv, StN
+
+        
+    def _scalar_water_absorption_coeff(self,T, S, z, f, pH):
+        '''
+        Calculate water absorption coefficient.
+    
+        Parameters
+        ----------
+        T : float
+            Temperature in degrees Celsius.
+        S : float
+            Salinity in practical salinity units (psu).
+        z : float
+            Depth in meters.
+        f : float
+            Frequency in kHz.
+        pH : float
+            Acidity.
+    
+        Returns
+        -------
+        float
+            Water absorption coefficient in dB/km.
+        '''
+        c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
+        #c = 1412 + 3.21 * T + 1.19 * S + 0.0167 * z
+    
+        # Boric acid component
+        A1 = (8.68 / c) * 10**(0.78 * pH - 5)
+        P1 = 1
+        f1 = 2.8 * ((S / 35)**0.5) * 10**(4 - (1245 / (273 + T)))
+    
+        # Magnesium sulphate component
+        A2 = 21.44 * (S / c) * (1 + 0.025 * T)
+        P2 = 1 - (1.37e-4) * z + (6.2e-9) * z**2
+        f2 = (8.17 * 10**(8 - (1990 / (273 + T)))) / (1 + 0.0018 * (S - 35))
+    
+        if T <= 20:
+            A3 = (4.937e-4) - (2.59e-5) * T + (9.11e-7) * T**2 - (1.5e-8) * T**3
+        elif T > 20:
+            A3 = (3.964e-4) - (1.146e-5) * T + (1.45e-7) * T**2 - (6.5e-8) * T**3
+        P3 = 1 - (3.83e-5) * z + (4.9e-10) * (z**2)
+    
+        # Calculate water absorption coefficient
+        alpha_w = (A1 * P1 * f1 * (f**2) / (f**2 + f1**2) + A2 * P2 * f2 * (f**2) / (f**2 + f2**2) + A3 * P3 * (f**2))
+        
+        # Convert absorption coefficient to dB/km
+        alpha_w = (1 / 1000) * alpha_w
+        
+        return alpha_w
+    
+    
+    def _scalar_sediment_absorption_coeff(self,ps, pw, d, SSC, T,S, f,z):
+        '''
+        Calculate sediment absorption coefficient.
+    
+        Parameters
+        ----------
+        ps : float
+            Particle density in kg/m^3.
+        pw : float
+            Water density in kg/m^3.
+        d : float
+            Particle diameter in meters.
+        SSC : float
+            Suspended sediment concentration in kg/m^3.
+        T : float
+            Temperature in degrees Celsius.
+        f : float
+            Frequency in kHz .
+    
+        Returns
+        -------
+        float
+            Sediment absorption coefficient.
+        '''
+        c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z # speed of sound in water
+        v = (40e-6) / (20 + T)  # Kinematic viscosity (m2/s)
+        B = (np.pi * f / v) * 0.5
+        delt = 0.5 * (1 + 9 / (B * d))
+        sig = ps / pw
+        s = 9 / (2 * B * d) * (1 + (2 / (B * d)))
+        k = 2 * np.pi / c  # Wave number (Assumed, as it isn't defined in the paper)
+    
+        alpha_s = (k**4) * (d**3) / (96 * ps) + k * ((sig - 1)**2) / (2 * ps) + \
+                  (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
+    
+        return alpha_s     
+        
+    def calculate_ssc_from_backscatter(self, A1: float, B1: float, A2: float) -> None:
+        """
+        Calculate SSC from absolute backscatter using iterative alpha correction.
+    
+        Parameters
+        ----------
+        A1 : float
+            Coefficient for ABS to NTU conversion.
+        B1 : float
+            Exponent for ABS to NTU conversion.
+        A2 : float
+            Coefficient for NTU to SSC conversion.
+        """
+        self.mask.set_mask_status(False)
+    
+        # ---------- Instrument + CTD data ----------
+        E_r = 39
+        WB = self.fixed_leaders[0].system_bandwidth_wb
+        C = -139.09 if WB == 0 else -149.14
+    
+        k_c = {1: self.rssi_beam_1,
+               2: self.rssi_beam_2,
+               3: self.rssi_beam3,
+               4: self.rssi_beam4}
+        
+        freq_str = self.fixed_leaders[0].system_configuration.frequency
+        P_dbw = {"300-kHz": 14, "600-kHz": 9, "75-kHz": 27.3}[freq_str]
+    
+        # Sensor and geometry data
+        temperature = self.get_sensor_temperature()
+        bin_distances = self.get_bin_midpoints()
+        pulse_lengths = self.get_sensor_transmit_pulse_length()
+        bin_depths = abs(self.get_bin_midpoints_depth())
+        instrument_freq = int(freq_str.split("-")[0])
+    
+    
+    
+        ## andy paused here, need to accept these as constant inputs, 
+        
+        # CTD data (assume self.df_ctd exists)
+        df_ctd = self.df_ctd[self.name] if self.multi_source else self.df_ctd
+        df_ctd = df_ctd.reindex(self.get_datetimes(), method='nearest')
+        temp = df_ctd['Temperature (C)'].to_numpy()
+        pressure = df_ctd['Pressure (dbar)'].to_numpy()
+        salinity = df_ctd['Salinity (PSU)'].to_numpy()
+        water_density = df_ctd['Density (kg/m3)'].to_numpy()
+    
+        # Reshape for broadcast
+        nc = self.n_cells
+        ne = self.n_ensembles
+        temp = np.outer(temp, np.ones(nc)).T
+        pressure = np.outer(pressure, np.ones(nc)).T
+        salinity = np.outer(salinity, np.ones(nc)).T
+        pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
+        bin_distances = np.outer(bin_distances, np.ones(ne))
+        water_density = np.outer(water_density, np.ones(nc)).T
+    
+        if self.beam_facing == 'DOWN':
+            pressure += bin_distances
+        else:
+            pressure -= bin_distances
+    
+        # Absorption from water
+        alpha_w = self.processing.water_absorption_coeff(
+            T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
+    
+        # Echo intensity
+        E = self.get_echo_intensity()
+    
+        # ---------- Init arrays ----------
+        ABS = np.full_like(E, np.nan, dtype=float)
+        SSC = np.full_like(E, np.nan, dtype=float)
+        Alpha_s = np.zeros_like(E, dtype=float)
+    
+        # ---------- Iterative alpha correction ----------
+        for bm in range(self.n_beams):
+            for bn in range(self.n_cells):
+                if bn == 0:
+                    ssc = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(E[bm, bn], A=A1, B=B1), A=A2) # starting SSC from sensor 
+                    for _ in range(100):
+                        alpha_s = self.processing.sediment_absorption_coeff(
+                            ps=1800,
+                            pw=water_density[bn],
+                            z=pressure[bn],
+                            d=100e-6,
+                            SSC=ssc,
+                            T=temp[bn],
+                            S=salinity[bn],
+                            f=instrument_freq
+                        )
+                        sv, _ = self.processing.counts_to_absolute_backscatter(
+                            E=E[bm, bn],
+                            E_r=E_r,
+                            k_c=k_c[bm + 1],
+                            alpha=alpha_w[bn] + alpha_s,
+                            C=C,
+                            R=bin_distances[bn],
+                            Tx_T=temp[bn],
+                            Tx_PL=pulse_lengths[bn],
+                            P_DBW=P_dbw
+                        )
+                        ssc_new = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2)
+                        if np.allclose(ssc_new, ssc, rtol=0, atol=1e-6, equal_nan=True):
+                            break
+                        ssc = ssc_new
+                    ABS[bm, bn] = sv
+                    SSC[bm, bn] = ssc
+                    Alpha_s[bm, bn] = alpha_s
+                else:
+                    ssc = np.nanmean(SSC[bm, :bn], axis=0)
+                    alpha_s = self.processing.sediment_absorption_coeff(
+                        ps=1800,
+                        pw=water_density[bn],
+                        z=pressure[bn],
+                        d=100e-6,
+                        SSC=ssc,
+                        T=temp[bn],
+                        S=salinity[bn],
+                        f=instrument_freq
+                    )
+                    sv, _ = self.processing.counts_to_absolute_backscatter(
+                        E=E[bm, bn],
+                        E_r=E_r,
+                        k_c=k_c[bm + 1],
+                        alpha=alpha_w[bn] + alpha_s,
+                        C=C,
+                        R=bin_distances[bn],
+                        Tx_T=temp[bn],
+                        Tx_PL=pulse_lengths[bn],
+                        P_DBW=P_dbw
+                    )
+                    ABS[bm, bn] = sv
+                    SSC[bm, bn] = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2)
+                    Alpha_s[bm, bn] = alpha_s
+    
+        # ---------- Store outputs ----------
+        self.processing.append_to_ensembles(ABS, 'ABSOLUTE BACKSCATTER')
+        self.processing.append_to_ensembles(SSC, 'SSC')
+        self.processing.append_to_ensembles(Alpha_s, 'SEDIMENT ATTENUATION (dB/km)')
+            
+            
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
