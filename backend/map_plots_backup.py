@@ -169,8 +169,6 @@ import numpy as np
 
 class ADCPMapCanvas(FigureCanvas):
     def __init__(self, adcps):
-        self.current_label = 'absolute_backscatter'
-        self.current_label_display = 'Absolute Backscatter'
         import matplotlib.gridspec as gridspec
         self.fig = Figure()
         super().__init__(self.fig)
@@ -178,7 +176,7 @@ class ADCPMapCanvas(FigureCanvas):
         self.ax = self.fig.add_subplot(gs[0, :])
         self.cax = self.fig.add_subplot(gs[1, 2])
         self.ax.set_aspect('equal', adjustable='datalim')
-
+        
         self.adcps = adcps
         self.transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
         self.collections = []
@@ -192,14 +190,13 @@ class ADCPMapCanvas(FigureCanvas):
         self.backscatter_cache = []
         self.plot_transects()
         self.mpl_connect("motion_notify_event", self.on_hover)
-
-        # Pre-calculate variables
+        self.mpl_connect("button_press_event", self.on_click)
+        
+        #calcualte all necessary variables 
         for adcp in self.adcps:
             adcp.get_absolute_backscatter()
             adcp.get_echo_intensity()
             adcp.get_correlation_magnitude()
-
-        self.mpl_connect("button_press_event", self.on_click)
 
     def plot_transects(self):
         self.ax.clear()
@@ -232,8 +229,8 @@ class ADCPMapCanvas(FigureCanvas):
 
         xrange = max(all_x) - min(all_x)
         yrange = max(all_y) - min(all_y)
-        pad_x = 0.5 * xrange
-        pad_y = 0.5 * yrange
+        pad_x = 1 * xrange
+        pad_y = 1 * yrange
         xlim = (min(all_x) - pad_x, max(all_x) + pad_x)
         ylim = (min(all_y) - pad_y, max(all_y) + pad_y)
         self.ax.set_xlim(xlim)
@@ -249,7 +246,7 @@ class ADCPMapCanvas(FigureCanvas):
             cmap_obj = self.current_cmap
         sm = cm.ScalarMappable(cmap=cmap_obj, norm=self.norm)
         sm.set_array([])
-        self.fig.colorbar(sm, cax=self.cax, orientation='horizontal', label=self.current_label_display)
+        self.fig.colorbar(sm, cax=self.cax, orientation='horizontal', label='Abs. Backscatter')
         self.draw()
 
     def on_hover(self, event):
@@ -266,7 +263,7 @@ class ADCPMapCanvas(FigureCanvas):
         if self.hover_index is not None:
             self.selected_index = self.hover_index
             self.update_colors()
-            self.adcps[self.selected_index].plot.four_beam_flood_plot(variable=self.current_label, cmap = self.current_cmap)
+            self.adcps[self.selected_index].plot.four_beam_flood_plot(variable='Absolute Backscatter')
 
     def find_closest_transect(self, x, y, tol):
         min_dist = float("inf")
@@ -294,6 +291,7 @@ class ADCPMapCanvas(FigureCanvas):
                 lc.set_norm(self.norm)
         self.draw()
 
+
 import matplotlib.pyplot as plt
 import cmocean
 
@@ -314,9 +312,11 @@ class ADCPMainWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        # Toolbar with colormap selector
         toolbar = QToolBar("Main Toolbar")
         self.addToolBar(toolbar)
 
+        # Variable selector
         self.variable_selector = QComboBox()
         self.variable_selector.addItems([
             "Absolute Backscatter",
@@ -338,6 +338,7 @@ class ADCPMainWindow(QMainWindow):
         toolbar.addWidget(QLabel("Colormap: "))
         toolbar.addWidget(self.colormap_selector)
 
+        
     def change_colormap(self, cmap_name):
         import cmocean
         if cmap_name.startswith("cmo."):
@@ -348,27 +349,18 @@ class ADCPMainWindow(QMainWindow):
         for i, lc in enumerate(self.canvas.collections):
             if i != self.canvas.selected_index and i != self.canvas.hover_index:
                 lc.set_cmap(cmap)
-        self.canvas.current_cmap = cmap_name
-        self.current_cmap = cmap_name
-        self.canvas.ax.cla()
-        self.canvas.cax.cla()
-        self.canvas.plot_transects()
+                self.canvas.current_cmap = cmap_name
+                self.current_cmap = self.canvas.current_cmap
+        self.canvas.draw()
 
+        
     def change_variable(self, variable_name):
-        label_to_var = {
-            "Absolute Backscatter": "absolute_backscatter",
-            "Echo Intensity": "echo_intensity",
-            "SSC": "ssc",
-            "Correlation Magnitude": "correlation_magnitude",
-        }
         mapping = {
-            "Absolute Backscatter": lambda adcp: adcp.get_absolute_backscatter().max(axis=2).max(axis=1)[:-1],
+            "Absolute Backscatter": lambda adcp: adcp.absolute_backscatter().max(axis=2).max(axis=1)[:-1],
             "Echo Intensity": lambda adcp: adcp.echo_intensity.max(axis=2).max(axis=1)[:-1],
             "SSC": lambda adcp: adcp.ssc.max(axis=1)[:-1],
             "Correlation Magnitude": lambda adcp: adcp.correlation_magnitude.max(axis=2).max(axis=1)[:-1],
         }
-        self.canvas.current_label = label_to_var.get(variable_name, "absolute_backscatter")
-        self.canvas.current_label_display = variable_name
         data_getter = mapping.get(variable_name, mapping["Absolute Backscatter"])
         self.canvas.backscatter_cache = [data_getter(adcp) for adcp in self.canvas.adcps]
 
@@ -378,9 +370,7 @@ class ADCPMainWindow(QMainWindow):
             if i != self.canvas.selected_index and i != self.canvas.hover_index:
                 lc.set_array(self.canvas.backscatter_cache[i])
                 lc.set_norm(self.canvas.norm)
-        self.canvas.ax.cla()
-        self.canvas.cax.cla()
-        self.canvas.plot_transects()
+        self.canvas.draw()
 
     def update_hover_label(self, index):
         if isinstance(index, int):
@@ -388,6 +378,14 @@ class ADCPMainWindow(QMainWindow):
             self.hover_label.setText(f"Hovering: {name}")
         else:
             self.hover_label.setText("Hovering: None")
+
+
+# Usage example:
+# import sys
+# app = QApplication(sys.argv)
+# window = ADCPMainWindow(adcps)
+# window.show()
+# sys.exit(app.exec_())
 
 
 # Usage example:

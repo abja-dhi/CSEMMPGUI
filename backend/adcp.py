@@ -386,6 +386,7 @@ class ADCP():
         self.relative_beam_midpoint_positions = None
         self.absolute_beam_midpoint_positions = None
         self.absolute_beam_midpoint_positions_hab = None
+        
         self._pg_min      = float(self._cfg.get('pg_min'     , Constants._LOW_NUMBER))
         self._cormag_min  = int(self._cfg.get('cormag_min' , Constants._LOW_NUMBER))
         self._cormag_max  = int(self._cfg.get('cormag_max' , Constants._HIGH_NUMBER))
@@ -404,7 +405,7 @@ class ADCP():
         
         
         self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
-        #self.position.resample_to(self.get_datetimes())
+        self.position.resample_to(self.get_datetimes())
         
         self.instrument_depth = float(self._cfg.get('instrument_depth', 0.0))
         self.instrument_HAB = float(self._cfg.get('instrument_HAB', 0.0))
@@ -660,15 +661,17 @@ class ADCP():
         if self.time_mask is None:
             self.get_datetimes()
         self.echo_intensity = self.echo_intensity[self.time_mask, :]
-        mask = (
-            (self.echo_intensity < self._echo_min) |
-            (self.echo_intensity > self._echo_max)
-        )
-        self.echo_intensity[mask] = 32675
+        
+    
+        # mask = (
+        #     (self.echo_intensity < self._echo_min) |
+        #     (self.echo_intensity > self._echo_max)
+        # )
+        # #self.echo_intensity[mask] = 32675
         Utils.all_nan(
             arr = self.echo_intensity,
             logger= self.logger,
-            msg = f"No valid echo intensity values found within the specified limits: {self._echo_min} to {self._echo_max}. Please check the echo_min and echo_max in the {self.name} configuration file ({self._config_path}).",
+            msg = f"No valid echo intensity values found within the specified limits: {self._echo_min} to {self._echo_max}. Please check the echo_min and echo_max in the {self.name} instrument configuration.",
             arrname= "echo_intensity",
             class_name= self.__class__.__name__
         )
@@ -688,15 +691,15 @@ class ADCP():
         if self.time_mask is None:
             self.get_datetimes()
         self.correlation_magnitude = self.correlation_magnitude[self.time_mask, :]
-        mask = (
-            (self.correlation_magnitude < self._cormag_min) |
-            (self.correlation_magnitude > self._cormag_max)
-        )
-        self.correlation_magnitude[mask] = np.nan
+        # mask = (
+        #     (self.correlation_magnitude < self._cormag_min) |
+        #     (self.correlation_magnitude > self._cormag_max)
+        # )
+        # self.correlation_magnitude[mask] = np.nan
         Utils.all_nan(
             arr = self.correlation_magnitude,
             logger= self.logger,
-            msg = f"No valid correlation magnitude values found within the specified limits: {self._cormag_min} to {self._cormag_max}. Please check the cormag_min and cormag_max in the {self.name} configuration file ({self._config_path}).",
+            msg = f"No valid correlation magnitude values found within the specified limits: {self._cormag_min} to {self._cormag_max}. Please check the cormag_min and cormag_max in the {self.name} instrument configuration ",
             arrname= "correlation_magnitude",
             class_name= self.__class__.__name__
         )
@@ -716,12 +719,12 @@ class ADCP():
         if self.time_mask is None:
             self.get_datetimes()
         self.percent_good = self.percent_good[self.time_mask, :]
-        mask = (self.percent_good < self._pg_min)
-        self.percent_good[mask] = np.nan
+        # mask = (self.percent_good < self._pg_min)
+        # self.percent_good[mask] = np.nan
         Utils.all_nan(
             arr = self.percent_good,
             logger= self.logger,
-            msg = f"No valid percent good values found above the minimum threshold: {self._pg_min}. Please check the pg_min in the {self.name} configuration file ({self._config_path}).",
+            msg = f"No valid percent good values found above the minimum threshold: {self._pg_min}. Please check the pg_min in the {self.name} instrument configuration.",
             arrname= "percent_good",
             class_name= self.__class__.__name__
         )
@@ -1270,6 +1273,8 @@ class Plotting:
     #     "ssc": plt.cm.turbo,
     #     "signal_to_noise_ratio": plt.cm.bone_r,
     # }
+    
+    
     _CBAR_LABELS = {
         "u": "Eastward Velocity (m/s)",
         "v": "Northward Velocity (m/s)",
@@ -1445,7 +1450,7 @@ class Plotting:
             The matplotlib Axes object with the flood plot.
         """
         if ax is None:
-            fig, ax = PlottingShell.subplots(nrow=self.adcp.n_beams, ncol=1, figheight=8, figwidth=10.5, sharex=True, sharey=False)
+            fig, ax = PlottingShell.subplots(nrow=self.adcp.n_beams, ncol=1, figheight=5, figwidth=7, sharex=True, sharey=False)
         else:
             fig = ax[0].figure
 

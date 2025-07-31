@@ -287,3 +287,1160 @@
 2025-07-30 19:31:29,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
 2025-07-30 19:31:29,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
 2025-07-30 19:31:29,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:28,783 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001r.000', 'name': '20241009_F3(F)_001r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:29,183 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' configuration loaded successfully.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of ensembles: 92
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of beams: 4
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of cells: 70
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam facing direction: down.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' depth cell length: 50 m.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' bin 1 distance: 118 m.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam angle: 20 degrees.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' instrument depth: 0.0 m.
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' first ensemble datetime: 2024-10-09 10:09:18.570000
+2025-07-30 20:49:29,210 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' last ensemble datetime: 2024-10-09 10:11:59.610000
+2025-07-30 20:49:29,210 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002r.000', 'name': '20241009_F3(F)_002r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:29,618 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_002extern.csv
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' configuration loaded successfully.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of ensembles: 80
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of beams: 4
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of cells: 70
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam facing direction: down.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' depth cell length: 50 m.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' bin 1 distance: 118 m.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam angle: 20 degrees.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' instrument depth: 0.0 m.
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' first ensemble datetime: 2024-10-09 10:13:33.430000
+2025-07-30 20:49:29,645 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' last ensemble datetime: 2024-10-09 10:15:53.230000
+2025-07-30 20:49:29,645 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003r.000', 'name': '20241009_F3(F)_003r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:30,042 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_003extern.csv
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' configuration loaded successfully.
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of ensembles: 91
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of beams: 4
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of cells: 70
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam facing direction: down.
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' depth cell length: 50 m.
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' bin 1 distance: 118 m.
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam angle: 20 degrees.
+2025-07-30 20:49:30,070 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' instrument depth: 0.0 m.
+2025-07-30 20:49:30,071 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' first ensemble datetime: 2024-10-09 10:17:12.850000
+2025-07-30 20:49:30,071 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' last ensemble datetime: 2024-10-09 10:19:52.100000
+2025-07-30 20:49:30,071 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004r.000', 'name': '20241009_F3(F)_004r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:30,475 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_004extern.csv
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' configuration loaded successfully.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of ensembles: 81
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of beams: 4
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of cells: 70
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam facing direction: down.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' depth cell length: 50 m.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' bin 1 distance: 118 m.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam angle: 20 degrees.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' instrument depth: 0.0 m.
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' first ensemble datetime: 2024-10-09 10:20:59.380000
+2025-07-30 20:49:30,501 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' last ensemble datetime: 2024-10-09 10:23:20.980000
+2025-07-30 20:49:30,502 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005r.000', 'name': '20241009_F3(F)_005r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:30,933 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_005extern.csv
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' configuration loaded successfully.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of ensembles: 75
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of beams: 4
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of cells: 70
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam facing direction: down.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' depth cell length: 50 m.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' bin 1 distance: 118 m.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam angle: 20 degrees.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' instrument depth: 0.0 m.
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' first ensemble datetime: 2024-10-09 10:24:40.620000
+2025-07-30 20:49:30,971 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' last ensemble datetime: 2024-10-09 10:26:51.590000
+2025-07-30 20:49:30,971 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006r.000', 'name': '20241009_F3(F)_006r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:31,389 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_006extern.csv
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' configuration loaded successfully.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of ensembles: 75
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of beams: 4
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of cells: 70
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam facing direction: down.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' depth cell length: 50 m.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' bin 1 distance: 118 m.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam angle: 20 degrees.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' instrument depth: 0.0 m.
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' first ensemble datetime: 2024-10-09 10:28:05.940000
+2025-07-30 20:49:31,413 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' last ensemble datetime: 2024-10-09 10:30:16.880000
+2025-07-30 20:49:31,413 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007r.000', 'name': '20241009_F3(F)_007r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:31,844 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_007extern.csv
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' configuration loaded successfully.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of ensembles: 238
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of beams: 4
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of cells: 70
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam facing direction: down.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' depth cell length: 50 m.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' bin 1 distance: 118 m.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam angle: 20 degrees.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' instrument depth: 0.0 m.
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' first ensemble datetime: 2024-10-09 10:31:34.730000
+2025-07-30 20:49:31,917 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' last ensemble datetime: 2024-10-09 10:38:34.330000
+2025-07-30 20:49:31,917 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008r.000', 'name': '20241009_F3(F)_008r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:32,356 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_008extern.csv
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' configuration loaded successfully.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of ensembles: 85
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of beams: 4
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of cells: 70
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam facing direction: down.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' depth cell length: 50 m.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' bin 1 distance: 118 m.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam angle: 20 degrees.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' instrument depth: 0.0 m.
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' first ensemble datetime: 2024-10-09 10:39:48.670000
+2025-07-30 20:49:32,384 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' last ensemble datetime: 2024-10-09 10:42:17.350000
+2025-07-30 20:49:32,384 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009r.000', 'name': '20241009_F3(F)_009r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:32,796 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_009extern.csv
+2025-07-30 20:49:32,821 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' configuration loaded successfully.
+2025-07-30 20:49:32,821 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of ensembles: 82
+2025-07-30 20:49:32,821 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of beams: 4
+2025-07-30 20:49:32,821 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of cells: 70
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam facing direction: down.
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' depth cell length: 50 m.
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' bin 1 distance: 118 m.
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam angle: 20 degrees.
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' instrument depth: 0.0 m.
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' first ensemble datetime: 2024-10-09 10:43:36.960000
+2025-07-30 20:49:32,822 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' last ensemble datetime: 2024-10-09 10:46:00.300000
+2025-07-30 20:49:32,822 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010r.000', 'name': '20241009_F3(F)_010r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:33,243 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_010extern.csv
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' configuration loaded successfully.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of ensembles: 80
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of beams: 4
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of cells: 70
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam facing direction: down.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' depth cell length: 50 m.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' bin 1 distance: 118 m.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam angle: 20 degrees.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' instrument depth: 0.0 m.
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' first ensemble datetime: 2024-10-09 10:47:21.710000
+2025-07-30 20:49:33,266 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' last ensemble datetime: 2024-10-09 10:49:41.550000
+2025-07-30 20:49:33,266 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011r.000', 'name': '20241009_F3(F)_011r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:33,671 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_011extern.csv
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' configuration loaded successfully.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of ensembles: 93
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of beams: 4
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of cells: 70
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam facing direction: down.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' depth cell length: 50 m.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' bin 1 distance: 118 m.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam angle: 20 degrees.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' instrument depth: 0.0 m.
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' first ensemble datetime: 2024-10-09 10:50:55.880000
+2025-07-30 20:49:33,696 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' last ensemble datetime: 2024-10-09 10:53:38.750000
+2025-07-30 20:49:33,696 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012r.000', 'name': '20241009_F3(F)_012r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:34,109 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_012extern.csv
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' configuration loaded successfully.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of ensembles: 69
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of beams: 4
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of cells: 70
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam facing direction: down.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' depth cell length: 50 m.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' bin 1 distance: 118 m.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam angle: 20 degrees.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' instrument depth: 0.0 m.
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' first ensemble datetime: 2024-10-09 10:54:58.390000
+2025-07-30 20:49:34,140 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' last ensemble datetime: 2024-10-09 10:56:58.760000
+2025-07-30 20:49:34,141 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013r.000', 'name': '20241009_F3(F)_013r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:34,576 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_013extern.csv
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' configuration loaded successfully.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of ensembles: 94
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of beams: 4
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of cells: 70
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam facing direction: down.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' depth cell length: 50 m.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' bin 1 distance: 118 m.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam angle: 20 degrees.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' instrument depth: 0.0 m.
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' first ensemble datetime: 2024-10-09 10:58:20.160000
+2025-07-30 20:49:34,608 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' last ensemble datetime: 2024-10-09 11:01:04.800000
+2025-07-30 20:49:34,608 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014r.000', 'name': '20241009_F3(F)_014r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:35,061 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_014extern.csv
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' configuration loaded successfully.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of ensembles: 64
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of beams: 4
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of cells: 70
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam facing direction: down.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' depth cell length: 50 m.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' bin 1 distance: 118 m.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam angle: 20 degrees.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' instrument depth: 0.0 m.
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' first ensemble datetime: 2024-10-09 11:02:33.320000
+2025-07-30 20:49:35,094 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' last ensemble datetime: 2024-10-09 11:04:24.800000
+2025-07-30 20:49:35,094 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015r.000', 'name': '20241009_F3(F)_015r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:35,547 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_015extern.csv
+2025-07-30 20:49:35,567 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' configuration loaded successfully.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of ensembles: 67
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of beams: 4
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of cells: 70
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam facing direction: down.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' depth cell length: 50 m.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' bin 1 distance: 118 m.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam angle: 20 degrees.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' instrument depth: 0.0 m.
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' first ensemble datetime: 2024-10-09 11:06:02.120000
+2025-07-30 20:49:35,568 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' last ensemble datetime: 2024-10-09 11:07:58.940000
+2025-07-30 20:49:35,568 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016r.000', 'name': '20241009_F3(F)_016r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:36,064 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_016extern.csv
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' configuration loaded successfully.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of ensembles: 69
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of beams: 4
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of cells: 70
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam facing direction: down.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' depth cell length: 50 m.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' bin 1 distance: 118 m.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam angle: 20 degrees.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' instrument depth: 0.0 m.
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' first ensemble datetime: 2024-10-09 11:09:27.440000
+2025-07-30 20:49:36,086 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' last ensemble datetime: 2024-10-09 11:11:27.820000
+2025-07-30 20:49:36,086 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017r.000', 'name': '20241009_F3(F)_017r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:49:36,796 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_017extern.csv
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' configuration loaded successfully.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of ensembles: 104
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of beams: 4
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of cells: 70
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam facing direction: down.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' depth cell length: 50 m.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' bin 1 distance: 118 m.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam angle: 20 degrees.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' instrument depth: 0.0 m.
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' first ensemble datetime: 2024-10-09 11:15:39.050000
+2025-07-30 20:49:36,824 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' last ensemble datetime: 2024-10-09 11:18:41.430000
+2025-07-30 20:49:36,885 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:36,885 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:36,885 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:36,885 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:36,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:36,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:36,909 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:36,910 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:36,935 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:36,936 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:36,936 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:36,936 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:36,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:36,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:36,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:36,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:36,981 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:36,981 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:36,981 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:36,981 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,011 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,011 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,011 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,011 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,056 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,056 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,057 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,057 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,104 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,104 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,104 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,104 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,125 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,126 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,170 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,170 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,170 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,170 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,211 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,212 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,212 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,212 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,231 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,231 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,231 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,231 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,253 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,253 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,253 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,253 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,282 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,282 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,282 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,282 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,300 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,301 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,301 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,301 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,319 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,319 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,320 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,320 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:49:37,354 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:49:37,354 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:49:37,354 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:49:37,354 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:50:56,996 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001r.000', 'name': '20241009_F3(F)_001r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:57,329 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' configuration loaded successfully.
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of ensembles: 92
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of beams: 4
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of cells: 70
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam facing direction: down.
+2025-07-30 20:50:57,353 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' depth cell length: 50 m.
+2025-07-30 20:50:57,354 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' bin 1 distance: 118 m.
+2025-07-30 20:50:57,354 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam angle: 20 degrees.
+2025-07-30 20:50:57,354 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' instrument depth: 0.0 m.
+2025-07-30 20:50:57,354 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' first ensemble datetime: 2024-10-09 10:09:18.570000
+2025-07-30 20:50:57,354 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' last ensemble datetime: 2024-10-09 10:11:59.610000
+2025-07-30 20:50:57,354 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002r.000', 'name': '20241009_F3(F)_002r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:57,690 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_002extern.csv
+2025-07-30 20:50:57,723 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' configuration loaded successfully.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of ensembles: 80
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of beams: 4
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of cells: 70
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam facing direction: down.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' depth cell length: 50 m.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' bin 1 distance: 118 m.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam angle: 20 degrees.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' instrument depth: 0.0 m.
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' first ensemble datetime: 2024-10-09 10:13:33.430000
+2025-07-30 20:50:57,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' last ensemble datetime: 2024-10-09 10:15:53.230000
+2025-07-30 20:50:57,724 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003r.000', 'name': '20241009_F3(F)_003r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:58,064 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_003extern.csv
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' configuration loaded successfully.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of ensembles: 91
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of beams: 4
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of cells: 70
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam facing direction: down.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' depth cell length: 50 m.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' bin 1 distance: 118 m.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam angle: 20 degrees.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' instrument depth: 0.0 m.
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' first ensemble datetime: 2024-10-09 10:17:12.850000
+2025-07-30 20:50:58,090 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' last ensemble datetime: 2024-10-09 10:19:52.100000
+2025-07-30 20:50:58,090 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004r.000', 'name': '20241009_F3(F)_004r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:58,410 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_004extern.csv
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' configuration loaded successfully.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of ensembles: 81
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of beams: 4
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of cells: 70
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam facing direction: down.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' depth cell length: 50 m.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' bin 1 distance: 118 m.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam angle: 20 degrees.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' instrument depth: 0.0 m.
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' first ensemble datetime: 2024-10-09 10:20:59.380000
+2025-07-30 20:50:58,435 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' last ensemble datetime: 2024-10-09 10:23:20.980000
+2025-07-30 20:50:58,435 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005r.000', 'name': '20241009_F3(F)_005r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:58,697 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_005extern.csv
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' configuration loaded successfully.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of ensembles: 75
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of beams: 4
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of cells: 70
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam facing direction: down.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' depth cell length: 50 m.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' bin 1 distance: 118 m.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam angle: 20 degrees.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' instrument depth: 0.0 m.
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' first ensemble datetime: 2024-10-09 10:24:40.620000
+2025-07-30 20:50:58,723 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' last ensemble datetime: 2024-10-09 10:26:51.590000
+2025-07-30 20:50:58,723 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006r.000', 'name': '20241009_F3(F)_006r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:59,013 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_006extern.csv
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' configuration loaded successfully.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of ensembles: 75
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of beams: 4
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of cells: 70
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam facing direction: down.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' depth cell length: 50 m.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' bin 1 distance: 118 m.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam angle: 20 degrees.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' instrument depth: 0.0 m.
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' first ensemble datetime: 2024-10-09 10:28:05.940000
+2025-07-30 20:50:59,035 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' last ensemble datetime: 2024-10-09 10:30:16.880000
+2025-07-30 20:50:59,035 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007r.000', 'name': '20241009_F3(F)_007r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:59,383 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_007extern.csv
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' configuration loaded successfully.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of ensembles: 238
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of beams: 4
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of cells: 70
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam facing direction: down.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' depth cell length: 50 m.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' bin 1 distance: 118 m.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam angle: 20 degrees.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' instrument depth: 0.0 m.
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' first ensemble datetime: 2024-10-09 10:31:34.730000
+2025-07-30 20:50:59,462 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' last ensemble datetime: 2024-10-09 10:38:34.330000
+2025-07-30 20:50:59,462 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008r.000', 'name': '20241009_F3(F)_008r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:50:59,790 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_008extern.csv
+2025-07-30 20:50:59,816 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' configuration loaded successfully.
+2025-07-30 20:50:59,816 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of ensembles: 85
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of beams: 4
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of cells: 70
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam facing direction: down.
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' depth cell length: 50 m.
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' bin 1 distance: 118 m.
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam angle: 20 degrees.
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' instrument depth: 0.0 m.
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' first ensemble datetime: 2024-10-09 10:39:48.670000
+2025-07-30 20:50:59,817 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' last ensemble datetime: 2024-10-09 10:42:17.350000
+2025-07-30 20:50:59,817 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009r.000', 'name': '20241009_F3(F)_009r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:00,146 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_009extern.csv
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' configuration loaded successfully.
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of ensembles: 82
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of beams: 4
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of cells: 70
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam facing direction: down.
+2025-07-30 20:51:00,175 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' depth cell length: 50 m.
+2025-07-30 20:51:00,176 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' bin 1 distance: 118 m.
+2025-07-30 20:51:00,176 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam angle: 20 degrees.
+2025-07-30 20:51:00,176 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' instrument depth: 0.0 m.
+2025-07-30 20:51:00,176 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' first ensemble datetime: 2024-10-09 10:43:36.960000
+2025-07-30 20:51:00,176 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' last ensemble datetime: 2024-10-09 10:46:00.300000
+2025-07-30 20:51:00,176 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010r.000', 'name': '20241009_F3(F)_010r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:00,507 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_010extern.csv
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' configuration loaded successfully.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of ensembles: 80
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of beams: 4
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of cells: 70
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam facing direction: down.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' depth cell length: 50 m.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' bin 1 distance: 118 m.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam angle: 20 degrees.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' instrument depth: 0.0 m.
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' first ensemble datetime: 2024-10-09 10:47:21.710000
+2025-07-30 20:51:00,535 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' last ensemble datetime: 2024-10-09 10:49:41.550000
+2025-07-30 20:51:00,535 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011r.000', 'name': '20241009_F3(F)_011r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:00,876 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_011extern.csv
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' configuration loaded successfully.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of ensembles: 93
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of beams: 4
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of cells: 70
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam facing direction: down.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' depth cell length: 50 m.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' bin 1 distance: 118 m.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam angle: 20 degrees.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' instrument depth: 0.0 m.
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' first ensemble datetime: 2024-10-09 10:50:55.880000
+2025-07-30 20:51:00,908 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' last ensemble datetime: 2024-10-09 10:53:38.750000
+2025-07-30 20:51:00,908 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012r.000', 'name': '20241009_F3(F)_012r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:01,158 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_012extern.csv
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' configuration loaded successfully.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of ensembles: 69
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of beams: 4
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of cells: 70
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam facing direction: down.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' depth cell length: 50 m.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' bin 1 distance: 118 m.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam angle: 20 degrees.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' instrument depth: 0.0 m.
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' first ensemble datetime: 2024-10-09 10:54:58.390000
+2025-07-30 20:51:01,181 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' last ensemble datetime: 2024-10-09 10:56:58.760000
+2025-07-30 20:51:01,181 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013r.000', 'name': '20241009_F3(F)_013r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:01,526 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_013extern.csv
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' configuration loaded successfully.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of ensembles: 94
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of beams: 4
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of cells: 70
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam facing direction: down.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' depth cell length: 50 m.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' bin 1 distance: 118 m.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam angle: 20 degrees.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' instrument depth: 0.0 m.
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' first ensemble datetime: 2024-10-09 10:58:20.160000
+2025-07-30 20:51:01,559 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' last ensemble datetime: 2024-10-09 11:01:04.800000
+2025-07-30 20:51:01,559 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014r.000', 'name': '20241009_F3(F)_014r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:01,804 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_014extern.csv
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' configuration loaded successfully.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of ensembles: 64
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of beams: 4
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of cells: 70
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam facing direction: down.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' depth cell length: 50 m.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' bin 1 distance: 118 m.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam angle: 20 degrees.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' instrument depth: 0.0 m.
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' first ensemble datetime: 2024-10-09 11:02:33.320000
+2025-07-30 20:51:01,835 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' last ensemble datetime: 2024-10-09 11:04:24.800000
+2025-07-30 20:51:01,835 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015r.000', 'name': '20241009_F3(F)_015r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:02,104 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_015extern.csv
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' configuration loaded successfully.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of ensembles: 67
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of beams: 4
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of cells: 70
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam facing direction: down.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' depth cell length: 50 m.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' bin 1 distance: 118 m.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam angle: 20 degrees.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' instrument depth: 0.0 m.
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' first ensemble datetime: 2024-10-09 11:06:02.120000
+2025-07-30 20:51:02,136 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' last ensemble datetime: 2024-10-09 11:07:58.940000
+2025-07-30 20:51:02,136 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016r.000', 'name': '20241009_F3(F)_016r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:02,382 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_016extern.csv
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' configuration loaded successfully.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of ensembles: 69
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of beams: 4
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of cells: 70
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam facing direction: down.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' depth cell length: 50 m.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' bin 1 distance: 118 m.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam angle: 20 degrees.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' instrument depth: 0.0 m.
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' first ensemble datetime: 2024-10-09 11:09:27.440000
+2025-07-30 20:51:02,404 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' last ensemble datetime: 2024-10-09 11:11:27.820000
+2025-07-30 20:51:02,404 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017r.000', 'name': '20241009_F3(F)_017r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:02,744 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_017extern.csv
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' configuration loaded successfully.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of ensembles: 104
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of beams: 4
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of cells: 70
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam facing direction: down.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' depth cell length: 50 m.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' bin 1 distance: 118 m.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam angle: 20 degrees.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' instrument depth: 0.0 m.
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' first ensemble datetime: 2024-10-09 11:15:39.050000
+2025-07-30 20:51:02,786 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' last ensemble datetime: 2024-10-09 11:18:41.430000
+2025-07-30 20:51:02,868 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:02,868 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:02,869 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:02,869 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:02,899 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:02,899 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:02,900 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:02,900 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:02,929 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:02,929 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:02,929 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:02,929 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:02,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:02,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:02,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:02,957 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:02,988 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:02,988 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:02,988 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:02,988 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,012 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,013 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,013 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,013 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,064 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,064 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,064 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,064 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,094 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,094 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,094 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,094 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,119 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,119 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,120 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,120 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,144 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,144 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,145 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,146 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,172 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,172 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,172 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,172 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,196 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,196 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,196 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,196 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,221 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,221 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,221 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,221 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,243 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,243 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,243 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,243 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,265 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,265 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,265 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,266 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,285 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,285 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,286 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,286 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:03,313 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:03,313 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:03,313 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:03,314 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:46,899 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001r.000', 'name': '20241009_F3(F)_001r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:47,246 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' configuration loaded successfully.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of ensembles: 92
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of beams: 4
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of cells: 70
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam facing direction: down.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' depth cell length: 50 m.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' bin 1 distance: 118 m.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam angle: 20 degrees.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' instrument depth: 0.0 m.
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' first ensemble datetime: 2024-10-09 10:09:18.570000
+2025-07-30 20:51:47,318 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' last ensemble datetime: 2024-10-09 10:11:59.610000
+2025-07-30 20:51:47,319 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002r.000', 'name': '20241009_F3(F)_002r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:47,652 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_002extern.csv
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' configuration loaded successfully.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of ensembles: 80
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of beams: 4
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of cells: 70
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam facing direction: down.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' depth cell length: 50 m.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' bin 1 distance: 118 m.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam angle: 20 degrees.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' instrument depth: 0.0 m.
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' first ensemble datetime: 2024-10-09 10:13:33.430000
+2025-07-30 20:51:47,720 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' last ensemble datetime: 2024-10-09 10:15:53.230000
+2025-07-30 20:51:47,720 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003r.000', 'name': '20241009_F3(F)_003r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:48,040 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_003extern.csv
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' configuration loaded successfully.
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of ensembles: 91
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of beams: 4
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of cells: 70
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam facing direction: down.
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' depth cell length: 50 m.
+2025-07-30 20:51:48,065 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' bin 1 distance: 118 m.
+2025-07-30 20:51:48,066 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam angle: 20 degrees.
+2025-07-30 20:51:48,066 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' instrument depth: 0.0 m.
+2025-07-30 20:51:48,066 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' first ensemble datetime: 2024-10-09 10:17:12.850000
+2025-07-30 20:51:48,066 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' last ensemble datetime: 2024-10-09 10:19:52.100000
+2025-07-30 20:51:48,066 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004r.000', 'name': '20241009_F3(F)_004r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:48,408 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_004extern.csv
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' configuration loaded successfully.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of ensembles: 81
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of beams: 4
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of cells: 70
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam facing direction: down.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' depth cell length: 50 m.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' bin 1 distance: 118 m.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam angle: 20 degrees.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' instrument depth: 0.0 m.
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' first ensemble datetime: 2024-10-09 10:20:59.380000
+2025-07-30 20:51:48,439 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' last ensemble datetime: 2024-10-09 10:23:20.980000
+2025-07-30 20:51:48,439 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005r.000', 'name': '20241009_F3(F)_005r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:48,690 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_005extern.csv
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' configuration loaded successfully.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of ensembles: 75
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of beams: 4
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of cells: 70
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam facing direction: down.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' depth cell length: 50 m.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' bin 1 distance: 118 m.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam angle: 20 degrees.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' instrument depth: 0.0 m.
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' first ensemble datetime: 2024-10-09 10:24:40.620000
+2025-07-30 20:51:48,733 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' last ensemble datetime: 2024-10-09 10:26:51.590000
+2025-07-30 20:51:48,733 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006r.000', 'name': '20241009_F3(F)_006r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:48,987 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_006extern.csv
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' configuration loaded successfully.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of ensembles: 75
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of beams: 4
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of cells: 70
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam facing direction: down.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' depth cell length: 50 m.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' bin 1 distance: 118 m.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam angle: 20 degrees.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' instrument depth: 0.0 m.
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' first ensemble datetime: 2024-10-09 10:28:05.940000
+2025-07-30 20:51:49,021 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' last ensemble datetime: 2024-10-09 10:30:16.880000
+2025-07-30 20:51:49,021 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007r.000', 'name': '20241009_F3(F)_007r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:49,346 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_007extern.csv
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' configuration loaded successfully.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of ensembles: 238
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of beams: 4
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of cells: 70
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam facing direction: down.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' depth cell length: 50 m.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' bin 1 distance: 118 m.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam angle: 20 degrees.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' instrument depth: 0.0 m.
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' first ensemble datetime: 2024-10-09 10:31:34.730000
+2025-07-30 20:51:49,403 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' last ensemble datetime: 2024-10-09 10:38:34.330000
+2025-07-30 20:51:49,403 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008r.000', 'name': '20241009_F3(F)_008r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:49,733 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_008extern.csv
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' configuration loaded successfully.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of ensembles: 85
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of beams: 4
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of cells: 70
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam facing direction: down.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' depth cell length: 50 m.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' bin 1 distance: 118 m.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam angle: 20 degrees.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' instrument depth: 0.0 m.
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' first ensemble datetime: 2024-10-09 10:39:48.670000
+2025-07-30 20:51:49,758 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' last ensemble datetime: 2024-10-09 10:42:17.350000
+2025-07-30 20:51:49,758 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009r.000', 'name': '20241009_F3(F)_009r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:50,087 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_009extern.csv
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' configuration loaded successfully.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of ensembles: 82
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of beams: 4
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of cells: 70
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam facing direction: down.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' depth cell length: 50 m.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' bin 1 distance: 118 m.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam angle: 20 degrees.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' instrument depth: 0.0 m.
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' first ensemble datetime: 2024-10-09 10:43:36.960000
+2025-07-30 20:51:50,113 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' last ensemble datetime: 2024-10-09 10:46:00.300000
+2025-07-30 20:51:50,113 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010r.000', 'name': '20241009_F3(F)_010r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:50,443 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_010extern.csv
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' configuration loaded successfully.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of ensembles: 80
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of beams: 4
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of cells: 70
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam facing direction: down.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' depth cell length: 50 m.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' bin 1 distance: 118 m.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam angle: 20 degrees.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' instrument depth: 0.0 m.
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' first ensemble datetime: 2024-10-09 10:47:21.710000
+2025-07-30 20:51:50,468 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' last ensemble datetime: 2024-10-09 10:49:41.550000
+2025-07-30 20:51:50,468 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011r.000', 'name': '20241009_F3(F)_011r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:50,797 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_011extern.csv
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' configuration loaded successfully.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of ensembles: 93
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of beams: 4
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of cells: 70
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam facing direction: down.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' depth cell length: 50 m.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' bin 1 distance: 118 m.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam angle: 20 degrees.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' instrument depth: 0.0 m.
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' first ensemble datetime: 2024-10-09 10:50:55.880000
+2025-07-30 20:51:50,828 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' last ensemble datetime: 2024-10-09 10:53:38.750000
+2025-07-30 20:51:50,828 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012r.000', 'name': '20241009_F3(F)_012r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:51,072 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_012extern.csv
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' configuration loaded successfully.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of ensembles: 69
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of beams: 4
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of cells: 70
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam facing direction: down.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' depth cell length: 50 m.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' bin 1 distance: 118 m.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam angle: 20 degrees.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' instrument depth: 0.0 m.
+2025-07-30 20:51:51,094 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' first ensemble datetime: 2024-10-09 10:54:58.390000
+2025-07-30 20:51:51,095 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' last ensemble datetime: 2024-10-09 10:56:58.760000
+2025-07-30 20:51:51,095 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013r.000', 'name': '20241009_F3(F)_013r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:51,420 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_013extern.csv
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' configuration loaded successfully.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of ensembles: 94
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of beams: 4
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of cells: 70
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam facing direction: down.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' depth cell length: 50 m.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' bin 1 distance: 118 m.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam angle: 20 degrees.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' instrument depth: 0.0 m.
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' first ensemble datetime: 2024-10-09 10:58:20.160000
+2025-07-30 20:51:51,446 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' last ensemble datetime: 2024-10-09 11:01:04.800000
+2025-07-30 20:51:51,446 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014r.000', 'name': '20241009_F3(F)_014r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:51,696 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_014extern.csv
+2025-07-30 20:51:51,736 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' configuration loaded successfully.
+2025-07-30 20:51:51,736 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of ensembles: 64
+2025-07-30 20:51:51,736 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of beams: 4
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of cells: 70
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam facing direction: down.
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' depth cell length: 50 m.
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' bin 1 distance: 118 m.
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam angle: 20 degrees.
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' instrument depth: 0.0 m.
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' first ensemble datetime: 2024-10-09 11:02:33.320000
+2025-07-30 20:51:51,737 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' last ensemble datetime: 2024-10-09 11:04:24.800000
+2025-07-30 20:51:51,737 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015r.000', 'name': '20241009_F3(F)_015r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:51,982 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_015extern.csv
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' configuration loaded successfully.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of ensembles: 67
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of beams: 4
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of cells: 70
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam facing direction: down.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' depth cell length: 50 m.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' bin 1 distance: 118 m.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam angle: 20 degrees.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' instrument depth: 0.0 m.
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' first ensemble datetime: 2024-10-09 11:06:02.120000
+2025-07-30 20:51:52,011 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' last ensemble datetime: 2024-10-09 11:07:58.940000
+2025-07-30 20:51:52,011 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016r.000', 'name': '20241009_F3(F)_016r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:52,341 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_016extern.csv
+2025-07-30 20:51:52,370 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' configuration loaded successfully.
+2025-07-30 20:51:52,370 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of ensembles: 69
+2025-07-30 20:51:52,370 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of beams: 4
+2025-07-30 20:51:52,371 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of cells: 70
+2025-07-30 20:51:52,371 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam facing direction: down.
+2025-07-30 20:51:52,371 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' depth cell length: 50 m.
+2025-07-30 20:51:52,371 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' bin 1 distance: 118 m.
+2025-07-30 20:51:52,371 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam angle: 20 degrees.
+2025-07-30 20:51:52,372 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' instrument depth: 0.0 m.
+2025-07-30 20:51:52,372 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' first ensemble datetime: 2024-10-09 11:09:27.440000
+2025-07-30 20:51:52,372 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' last ensemble datetime: 2024-10-09 11:11:27.820000
+2025-07-30 20:51:52,372 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017r.000', 'name': '20241009_F3(F)_017r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:51:52,694 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_017extern.csv
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' configuration loaded successfully.
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of ensembles: 104
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of beams: 4
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of cells: 70
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam facing direction: down.
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' depth cell length: 50 m.
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' bin 1 distance: 118 m.
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam angle: 20 degrees.
+2025-07-30 20:51:52,726 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' instrument depth: 0.0 m.
+2025-07-30 20:51:52,727 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' first ensemble datetime: 2024-10-09 11:15:39.050000
+2025-07-30 20:51:52,727 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' last ensemble datetime: 2024-10-09 11:18:41.430000
+2025-07-30 20:51:52,798 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,798 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,798 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,798 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,821 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,821 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,821 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,821 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,845 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,845 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,867 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,867 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,867 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,867 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,888 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,889 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,889 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,889 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,918 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,918 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,919 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,919 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,965 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,965 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,966 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,966 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:52,996 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:52,996 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:52,996 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:52,996 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,020 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,020 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,020 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,020 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,053 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,053 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,053 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,053 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,090 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,090 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,090 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,090 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,112 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,112 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,112 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,112 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,138 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,138 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,138 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,138 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,158 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,158 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,158 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,159 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,180 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,180 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,180 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,180 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,201 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,201 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,202 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,202 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:51:53,228 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:51:53,228 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:51:53,229 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:51:53,229 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:27,958 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001r.000', 'name': '20241009_F3(F)_001r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_001extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:28,280 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_001extern.csv
+2025-07-30 20:58:28,329 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' configuration loaded successfully.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of ensembles: 92
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of beams: 4
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' number of cells: 70
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam facing direction: down.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' depth cell length: 50 m.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' bin 1 distance: 118 m.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' beam angle: 20 degrees.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' instrument depth: 0.0 m.
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' first ensemble datetime: 2024-10-09 10:09:18.570000
+2025-07-30 20:58:28,330 - INFO - (ADCP) ADCP '20241009_F3(F)_001r' last ensemble datetime: 2024-10-09 10:11:59.610000
+2025-07-30 20:58:28,330 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002r.000', 'name': '20241009_F3(F)_002r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_002extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:28,671 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_002extern.csv
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' configuration loaded successfully.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of ensembles: 80
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of beams: 4
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' number of cells: 70
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam facing direction: down.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' depth cell length: 50 m.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' bin 1 distance: 118 m.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' beam angle: 20 degrees.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' instrument depth: 0.0 m.
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' first ensemble datetime: 2024-10-09 10:13:33.430000
+2025-07-30 20:58:28,724 - INFO - (ADCP) ADCP '20241009_F3(F)_002r' last ensemble datetime: 2024-10-09 10:15:53.230000
+2025-07-30 20:58:28,724 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003r.000', 'name': '20241009_F3(F)_003r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_003extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:29,068 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_003extern.csv
+2025-07-30 20:58:29,097 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' configuration loaded successfully.
+2025-07-30 20:58:29,097 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of ensembles: 91
+2025-07-30 20:58:29,097 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of beams: 4
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' number of cells: 70
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam facing direction: down.
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' depth cell length: 50 m.
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' bin 1 distance: 118 m.
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' beam angle: 20 degrees.
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' instrument depth: 0.0 m.
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' first ensemble datetime: 2024-10-09 10:17:12.850000
+2025-07-30 20:58:29,098 - INFO - (ADCP) ADCP '20241009_F3(F)_003r' last ensemble datetime: 2024-10-09 10:19:52.100000
+2025-07-30 20:58:29,098 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004r.000', 'name': '20241009_F3(F)_004r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_004extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:29,477 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_004extern.csv
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' configuration loaded successfully.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of ensembles: 81
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of beams: 4
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' number of cells: 70
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam facing direction: down.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' depth cell length: 50 m.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' bin 1 distance: 118 m.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' beam angle: 20 degrees.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' instrument depth: 0.0 m.
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' first ensemble datetime: 2024-10-09 10:20:59.380000
+2025-07-30 20:58:29,503 - INFO - (ADCP) ADCP '20241009_F3(F)_004r' last ensemble datetime: 2024-10-09 10:23:20.980000
+2025-07-30 20:58:29,503 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005r.000', 'name': '20241009_F3(F)_005r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_005extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:29,765 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_005extern.csv
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' configuration loaded successfully.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of ensembles: 75
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of beams: 4
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' number of cells: 70
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam facing direction: down.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' depth cell length: 50 m.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' bin 1 distance: 118 m.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' beam angle: 20 degrees.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' instrument depth: 0.0 m.
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' first ensemble datetime: 2024-10-09 10:24:40.620000
+2025-07-30 20:58:29,801 - INFO - (ADCP) ADCP '20241009_F3(F)_005r' last ensemble datetime: 2024-10-09 10:26:51.590000
+2025-07-30 20:58:29,801 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006r.000', 'name': '20241009_F3(F)_006r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_006extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:30,045 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_006extern.csv
+2025-07-30 20:58:30,068 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' configuration loaded successfully.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of ensembles: 75
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of beams: 4
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' number of cells: 70
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam facing direction: down.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' depth cell length: 50 m.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' bin 1 distance: 118 m.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' beam angle: 20 degrees.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' instrument depth: 0.0 m.
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' first ensemble datetime: 2024-10-09 10:28:05.940000
+2025-07-30 20:58:30,069 - INFO - (ADCP) ADCP '20241009_F3(F)_006r' last ensemble datetime: 2024-10-09 10:30:16.880000
+2025-07-30 20:58:30,069 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007r.000', 'name': '20241009_F3(F)_007r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_007extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:30,410 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_007extern.csv
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' configuration loaded successfully.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of ensembles: 238
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of beams: 4
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' number of cells: 70
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam facing direction: down.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' depth cell length: 50 m.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' bin 1 distance: 118 m.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' beam angle: 20 degrees.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' instrument depth: 0.0 m.
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' first ensemble datetime: 2024-10-09 10:31:34.730000
+2025-07-30 20:58:30,478 - INFO - (ADCP) ADCP '20241009_F3(F)_007r' last ensemble datetime: 2024-10-09 10:38:34.330000
+2025-07-30 20:58:30,479 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008r.000', 'name': '20241009_F3(F)_008r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_008extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:30,801 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_008extern.csv
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' configuration loaded successfully.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of ensembles: 85
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of beams: 4
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' number of cells: 70
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam facing direction: down.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' depth cell length: 50 m.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' bin 1 distance: 118 m.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' beam angle: 20 degrees.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' instrument depth: 0.0 m.
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' first ensemble datetime: 2024-10-09 10:39:48.670000
+2025-07-30 20:58:30,830 - INFO - (ADCP) ADCP '20241009_F3(F)_008r' last ensemble datetime: 2024-10-09 10:42:17.350000
+2025-07-30 20:58:30,830 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009r.000', 'name': '20241009_F3(F)_009r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_009extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:31,150 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_009extern.csv
+2025-07-30 20:58:31,177 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' configuration loaded successfully.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of ensembles: 82
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of beams: 4
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' number of cells: 70
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam facing direction: down.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' depth cell length: 50 m.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' bin 1 distance: 118 m.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' beam angle: 20 degrees.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' instrument depth: 0.0 m.
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' first ensemble datetime: 2024-10-09 10:43:36.960000
+2025-07-30 20:58:31,178 - INFO - (ADCP) ADCP '20241009_F3(F)_009r' last ensemble datetime: 2024-10-09 10:46:00.300000
+2025-07-30 20:58:31,178 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010r.000', 'name': '20241009_F3(F)_010r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_010extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:31,552 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_010extern.csv
+2025-07-30 20:58:31,583 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' configuration loaded successfully.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of ensembles: 80
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of beams: 4
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' number of cells: 70
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam facing direction: down.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' depth cell length: 50 m.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' bin 1 distance: 118 m.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' beam angle: 20 degrees.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' instrument depth: 0.0 m.
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' first ensemble datetime: 2024-10-09 10:47:21.710000
+2025-07-30 20:58:31,584 - INFO - (ADCP) ADCP '20241009_F3(F)_010r' last ensemble datetime: 2024-10-09 10:49:41.550000
+2025-07-30 20:58:31,584 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011r.000', 'name': '20241009_F3(F)_011r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_011extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:31,908 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_011extern.csv
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' configuration loaded successfully.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of ensembles: 93
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of beams: 4
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' number of cells: 70
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam facing direction: down.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' depth cell length: 50 m.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' bin 1 distance: 118 m.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' beam angle: 20 degrees.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' instrument depth: 0.0 m.
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' first ensemble datetime: 2024-10-09 10:50:55.880000
+2025-07-30 20:58:31,941 - INFO - (ADCP) ADCP '20241009_F3(F)_011r' last ensemble datetime: 2024-10-09 10:53:38.750000
+2025-07-30 20:58:31,941 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012r.000', 'name': '20241009_F3(F)_012r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_012extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:32,210 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_012extern.csv
+2025-07-30 20:58:32,268 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' configuration loaded successfully.
+2025-07-30 20:58:32,268 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of ensembles: 69
+2025-07-30 20:58:32,268 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of beams: 4
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' number of cells: 70
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam facing direction: down.
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' depth cell length: 50 m.
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' bin 1 distance: 118 m.
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' beam angle: 20 degrees.
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' instrument depth: 0.0 m.
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' first ensemble datetime: 2024-10-09 10:54:58.390000
+2025-07-30 20:58:32,269 - INFO - (ADCP) ADCP '20241009_F3(F)_012r' last ensemble datetime: 2024-10-09 10:56:58.760000
+2025-07-30 20:58:32,269 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013r.000', 'name': '20241009_F3(F)_013r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_013extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:32,607 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_013extern.csv
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' configuration loaded successfully.
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of ensembles: 94
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of beams: 4
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' number of cells: 70
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam facing direction: down.
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' depth cell length: 50 m.
+2025-07-30 20:58:32,668 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' bin 1 distance: 118 m.
+2025-07-30 20:58:32,669 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' beam angle: 20 degrees.
+2025-07-30 20:58:32,669 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' instrument depth: 0.0 m.
+2025-07-30 20:58:32,669 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' first ensemble datetime: 2024-10-09 10:58:20.160000
+2025-07-30 20:58:32,669 - INFO - (ADCP) ADCP '20241009_F3(F)_013r' last ensemble datetime: 2024-10-09 11:01:04.800000
+2025-07-30 20:58:32,669 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014r.000', 'name': '20241009_F3(F)_014r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_014extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:32,917 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_014extern.csv
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' configuration loaded successfully.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of ensembles: 64
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of beams: 4
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' number of cells: 70
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam facing direction: down.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' depth cell length: 50 m.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' bin 1 distance: 118 m.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' beam angle: 20 degrees.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' instrument depth: 0.0 m.
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' first ensemble datetime: 2024-10-09 11:02:33.320000
+2025-07-30 20:58:32,966 - INFO - (ADCP) ADCP '20241009_F3(F)_014r' last ensemble datetime: 2024-10-09 11:04:24.800000
+2025-07-30 20:58:32,966 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015r.000', 'name': '20241009_F3(F)_015r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_015extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:33,234 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_015extern.csv
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' configuration loaded successfully.
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of ensembles: 67
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of beams: 4
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' number of cells: 70
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam facing direction: down.
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' depth cell length: 50 m.
+2025-07-30 20:58:33,331 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' bin 1 distance: 118 m.
+2025-07-30 20:58:33,332 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' beam angle: 20 degrees.
+2025-07-30 20:58:33,332 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' instrument depth: 0.0 m.
+2025-07-30 20:58:33,332 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' first ensemble datetime: 2024-10-09 11:06:02.120000
+2025-07-30 20:58:33,332 - INFO - (ADCP) ADCP '20241009_F3(F)_015r' last ensemble datetime: 2024-10-09 11:07:58.940000
+2025-07-30 20:58:33,332 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016r.000', 'name': '20241009_F3(F)_016r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_016extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:33,589 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_016extern.csv
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' configuration loaded successfully.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of ensembles: 69
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of beams: 4
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' number of cells: 70
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam facing direction: down.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' depth cell length: 50 m.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' bin 1 distance: 118 m.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' beam angle: 20 degrees.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' instrument depth: 0.0 m.
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' first ensemble datetime: 2024-10-09 11:09:27.440000
+2025-07-30 20:58:33,637 - INFO - (ADCP) ADCP '20241009_F3(F)_016r' last ensemble datetime: 2024-10-09 11:11:27.820000
+2025-07-30 20:58:33,638 - INFO - (ADCP) Initializing ADCP from configuration file: {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017r.000', 'name': '20241009_F3(F)_017r', 'pos_cfg': {'filename': '\\\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\2024_survey_data\\10. Oct\\20241009_F3(F)\\RawDataRT\\20241009_F3(F)_017extern.csv', 'epsg': '4326', 'X_mode': 'Variable', 'Y_mode': 'Variable', 'Depth_mode': 'Constant', 'Pitch_mode': 'Constant', 'Roll_mode': 'Cosntant', 'Heading_mode': 'Variable', 'DateTime_mode': 'Variable', 'X_value': 'Longitude', 'Y_value': 'Latitude', 'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0, 'Heading_value': 'Course', 'DateTime_value': 'DateTime'}}
+2025-07-30 20:58:33,971 - INFO - (ADCPPosition) ADCP position data loaded from \\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)\RawDataRT\20241009_F3(F)_017extern.csv
+2025-07-30 20:58:34,046 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' configuration loaded successfully.
+2025-07-30 20:58:34,046 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of ensembles: 104
+2025-07-30 20:58:34,046 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of beams: 4
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' number of cells: 70
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam facing direction: down.
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' depth cell length: 50 m.
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' bin 1 distance: 118 m.
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' beam angle: 20 degrees.
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' instrument depth: 0.0 m.
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' first ensemble datetime: 2024-10-09 11:15:39.050000
+2025-07-30 20:58:34,047 - INFO - (ADCP) ADCP '20241009_F3(F)_017r' last ensemble datetime: 2024-10-09 11:18:41.430000
+2025-07-30 20:58:34,136 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,137 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,137 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,137 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,202 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,203 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,203 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,203 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,230 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,230 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,230 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,230 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,254 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,254 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,254 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,254 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,294 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,294 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,294 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,294 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,329 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,329 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,329 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,329 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,430 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,430 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,430 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,431 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,470 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,471 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,471 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,471 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,503 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,503 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,504 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,504 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,525 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,525 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,525 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,525 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,560 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,560 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,560 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,560 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,580 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,580 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,580 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,580 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,613 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,613 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,614 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,614 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,634 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,634 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,634 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,635 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,655 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,655 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,655 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,655 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,817 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,817 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,817 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,817 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 20:58:34,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.3931 for beam 1.
+2025-07-30 20:58:34,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.4145 for beam 2.
+2025-07-30 20:58:34,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.416 for beam 3.
+2025-07-30 20:58:34,844 - WARNING - (Pd0Decoder) Using default RSSI value 0.4129 for beam 4.
+2025-07-30 21:12:19,098 - ERROR - (Plotting) Invalid variable 'abs._backscatter'. Must be 'percent_good', 'absolute_backscatter', 'signal_to_noise_ratio', 'echo_intensity', 'correlation_magnitude', 'filtered_echo_intensity', 'ntu', 'ssc', 'u', 'v', 'w', 'CS', or 'error_velocity'.
