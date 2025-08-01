@@ -667,119 +667,119 @@ class Pd0Decoder:
         return np.array(data)
         
 
-    def _get_absolute_backscatter(self) -> np.ndarray:
-        """
-        Convert echo intensity to absolute backscatter.
+    # def _get_absolute_backscatter(self) -> np.ndarray:
+    #     """
+    #     Convert echo intensity to absolute backscatter.
 
-        Returns:
-        --------
-            np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
-        """
-        echo_intensity = self._get_echo_intensity()
-        if echo_intensity is None:
-            return None
-        E_r = self.cfg.get('noise_floor', 39)
-        WB = self._fixed.system_bandwidth_wb
-        if WB == 0:
-            C = -139.09
-        else:
-            C = -149.14
-        C = self.cfg.get('absolute_backscatter_C', C)
-        default_rssis = {1: 0.3931, 2: 0.4145, 3: 0.4160, 4: 0.4129}
-        k_c = {}
-        for i in range(self._fixed.number_of_beams):
-            if f'rssi_beam_{i+1}' in self.cfg.keys():
-                k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
-            else:
-                k_c[i+1] = default_rssis.get(i+1, 0.45)
-                Utils.warning(
-                    logger=self.logger,
-                    msg=f"Using default RSSI value {k_c[i+1]} for beam {i+1}.",
-                    level=self.__class__.__name__
-                )
-        alpha = 0.5
-        P_dbw = 8.3
-        if self._fixed.system_configuration.frequency == '75-kHz':
-            alpha = 0.027
-            P_dbw = 27.3
-        elif self._fixed.system_configuration.frequency == '300-kHz':
-            alpha = 0.068
-            P_dbw = 14    
-        elif self._fixed.system_configuration.frequency == '600-kHz':
-            alpha = 0.178
-            P_dbw = 9
-        alpha = self.cfg.get('absolute_backscatter_alpha', alpha)
-        P_dbw = self.cfg.get('absolute_backscatter_P_dbw', P_dbw)
+    #     Returns:
+    #     --------
+    #         np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
+    #     """
+    #     echo_intensity = self._get_echo_intensity()
+    #     if echo_intensity is None:
+    #         return None
+    #     E_r = self.cfg.get('noise_floor', 39)
+    #     WB = self._fixed.system_bandwidth_wb
+    #     if WB == 0:
+    #         C = -139.09
+    #     else:
+    #         C = -149.14
+    #     C = self.cfg.get('absolute_backscatter_C', C)
+    #     default_rssis = {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41}
+    #     k_c = {}
+    #     for i in range(self._fixed.number_of_beams):
+    #         if f'rssi_beam_{i+1}' in self.cfg.keys():
+    #             k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
+    #         else:
+    #             k_c[i+1] = default_rssis.get(i+1, 0.45)
+    #             Utils.warning(
+    #                 logger=self.logger,
+    #                 msg=f"Using default RSSI value {k_c[i+1]} for beam {i+1}.",
+    #                 level=self.__class__.__name__
+    #             )
+    #     alpha = 0.5
+    #     P_dbw = 8.3
+    #     if self._fixed.system_configuration.frequency == '75-kHz':
+    #         alpha = 0.027
+    #         P_dbw = 27.3
+    #     elif self._fixed.system_configuration.frequency == '300-kHz':
+    #         alpha = 0.068
+    #         P_dbw = 14    
+    #     elif self._fixed.system_configuration.frequency == '600-kHz':
+    #         alpha = 0.178
+    #         P_dbw = 9
+    #     alpha = self.cfg.get('absolute_backscatter_alpha', alpha)
+    #     P_dbw = self.cfg.get('absolute_backscatter_P_dbw', P_dbw)
 
-        temperature = np.outer(self._get_sensor_temperature(), np.ones(self._n_cells))
-        bin_distances = np.outer(self._get_bin_midpoints(), np.ones(self._n_ensembles)).T
-        transmit_pulse_length = np.outer(self._get_sensor_transmit_pulse_length(), np.ones(self._n_cells))
-        X = []
-        StN = []
-        for i in range(self._n_beams):
-            E = echo_intensity[:, :, i]
-            sv, stn = self._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
-            # print(k_c[i+1])
-            # quit()
-            X.append(sv)
-            StN.append(stn)
-        X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
-        StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
-        return X, StN
+    #     temperature = np.outer(self._get_sensor_temperature(), np.ones(self._n_cells))
+    #     bin_distances = np.outer(self._get_bin_midpoints(), np.ones(self._n_ensembles)).T
+    #     transmit_pulse_length = np.outer(self._get_sensor_transmit_pulse_length(), np.ones(self._n_cells))
+    #     X = []
+    #     StN = []
+    #     for i in range(self._n_beams):
+    #         E = echo_intensity[:, :, i]
+    #         sv, stn = self._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
+    #         # print(k_c[i+1])
+    #         # quit()
+    #         X.append(sv)
+    #         StN.append(stn)
+    #     X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
+    #     StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
+    #     return X, StN
 
-    @staticmethod
-    def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
-        """
-        Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
+    # @staticmethod
+    # def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
+    #     """
+    #     Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
         
-        Parameters
-        ----------
-        E : ndarray
-            Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
-        R : ndarray
-            Along-beam range to the measurement in meters.
-        Tx_T : ndarray
-            Transducer temperature in deg C.
-        Tx_PL : ndarray
-            Transmit pulse length in dBm.
-        E_r : float
-            Measured RSSI amplitude in absence of signal (noise), in counts.
-        k_c : float
-            Factor to convert amplitude counts to decibels (dB).
-        alpha : float
-            Acoustic absorption (dB/m).
-        C : float
-            Constant combining several parameters specific to the instrument.
-        P_DBW : float
-            Transmit pulse power in dBW.
+    #     Parameters
+    #     ----------
+    #     E : ndarray
+    #         Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
+    #     R : ndarray
+    #         Along-beam range to the measurement in meters.
+    #     Tx_T : ndarray
+    #         Transducer temperature in deg C.
+    #     Tx_PL : ndarray
+    #         Transmit pulse length in dBm.
+    #     E_r : float
+    #         Measured RSSI amplitude in absence of signal (noise), in counts.
+    #     k_c : float
+    #         Factor to convert amplitude counts to decibels (dB).
+    #     alpha : float
+    #         Acoustic absorption (dB/m).
+    #     C : float
+    #         Constant combining several parameters specific to the instrument.
+    #     P_DBW : float
+    #         Transmit pulse power in dBW.
         
-        Returns
-        -------
-        Sv : ndarray
-            Apparent volume scattering strength.
-        StN : ndarray
-            True signal to noise ratio.
-        """
+    #     Returns
+    #     -------
+    #     Sv : ndarray
+    #         Apparent volume scattering strength.
+    #     StN : ndarray
+    #         True signal to noise ratio.
+    #     """
         
-        # Signal to noise ratio (true)
-        E_db = k_c * E / 10
-        E_r_db = k_c * E_r / 10
+    #     # Signal to noise ratio (true)
+    #     E_db = k_c * E / 10
+    #     E_r_db = k_c * E_r / 10
         
-        StN = (10 ** E_db - 10 ** E_r_db) / (10 ** E_r_db)
+    #     StN = (10 ** E_db - 10 ** E_r_db) / (10 ** E_r_db)
         
-        # L_DBM: Transmit pulse length in dBm
-        L_DBM = 10 * np.log10(Tx_PL)
+    #     # L_DBM: Transmit pulse length in dBm
+    #     L_DBM = 10 * np.log10(Tx_PL)
         
-        Sv = (
-            C
-            + 10 * np.log10((Tx_T + 273.16) * (R ** 2))
-            - L_DBM
-            - P_DBW
-            + 2 * alpha * R
-            + 10 * np.log10(10 ** (0.1 * k_c * (E - E_r)) - 1)
-        )
+    #     Sv = (
+    #         C
+    #         + 10 * np.log10((Tx_T + 273.16) * (R ** 2))
+    #         - L_DBM
+    #         - P_DBW
+    #         + 2 * alpha * R
+    #         + 10 * np.log10(10 ** (0.1 * k_c * (E - E_r)) - 1)
+    #     )
         
-        return Sv, StN
+    #     return Sv, StN
 
     def __repr__(self) -> str:
         if self._approximate_n_ensembles:

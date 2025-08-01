@@ -532,6 +532,7 @@ class CSVParser:
             return False
         
 class XYZ:
+    'class for efficient handling of x,y,z data'
     def __init__(self, x: float | np.ndarray, y: float | np.ndarray, z: float | np.ndarray) -> None:
         self.x = x
         self.y = y

@@ -60,7 +60,7 @@ cfgs = []
 position_datasets = []
 adcps = []
 for i,fpath in enumerate(pd0_fpaths):
-   
+    print(i)
     name = fpath.split(os.sep)[-1].split('.000')[0]
     cfg = {'filename':fpath,
            'name':name,
@@ -92,9 +92,8 @@ for i,fpath in enumerate(pd0_fpaths):
     adcp = DatasetADCP(cfg, name = name)
     adcps.append(adcp)
     
+    
     break
- 
- 
 
 
 #%% generic testing for ADCP functions
@@ -110,7 +109,7 @@ for i,fpath in enumerate(pd0_fpaths):
 
 
 #%%
-def ADCP_instrument_summary():
+#def ADCP_instrument_summary():
 
 #     pd0_fpath = r'\\SGSIN1-STOR\Projects\61801596\Working Documents\Data and Calculations\10_Field Survey\Sediment Flux\2022\10. Oct\20221003-TF(F)-Exp2\RawDataRT\20221003-TF(F)-001r.000'
     

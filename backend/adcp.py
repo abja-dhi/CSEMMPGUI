@@ -38,82 +38,7 @@ class ADCP():
             
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
 
-        ## grab masking attributes
-        @dataclass
-        class MaskParams:
-            pg_min: float = field(metadata={"desc": "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only."})
-            cormag_min: int = field(metadata={"desc": "Minimum correlation magnitude accepted. Applies to masks for beam data only."})
-            cormag_max: int = field(metadata={"desc": "Maximum correlation magnitude accepted. Applies to masks for beam data only."})
-            echo_min: int = field(metadata={"desc": "Minimum echo intensity threshold accepted. Applies to masks for beam data only."})
-            echo_max: int = field(metadata={"desc": "Maximum echo intensity threshold accepted. Applies to masks for beam data only."})
-            vel_min: float = field(metadata={"desc": "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
-            vel_max: float = field(metadata={"desc": "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
-            err_vel_max: float = field(metadata={"desc": "Maximum accepted error velocity (m/s). Applies to masks for velocity data only." })
-            start_datetime: datetime = field(metadata={"desc": "Start time for valid ensemble masking window. Applies to masks for velocity and beam data."})
-            end_datetime: datetime = field(metadata={"desc": "End time for valid ensemble masking window. Applies to masks for velocity and beam data."})
-            first_good_ensemble: int = field(metadata={"desc": "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
-            last_good_ensemble: int = field(metadata={"desc": "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
 
-            
-        self.masking = MaskParams(
-            pg_min=float(self._cfg.get('pg_min', Constants._LOW_NUMBER)),
-            cormag_min=int(self._cfg.get('cormag_min', Constants._LOW_NUMBER)),
-            cormag_max=int(self._cfg.get('cormag_max', Constants._HIGH_NUMBER)),
-            echo_min=int(self._cfg.get('echo_min', Constants._LOW_NUMBER)),
-            echo_max=int(self._cfg.get('echo_max', Constants._HIGH_NUMBER)),
-            vel_min=float(self._cfg.get('vel_min', Constants._LOW_NUMBER)),
-            vel_max=float(self._cfg.get('vel_max', Constants._HIGH_NUMBER)),
-            err_vel_max=float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER)),
-            start_datetime=parser.parse(self._cfg.get('start_datetime', Constants._FAR_PAST_DATETIME)),
-            end_datetime=parser.parse(self._cfg.get('end_datetime', Constants._FAR_FUTURE_DATETIME)),
-            first_good_ensemble=int(self._cfg.get('first_good_ensemble', 1)),
-            last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
-            )
-        
-
-        @dataclass
-        class ADCPGeometry:
-            beam_facing: str = field(metadata={"desc": "Beam direction (Up/Down)"})
-            n_bins: float = field(metadata={"desc": "Number of bins"})
-            n_beams: float = field(metadata={"desc": "Number of beams"})
-            beam_angle: float = field(metadata={"desc": "Beam angle in degrees from vertical"})
-            bin_1_distance: float = field(metadata={"desc": "Distance to the center of the first bin (m)"})
-            bin_length: float = field(metadata={"desc": "Vertical length of each measurement bin (m)"})
-            bin_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from ADCP to bin centers (m)"})
-            crp_offset_x: float = field(metadata={"desc": "Offset of ADCP from platform CRP (X axis, meters)"})
-            crp_offset_y: float = field(metadata={"desc": "Offset of ADCP from platform CRP(Y axis, meters)"})
-            crp_offset_z: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Z axis, meters)"})
-            crp_rotation_angle: float = field(metadata={"desc": "CCW rotation of ADCP in casing (degrees)"})
-            
-                
-        self.geometry = ADCPGeometry(
-            beam_facing = self._pd0._beam_facing,
-            n_bins = self._pd0._n_cells,
-            n_beams = self._pd0._fixed.number_of_beams,
-            beam_angle=self._pd0._fixed.beam_angle, 
-            bin_1_distance=self._pd0._fixed.bin_1_distance/100,  
-            bin_length= self._pd0._fixed.depth_cell_length_ws/100,  
-            bin_midpoint_distances =  self._pd0._get_bin_midpoints(),
-            crp_offset_x=float(self._cfg.get('crp_offset_x', Constants._LOW_NUMBER)),
-            crp_offset_y=float(self._cfg.get('crp_offset_y', Constants._LOW_NUMBER)),
-            crp_offset_z=float(self._cfg.get('crp_offset_z', Constants._LOW_NUMBER)),
-            crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER))
-            )
-
-        # @dataclass
-        # class RSSICoefficients:
-        #     beam1: float = field(metadata={"desc": "RSSI coefficient for beam 1, from P3 test on TRDI instrument"})
-        #     beam2: float = field(metadata={"desc": "RSSI coefficient for beam 2, from P3 test on TRDI instrument"})
-        #     beam3: float = field(metadata={"desc": "RSSI coefficient for beam 3, from P3 test on TRDI instrument"})
-        #     beam4: float = field(metadata={"desc": "RSSI coefficient for beam 4, from P3 test on TRDI instrument"})
-                    
-        # self.rssi = RSSICoefficients(
-        #     beam1=float(self._cfg.get('rssi_beam1', 0.41)),
-        #     beam2=float(self._cfg.get('rssi_beam2', 0.41)),
-        #     beam3=float(self._cfg.get('rssi_beam3', 0.41)),
-        #     beam4=float(self._cfg.get('rssi_beam4', 0.41))
-        #     )
-        
         @dataclass
         class ADCPCorrections:
             magnetic_declination: float = field(metadata={"desc": "Degrees CCW to rotate velocity data to account for magnetic declination"})
@@ -144,7 +69,56 @@ class ADCP():
             ensemble_numbers = np.array([i.ensemble_number for i in self._pd0._get_variable_leader()])
             )
         
+    
+        
+        self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
+        self.position._resample_to(self.time.ensemble_datetimes)
+        
+        
 
+        
+        
+        @dataclass
+        class ADCPGeometry:
+            beam_facing: str = field(metadata={"desc": "Beam direction (Up/Down)"})
+            n_bins: float = field(metadata={"desc": "Number of bins"})
+            n_beams: float = field(metadata={"desc": "Number of beams"})
+            beam_angle: float = field(metadata={"desc": "Beam angle in degrees from vertical"})
+            bin_1_distance: float = field(metadata={"desc": "Distance to the center of the first bin (m)"})
+            bin_length: float = field(metadata={"desc": "Vertical length of each measurement bin (m)"})
+            bin_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from ADCP to bin centers (m)"})
+            crp_offset_x: float = field(metadata={"desc": "Offset of ADCP from platform CRP (X axis, meters)"})
+            crp_offset_y: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Y axis, meters)"})
+            crp_offset_z: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Z axis, meters)"})
+            crp_rotation_angle: float = field(metadata={"desc": "CCW rotation of ADCP in casing (degrees)"})
+            relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
+            geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
+                    
+                
+        
+                
+        self.geometry = ADCPGeometry(
+            beam_facing = self._pd0._beam_facing,
+            n_bins = self._pd0._n_cells,
+            n_beams = self._pd0._fixed.number_of_beams,
+            beam_angle=self._pd0._fixed.beam_angle, 
+            bin_1_distance=self._pd0._fixed.bin_1_distance/100,  
+            bin_length= self._pd0._fixed.depth_cell_length_ws/100,  
+            bin_midpoint_distances =  self._pd0._get_bin_midpoints(),
+            crp_offset_x=float(self._cfg.get('crp_offset_x', Constants._LOW_NUMBER)),
+            crp_offset_y=float(self._cfg.get('crp_offset_y', Constants._LOW_NUMBER)),
+            crp_offset_z=float(self._cfg.get('crp_offset_z', Constants._LOW_NUMBER)),
+            crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER)),
+            relative_beam_midpoint_positions = None,
+            geographic_beam_midpoint_positions = None,
+            )
+
+
+        relative_bmp, geographic_bmp = self._calculate_beam_geometry()
+        self.geometry.relative_beam_midpoint_positions = relative_bmp
+        self.geometry.geographic_beam_midpoint_positions = geographic_bmp
+            
+            
         @dataclass
         class ADCPBeamData:
             echo_intensity: np.ndarray = field(metadata={"desc": "Raw echo intensity from each beam. Unitless ADC counts representing backscatter strength."})
@@ -300,6 +274,42 @@ class ADCP():
         self.abs_params = gen_abs_backscatter_params_from_adcp(self)
         
         
+        ABS,StN = self._calculate_absolute_backscatter(self)
+        self.beam_data.absolute_backscatter = ABS
+        self.beam_data.signal_to_noise_ratio = StN
+        
+        
+        ## grab masking attributes
+        @dataclass
+        class MaskParams:
+            pg_min: float = field(metadata={"desc": "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only."})
+            cormag_min: int = field(metadata={"desc": "Minimum correlation magnitude accepted. Applies to masks for beam data only."})
+            cormag_max: int = field(metadata={"desc": "Maximum correlation magnitude accepted. Applies to masks for beam data only."})
+            echo_min: int = field(metadata={"desc": "Minimum echo intensity threshold accepted. Applies to masks for beam data only."})
+            echo_max: int = field(metadata={"desc": "Maximum echo intensity threshold accepted. Applies to masks for beam data only."})
+            vel_min: float = field(metadata={"desc": "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
+            vel_max: float = field(metadata={"desc": "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
+            err_vel_max: float = field(metadata={"desc": "Maximum accepted error velocity (m/s). Applies to masks for velocity data only." })
+            start_datetime: datetime = field(metadata={"desc": "Start time for valid ensemble masking window. Applies to masks for velocity and beam data."})
+            end_datetime: datetime = field(metadata={"desc": "End time for valid ensemble masking window. Applies to masks for velocity and beam data."})
+            first_good_ensemble: int = field(metadata={"desc": "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
+            last_good_ensemble: int = field(metadata={"desc": "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
+
+            
+        self.masking = MaskParams(
+            pg_min=float(self._cfg.get('pg_min', Constants._LOW_NUMBER)),
+            cormag_min=int(self._cfg.get('cormag_min', Constants._LOW_NUMBER)),
+            cormag_max=int(self._cfg.get('cormag_max', Constants._HIGH_NUMBER)),
+            echo_min=int(self._cfg.get('echo_min', Constants._LOW_NUMBER)),
+            echo_max=int(self._cfg.get('echo_max', Constants._HIGH_NUMBER)),
+            vel_min=float(self._cfg.get('vel_min', Constants._LOW_NUMBER)),
+            vel_max=float(self._cfg.get('vel_max', Constants._HIGH_NUMBER)),
+            err_vel_max=float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER)),
+            start_datetime=parser.parse(self._cfg.get('start_datetime', Constants._FAR_PAST_DATETIME)),
+            end_datetime=parser.parse(self._cfg.get('end_datetime', Constants._FAR_FUTURE_DATETIME)),
+            first_good_ensemble=int(self._cfg.get('first_good_ensemble', 1)),
+            last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
+            )
         #self.bottom_track = build_bottom_track_data()
         # class ADCPModelParams:
         #     A,B,Water density, etc. 
@@ -308,8 +318,7 @@ class ADCP():
         
 
         
-        #self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
-        #self.position.resample_to(self.time.ensemble_datetimes)
+
         
         #class BeamData:
             
@@ -504,34 +513,35 @@ class ADCP():
         """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
         
         
-        theta = self.crp_rotation_angle
-        offset_x = self.crp_
-        offset_y = float(self._cfg.get('offset_y', 0.0))
-        offset_z = float(self._cfg.get('offset_z', 0.0))
-        dr = float(self._cfg.get('radial_distance', 0.1))
+        theta = self.geometry.crp_rotation_angle
+        offset_x = self.geometry.crp_offset_x
+        offset_y = self.geometry.crp_offset_y
+        offset_z = self.geometry.crp_offset_z
+        dr = 0
         R = Utils.gen_rot_z(theta)
     
-        if self.beam_facing == "down":
+        if self.geometry.beam_facing == "down":
             rel_orig = np.array([(dr, 0, 0), (-dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
         else:
             rel_orig = np.array([(-dr, 0, 0), (dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
         rel_orig = np.array([offset_x, offset_y, offset_z]) + rel_orig
         rel_orig = rel_orig.dot(R).T
     
-        n_beams, n_cells, n_ensembles = self.n_beams, self.n_cells, self.n_ensembles
+        n_beams, n_cells, n_ensembles, = self.geometry.n_beams, self.geometry.n_bins, self.time.n_ensembles
+        beam_angle = self.geometry.beam_angle
         rel = np.zeros((3, n_beams, n_cells, n_ensembles))
     
-        bin_mids = self.get_bin_midpoints()
-        if self.beam_facing == "down":
+        bin_mids = self.geometry.bin_midpoint_distances
+        if self.geometry.beam_facing == "down":
             z_offsets = -bin_mids
         else:
             z_offsets = bin_mids
     
         for b in range(n_beams):
             if b in [0, 1]:
-                R_beam = Utils.gen_rot_y((-1 if b == 0 else 1) * self.beam_angle)
+                R_beam = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
             else:
-                R_beam = Utils.gen_rot_x((1 if b == 3 else -1) * self.beam_angle)
+                R_beam = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
     
             for e in range(n_ensembles):
                 midpoints = np.zeros((3, n_cells))
@@ -544,12 +554,7 @@ class ADCP():
                 R_att = Utils.gen_rot_x(roll) @ Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch)
                 rel[:, b, :, e] = (rel[:, b, :, e].T @ R_att).T
     
-        self.relative_beam_midpoint_positions = XYZ(
-            x=rel[0].transpose(1, 2, 0),
-            y=rel[1].transpose(1, 2, 0),
-            z=rel[2].transpose(1, 2, 0),
-        )
-    
+
         # Absolute positions
         if isinstance(self.position.x, float):
             xx = np.full(n_ensembles, self.position.x)
@@ -571,8 +576,15 @@ class ADCP():
         abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
         abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
     
+        relative_beam_midpoint_positions = XYZ(
+                x=rel[0].transpose(1, 2, 0),
+                y=rel[1].transpose(1, 2, 0),
+                z=rel[2].transpose(1, 2, 0),
+            )
     
-        return XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
+        geographic_beam_midpoint_positions = XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
+        
+        return relative_beam_midpoint_positions, geographic_beam_midpoint_positions
 
     
     # def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -693,8 +705,8 @@ class ADCP():
 
 
 
-    @classmethod
-    def _calculate_absolute_backscatter(self) -> np.ndarray:
+    @staticmethod
+    def _calculate_absolute_backscatter(adcp) -> np.ndarray:
         """
         Convert echo intensity to absolute backscatter.
 
@@ -702,54 +714,22 @@ class ADCP():
         --------
             np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
         """
-        echo_intensity = self._get_echo_intensity()
-        if echo_intensity is None:
-            return None
-        E_r = self.cfg.get('noise_floor', 39)
-        WB = self._fixed.system_bandwidth_wb
-        if WB == 0:
-            C = -139.09
-        else:
-            C = -149.14
-        C = self.cfg.get('absolute_backscatter_C', C)
-        default_rssis = {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41}
-        k_c = {}
-        for i in range(self._fixed.number_of_beams):
-            if f'rssi_beam_{i+1}' in self.cfg.keys():
-                k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
-            else:
-                k_c[i+1] = default_rssis.get(i+1, 0.45)
-                Utils.warning(
-                    logger=self.logger,
-                    msg=f"Using default RSSI value {k_c[i+1]} for beam {i+1}.",
-                    level=self.__class__.__name__
-                )
-        alpha = 0.5
-        P_dbw = 8.3
-        if self._fixed.system_configuration.frequency == '75-kHz':
-            alpha = 0.027
-            P_dbw = 27.3
-        elif self._fixed.system_configuration.frequency == '300-kHz':
-            alpha = 0.068
-            P_dbw = 14    
-        elif self._fixed.system_configuration.frequency == '600-kHz':
-            alpha = 0.178
-            P_dbw = 9
-            
-
-        alpha = self.cfg.get('absolute_backscatter_alpha', alpha)
-        P_dbw = self.cfg.get('absolute_backscatter_P_dbw', P_dbw)
-
-        temperature = np.outer(self._get_sensor_temperature(), np.ones(self._n_cells))
-        bin_distances = np.outer(self._get_bin_midpoints(), np.ones(self._n_ensembles)).T
-        transmit_pulse_length = np.outer(self._get_sensor_transmit_pulse_length(), np.ones(self._n_cells))
+        echo_intensity = adcp._pd0._get_echo_intensity()
+        E_r = adcp.abs_params.E_r
+        WB = adcp._pd0._fixed.system_bandwidth_wb
+        C = adcp.abs_params.C
+        k_c = adcp.abs_params.rssi
+        alpha = adcp.abs_params.alpha
+        P_dbw = adcp.abs_params.P_dbw
+        
+        temperature = np.outer(adcp._pd0._get_sensor_temperature(), np.ones(adcp.geometry.n_bins))
+        bin_distances = np.outer(adcp.geometry.bin_midpoint_distances, np.ones(adcp.time.n_ensembles)).T
+        transmit_pulse_length = np.outer(adcp._pd0._get_sensor_transmit_pulse_length(), np.ones(adcp.geometry.n_bins))
         X = []
         StN = []
-        for i in range(self._n_beams):
+        for i in range(adcp.geometry.n_beams):
             E = echo_intensity[:, :, i]
-            sv, stn = self._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
-            # print(k_c[i+1])
-            # quit()
+            sv, stn = adcp._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
             X.append(sv)
             StN.append(stn)
         X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
@@ -760,7 +740,7 @@ class ADCP():
     def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
         """
         Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
-        
+    
         Parameters
         ----------
         E : ndarray
@@ -781,7 +761,7 @@ class ADCP():
             Constant combining several parameters specific to the instrument.
         P_DBW : float
             Transmit pulse power in dBW.
-        
+    
         Returns
         -------
         Sv : ndarray
@@ -789,26 +769,28 @@ class ADCP():
         StN : ndarray
             True signal to noise ratio.
         """
-        
-        # Signal to noise ratio (true)
         E_db = k_c * E / 10
         E_r_db = k_c * E_r / 10
-        
-        StN = (10 ** E_db - 10 ** E_r_db) / (10 ** E_r_db)
-        
-        # L_DBM: Transmit pulse length in dBm
-        L_DBM = 10 * np.log10(Tx_PL)
-        
-        Sv = (
-            C
-            + 10 * np.log10((Tx_T + 273.16) * (R ** 2))
-            - L_DBM
-            - P_DBW
-            + 2 * alpha * R
-            + 10 * np.log10(10 ** (0.1 * k_c * (E - E_r)) - 1)
-        )
-        
-        return Sv, StN        
+    
+        # Prevent division by zero and negative log input
+        with np.errstate(divide='ignore', invalid='ignore'):
+            delta_power = np.maximum(10 ** (0.1 * k_c * (E - E_r)) - 1, 1e-10)
+            Sv = (
+                C
+                + np.log10(np.maximum((Tx_T + 273.16) * (R ** 2), 1e-10)) * 10
+                - np.log10(np.maximum(Tx_PL, 1e-10)) * 10
+                - P_DBW
+                + 2 * alpha * R
+                + np.log10(delta_power) * 10
+            )
+    
+            StN = (10 ** E_db - 10 ** E_r_db) / np.maximum(10 ** E_r_db, 1e-10)
+    
+        Sv = np.where(np.isfinite(Sv), Sv, np.nan)
+        StN = np.where(np.isfinite(StN), StN, np.nan)
+    
+        return Sv, StN
+         
 
     @classmethod    
     def _scalar_water_absorption_coeff(self,T, S, z, f, pH):

@@ -281,15 +281,13 @@ class ADCPPosition:
         self.pitch = self._values["Pitch"]
         self.roll = self._values["Roll"]
         self.heading = self._values["Heading"]
-        self.t = self._values["DateTime"]
+        self._t = self._values["DateTime"]
         self._broadcast_constants_to_match_variable_dims()
 
-        self.t = pd.to_datetime(self.t, errors='coerce')
+        self._t = pd.to_datetime(self._t, errors='coerce')
 
-    def load(self) -> None:
-        pass
 
-    def resample_to(self, new_times: np.ndarray) -> None:
+    def _resample_to(self, new_times: np.ndarray) -> None:
         """
         Resample position and orientation data to match a new datetime index.
 
@@ -305,7 +303,7 @@ class ADCPPosition:
             'pitch': self.pitch,
             'roll': self.roll,
             'heading': self.heading
-        }, index=pd.to_datetime(self.t))
+        }, index=pd.to_datetime(self._t))
 
         df_resampled = df.reindex(new_times, method='nearest', tolerance=pd.Timedelta("30s"))
         if df_resampled.isnull().any().any():
@@ -317,7 +315,7 @@ class ADCPPosition:
         self.pitch = df_resampled['pitch'].values
         self.roll = df_resampled['roll'].values
         self.heading = df_resampled['heading'].values
-        self.t = new_times
+        self._t = new_times
         #print(new_times)
         #print(f'New length is {len(self.t)}')
     
@@ -326,10 +324,10 @@ class ADCPPosition:
         Broadcast constant-valued position attributes to match the length of variable inputs.
         Assumes 'self.t' is variable and defines the target length.
         """
-        if isinstance(self.t, (float, int)):
+        if isinstance(self._t, (float, int)):
             raise RuntimeError("Cannot broadcast: 't' is constant and does not define a target length.")
     
-        n = len(self.t)
+        n = len(self._t)
         attrs = ['x', 'y', 'z', 'pitch', 'roll', 'heading']
     
         for attr in attrs:

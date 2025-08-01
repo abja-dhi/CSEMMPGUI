@@ -171,6 +171,19 @@ import contextily as ctx
 from pyproj import Transformer
 import numpy as np
 
+
+
+## Todo
+# add preview of colormaps before selecting 
+# custom basemap provider
+# input boxed for variable color limits
+# generate high resolution export 
+# zoom pan features 
+# tooltips to show ADCP metadata
+# allow for plotting of co-located water smaples and OBS transects 
+
+
+
 class ADCPMapCanvas(FigureCanvas):
     def __init__(self, adcps):
         self.current_label = 'absolute_backscatter'
