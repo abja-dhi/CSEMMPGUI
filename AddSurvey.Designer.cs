@@ -32,8 +32,8 @@
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
-            menuOpen = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
+            menuExit = new ToolStripMenuItem();
             menuAddData = new ToolStripMenuItem();
             menuADCP = new ToolStripMenuItem();
             menuADCPVesselMounted = new ToolStripMenuItem();
@@ -44,13 +44,13 @@
             menuWaterSample = new ToolStripMenuItem();
             menuUtilities = new ToolStripMenuItem();
             menuViSeaExtern2CSV = new ToolStripMenuItem();
+            menuViSeaExtern2CSVSingle = new ToolStripMenuItem();
+            menuViSeaExtern2CSVBatch = new ToolStripMenuItem();
             txtSurveyName = new TextBox();
             lblSurveyName = new Label();
             panel1 = new Panel();
             treeSurvey = new TreeView();
             tableLayoutPanel1 = new TableLayoutPanel();
-            menuViSeaExtern2CSVSingle = new ToolStripMenuItem();
-            menuViSeaExtern2CSVBatch = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
@@ -67,7 +67,7 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
@@ -75,23 +75,23 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(112, 22);
+            menuNew.Size = new Size(107, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
-            // 
-            // menuOpen
-            // 
-            menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(112, 22);
-            menuOpen.Text = "Open...";
-            menuOpen.Click += menuOpen_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(112, 22);
+            menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
+            // 
+            // menuExit
+            // 
+            menuExit.Name = "menuExit";
+            menuExit.Size = new Size(107, 22);
+            menuExit.Text = "Exit";
+            menuExit.Click += menuExit_Click;
             // 
             // menuAddData
             // 
@@ -104,7 +104,7 @@
             // 
             menuADCP.DropDownItems.AddRange(new ToolStripItem[] { menuADCPVesselMounted, menuADCPSeabedLander });
             menuADCP.Name = "menuADCP";
-            menuADCP.Size = new Size(147, 22);
+            menuADCP.Size = new Size(180, 22);
             menuADCP.Text = "ADCP";
             // 
             // menuADCPVesselMounted
@@ -125,27 +125,27 @@
             // 
             menuOBS.DropDownItems.AddRange(new ToolStripItem[] { menuOBSVerticalProfile, menuOBSTransect });
             menuOBS.Name = "menuOBS";
-            menuOBS.Size = new Size(147, 22);
+            menuOBS.Size = new Size(180, 22);
             menuOBS.Text = "OBS";
             // 
             // menuOBSVerticalProfile
             // 
             menuOBSVerticalProfile.Name = "menuOBSVerticalProfile";
-            menuOBSVerticalProfile.Size = new Size(149, 22);
+            menuOBSVerticalProfile.Size = new Size(180, 22);
             menuOBSVerticalProfile.Text = "Vertical Profile";
             menuOBSVerticalProfile.Click += menuOBSVerticalProfile_Click;
             // 
             // menuOBSTransect
             // 
             menuOBSTransect.Name = "menuOBSTransect";
-            menuOBSTransect.Size = new Size(149, 22);
+            menuOBSTransect.Size = new Size(180, 22);
             menuOBSTransect.Text = "Transect";
             menuOBSTransect.Click += menuOBSTransect_Click;
             // 
             // menuWaterSample
             // 
             menuWaterSample.Name = "menuWaterSample";
-            menuWaterSample.Size = new Size(147, 22);
+            menuWaterSample.Size = new Size(180, 22);
             menuWaterSample.Text = "Water Sample";
             menuWaterSample.Click += menuWaterSample_Click;
             // 
@@ -163,6 +163,18 @@
             menuViSeaExtern2CSV.Size = new Size(196, 22);
             menuViSeaExtern2CSV.Text = "ViSea Extern.dat to CSV";
             // 
+            // menuViSeaExtern2CSVSingle
+            // 
+            menuViSeaExtern2CSVSingle.Name = "menuViSeaExtern2CSVSingle";
+            menuViSeaExtern2CSVSingle.Size = new Size(167, 22);
+            menuViSeaExtern2CSVSingle.Text = "Single File";
+            // 
+            // menuViSeaExtern2CSVBatch
+            // 
+            menuViSeaExtern2CSVBatch.Name = "menuViSeaExtern2CSVBatch";
+            menuViSeaExtern2CSVBatch.Size = new Size(167, 22);
+            menuViSeaExtern2CSVBatch.Text = "Batch Conversion";
+            // 
             // txtSurveyName
             // 
             txtSurveyName.Dock = DockStyle.Top;
@@ -170,7 +182,6 @@
             txtSurveyName.Name = "txtSurveyName";
             txtSurveyName.Size = new Size(542, 23);
             txtSurveyName.TabIndex = 1;
-            txtSurveyName.Leave += txtSurveyName_Leave;
             // 
             // lblSurveyName
             // 
@@ -215,19 +226,6 @@
             tableLayoutPanel1.Size = new Size(684, 437);
             tableLayoutPanel1.TabIndex = 5;
             // 
-            // menuViSeaExtern2CSVSingle
-            // 
-            menuViSeaExtern2CSVSingle.Name = "menuViSeaExtern2CSVSingle";
-            menuViSeaExtern2CSVSingle.Size = new Size(180, 22);
-            menuViSeaExtern2CSVSingle.Text = "Single File";
-            menuViSeaExtern2CSVSingle.Click += menuViSeaExtern2CSVSingle_Click;
-            // 
-            // menuViSeaExtern2CSVBatch
-            // 
-            menuViSeaExtern2CSVBatch.Name = "menuViSeaExtern2CSVBatch";
-            menuViSeaExtern2CSVBatch.Size = new Size(180, 22);
-            menuViSeaExtern2CSVBatch.Text = "Batch Conversion";
-            // 
             // AddSurvey
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -240,8 +238,6 @@
             MainMenuStrip = menuStrip1;
             Name = "AddSurvey";
             Text = "AddSurvey";
-            Activated += AddSurvey_Activated;
-            FormClosing += AddSurvey_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             panel1.ResumeLayout(false);
@@ -272,8 +268,8 @@
         private ToolStripMenuItem menuOBSTransect;
         private TableLayoutPanel tableLayoutPanel1;
         private ToolStripMenuItem menuNew;
-        private ToolStripMenuItem menuOpen;
         private ToolStripMenuItem menuViSeaExtern2CSVSingle;
         private ToolStripMenuItem menuViSeaExtern2CSVBatch;
+        private ToolStripMenuItem menuExit;
     }
 }

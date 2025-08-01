@@ -33,9 +33,8 @@
             menuStrip1 = new MenuStrip();
             menuProject = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
-            menuLoad = new ToolStripMenuItem();
+            menuOpen = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
-            menuSaveAs = new ToolStripMenuItem();
             menuProperties = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             menuAddLayer = new ToolStripMenuItem();
@@ -43,6 +42,9 @@
             menuAddModel = new ToolStripMenuItem();
             menuUtilities = new ToolStripMenuItem();
             processPositionFileToolStripMenuItem = new ToolStripMenuItem();
+            sSCModelsToolStripMenuItem = new ToolStripMenuItem();
+            nTUSSCToolStripMenuItem = new ToolStripMenuItem();
+            backscatterSSCToolStripMenuItem = new ToolStripMenuItem();
             menuHelp = new ToolStripMenuItem();
             menuExamples = new ToolStripMenuItem();
             menuDocumentation = new ToolStripMenuItem();
@@ -52,11 +54,12 @@
             itemOpen = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
-            sSCModelsToolStripMenuItem = new ToolStripMenuItem();
-            nTUSSCToolStripMenuItem = new ToolStripMenuItem();
-            backscatterSSCToolStripMenuItem = new ToolStripMenuItem();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            lblName = new Label();
+            txtName = new TextBox();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -70,7 +73,7 @@
             // 
             // menuProject
             // 
-            menuProject.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuLoad, menuSave, menuSaveAs, menuProperties, menuExit });
+            menuProject.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuProperties, menuExit });
             menuProject.Name = "menuProject";
             menuProject.Size = new Size(56, 20);
             menuProject.Text = "Project";
@@ -82,12 +85,12 @@
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
-            // menuLoad
+            // menuOpen
             // 
-            menuLoad.Name = "menuLoad";
-            menuLoad.Size = new Size(127, 22);
-            menuLoad.Text = "Open...";
-            menuLoad.Click += menuOpen_Click;
+            menuOpen.Name = "menuOpen";
+            menuOpen.Size = new Size(127, 22);
+            menuOpen.Text = "Open...";
+            menuOpen.Click += menuOpen_Click;
             // 
             // menuSave
             // 
@@ -95,13 +98,6 @@
             menuSave.Size = new Size(127, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
-            // 
-            // menuSaveAs
-            // 
-            menuSaveAs.Name = "menuSaveAs";
-            menuSaveAs.Size = new Size(127, 22);
-            menuSaveAs.Text = "Save As...";
-            menuSaveAs.Click += menuSaveAs_Click;
             // 
             // menuProperties
             // 
@@ -150,6 +146,26 @@
             processPositionFileToolStripMenuItem.Name = "processPositionFileToolStripMenuItem";
             processPositionFileToolStripMenuItem.Size = new Size(181, 22);
             processPositionFileToolStripMenuItem.Text = "Process Position File";
+            processPositionFileToolStripMenuItem.Click += processPositionFileToolStripMenuItem_Click;
+            // 
+            // sSCModelsToolStripMenuItem
+            // 
+            sSCModelsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nTUSSCToolStripMenuItem, backscatterSSCToolStripMenuItem });
+            sSCModelsToolStripMenuItem.Name = "sSCModelsToolStripMenuItem";
+            sSCModelsToolStripMenuItem.Size = new Size(181, 22);
+            sSCModelsToolStripMenuItem.Text = "SSC Models";
+            // 
+            // nTUSSCToolStripMenuItem
+            // 
+            nTUSSCToolStripMenuItem.Name = "nTUSSCToolStripMenuItem";
+            nTUSSCToolStripMenuItem.Size = new Size(173, 22);
+            nTUSSCToolStripMenuItem.Text = "NTU -> SSC";
+            // 
+            // backscatterSSCToolStripMenuItem
+            // 
+            backscatterSSCToolStripMenuItem.Name = "backscatterSSCToolStripMenuItem";
+            backscatterSSCToolStripMenuItem.Size = new Size(173, 22);
+            backscatterSSCToolStripMenuItem.Text = "Backscatter -> SSC";
             // 
             // menuHelp
             // 
@@ -161,19 +177,19 @@
             // menuExamples
             // 
             menuExamples.Name = "menuExamples";
-            menuExamples.Size = new Size(157, 22);
+            menuExamples.Size = new Size(180, 22);
             menuExamples.Text = "Examples";
             // 
             // menuDocumentation
             // 
             menuDocumentation.Name = "menuDocumentation";
-            menuDocumentation.Size = new Size(157, 22);
+            menuDocumentation.Size = new Size(180, 22);
             menuDocumentation.Text = "Documentation";
             // 
             // menuAboutUs
             // 
             menuAboutUs.Name = "menuAboutUs";
-            menuAboutUs.Size = new Size(157, 22);
+            menuAboutUs.Size = new Size(180, 22);
             menuAboutUs.Text = "About us";
             menuAboutUs.Click += menuAboutUs_Click;
             // 
@@ -185,8 +201,6 @@
             treeProject.Name = "treeProject";
             treeProject.Size = new Size(200, 437);
             treeProject.TabIndex = 1;
-            treeProject.NodeMouseClick += treeProject_NodeMouseClick;
-            treeProject.NodeMouseDoubleClick += treeProject_NodeMouseDoubleClick;
             // 
             // cmenuNode
             // 
@@ -199,50 +213,68 @@
             itemOpen.Name = "itemOpen";
             itemOpen.Size = new Size(107, 22);
             itemOpen.Text = "Open";
-            itemOpen.Click += itemOpen_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
             itemDelete.Size = new Size(107, 22);
             itemDelete.Text = "Delete";
-            itemDelete.Click += itemDelete_Click;
             // 
-            // sSCModelsToolStripMenuItem
+            // tableLayoutPanel1
             // 
-            sSCModelsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { nTUSSCToolStripMenuItem, backscatterSSCToolStripMenuItem });
-            sSCModelsToolStripMenuItem.Name = "sSCModelsToolStripMenuItem";
-            sSCModelsToolStripMenuItem.Size = new Size(181, 22);
-            sSCModelsToolStripMenuItem.Text = "SSC Models";
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 83.3333359F));
+            tableLayoutPanel1.Controls.Add(lblName, 0, 0);
+            tableLayoutPanel1.Controls.Add(txtName, 1, 0);
+            tableLayoutPanel1.Dock = DockStyle.Top;
+            tableLayoutPanel1.Location = new Point(200, 24);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.Size = new Size(684, 29);
+            tableLayoutPanel1.TabIndex = 2;
             // 
-            // nTUSSCToolStripMenuItem
+            // lblName
             // 
-            nTUSSCToolStripMenuItem.Name = "nTUSSCToolStripMenuItem";
-            nTUSSCToolStripMenuItem.Size = new Size(180, 22);
-            nTUSSCToolStripMenuItem.Text = "NTU -> SSC";
+            lblName.AutoSize = true;
+            lblName.Dock = DockStyle.Fill;
+            lblName.Location = new Point(3, 0);
+            lblName.Name = "lblName";
+            lblName.Size = new Size(108, 29);
+            lblName.TabIndex = 0;
+            lblName.Text = "Project Name";
+            lblName.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // backscatterSSCToolStripMenuItem
+            // txtName
             // 
-            backscatterSSCToolStripMenuItem.Name = "backscatterSSCToolStripMenuItem";
-            backscatterSSCToolStripMenuItem.Size = new Size(180, 22);
-            backscatterSSCToolStripMenuItem.Text = "Backscatter -> SSC";
+            txtName.Dock = DockStyle.Fill;
+            txtName.Location = new Point(117, 3);
+            txtName.Name = "txtName";
+            txtName.Size = new Size(564, 23);
+            txtName.TabIndex = 1;
+            txtName.Text = "Project";
+            txtName.Leave += txtName_Leave;
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(884, 461);
+            Controls.Add(tableLayoutPanel1);
             Controls.Add(treeProject);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "frmMain";
             Text = "MT Validation Tool";
-            Activated += frmMain_Activated;
             FormClosing += frmMain_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             cmenuNode.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -254,9 +286,8 @@
         private ToolStripMenuItem menuUtilities;
         private ToolStripMenuItem menuHelp;
         private ToolStripMenuItem menuNew;
-        private ToolStripMenuItem menuLoad;
+        private ToolStripMenuItem menuOpen;
         private ToolStripMenuItem menuSave;
-        private ToolStripMenuItem menuSaveAs;
         private ToolStripMenuItem menuExit;
         private ToolStripMenuItem menuExamples;
         private ToolStripMenuItem menuDocumentation;
@@ -274,5 +305,8 @@
         private ToolStripMenuItem sSCModelsToolStripMenuItem;
         private ToolStripMenuItem nTUSSCToolStripMenuItem;
         private ToolStripMenuItem backscatterSSCToolStripMenuItem;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Label lblName;
+        private TextBox txtName;
     }
 }

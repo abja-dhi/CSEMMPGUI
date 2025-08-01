@@ -13,51 +13,58 @@ namespace CSEMMPGUI_v1
 {
     public partial class PropertiesPage : Form
     {
-        private bool isSaved = false;
-        private void PopulateFields()
-        {
-            XmlNode settings = ConfigData.GetSettings();
-            txtProjectName.Text = settings.SelectSingleNode("Name")?.InnerText ?? string.Empty;
-            txtProjectDir.Text = settings.SelectSingleNode("Directory")?.InnerText ?? string.Empty;
-            txtProjectEPSG.Text = settings.SelectSingleNode("EPSG")?.InnerText ?? string.Empty;
-            txtProjectDescription.Text = settings.SelectSingleNode("Description")?.InnerText ?? string.Empty;
-        }
-
-        private void Save()
-        {
-            string projectName = txtProjectName.Text.Trim();
-            string projectDir = txtProjectDir.Text.Trim();
-            string projectEPSG = txtProjectEPSG.Text.Trim();
-            string projectDescription = txtProjectDescription.Text.Trim();
-            ConfigData.SetSettings(
-                directory: projectDir,
-                name: projectName,
-                epsg: projectEPSG,
-                description: projectDescription);
-            isSaved = true;
-            ConfigData.SaveConfig();
-        }
+        public bool isSaved = true;
 
         public PropertiesPage()
         {
             InitializeComponent();
-        }
-
-        private void PropertiesPage_Load(object sender, EventArgs e)
-        {
             PopulateFields();
-            isSaved = true;
         }
-
 
         private void menuSave_Click(object sender, EventArgs e)
         {
             Save();
         }
 
-        private void saveStatus(object sender, EventArgs e)
+        private void menuExit_Click(object sender, EventArgs e)
         {
-            isSaved = false; // Mark as unsaved when any field changes
+            if (!isSaved)
+            {
+                DialogResult results = MessageBox.Show(
+                    "Do you want to save changes to the project properties before exiting?",
+                    "Save Changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+                if (results == DialogResult.Yes)
+                {
+                    Save();
+                }
+                else if (results == DialogResult.Cancel)
+                {
+                    return; // Cancel the exit
+                }
+            }
+        }
+
+        private void btnProjectDir_Click(object sender, EventArgs e)
+        {
+            using var fbd = new FolderBrowserDialog
+            {
+                Description = "Select Project Directory",
+                ShowNewFolderButton = true,
+                SelectedPath = txtProjectDir.Text.Trim(),
+                InitialDirectory = ConfigData.GetProjectDir()
+            };
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                txtProjectDir.Text = fbd.SelectedPath;
+                isSaved = false; // Mark as unsaved when directory changes
+            }
+        }
+
+        private void inputChanged(object sender, EventArgs e)
+        {
+            isSaved = false; // Mark as unsaved when any input changes
         }
 
         private void PropertiesPage_FormClosing(object sender, FormClosingEventArgs e)
@@ -82,20 +89,22 @@ namespace CSEMMPGUI_v1
 
         }
 
-        private void btnProjectDir_Click(object sender, EventArgs e)
+        private void Save()
         {
-            FolderBrowserDialog fbd = new FolderBrowserDialog
-            {
-                Description = "Select Project Directory",
-                ShowNewFolderButton = true,
-                SelectedPath = txtProjectDir.Text.Trim(),
-                InitialDirectory = ConfigData.GetProjectDir()
-            };
-            if (fbd.ShowDialog() == DialogResult.OK)
-            {
-                txtProjectDir.Text = fbd.SelectedPath;
-                isSaved = false; // Mark as unsaved when directory changes
-            }
+            ConfigurationManager.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
+            ConfigurationManager.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
+            ConfigurationManager.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
+            ConfigurationManager.SaveConfig();
+            isSaved = true;
         }
+
+        private void PopulateFields()
+        {
+            txtProjectDir.Text = ConfigurationManager.GetSetting(settingName: "Directory");
+            txtProjectEPSG.Text = ConfigurationManager.GetSetting(settingName: "EPSG");
+            txtProjectDescription.Text = ConfigurationManager.GetSetting(settingName: "Description");
+        }
+
+        
     }
 }

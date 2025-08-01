@@ -161,7 +161,6 @@
             menuNew.Name = "menuNew";
             menuNew.Size = new Size(107, 22);
             menuNew.Text = "New...";
-            menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
@@ -174,7 +173,6 @@
             menuSave.Name = "menuSave";
             menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
-            menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
@@ -229,7 +227,6 @@
             btnLoadPD0.TabIndex = 5;
             btnLoadPD0.Text = "...";
             btnLoadPD0.UseVisualStyleBackColor = true;
-            btnLoadPD0.Click += btnLoadPD0_Click;
             // 
             // btnLoadPosition
             // 
@@ -240,7 +237,6 @@
             btnLoadPosition.TabIndex = 6;
             btnLoadPosition.Text = "...";
             btnLoadPosition.UseVisualStyleBackColor = true;
-            btnLoadPosition.Click += btnLoadPosition_Click;
             // 
             // tableConfig
             // 
@@ -718,7 +714,6 @@
             btnPrintConfig.TabIndex = 9;
             btnPrintConfig.Text = "View Instrument Config";
             btnPrintConfig.UseVisualStyleBackColor = true;
-            btnPrintConfig.Click += btnPrintConfig_Click;
             // 
             // tableInputs
             // 
@@ -881,7 +876,6 @@
             checkMaskingErrorVelocity.Text = "Mask Error Velocity (m/s)";
             checkMaskingErrorVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingErrorVelocity.UseVisualStyleBackColor = true;
-            checkMaskingErrorVelocity.CheckedChanged += checkMaskingErrorVelocity_CheckedChanged;
             // 
             // lblMinErrorVelocity
             // 
@@ -957,7 +951,6 @@
             checkMaskCorrelationMagnitude.Text = "Mask Correlation Magnitude (-)";
             checkMaskCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskCorrelationMagnitude.UseVisualStyleBackColor = true;
-            checkMaskCorrelationMagnitude.CheckedChanged += checkMaskCorrelationMagnitude_CheckedChanged;
             // 
             // lblMinCorrelationMagnitude
             // 
@@ -1035,7 +1028,6 @@
             checkMaskingVelocity.Text = "Mask Current Speed on XY Plane (m/s)";
             checkMaskingVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingVelocity.UseVisualStyleBackColor = true;
-            checkMaskingVelocity.CheckedChanged += checkMaskingVelocity_CheckedChanged;
             // 
             // lblMinVelocity
             // 
@@ -1097,7 +1089,6 @@
             checkMaskPercentGood.Text = "Mask Percent Good (%)";
             checkMaskPercentGood.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskPercentGood.UseVisualStyleBackColor = true;
-            checkMaskPercentGood.CheckedChanged += checkMaskPercentGood_CheckedChanged;
             // 
             // lblMinPercentGood
             // 
@@ -1165,7 +1156,6 @@
             checkMaskEchoIntensity.Text = "Mask Echo Intensity (Counts)";
             checkMaskEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskEchoIntensity.UseVisualStyleBackColor = true;
-            checkMaskEchoIntensity.CheckedChanged += checkMaskEchoIntensity_CheckedChanged;
             // 
             // lblMinEchoIntensity
             // 
@@ -1228,7 +1218,6 @@
             MainMenuStrip = menuStrip1;
             Name = "VesselMountedADCP";
             Text = "Vessel Mounted ADCP";
-            FormClosing += VesselMountedADCP_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableConfig.ResumeLayout(false);

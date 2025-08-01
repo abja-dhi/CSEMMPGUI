@@ -18,7 +18,7 @@ namespace CSEMMPGUI_v1
         private readonly XmlElement _parentSurvey;
         private XmlElement _vesselMountedADCP;
         private bool _isSaved = false;
-        public VesselMountedADCP(XmlElement parentSurvey)
+        public VesselMountedADCP(SurveyManager surveyManager)
         {
             string pythonDll = @"C:\Program Files\Python311\python311.dll";
             Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonDll);

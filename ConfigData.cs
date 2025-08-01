@@ -5,28 +5,9 @@ namespace CSEMMPGUI_v1
 {
     public static class ConfigData
     {
-        public static XmlDocument Config { get; private set; } = new XmlDocument();
+        
 
-        public static void InitializeProject()
-        {
-            Config.RemoveAll();
-            XmlDeclaration xmlDeclaration = Config.CreateXmlDeclaration("1.0", "UTF-8", null);
-            Config.AppendChild(xmlDeclaration);
-            XmlElement root = Config.CreateElement("Project");
-            root.SetAttribute("type", "Project");
-            Config.AppendChild(root);
-
-            XmlElement settings = Config.CreateElement("Settings");
-            string[] keys = { "Directory", "Name", "EPSG", "Description"};
-            foreach (string key in keys)
-            {
-                XmlElement node = Config.CreateElement(key);
-                node.InnerText = string.Empty; // initialize with empty string
-                settings.AppendChild(node);
-            }
-
-            root.AppendChild(settings);
-        }
+        
 
         public static string GetProjectPath()
         {
