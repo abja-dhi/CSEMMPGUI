@@ -14,7 +14,7 @@ from .plotting import PlottingShell
 
 
 class ADCP():
-    def __init__(self, cfg: str | Path) -> None:
+    def __init__(self, cfg: dict) -> None:
 
         self._cfg = cfg 
         self._pd0_path = self._cfg.get("filename", None)

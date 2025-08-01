@@ -10,8 +10,7 @@ class CTD:
     """
 
     def __init__(self, cfg: str | Path) -> None:
-        self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
-        self._cfg = Utils._parse_kv_file(self._config_path)
+        self._cfg = cfg
         self.name: str = self._cfg.get("name", self._config_path.stem)
         self._csv_path: str = self._cfg.get("filename", None)
         if self._csv_path is None:
