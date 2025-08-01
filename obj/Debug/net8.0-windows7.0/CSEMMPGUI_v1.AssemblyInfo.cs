@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CSEMMPGUI_v1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8bbc65bca523df73ccb979516d1db5f524aa923f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5b5a26b75c5003777649a106f4cebc489743e13")]
 [assembly: System.Reflection.AssemblyProductAttribute("CSEMMPGUI_v1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CSEMMPGUI_v1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
