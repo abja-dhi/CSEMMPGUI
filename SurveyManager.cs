@@ -62,5 +62,16 @@ namespace CSEMMPGUI_v1
                 Globals.Config.DocumentElement?.AppendChild(survey);
             }
         }
+
+        public int NInstrument(string type)
+        {
+            if (survey == null)
+            {
+                throw new InvalidOperationException("Survey is not initialized.");
+            }
+            string xpath = $"./{type}[@type='{type}']";
+            XmlNodeList? instruments = survey.SelectNodes(xpath);
+            return instruments?.Count ?? 0;
+        }
     }
 }

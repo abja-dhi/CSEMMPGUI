@@ -101,7 +101,7 @@ namespace CSEMMPGUI_v1
                 return;
             }
             _waterSample.SetAttribute("name", wsName);
-            Tools.ClearChildNodes(_waterSample);
+            //Utils.ClearChildNodes(_waterSample);
             XmlDocument doc = _waterSample.OwnerDocument;
 
             for (int i = 0; i < rows.Count; i++)
@@ -138,7 +138,7 @@ namespace CSEMMPGUI_v1
 
                 _waterSample.AppendChild(sampleEl);
             }
-            string projDir = ConfigData.GetProjectDir();
+            string projDir = ConfigurationManager.GetSetting(settingName: "Directory");
             string wsPath = Path.Combine(projDir, wsName + ".mtws");
             XmlDocument wsDoc = new XmlDocument();
             XmlDeclaration decl = wsDoc.CreateXmlDeclaration("1.0", "UTF-8", null);

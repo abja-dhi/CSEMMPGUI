@@ -32,7 +32,6 @@
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
-            menuOpen = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             lblPD0File = new Label();
@@ -151,7 +150,7 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuExit });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
@@ -161,24 +160,21 @@
             menuNew.Name = "menuNew";
             menuNew.Size = new Size(107, 22);
             menuNew.Text = "New...";
-            // 
-            // menuOpen
-            // 
-            menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(107, 22);
-            menuOpen.Text = "Open";
+            menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
             menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
+            menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
             menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
+            menuExit.Click += menuExit_Click;
             // 
             // lblPD0File
             // 
@@ -227,6 +223,7 @@
             btnLoadPD0.TabIndex = 5;
             btnLoadPD0.Text = "...";
             btnLoadPD0.UseVisualStyleBackColor = true;
+            btnLoadPD0.Click += btnLoadPD0_Click;
             // 
             // btnLoadPosition
             // 
@@ -237,6 +234,7 @@
             btnLoadPosition.TabIndex = 6;
             btnLoadPosition.Text = "...";
             btnLoadPosition.UseVisualStyleBackColor = true;
+            btnLoadPosition.Click += btnLoadPosition_Click;
             // 
             // tableConfig
             // 
@@ -388,6 +386,7 @@
             txtCRPX.Size = new Size(70, 23);
             txtCRPX.TabIndex = 5;
             txtCRPX.Text = "0";
+            txtCRPX.TextChanged += input_Changed;
             // 
             // txtCRPY
             // 
@@ -397,6 +396,7 @@
             txtCRPY.Size = new Size(70, 23);
             txtCRPY.TabIndex = 6;
             txtCRPY.Text = "0";
+            txtCRPY.TextChanged += input_Changed;
             // 
             // txtCRPZ
             // 
@@ -406,6 +406,7 @@
             txtCRPZ.Size = new Size(70, 23);
             txtCRPZ.TabIndex = 7;
             txtCRPZ.Text = "0";
+            txtCRPZ.TextChanged += input_Changed;
             // 
             // lblRSSICoefficients
             // 
@@ -460,6 +461,7 @@
             txtRSSI1.Name = "txtRSSI1";
             txtRSSI1.Size = new Size(70, 23);
             txtRSSI1.TabIndex = 1;
+            txtRSSI1.TextChanged += input_Changed;
             // 
             // txtRSSI2
             // 
@@ -468,6 +470,7 @@
             txtRSSI2.Name = "txtRSSI2";
             txtRSSI2.Size = new Size(70, 23);
             txtRSSI2.TabIndex = 2;
+            txtRSSI2.TextChanged += input_Changed;
             // 
             // txtRSSI3
             // 
@@ -476,6 +479,7 @@
             txtRSSI3.Name = "txtRSSI3";
             txtRSSI3.Size = new Size(70, 23);
             txtRSSI3.TabIndex = 3;
+            txtRSSI3.TextChanged += input_Changed;
             // 
             // txtRSSI4
             // 
@@ -484,6 +488,7 @@
             txtRSSI4.Name = "txtRSSI4";
             txtRSSI4.Size = new Size(70, 23);
             txtRSSI4.TabIndex = 4;
+            txtRSSI4.TextChanged += input_Changed;
             // 
             // lblRSSI2
             // 
@@ -525,6 +530,7 @@
             txtName.Name = "txtName";
             txtName.Size = new Size(152, 23);
             txtName.TabIndex = 12;
+            txtName.TextChanged += input_Changed;
             // 
             // txtMagneticDeclination
             // 
@@ -534,6 +540,7 @@
             txtMagneticDeclination.Size = new Size(152, 23);
             txtMagneticDeclination.TabIndex = 13;
             txtMagneticDeclination.Text = "0";
+            txtMagneticDeclination.TextChanged += input_Changed;
             // 
             // txtUTCOffset
             // 
@@ -543,6 +550,7 @@
             txtUTCOffset.Size = new Size(152, 23);
             txtUTCOffset.TabIndex = 14;
             txtUTCOffset.Text = "0";
+            txtUTCOffset.TextChanged += input_Changed;
             // 
             // txtRotationAngle
             // 
@@ -552,6 +560,7 @@
             txtRotationAngle.Size = new Size(152, 23);
             txtRotationAngle.TabIndex = 15;
             txtRotationAngle.Text = "0";
+            txtRotationAngle.TextChanged += input_Changed;
             // 
             // lblFirstEnsemble
             // 
@@ -573,6 +582,7 @@
             txtFirstEnsemble.Size = new Size(149, 23);
             txtFirstEnsemble.TabIndex = 13;
             txtFirstEnsemble.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            txtFirstEnsemble.ValueChanged += input_Changed;
             // 
             // lblLastEnsemble
             // 
@@ -594,6 +604,7 @@
             txtLastEnsemble.Size = new Size(149, 23);
             txtLastEnsemble.TabIndex = 15;
             txtLastEnsemble.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            txtLastEnsemble.ValueChanged += input_Changed;
             // 
             // tablePosition
             // 
@@ -655,6 +666,7 @@
             comboX.Name = "comboX";
             comboX.Size = new Size(206, 23);
             comboX.TabIndex = 3;
+            comboX.SelectedIndexChanged += input_Changed;
             // 
             // lblDateTimeColumn
             // 
@@ -675,6 +687,7 @@
             comboDateTime.Name = "comboDateTime";
             comboDateTime.Size = new Size(206, 23);
             comboDateTime.TabIndex = 1;
+            comboDateTime.SelectedIndexChanged += input_Changed;
             // 
             // lblHeadingColumn
             // 
@@ -690,11 +703,13 @@
             // comboHeading
             // 
             comboHeading.Dock = DockStyle.Fill;
+            comboHeading.DropDownStyle = ComboBoxStyle.DropDownList;
             comboHeading.FormattingEnabled = true;
             comboHeading.Location = new Point(215, 96);
             comboHeading.Name = "comboHeading";
             comboHeading.Size = new Size(206, 23);
             comboHeading.TabIndex = 7;
+            comboHeading.SelectedIndexChanged += input_Changed;
             // 
             // comboY
             // 
@@ -704,6 +719,7 @@
             comboY.Name = "comboY";
             comboY.Size = new Size(206, 23);
             comboY.TabIndex = 5;
+            comboY.SelectedIndexChanged += input_Changed;
             // 
             // btnPrintConfig
             // 
@@ -876,6 +892,7 @@
             checkMaskingErrorVelocity.Text = "Mask Error Velocity (m/s)";
             checkMaskingErrorVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingErrorVelocity.UseVisualStyleBackColor = true;
+            checkMaskingErrorVelocity.CheckedChanged += input_Changed;
             // 
             // lblMinErrorVelocity
             // 
@@ -897,6 +914,7 @@
             txtMinErrorVelocity.Name = "txtMinErrorVelocity";
             txtMinErrorVelocity.Size = new Size(95, 23);
             txtMinErrorVelocity.TabIndex = 3;
+            txtMinErrorVelocity.TextChanged += input_Changed;
             // 
             // txtMaxErrorVelocity
             // 
@@ -906,6 +924,7 @@
             txtMaxErrorVelocity.Name = "txtMaxErrorVelocity";
             txtMaxErrorVelocity.Size = new Size(97, 23);
             txtMaxErrorVelocity.TabIndex = 4;
+            txtMaxErrorVelocity.TextChanged += input_Changed;
             // 
             // tableMaskingCorrelationMagnitude
             // 
@@ -951,6 +970,7 @@
             checkMaskCorrelationMagnitude.Text = "Mask Correlation Magnitude (-)";
             checkMaskCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskCorrelationMagnitude.UseVisualStyleBackColor = true;
+            checkMaskCorrelationMagnitude.CheckedChanged += input_Changed;
             // 
             // lblMinCorrelationMagnitude
             // 
@@ -973,6 +993,7 @@
             txtMinCorrelationMagnitude.Size = new Size(95, 23);
             txtMinCorrelationMagnitude.TabIndex = 3;
             txtMinCorrelationMagnitude.Text = "0";
+            txtMinCorrelationMagnitude.TextChanged += input_Changed;
             // 
             // txtMaxCorrelationMagnitude
             // 
@@ -983,6 +1004,7 @@
             txtMaxCorrelationMagnitude.Size = new Size(97, 23);
             txtMaxCorrelationMagnitude.TabIndex = 4;
             txtMaxCorrelationMagnitude.Text = "255";
+            txtMaxCorrelationMagnitude.TextChanged += input_Changed;
             // 
             // tableMaskingVelocity
             // 
@@ -1028,6 +1050,7 @@
             checkMaskingVelocity.Text = "Mask Current Speed on XY Plane (m/s)";
             checkMaskingVelocity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingVelocity.UseVisualStyleBackColor = true;
+            checkMaskingVelocity.CheckedChanged += input_Changed;
             // 
             // lblMinVelocity
             // 
@@ -1049,6 +1072,7 @@
             txtMinVelocity.Name = "txtMinVelocity";
             txtMinVelocity.Size = new Size(95, 23);
             txtMinVelocity.TabIndex = 3;
+            txtMinVelocity.TextChanged += input_Changed;
             // 
             // txtMaxVelocity
             // 
@@ -1058,6 +1082,7 @@
             txtMaxVelocity.Name = "txtMaxVelocity";
             txtMaxVelocity.Size = new Size(97, 23);
             txtMaxVelocity.TabIndex = 4;
+            txtMaxVelocity.TextChanged += input_Changed;
             // 
             // tableMaskingPercentGood
             // 
@@ -1089,6 +1114,7 @@
             checkMaskPercentGood.Text = "Mask Percent Good (%)";
             checkMaskPercentGood.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskPercentGood.UseVisualStyleBackColor = true;
+            checkMaskPercentGood.CheckedChanged += input_Changed;
             // 
             // lblMinPercentGood
             // 
@@ -1111,6 +1137,7 @@
             txtMinPercentGood.Size = new Size(95, 23);
             txtMinPercentGood.TabIndex = 3;
             txtMinPercentGood.Text = "0";
+            txtMinPercentGood.TextChanged += input_Changed;
             // 
             // tableMaskingEchoIntensity
             // 
@@ -1156,6 +1183,7 @@
             checkMaskEchoIntensity.Text = "Mask Echo Intensity (Counts)";
             checkMaskEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskEchoIntensity.UseVisualStyleBackColor = true;
+            checkMaskEchoIntensity.CheckedChanged += input_Changed;
             // 
             // lblMinEchoIntensity
             // 
@@ -1178,6 +1206,7 @@
             txtMinEchoIntensity.Size = new Size(95, 23);
             txtMinEchoIntensity.TabIndex = 3;
             txtMinEchoIntensity.Text = "0";
+            txtMinEchoIntensity.TextChanged += input_Changed;
             // 
             // txtMaxEchoIntensity
             // 
@@ -1188,6 +1217,7 @@
             txtMaxEchoIntensity.Size = new Size(97, 23);
             txtMaxEchoIntensity.TabIndex = 4;
             txtMaxEchoIntensity.Text = "255";
+            txtMaxEchoIntensity.TextChanged += input_Changed;
             // 
             // tableMaskingEnsembles
             // 
@@ -1345,7 +1375,6 @@
         private Label lblMaxErrorVelocity;
         private TextBox txtMinErrorVelocity;
         private TextBox txtMaxErrorVelocity;
-        private ToolStripMenuItem menuOpen;
         private ToolStripMenuItem menuExit;
     }
 }
