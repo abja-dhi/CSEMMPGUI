@@ -406,9 +406,12 @@ class ADCP():
         
         ## TO-DO 
         # Apply masking to beam data and velocity data separately
-        # apply bottom track masking
+        # apply bottom track masking 
+        # apply bottom track current velocity corrections
         # SSC estimation, with ability to handle Nan values
         # accept SSC conversion parameters A and B
+        # add the instrument configuration summary as a method 
+        #
     
         # #calculate SSC and absolute backscatter
         # ABS,SSC,Alpha_s = self._calculate_ssc()
@@ -422,24 +425,6 @@ class ADCP():
             f"{self.__class__.__name__}(\n"
             f"config_path='{self._config_path}'\n)"
         )
-
-    # def _print_info(self) -> None:
-    #     """
-    #     Print information about the model.
-    #     """
-    #     self._print_info(msg=f"ADCP '{self.name}' configuration loaded successfully.")
-    #     self._print_info(msg=f"ADCP '{self.name}' number of ensembles: {self.n_ensembles}")
-    #     self._print_info(msg=f"ADCP '{self.name}' number of beams: {self.n_beams}")
-    #     self._print_info(msg=f"ADCP '{self.name}' number of cells: {self.n_cells}")
-    #     self._print_info(msg=f"ADCP '{self.name}' beam facing direction: {self.beam_facing}.")
-    #     self._print_info(msg=f"ADCP '{self.name}' depth cell length: {self.depth_cell_length} m.")
-    #     self._print_info(msg=f"ADCP '{self.name}' bin 1 distance: {self.bin_1_distance} m.")
-    #     self._print_info(msg=f"ADCP '{self.name}' beam angle: {self.beam_angle} degrees.")
-    #     self._print_info(msg=f"ADCP '{self.name}' instrument depth: {self.instrument_depth} m.")
-    #     self._print_info(msg=f"ADCP '{self.name}' first ensemble datetime: {self.datetimes[0]}")
-    #     self._print_info(msg=f"ADCP '{self.name}' last ensemble datetime: {self.datetimes[-1]}")
-
-        
 
 
     def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
