@@ -312,7 +312,18 @@ class ADCP():
             particle_density=np.array(sed_cfg.get('particle_density', [2650.0]), dtype=np.float64),
         )   
 
-         
+        @dataclass
+        class SSCParams:
+            A: float = field(metadata={"desc": "Parameter A in SSC = A * 10^(B * ABS)"})
+            B: float = field(metadata={"desc": "Parameter B in SSC = A * 10^(B * ABS)"})
+        
+        sscpar_cfg = self._cfg.get('ssc_params', {})
+        
+        self.ssc_params = SSCParams(
+            A=sscpar_cfg.get('A', 0.05),
+            B=sscpar_cfg.get('B', 5)
+        )
+                 
         @dataclass
         class AbsoluteBackscatterParams:
             """Parameters used in calculating absolute backscatter from echo intensity."""
@@ -324,52 +335,47 @@ class ADCP():
             frequency: float = field(default=None, metadata={"desc": "System frequency"})
     
             
-        def _gen_abs_backscatter_params_from_adcp(adcp: ADCP) -> AbsoluteBackscatterParams:
-            """Derive absolute backscatter parameters from an ADCP instance."""
+    
         
-            # Determine system-specific default C based on bandwidth
-            bandwidth = adcp._pd0._fixed.system_bandwidth_wb
-            default_C = -139.09 if bandwidth == 0 else -149.14
+        # Determine system-specific default C based on bandwidth
+        bandwidth = self._pd0._fixed.system_bandwidth_wb
+        default_C = -139.09 if bandwidth == 0 else -149.14
+    
+        # Default alpha and P_dbw based on frequency
+        freq = self._pd0._fixed.system_configuration.frequency
+        freq_defaults = {
+            "75-kHz": (0.027, 27.3),
+            "300-kHz": (0.068, 14.0),
+            "600-kHz": (0.178, 9.0)
+        }
+        default_alpha, default_P_dbw = freq_defaults.get(freq, (0.5, 8.3))
+        freq = float(freq.split('-')[0])
+        # Override with config if provided
+        C = self._cfg.get("absolute_backscatter_C", default_C)
+        alpha = self._cfg.get("absolute_backscatter_alpha", default_alpha)
+        P_dbw = self._cfg.get("absolute_backscatter_P_dbw", default_P_dbw)
+        E_r = self._cfg.get("noise_floor", 39.0)
+    
+        # Beam-specific RSSI from rssi dataclass
+        rssi ={1:float(self._cfg.get('rssi_beam1', 0.41)),
+               2:float(self._cfg.get('rssi_beam2', 0.41)),
+               3:float(self._cfg.get('rssi_beam3', 0.41)),
+               4:float(self._cfg.get('rssi_beam4', 0.41))}
         
-            # Default alpha and P_dbw based on frequency
-            freq = adcp._pd0._fixed.system_configuration.frequency
-            freq_defaults = {
-                "75-kHz": (0.027, 27.3),
-                "300-kHz": (0.068, 14.0),
-                "600-kHz": (0.178, 9.0)
-            }
-            default_alpha, default_P_dbw = freq_defaults.get(freq, (0.5, 8.3))
-        
-            # Override with config if provided
-            C = adcp._cfg.get("absolute_backscatter_C", default_C)
-            alpha = adcp._cfg.get("absolute_backscatter_alpha", default_alpha)
-            P_dbw = adcp._cfg.get("absolute_backscatter_P_dbw", default_P_dbw)
-            E_r = adcp._cfg.get("noise_floor", 39.0)
-        
-            # Beam-specific RSSI from rssi dataclass
-            rssi ={
-                1:float(self._cfg.get('rssi_beam1', 0.41)),
-                2:float(self._cfg.get('rssi_beam2', 0.41)),
-                3:float(self._cfg.get('rssi_beam3', 0.41)),
-                4:float(self._cfg.get('rssi_beam4', 0.41))
-                }
-            
-            return AbsoluteBackscatterParams(
-                E_r=E_r,
-                C=C,
-                alpha=alpha,
-                P_dbw=P_dbw,
-                rssi=rssi,
-                frequency = freq
-            )
-        
-        self.abs_params = _gen_abs_backscatter_params_from_adcp(self)
+        self.abs_params = AbsoluteBackscatterParams(
+                            E_r=E_r,
+                            C=C,
+                            alpha=alpha,
+                            P_dbw=P_dbw,
+                            rssi=rssi,
+                            frequency = freq)
         
         
-        ABS,StN = self._calculate_absolute_backscatter(self)
-        self.beam_data.absolute_backscatter = ABS
-        self.beam_data.signal_to_noise_ratio = StN
+        print(self.abs_params)
+        #self.abs_params = self._gen_abs_backscatter_params_from_adcp()
         
+        
+
         
         ## grab masking attributes
         @dataclass
@@ -413,12 +419,24 @@ class ADCP():
         # add the instrument configuration summary as a method 
         #
     
-        # #calculate SSC and absolute backscatter
+        #calculate SSC and absolute backscatter
+        
+        ABS,StN = self._calculate_absolute_backscatter()
+        self.beam_data.absolute_backscatter = ABS
+        self.beam_data.signal_to_noise_ratio = StN
+        
         # ABS,SSC,Alpha_s = self._calculate_ssc()
         # self.beam_data.absolute_backscatter = ABS
         # self.beam_data.suspended_sediments_concentration = SSC
         # self.beam_data.sediment_attenuation = Alpha_s
 
+
+        # self.plot = Plotting(self)
+        
+        # fig,ax = PlottingShell.subplots()
+        
+        # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
+        # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
 
     def __repr__(self) -> str:  # pragma: no cover
         return (
@@ -479,103 +497,6 @@ class ADCP():
     
         return u, v, w, ev
         
-
-
-
-    # def _get_sensor_temperature(self) -> np.ndarray:
-    #     """
-    #     Get the sensor temperature data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Sensor temperature data with shape (n_ensembles,).
-    #     """
-    #     if self.sensor_temperature is None:
-    #         self.sensor_temperature = self._pd0._get_sensor_temperature()
-
-    #     self.sensor_temperature = self.sensor_temperature
-    #     return self.sensor_temperature
-    
-    # def _get_sensor_transmit_pulse_length(self) -> np.ndarray:
-    #     """
-    #     Get the sensor transmit pulse length data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Sensor transmit pulse length data with shape (n_ensembles,).
-    #     """
-    #     if self.sensor_transmit_pulse_length is None:
-    #         self.sensor_transmit_pulse_length = self._pd0._get_sensor_transmit_pulse_length()
-
-            
-
-    #     self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length#
-
-    # def _get_absolute_backscatter(self) -> np.ndarray:
-    #     """
-    #     Get the absolute backscatter data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Absolute backscatter data with shape (n_ensembles, n_cells, n_beams).
-    #     """
-    #     if self.absolute_backscatter is None:
-    #         self.absolute_backscatter = self._pd0._get_absolute_backscatter()[0]
-
-    #     self.absolute_backscatter = self.absolute_backscatte
-    #     return self.absolute_backscatter
-    
-    # def _get_signal_to_noise_ratio(self) -> np.ndarray:
-    #     """
-    #     Get the signal to noise ratio data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Signal to noise ratio data with shape (n_ensembles, n_cells, n_beams).
-    #     """
-    #     if self.signal_to_noise_ratio is None:
-    #         self.signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
-
-            
-    #     self.signal_to_noise_ratio = self.signal_to_noise_ratio
-    #     return self.signal_to_noise_ratio
-
-    # def _get_bin_midpoints(self) -> np.ndarray:
-    #     """
-    #     Get the midpoints of the bins.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Midpoints of the bins with shape (n_cells,).
-    #     """
-    #     return self.pd0._get_bin_midpoints()
-
-    # def _get_bin_midpoints_depth(self) -> np.ndarray:
-    #     """
-    #     Get the midpoints of the bins in depth.
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Midpoints of the bins in depth with shape (n_cells,).
-    #     """
-    #     return self.pd0._get_bin_midpoints_depth()
-
-    # def get_bin_midpoints_hab(self) -> np.ndarray:
-    #     """
-    #     Get the midpoints of the bins in height above bed (HAB).
-        
-    #     Returns:
-    #     -------
-    #     np.ndarray
-    #         Midpoints of the bins in HAB with shape (n_cells,).
-    #     """
-    #     return self.pd0._get_bin_midpoints_hab()
 
     def _calculate_beam_geometry(self) -> XYZ:
         """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
@@ -654,158 +575,14 @@ class ADCP():
         
         return relative_beam_midpoint_positions, geographic_beam_midpoint_positions
 
-    
-    # def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    #     #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
-    #     """
-    #     Calculate the beam geometry coordinates.
-    #     Returns:
-    #         Tuple[np.ndarray, np.ndarray, np.ndarray]: Arrays of x, y, z coordinates for the beams.
-    #     """
-    #     theta    = float(self._cfg.get('rotation_angle', 0.0))
-    #     offset_x = float(self._cfg.get('offset_x', 0.0))
-    #     offset_y = float(self._cfg.get('offset_y', 0.0))
-    #     offset_z = float(self._cfg.get('offset_z', 0.0))
-    #     dr       = float(self._cfg.get('radial_distance', 0.1))
-    #     bt_range = self._get_bottom_track().T
-    #     R = Utils.gen_rot_z(theta)
-    #     if self.beam_facing == "down":
-    #         relative_beam_origin = np.array([(dr, 0, 0),
-    #                                          (-dr, 0, 0),
-    #                                          (0, dr, 0),
-    #                                          (0, -dr, 0)])
-    #     else:
-    #         relative_beam_origin = np.array([(-dr, 0, 0),
-    #                                          (dr, 0, 0),
-    #                                          (0, dr, 0),
-    #                                          (0, -dr, 0)])
-            
-    #     relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
-    #     relative_beam_origin = relative_beam_origin.dot(R).T
-    #     relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
-        
-    #     if isinstance(self.position.x, float):
-    #         xx = np.ones(self.n_ensembles) * self.position.x
-    #     else:
-    #         xx = self.position.x
-    #     if isinstance(self.position.y, float):
-    #         yy = np.ones(self.n_ensembles) * self.position.y
-    #     else:
-    #         yy = self.position.y
-    #     if isinstance(self.position.z, float):
-    #         zz = np.ones(self.n_ensembles) * self.position.z
-    #     else:
-    #         zz = self.position.z
-    #     X = np.repeat(np.stack([xx, yy, zz])[:, np.newaxis, :], self.n_cells, axis=1)
-    #     X = np.repeat(X[:, np.newaxis, :, :], self.n_beams, axis=1)
-    #     X_hab = X.copy()
-    #     bt_vec = np.full((3, self.n_beams, self.n_ensembles), 0, dtype=float)
-        
-    #     if any(~np.isnan(bt_range).flatten()):
-    #         bt_vec[2] = -bt_range
-    #     for b in range(self.n_beams):
-    #         beam_midpoints = np.repeat(np.outer((0, 0, 0), np.ones(self.n_cells))[:, :, np.newaxis], self.n_ensembles, axis=2)
-    #         if self.beam_facing == "down":
-    #             beam_midpoints[2] += -np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-    #         else:
-    #             beam_midpoints[2] += np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-    #         theta_beam = self.beam_angle
-    #         Ry_cw = Utils.gen_rot_y(-theta_beam)
-    #         Rx_cw = Utils.gen_rot_x(-theta_beam)
-    #         Ry_ccw = Utils.gen_rot_y(theta_beam)
-    #         Rx_ccw = Utils.gen_rot_x(theta_beam)
 
-    #         for e in range(self.n_ensembles):
-    #             if b == 0:
-    #                 relative_beam_midpoint_positions[:, 0, :, e] = Ry_cw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Ry_cw.dot(bt_vec[:, b, e])
-    #             elif b == 1:
-    #                 relative_beam_midpoint_positions[:, 1, :, e] = Ry_ccw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Ry_ccw.dot(bt_vec[:, b, e])
-    #             elif b == 2:
-    #                 relative_beam_midpoint_positions[:, 2, :, e] = Rx_ccw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Rx_ccw.dot(bt_vec[:, b, e])
-    #             elif b == 3:
-    #                 relative_beam_midpoint_positions[:, 3, :, e] = Rx_cw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Rx_cw.dot(bt_vec[:, b, e])
-                
-    #             if isinstance(self.position.heading, float):
-    #                 yaw = self.position.heading
-    #             else:
-    #                 yaw = self.position.heading[e]
-    #             if isinstance(self.position.pitch, float):
-    #                 pitch = self.position.pitch
-    #             else:
-    #                 pitch = self.position.pitch[e]
-    #             if isinstance(self.position.roll, float):
-    #                 roll = self.position.roll
-    #             else:
-    #                 roll = self.position.roll[e]
-                
-    #             R = np.dot(Utils.gen_rot_x(roll), Utils.gen_rot_z(yaw).dot(Utils.gen_rot_y(pitch)))
-    #             relative_beam_midpoint_positions[:, b, :, e] = relative_beam_midpoint_positions[:, b, :, e].T.dot(R).T
-    #             bt_vec[:, b, e] = bt_vec[:, b, e].dot(R).T
-
-    #             X[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-    #             X_hab[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-    #             X_hab[2, b, :, e] = relative_beam_midpoint_positions[2, b, :, e] - bt_vec[2, b, e]
-        
-    #     self.bottom_track = np.abs(bt_vec[2, :, :])
-    #     instrument_range = (self.bin_1_distance + self.depth_cell_length * self.n_cells) / 100
-        
-    #     relative_beam_midpoint_positions = relative_beam_midpoint_positions.transpose(0, 3, 2, 1)
-    #     self.bottom_track[self.bottom_track > instrument_range] = bt_range[self.bottom_track > instrument_range]
-    #     absolute_beam_midpoint_positions = X.copy().transpose(0, 3, 2, 1)
-    #     absolute_beam_midpoint_positions_hab = X_hab.copy().transpose(0, 3, 2, 1)
-    #     self.absolute_beam_midpoint_positions_hab = absolute_beam_midpoint_positions_hab
-
-    #     self.relative_beam_midpoint_positions = XYZ(x=relative_beam_midpoint_positions[0, :, :, :],
-    #                                                y=relative_beam_midpoint_positions[1, :, :, :],
-    #                                                z=relative_beam_midpoint_positions[2, :, :, :])
-    #     self.bottom_track = self.bottom_track.T
-    #     self.absolute_beam_midpoint_positions = XYZ(x=absolute_beam_midpoint_positions[0, :, :, :],
-    #                                                 y=absolute_beam_midpoint_positions[1, :, :, :],
-    #                                                 z=absolute_beam_midpoint_positions[2, :, :, :])
-    #     self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
-    #                                                     y=absolute_beam_midpoint_positions_hab[1, :, :, :],
-    #                                                     z=absolute_beam_midpoint_positions_hab[2, :, :, :])
         
 
 
 
-    @staticmethod
-    def _calculate_absolute_backscatter(adcp) -> np.ndarray:
-        """
-        Convert echo intensity to absolute backscatter.
 
-        Returns:
-        --------
-            np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
-        """
-        echo_intensity = adcp._pd0._get_echo_intensity()
-        E_r = adcp.abs_params.E_r
-        WB = adcp._pd0._fixed.system_bandwidth_wb
-        C = adcp.abs_params.C
-        k_c = adcp.abs_params.rssi
-        alpha = adcp.abs_params.alpha
-        P_dbw = adcp.abs_params.P_dbw
-        
-        temperature = np.outer(adcp._pd0._get_sensor_temperature(), np.ones(adcp.geometry.n_bins))
-        bin_distances = np.outer(adcp.geometry.bin_midpoint_distances, np.ones(adcp.time.n_ensembles)).T
-        transmit_pulse_length = np.outer(adcp._pd0._get_sensor_transmit_pulse_length(), np.ones(adcp.geometry.n_bins))
-        X = []
-        StN = []
-        for i in range(adcp.geometry.n_beams):
-            E = echo_intensity[:, :, i]
-            sv, stn = adcp._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
-            X.append(sv)
-            StN.append(stn)
-        X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
-        StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
-        return X, StN
 
-    @staticmethod
-    def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
+    def _counts_to_absolute_backscatter(self, E,E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_dbw):
         """
         Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
     
@@ -847,7 +624,7 @@ class ADCP():
                 C
                 + np.log10(np.maximum((Tx_T + 273.16) * (R ** 2), 1e-10)) * 10
                 - np.log10(np.maximum(Tx_PL, 1e-10)) * 10
-                - P_DBW
+                - P_dbw
                 + 2 * alpha * R
                 + np.log10(delta_power) * 10
             )
@@ -860,96 +637,90 @@ class ADCP():
         return Sv, StN
          
 
-    @classmethod    
-    def _scalar_water_absorption_coeff(self,T, S, z, f, pH):
-        '''
-        Calculate water absorption coefficient.
-    
-        Parameters
-        ----------
-        T : float
-            Temperature in degrees Celsius.
-        S : float
-            Salinity in practical salinity units (psu).
-        z : float
-            Depth in meters.
-        f : float
-            Frequency in kHz.
-        pH : float
-            Acidity.
-    
-        Returns
-        -------
-        float
-            Water absorption coefficient in dB/km.
-        '''
+    def _calculate_absolute_backscatter(self) -> np.ndarray:
+        """
+        Convert echo intensity to absolute backscatter.
+
+        Returns:
+        --------
+            np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
+        """
+        echo_intensity = self._pd0._get_echo_intensity()
+        E_r = self.abs_params.E_r
+        WB = self._pd0._fixed.system_bandwidth_wb
+        C = self.abs_params.C
+        k_c = self.abs_params.rssi
+        alpha = self.abs_params.alpha
+        P_dbw = self.abs_params.P_dbw
+        
+        temperature = np.outer(self._pd0._get_sensor_temperature(), np.ones(self.geometry.n_bins))
+        bin_distances = np.outer(self.geometry.bin_midpoint_distances, np.ones(self.time.n_ensembles)).T
+        transmit_pulse_length = np.outer(self._pd0._get_sensor_transmit_pulse_length(), np.ones(self.geometry.n_bins))
+        X = []
+        StN = []
+        for i in range(self.geometry.n_beams):
+            E = echo_intensity[:, :, i]
+            sv, stn = self._counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
+            X.append(sv)
+            StN.append(stn)
+        X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
+        StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
+        
+        return X, StN
+
+ 
+ 
+    def _water_absorption_coeff(self,T, S, z, f, pH):
         c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
-        #c = 1412 + 3.21 * T + 1.19 * S + 0.0167 * z
     
-        # Boric acid component
         A1 = (8.68 / c) * 10**(0.78 * pH - 5)
         P1 = 1
-        f1 = 2.8 * ((S / 35)**0.5) * 10**(4 - (1245 / (273 + T)))
+        f1 = 2.8 * np.sqrt(S / 35) * 10**(4 - (1245 / (273 + T)))
     
-        # Magnesium sulphate component
         A2 = 21.44 * (S / c) * (1 + 0.025 * T)
-        P2 = 1 - (1.37e-4) * z + (6.2e-9) * z**2
+        P2 = 1 - 1.37e-4 * z + 6.2e-9 * z**2
         f2 = (8.17 * 10**(8 - (1990 / (273 + T)))) / (1 + 0.0018 * (S - 35))
     
-        if T <= 20:
-            A3 = (4.937e-4) - (2.59e-5) * T + (9.11e-7) * T**2 - (1.5e-8) * T**3
-        elif T > 20:
-            A3 = (3.964e-4) - (1.146e-5) * T + (1.45e-7) * T**2 - (6.5e-8) * T**3
-        P3 = 1 - (3.83e-5) * z + (4.9e-10) * (z**2)
+        A3 = np.where(
+            T <= 20,
+            4.937e-4 - 2.59e-5 * T + 9.11e-7 * T**2 - 1.5e-8 * T**3,
+            3.964e-4 - 1.146e-5 * T + 1.45e-7 * T**2 - 6.5e-8 * T**3,
+        )
+        P3 = 1 - 3.83e-5 * z + 4.9e-10 * z**2
     
-        # Calculate water absorption coefficient
-        alpha_w = (A1 * P1 * f1 * (f**2) / (f**2 + f1**2) + A2 * P2 * f2 * (f**2) / (f**2 + f2**2) + A3 * P3 * (f**2))
-        
-        # Convert absorption coefficient to dB/km
-        alpha_w = (1 / 1000) * alpha_w
-        
-        return alpha_w
+        alpha_w = (
+            A1 * P1 * f1 * f**2 / (f**2 + f1**2) +
+            A2 * P2 * f2 * f**2 / (f**2 + f2**2) +
+            A3 * P3 * f**2
+        )
     
-    @classmethod
-    def _scalar_sediment_absorption_coeff(self,ps, pw, d, SSC, T,S, f,z):
-        '''
-        Calculate sediment absorption coefficient.
+        return alpha_w / 1000  # dB/m
     
-        Parameters
-        ----------
-        ps : float
-            Particle density in kg/m^3.
-        pw : float
-            Water density in kg/m^3.
-        d : float
-            Particle diameter in meters.
-        SSC : float
-            Suspended sediment concentration in kg/m^3.
-        T : float
-            Temperature in degrees Celsius.
-        f : float
-            Frequency in kHz .
-    
-        Returns
-        -------
-        float
-            Sediment absorption coefficient.
-        '''
-        c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z # speed of sound in water
-        v = (40e-6) / (20 + T)  # Kinematic viscosity (m2/s)
+
+    def _sediment_absorption_coeff(self,ps, pw, d, SSC, T, S, f, z):
+        c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
+        v = (40e-6) / (20 + T)
         B = (np.pi * f / v) * 0.5
         delt = 0.5 * (1 + 9 / (B * d))
         sig = ps / pw
-        s = 9 / (2 * B * d) * (1 + (2 / (B * d)))
-        k = 2 * np.pi / c  # Wave number (Assumed, as it isn't defined in the paper)
+        s = 9 / (2 * B * d) * (1 + 2 / (B * d))
+        k = 2 * np.pi / c
     
-        alpha_s = (k**4) * (d**3) / (96 * ps) + k * ((sig - 1)**2) / (2 * ps) + \
-                  (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
+        term1 = k**4 * d**3 / (96 * ps)
+        term2 = k * (sig - 1)**2 / (2 * ps)
+        term3 = (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
     
-        return alpha_s   
+        return term1 + term2 + term3
+        
+        
+ 
+    def _backscatter_to_SSC(self,backscatter):
+        return 10**(self.ssc_params.A *backscatter + self.ssc_params.B)
     
-    @classmethod    
-    def _calculate_ssc(self, A1: float, B1: float, A2: float) -> None:
+    
+
+   
+    def _calculate_ssc(self):
         """
         Calculate SSC from absolute backscatter using iterative alpha correction.
     
@@ -963,86 +734,82 @@ class ADCP():
             Coefficient for NTU to SSC conversion.
         """
         #self.mask.set_mask_status(False)
-    
+
         # ---------- Instrument + CTD data ----------
         E_r = self.abs_params.E_r
         WB = self._pd0._fixed.system_bandwidth_wb
         C = self.abs_params.C
-    
-        k_c = {1: self.abs_params.rssi_beam_1,
-               2: self.abs_params.rssi_beam_2,
-               3: self.abs_params.rssi_beam3,
-               4: self.abs_params.rssi_beam4}
         
+        k_c = {
+            1: self.abs_params.rssi[1],
+            2: self.abs_params.rssi[2],
+            3: self.abs_params.rssi[3],
+            4: self.abs_params.rssi[4]
+        }
         
-        
-
         P_dbw = self.abs_params.P_dbw
-    
-        # Sensor and geometry data
         
         bin_distances = self.geometry.bin_midpoint_distances
         pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
         bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
         instrument_freq = self.abs_params.frequency
-    
-        # water properties
+        
         temperature = self.water_properties.temperature
         pressure = self.aux_sensor_data.pressure
-        salinity  = self.water_properties.salinity
+        salinity = self.water_properties.salinity
         density = self.water_properties.density
-
-
-        # Reshape for broadcast
+        
         nc = self.geometry.n_bins
         ne = self.time.n_ensembles
         
-        temp = temperature*np.ones(ne,nc)
-        pressure = pressure*np.ones(ne,nc)
-        salinity = nsalinity*np.ones(ne,nc)
-        water_density = water_density*np.ones(ne,nc)
-    
+        temp = temperature * np.ones((ne, nc)).T
+        pressure = np.outer(pressure, np.ones(nc)).T
+        salinity = salinity * np.ones((ne, nc)).T
+        water_density = density * np.ones((ne, nc)).T
+        
         pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
         bin_distances = np.outer(bin_distances, np.ones(ne))
         
-    
-        if self.beam_facing == 'DOWN':
-            pressure += bin_distances*0.98 # approximation of depth to pressure
+        print(f"temp shape: {temp.shape}")
+        print(f"pressure shape: {pressure.shape}")
+        print(f"salinity shape: {salinity.shape}")
+        print(f"water_density shape: {water_density.shape}")
+        print(f"pulse_lengths shape: {pulse_lengths.shape}")
+        print(f"bin_distances shape: {bin_distances.shape}")
+        
+        if self.geometry.beam_facing.lower() == 'down':
+            pressure += bin_distances * 0.98
         else:
-            pressure -= bin_distances*0.98 # approximation of depth to pressure
-    
-        # Absorption from water
-        alpha_w = self.processing.water_absorption_coeff(
+            pressure -= bin_distances * 0.98
+        
+        alpha_w = self._water_absorption_coeff(
             T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
-    
-        # Echo intensity
-        E = self.beam_data.echo_intensity
-    
-        # ---------- Init arrays ----------
-        ABS = np.full_like(E, np.nan, dtype=float)
+        
+        E = self.beam_data.echo_intensity.T
+        
+        ABS = self.beam_data.absolute_backscatter.T
         SSC = np.full_like(E, np.nan, dtype=float)
         Alpha_s = np.zeros_like(E, dtype=float)
-    
-        # ---------- Iterative alpha correction ----------
-        for bm in range(self.n_beams):
-            for bn in range(self.n_cells):
+        
+        print(f"echo shape {E.shape}")
+        
+        for bm in range(self.geometry.n_beams):
+            for bn in range(self.geometry.n_bins):
                 if bn == 0:
-                    
-                    ##Andy fix this line with better initial SSC estimate
-                    ssc = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(E[bm, bn], A=A1, B=B1), A=A2) # starting SSC from sensor 
-                    
+                    ssc_beam_bin = self._backscatter_to_SSC(ABS)[bm, bn]
+        
                     for _ in range(100):
-                        alpha_s = self.processing.sediment_absorption_coeff(
+                        alpha_s = self._sediment_absorption_coeff(
                             ps=self.sediment_properties.particle_density,
                             pw=water_density[bn],
                             z=pressure[bn],
                             d=self.sediment_properties.particle_diameter,
-                            SSC=ssc,
+                            SSC=ssc_beam_bin,
                             T=temp[bn],
                             S=salinity[bn],
                             f=instrument_freq
                         )
-                        sv, _ = self.processing.counts_to_absolute_backscatter(
+                        sv, _ = self._counts_to_absolute_backscatter(
                             E=E[bm, bn],
                             E_r=E_r,
                             k_c=k_c[bm + 1],
@@ -1053,26 +820,29 @@ class ADCP():
                             Tx_PL=pulse_lengths[bn],
                             P_DBW=P_dbw
                         )
-                        ssc_new = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2) ## andy fix this too
-                        if np.allclose(ssc_new, ssc, rtol=0, atol=1e-6, equal_nan=True):
+                        ssc_new = self._backscatter_to_SSC(sv)
+                        if np.allclose(ssc_new, ssc_beam_bin, rtol=0, atol=1e-6, equal_nan=True):
+                            print('broken')
                             break
-                        ssc = ssc_new
+                        ssc_beam_bin = ssc_new
+        
                     ABS[bm, bn] = sv
-                    SSC[bm, bn] = ssc
+                    SSC[bm, bn] = ssc_beam_bin
                     Alpha_s[bm, bn] = alpha_s
+        
                 else:
-                    ssc = np.nanmean(SSC[bm, :bn], axis=0)
-                    alpha_s = self.processing.sediment_absorption_coeff(
+                    ssc_beam_bin = np.nanmean(SSC[bm, :bn], axis=0)
+                    alpha_s = self._sediment_absorption_coeff(
                         ps=self.sediment_properties.particle_density,
                         pw=water_density[bn],
                         z=pressure[bn],
                         d=self.sediment_properties.particle_diameter,
-                        SSC=ssc,
+                        SSC=ssc_beam_bin,
                         T=temp[bn],
                         S=salinity[bn],
                         f=instrument_freq
                     )
-                    sv, _ = self.processing.counts_to_absolute_backscatter(
+                    sv, _ = self._counts_to_absolute_backscatter(
                         E=E[bm, bn],
                         E_r=E_r,
                         k_c=k_c[bm + 1],
@@ -1084,16 +854,38 @@ class ADCP():
                         P_DBW=P_dbw
                     )
                     ABS[bm, bn] = sv
-                    SSC[bm, bn] = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2)
+                    SSC[bm, bn] = self._backscatter_to_SSC(sv)
                     Alpha_s[bm, bn] = alpha_s
-    
         
-        
+                
         return ABS,SSC,Alpha_s
     
 
             
+           
             
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+            
+           
+#%%
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -1538,3 +1330,120 @@ class Plotting:
             )
 
         return ax
+    
+    
+    
+    # def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    #     #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
+    #     """
+    #     Calculate the beam geometry coordinates.
+    #     Returns:
+    #         Tuple[np.ndarray, np.ndarray, np.ndarray]: Arrays of x, y, z coordinates for the beams.
+    #     """
+    #     theta    = float(self._cfg.get('rotation_angle', 0.0))
+    #     offset_x = float(self._cfg.get('offset_x', 0.0))
+    #     offset_y = float(self._cfg.get('offset_y', 0.0))
+    #     offset_z = float(self._cfg.get('offset_z', 0.0))
+    #     dr       = float(self._cfg.get('radial_distance', 0.1))
+    #     bt_range = self._get_bottom_track().T
+    #     R = Utils.gen_rot_z(theta)
+    #     if self.beam_facing == "down":
+    #         relative_beam_origin = np.array([(dr, 0, 0),
+    #                                          (-dr, 0, 0),
+    #                                          (0, dr, 0),
+    #                                          (0, -dr, 0)])
+    #     else:
+    #         relative_beam_origin = np.array([(-dr, 0, 0),
+    #                                          (dr, 0, 0),
+    #                                          (0, dr, 0),
+    #                                          (0, -dr, 0)])
+            
+    #     relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
+    #     relative_beam_origin = relative_beam_origin.dot(R).T
+    #     relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
+        
+    #     if isinstance(self.position.x, float):
+    #         xx = np.ones(self.n_ensembles) * self.position.x
+    #     else:
+    #         xx = self.position.x
+    #     if isinstance(self.position.y, float):
+    #         yy = np.ones(self.n_ensembles) * self.position.y
+    #     else:
+    #         yy = self.position.y
+    #     if isinstance(self.position.z, float):
+    #         zz = np.ones(self.n_ensembles) * self.position.z
+    #     else:
+    #         zz = self.position.z
+    #     X = np.repeat(np.stack([xx, yy, zz])[:, np.newaxis, :], self.n_cells, axis=1)
+    #     X = np.repeat(X[:, np.newaxis, :, :], self.n_beams, axis=1)
+    #     X_hab = X.copy()
+    #     bt_vec = np.full((3, self.n_beams, self.n_ensembles), 0, dtype=float)
+        
+    #     if any(~np.isnan(bt_range).flatten()):
+    #         bt_vec[2] = -bt_range
+    #     for b in range(self.n_beams):
+    #         beam_midpoints = np.repeat(np.outer((0, 0, 0), np.ones(self.n_cells))[:, :, np.newaxis], self.n_ensembles, axis=2)
+    #         if self.beam_facing == "down":
+    #             beam_midpoints[2] += -np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
+    #         else:
+    #             beam_midpoints[2] += np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
+    #         theta_beam = self.beam_angle
+    #         Ry_cw = Utils.gen_rot_y(-theta_beam)
+    #         Rx_cw = Utils.gen_rot_x(-theta_beam)
+    #         Ry_ccw = Utils.gen_rot_y(theta_beam)
+    #         Rx_ccw = Utils.gen_rot_x(theta_beam)
+
+    #         for e in range(self.n_ensembles):
+    #             if b == 0:
+    #                 relative_beam_midpoint_positions[:, 0, :, e] = Ry_cw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Ry_cw.dot(bt_vec[:, b, e])
+    #             elif b == 1:
+    #                 relative_beam_midpoint_positions[:, 1, :, e] = Ry_ccw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Ry_ccw.dot(bt_vec[:, b, e])
+    #             elif b == 2:
+    #                 relative_beam_midpoint_positions[:, 2, :, e] = Rx_ccw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Rx_ccw.dot(bt_vec[:, b, e])
+    #             elif b == 3:
+    #                 relative_beam_midpoint_positions[:, 3, :, e] = Rx_cw.dot(beam_midpoints[:, :, e])
+    #                 bt_vec[:, b, e] = Rx_cw.dot(bt_vec[:, b, e])
+                
+    #             if isinstance(self.position.heading, float):
+    #                 yaw = self.position.heading
+    #             else:
+    #                 yaw = self.position.heading[e]
+    #             if isinstance(self.position.pitch, float):
+    #                 pitch = self.position.pitch
+    #             else:
+    #                 pitch = self.position.pitch[e]
+    #             if isinstance(self.position.roll, float):
+    #                 roll = self.position.roll
+    #             else:
+    #                 roll = self.position.roll[e]
+                
+    #             R = np.dot(Utils.gen_rot_x(roll), Utils.gen_rot_z(yaw).dot(Utils.gen_rot_y(pitch)))
+    #             relative_beam_midpoint_positions[:, b, :, e] = relative_beam_midpoint_positions[:, b, :, e].T.dot(R).T
+    #             bt_vec[:, b, e] = bt_vec[:, b, e].dot(R).T
+
+    #             X[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
+    #             X_hab[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
+    #             X_hab[2, b, :, e] = relative_beam_midpoint_positions[2, b, :, e] - bt_vec[2, b, e]
+        
+    #     self.bottom_track = np.abs(bt_vec[2, :, :])
+    #     instrument_range = (self.bin_1_distance + self.depth_cell_length * self.n_cells) / 100
+        
+    #     relative_beam_midpoint_positions = relative_beam_midpoint_positions.transpose(0, 3, 2, 1)
+    #     self.bottom_track[self.bottom_track > instrument_range] = bt_range[self.bottom_track > instrument_range]
+    #     absolute_beam_midpoint_positions = X.copy().transpose(0, 3, 2, 1)
+    #     absolute_beam_midpoint_positions_hab = X_hab.copy().transpose(0, 3, 2, 1)
+    #     self.absolute_beam_midpoint_positions_hab = absolute_beam_midpoint_positions_hab
+
+    #     self.relative_beam_midpoint_positions = XYZ(x=relative_beam_midpoint_positions[0, :, :, :],
+    #                                                y=relative_beam_midpoint_positions[1, :, :, :],
+    #                                                z=relative_beam_midpoint_positions[2, :, :, :])
+    #     self.bottom_track = self.bottom_track.T
+    #     self.absolute_beam_midpoint_positions = XYZ(x=absolute_beam_midpoint_positions[0, :, :, :],
+    #                                                 y=absolute_beam_midpoint_positions[1, :, :, :],
+    #                                                 z=absolute_beam_midpoint_positions[2, :, :, :])
+    #     self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
+    #                                                     y=absolute_beam_midpoint_positions_hab[1, :, :, :],
+    #                                                     z=absolute_beam_midpoint_positions_hab[2, :, :, :])

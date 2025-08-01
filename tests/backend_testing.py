@@ -13,7 +13,7 @@ from backend.utils import Utils, CSVParser
 from backend.plotting import PlottingShell
     
 
-root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241009_F3(F)'
+root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
 
 pd0_fpaths = []
 pos_fpaths = []
@@ -65,6 +65,8 @@ water_properties =  {'density':1023,
 sediment_properties = {'particle_diameter':30,
                        'particle_density':2650}
 
+
+ssc_params = {'A': .02, 'B':.5}
 cfgs = []
 position_datasets = []
 adcps = []
@@ -97,19 +99,143 @@ for i,fpath in enumerate(pd0_fpaths):
            'transect_shift_z': 0.0,
            'transect_shift_t': 0.0,
            'water_properties': water_properties,
-           'sediment_properties':sediment_properties
+           'sediment_properties':sediment_properties,
+           'ssc_params': ssc_params
            }
     
     adcp = DatasetADCP(cfg, name = name)
     adcps.append(adcp)
     
     
-    break
-
+   
 
 #%% generic testing for ADCP functions
- 
+fsda
+E_r = adcp.abs_params.E_r
+WB = adcp._pd0._fixed.system_bandwidth_wb
+C = adcp.abs_params.C
 
+k_c = {
+    1: adcp.abs_params.rssi[1],
+    2: adcp.abs_params.rssi[2],
+    3: adcp.abs_params.rssi[3],
+    4: adcp.abs_params.rssi[4]
+}
+
+P_dbw = adcp.abs_params.P_dbw
+
+bin_distances = adcp.geometry.bin_midpoint_distances
+pulse_lengths = adcp._pd0._get_sensor_transmit_pulse_length()
+bin_depths = abs(adcp.geometry.geographic_beam_midpoint_positions.z)
+instrument_freq = adcp.abs_params.frequency
+
+temperature = adcp.water_properties.temperature
+pressure = adcp.aux_sensor_data.pressure
+salinity = adcp.water_properties.salinity
+density = adcp.water_properties.density
+
+nc = adcp.geometry.n_bins
+ne = adcp.time.n_ensembles
+
+temp = temperature * np.ones((ne, nc)).T
+pressure = np.outer(pressure, np.ones(nc)).T
+salinity = salinity * np.ones((ne, nc)).T
+water_density = density * np.ones((ne, nc)).T
+
+pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
+bin_distances = np.outer(bin_distances, np.ones(ne))
+
+print(f"temp shape: {temp.shape}")
+print(f"pressure shape: {pressure.shape}")
+print(f"salinity shape: {salinity.shape}")
+print(f"water_density shape: {water_density.shape}")
+print(f"pulse_lengths shape: {pulse_lengths.shape}")
+print(f"bin_distances shape: {bin_distances.shape}")
+
+if adcp.geometry.beam_facing.lower() == 'down':
+    pressure += bin_distances * 0.98
+else:
+    pressure -= bin_distances * 0.98
+
+alpha_w = adcp._water_absorption_coeff(
+    T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
+
+E = adcp.beam_data.echo_intensity.T
+
+ABS = adcp.beam_data.absolute_backscatter.T
+SSC = np.full_like(E, np.nan, dtype=float)
+Alpha_s = np.zeros_like(E, dtype=float)
+
+print(f"echo shape {E.shape}")
+
+#%
+for bm in range(adcp.geometry.n_beams):
+    for bn in range(adcp.geometry.n_bins):
+        if bn == 0:
+            ssc_beam_bin = adcp._backscatter_to_SSC(ABS)[bm,bn] #SSC for current beam and bin
+            
+            for _ in range(100):
+                print(i)
+                print(ssc_beam_bin.max())
+                alpha_s = adcp._sediment_absorption_coeff(
+                    ps=adcp.sediment_properties.particle_density,
+                    pw=water_density[bn],
+                    z=pressure[bn],
+                    d=adcp.sediment_properties.particle_diameter,
+                    SSC=ssc_beam_bin,#[bm, bn, :],
+                    T=temp[bn],
+                    S=salinity[bn],
+                    f=instrument_freq
+                )
+                sv, _ = adcp._counts_to_absolute_backscatter(
+                    E=E[bm, bn],
+                    E_r=E_r,
+                    k_c=k_c[bm + 1],
+                    alpha=alpha_w[bn] + alpha_s,
+                    C=C,
+                    R=bin_distances[bn],
+                    Tx_T=temp[bn],
+                    Tx_PL=pulse_lengths[bn],
+                    P_DBW=P_dbw
+                )
+                ssc_new = adcp._backscatter_to_SSC(sv)
+                if np.allclose(ssc_new, ssc_beam_bin, rtol=0, atol=1e-6, equal_nan=True):
+                    print('broken')
+                    break
+                ssc_beam_bin = ssc_new
+                
+            ABS[bm, bn] = sv
+            print(ssc_beam_bin.shape)
+            SSC[bm, bn] = ssc_beam_bin
+            Alpha_s[bm, bn] = alpha_s
+            
+            
+        else:
+            ssc_beam_bin = np.nanmean(SSC[bm, :bn], axis=0)
+            alpha_s = adcp._sediment_absorption_coeff(
+                ps=adcp.sediment_properties.particle_density,
+                pw=water_density[bn],
+                z=pressure[bn],
+                d=adcp.sediment_properties.particle_diameter,
+                SSC=ssc_beam_bin,
+                T=temp[bn],
+                S=salinity[bn],
+                f=instrument_freq
+            )
+            sv, _ = adcp._counts_to_absolute_backscatter(
+                E=E[bm, bn],
+                E_r=E_r,
+                k_c=k_c[bm + 1],
+                alpha=alpha_w[bn] + alpha_s,
+                C=C,
+                R=bin_distances[bn],
+                Tx_T=temp[bn],
+                Tx_PL=pulse_lengths[bn],
+                P_DBW=P_dbw
+            )
+            ABS[bm, bn] = sv
+            SSC[bm, bn] = adcp._backscatter_to_SSC(sv)
+            Alpha_s[bm, bn] = alpha_s
 
 
 
