@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Union
 import pandas as pd
 
-from .utils import Utils, Constants, ColumnSelectorGUI
+from .utils import Utils, Constants
 
 class CTD:
     """
@@ -10,7 +10,6 @@ class CTD:
     """
 
     def __init__(self, cfg: str | Path) -> None:
-        self.logger = Utils.get_logger()
         self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
         self._cfg = Utils._parse_kv_file(self._config_path)
         self.name: str = self._cfg.get("name", self._config_path.stem)

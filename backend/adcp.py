@@ -5,39 +5,22 @@ import numpy as np
 from numpy.typing import NDArray
 from datetime import datetime, timedelta
 from dateutil import parser
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from pathlib import Path
-
 from dataclasses import dataclass, field
-from datetime import datetime
 
 from .utils import Utils, Constants, XYZ
 from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
-from ._adcp_position import ADCPPosition, PositionSetupGUI
+from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
 
 
 class ADCP():
-    def __init__(self, cfg: str | Path, name: str) -> None:
+    def __init__(self, cfg: str | Path) -> None:
 
-        self._cfg = cfg #Utils._parse_kv_file(self._config_path)
+        self._cfg = cfg 
         self._pd0_path = self._cfg.get("filename", None)
-        self.name = self._cfg.get("name", 'MyADCP') #self._cfg.get("name", self._config_path.stem)
-        
-
-        if self._pd0_path is not None:
-            self._pd0_path = Utils._validate_file_path(self._pd0_path, Constants._PD0_SUFFIX)
-        else:
-            Utils.error(
-                logger=self.logger,
-                msg=f"Configuration for {self.name} must contain key 'filename' corresponding to a valid path to a PD0 (.000) file.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
-            
+        self.name = self._cfg.get("name", 'MyADCP')
+        self._pd0_path = Utils._validate_file_path(self._pd0_path, Constants._PD0_SUFFIX)
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
-
 
         @dataclass
         class ADCPCorrections:
@@ -69,14 +52,8 @@ class ADCP():
             ensemble_numbers = np.array([i.ensemble_number for i in self._pd0._get_variable_leader()])
             )
         
-    
-        
         self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
         self.position._resample_to(self.time.ensemble_datetimes)
-        
-        
-
-        
         
         @dataclass
         class ADCPGeometry:
@@ -94,9 +71,6 @@ class ADCP():
             relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
             geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
                     
-                
-        
-                
         self.geometry = ADCPGeometry(
             beam_facing = self._pd0._beam_facing,
             n_bins = self._pd0._n_cells,
@@ -112,7 +86,6 @@ class ADCP():
             relative_beam_midpoint_positions = None,
             geographic_beam_midpoint_positions = None,
             )
-
 
         relative_bmp, geographic_bmp = self._calculate_beam_geometry()
         self.geometry.relative_beam_midpoint_positions = relative_bmp
@@ -222,9 +195,6 @@ class ADCP():
             ref_layer_near_bl = np.array([bt.ref_layer_near_bl for bt in bt_list]),
         )
     
-    
-
-
         @dataclass
         class ADCPAuxSensorData:
             pressure: NDArray[np.float64] = field(
@@ -334,9 +304,6 @@ class ADCP():
             rssi: Dict[int, float] = field(default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},metadata={"desc": "RSSI scaling factors per beam"}),
             frequency: float = field(default=None, metadata={"desc": "System frequency"})
     
-            
-    
-        
         # Determine system-specific default C based on bandwidth
         bandwidth = self._pd0._fixed.system_bandwidth_wb
         default_C = -139.09 if bandwidth == 0 else -149.14
@@ -371,11 +338,8 @@ class ADCP():
                             frequency = freq)
         
         
-        print(self.abs_params)
+        #print(self.abs_params)
         #self.abs_params = self._gen_abs_backscatter_params_from_adcp()
-        
-        
-
         
         ## grab masking attributes
         @dataclass
@@ -438,12 +402,6 @@ class ADCP():
         # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
         # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
 
-    def __repr__(self) -> str:  # pragma: no cover
-        return (
-            f"{self.__class__.__name__}(\n"
-            f"config_path='{self._config_path}'\n)"
-        )
-
 
     def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
         """
@@ -500,7 +458,6 @@ class ADCP():
 
     def _calculate_beam_geometry(self) -> XYZ:
         """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
-        
         
         theta = self.geometry.crp_rotation_angle
         offset_x = self.geometry.crp_offset_x
@@ -574,11 +531,6 @@ class ADCP():
         geographic_beam_midpoint_positions = XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
         
         return relative_beam_midpoint_positions, geographic_beam_midpoint_positions
-
-
-        
-
-
 
 
 
@@ -770,12 +722,6 @@ class ADCP():
         pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
         bin_distances = np.outer(bin_distances, np.ones(ne))
         
-        print(f"temp shape: {temp.shape}")
-        print(f"pressure shape: {pressure.shape}")
-        print(f"salinity shape: {salinity.shape}")
-        print(f"water_density shape: {water_density.shape}")
-        print(f"pulse_lengths shape: {pulse_lengths.shape}")
-        print(f"bin_distances shape: {bin_distances.shape}")
         
         if self.geometry.beam_facing.lower() == 'down':
             pressure += bin_distances * 0.98
@@ -790,8 +736,6 @@ class ADCP():
         ABS = self.beam_data.absolute_backscatter.T
         SSC = np.full_like(E, np.nan, dtype=float)
         Alpha_s = np.zeros_like(E, dtype=float)
-        
-        print(f"echo shape {E.shape}")
         
         for bm in range(self.geometry.n_beams):
             for bn in range(self.geometry.n_bins):
@@ -822,7 +766,6 @@ class ADCP():
                         )
                         ssc_new = self._backscatter_to_SSC(sv)
                         if np.allclose(ssc_new, ssc_beam_bin, rtol=0, atol=1e-6, equal_nan=True):
-                            print('broken')
                             break
                         ssc_beam_bin = ssc_new
         
@@ -861,31 +804,8 @@ class ADCP():
         return ABS,SSC,Alpha_s
     
 
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-#%%
+                
+
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -940,13 +860,7 @@ class Plotting:
         end_bin = self.adcp.n_bins-1 if end_bin is None else end_bin
         start_ensemble = 0 if start_ensemble is None else start_ensemble
         end_ensemble = self.adcp.n_ensembles-1 if end_ensemble is None else end_ensemble
-        if plot_by.lower() not in ["bin", "depth", "hab"]:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid plot_by value '{plot_by}'. Must be 'Bin', 'Depth', or 'HAB'.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         cmap = cmap #self._CMAPS.get(variable, cmap)
         if variable == "percent_good":
             data = self.adcp.get_percent_good()
@@ -977,13 +891,7 @@ class Plotting:
             data = np.sqrt(u**2 + v**2 + w**2)
         elif variable == 'error_velocity':
             data = self.adcp.get_velocity()[6]
-        else:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid variable '{variable}'. Must be 'percent_good', 'absolute_backscatter', 'signal_to_noise_ratio', 'echo_intensity', 'correlation_magnitude', 'filtered_echo_intensity', 'ntu', 'ssc', 'u', 'v', 'w', 'CS', or 'error_velocity'.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         if plot_by.lower() == "bin":
             ylim = (start_bin, end_bin)
         elif plot_by.lower() == "depth":
@@ -994,25 +902,13 @@ class Plotting:
             ylim = (bin_midpoints[start_bin], bin_midpoints[end_bin])
 
         datetimes = self.adcp.get_datetimes()
-        if beam_number < 1 or beam_number > self.adcp.n_beams:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid beam number {beam_number}. Must be between 1 and {self.adcp.n_beams}.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         if len(data.shape) == 3:
             x = data[start_ensemble:end_ensemble, start_bin:end_bin, beam_number-1]
         elif len(data.shape) == 2:
             x = data[start_ensemble:end_ensemble, start_bin:end_bin]
             data = data[:, :, np.newaxis]  # Add a new axis for compatibility
-        else:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid data shape {data.shape}. Expected 2D or 3D array.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         if ax is None:
             _, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3, figwidth=10.5, sharex=True, sharey=True)
         
@@ -1139,13 +1035,7 @@ class Plotting:
         end_bin = self.adcp.n_bins-1 if end_bin is None else end_bin
         start_ensemble = 0 if start_ensemble is None else start_ensemble
         end_ensemble = self.adcp.n_ensembles-1 if end_ensemble is None else end_ensemble
-        if plot_by.lower() not in ["bin", "depth", "hab"]:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid plot_by value '{plot_by}'. Must be 'Bin', 'Depth', or 'HAB'.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         cmap = self._CMAPS.get(variable, plt.cm.viridis)
         if variable == "percent_good":
             data = self.adcp.get_percent_good()
@@ -1163,13 +1053,7 @@ class Plotting:
             data = self.adcp.get_ntu()
         elif variable == "ssc":
             data = self.adcp.get_ssc()
-        else:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid variable '{variable}'. Must be 'percent_good', 'absolute_backscatter', or 'signal_to_noise_ratio'.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         if plot_by.lower() == "bin":
             Z = self.adcp.relative_beam_midpoint_positions.z[:, :, beam_number-1]
             z_platform = (self.adcp.bin_1_distance / 100) + np.zeros(self.adcp.get_bottom_track().shape[0])
@@ -1186,26 +1070,12 @@ class Plotting:
         z_platform = z_platform[start_ensemble:(end_ensemble+1)]
 
         datetimes = self.adcp.get_datetimes()[start_ensemble:(end_ensemble+1)]
-        if beam_number < 1 or beam_number > self.adcp.n_beams:
-            Utils.error(
-                logger=self.adcp.logger,
-                msg=f"Invalid beam number {beam_number}. Must be between 1 and {self.adcp.n_beams}.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
         x = data[start_ensemble:end_ensemble, start_bin:end_bin, beam_number-1]
         if ax is None:
             _, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3, figwidth=10.5, sharex=True, sharey=True)
         
-        # topax = ax.twiny()
-        # topax.set_xlim(start_ensemble, end_ensemble)
-        # if plot_by.lower() == "bin":
-        #     ax.set_ylabel("Bin", fontsize=8)
-        # elif plot_by.lower() == "depth":
-        #     ax.set_ylabel("Depth", fontsize=8)
-        # elif plot_by.lower() == "hab":
-        #     ax.set_ylabel("Height Above Bed (m)", fontsize=8)
-
+        
         vmins = {"percent_good": 0, "absolute_backscatter": -95, "ntu": 0}
         vmaxs = {"percent_good": 100, "absolute_backscatter": -45, "signal_to_noise_ratio": 50}
         vmin = vmins.get(variable, np.nanmin(x)) if vmin is None else vmin

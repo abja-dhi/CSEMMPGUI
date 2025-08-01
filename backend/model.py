@@ -10,87 +10,18 @@ from .utils import Utils, Constants
 from .utils_dfsu import DfsuUtils
 from .plotting import PlottingShell
 
-class ModelSetupGUI:
-    """Top-level GUI for creating a model configuration."""
 
-    def __init__(self, name: str) -> None:
-        self.root = tk.Tk()
-        self.root.title(f"Model Configuration - {name}")
-
-        self.model_name = tk.StringVar(value=name)
-        self.filename = tk.StringVar()
-
-        self.config_path: Path = None
-        self._build_gui()
-        self.root.mainloop()
-
-    def _build_gui(self) -> None:
-        frm = ttk.Frame(self.root, padding=10)
-        frm.grid(sticky="nsew")
-        self.root.columnconfigure(0, weight=1)
-
-        # Model name (readonly)
-        ttk.Label(frm, text="Model Name").grid(row=0, column=0, sticky="e")
-        name_entry = ttk.Entry(frm, textvariable=self.model_name, width=30, state="readonly")
-        name_entry.grid(row=0, column=1, pady=4, sticky="w")
-
-        # File selection
-        ttk.Label(frm, text="Model File").grid(row=1, column=0, sticky="e")
-        file_entry = ttk.Entry(frm, textvariable=self.filename, width=30)
-        file_entry.grid(row=1, column=1, pady=4, sticky="w")
-
-        browse_btn = ttk.Button(frm, text="Browse", command=self._browse_file)
-        browse_btn.grid(row=1, column=2, padx=5)
-
-        # Save button
-        ttk.Button(frm, text="Save", command=self._on_save).grid(
-            row=2, column=0, columnspan=3, sticky="ew", pady=6
-        )
-
-    def _browse_file(self) -> None:
-        file_path = filedialog.askopenfilename(
-            title="Select Model File",
-            filetypes=[("DFS-U Files", "*.dfsu")],
-        )
-        if file_path:
-            self.filename.set(file_path)
-
-    def _on_save(self) -> None:
-        name = self.model_name.get().strip()
-        filename = self.filename.get().strip()
-
-        if not filename:
-            messagebox.showerror("Input Error", "Model file cannot be empty.")
-            return
-
-        cfg_dir = Path(os.getcwd())
-        model_cfg_path = cfg_dir / f"{name}.cfg"
-
-        lines = [
-            f"# Model configuration for {name}",
-            f"name = {name}",
-            f"filename = {filename}",
-        ]
-
-        try:
-            model_cfg_path.write_text("\n".join(lines), encoding="utf-8")
-            self.config_path = model_cfg_path
-        except OSError as exc:
-            messagebox.showerror("File Error", f"Cannot write config: {exc}")
-            return
-
-        self.root.destroy()
 
 class Model:
     def __init__(self, cfg: str | Path, name: str) -> None:
         self.logger = Utils.get_logger()
         self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
         if self._config_path is None:
-            gui = ModelSetupGUI(name=name)
+            #gui = ModelSetupGUI(name=name)
             self._config_path = gui.config_path
         self._cfg = Utils._parse_kv_file(self._config_path)
         if self._cfg is None:
-            gui = ModelSetupGUI(name=name)
+            #gui = ModelSetupGUI(name=name)
             self._config_path = gui.config_path
             self._cfg = Utils._parse_kv_file(self._config_path)
         self.name: str = self._cfg.get("name", self._config_path.stem)
