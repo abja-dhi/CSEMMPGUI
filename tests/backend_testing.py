@@ -60,7 +60,7 @@ cfgs = []
 position_datasets = []
 adcps = []
 for i,fpath in enumerate(pd0_fpaths):
-    print(i)
+   
     name = fpath.split(os.sep)[-1].split('.000')[0]
     cfg = {'filename':fpath,
            'name':name,
@@ -77,8 +77,6 @@ for i,fpath in enumerate(pd0_fpaths):
            'end_datetime' : '2023 Jan 15 00:00:00',
            'first_good_ensemble' : 0,
            'last_good_ensemble' : 100000,
-           'instrument_depth' : 100.0,
-           'instrument_HAB' : 10.0,
            'magnetic_declination' : 11.5,
            'utc_offset' : 0,
            'crp_rotation_angle' : 45.0,
@@ -112,7 +110,7 @@ for i,fpath in enumerate(pd0_fpaths):
 
 
 #%%
-# def ADCP_instrument_summary():
+def ADCP_instrument_summary():
 
 #     pd0_fpath = r'\\SGSIN1-STOR\Projects\61801596\Working Documents\Data and Calculations\10_Field Survey\Sediment Flux\2022\10. Oct\20221003-TF(F)-Exp2\RawDataRT\20221003-TF(F)-001r.000'
     

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Optional
 import warnings
 import numpy as np
 from numpy.typing import NDArray
@@ -20,20 +20,12 @@ from .plotting import PlottingShell
 
 class ADCP():
     def __init__(self, cfg: str | Path, name: str) -> None:
-        self.logger = Utils.get_logger()
-        #self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
+
         self._cfg = cfg #Utils._parse_kv_file(self._config_path)
-        
         self._pd0_path = self._cfg.get("filename", None)
         self.name = self._cfg.get("name", 'MyADCP') #self._cfg.get("name", self._config_path.stem)
         
-        Utils.info(
-            logger=self.logger,
-            msg=f"Initializing ADCP {self.name}",
-            level=self.__class__.__name__
-            )
-        
-        
+
         if self._pd0_path is not None:
             self._pd0_path = Utils._validate_file_path(self._pd0_path, Constants._PD0_SUFFIX)
         else:
@@ -45,30 +37,8 @@ class ADCP():
             )
             
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
-        
-        
-        # self.datetimes = None
-        # self.time_mask = None
-        # self.fixed_leaders = None
-        # self.variable_leaders = None
-        # self.velocity = None
-        # self.echo_intensity = None
-        # self.correlation_magnitude = None
-        # self.percent_good = None
-        # self.bottom_track = None
-        # self.sensor_temperature = None
-        # self.sensor_transmit_pulse_length = None
-        # self.absolute_backscatter = None
-        # self.signal_to_noise_ratio = None
-        # self.relative_beam_midpoint_positions = None
-        # self.absolute_beam_midpoint_positions = None
-        # self.absolute_beam_midpoint_positions_hab = None
-        
-        
+
         ## grab masking attributes
-        
-
-
         @dataclass
         class MaskParams:
             pg_min: float = field(metadata={"desc": "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only."})
@@ -101,7 +71,6 @@ class ADCP():
             )
         
 
-        
         @dataclass
         class ADCPGeometry:
             beam_facing: str = field(metadata={"desc": "Beam direction (Up/Down)"})
@@ -130,21 +99,20 @@ class ADCP():
             crp_offset_z=float(self._cfg.get('crp_offset_z', Constants._LOW_NUMBER)),
             crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER))
             )
-              
-        
-        @dataclass
-        class RSSICoefficients:
-            beam1: float = field(metadata={"desc": "RSSI coefficient for beam 1, from P3 test on TRDI instrument"})
-            beam2: float = field(metadata={"desc": "RSSI coefficient for beam 2, from P3 test on TRDI instrument"})
-            beam3: float = field(metadata={"desc": "RSSI coefficient for beam 3, from P3 test on TRDI instrument"})
-            beam4: float = field(metadata={"desc": "RSSI coefficient for beam 4, from P3 test on TRDI instrument"})
+
+        # @dataclass
+        # class RSSICoefficients:
+        #     beam1: float = field(metadata={"desc": "RSSI coefficient for beam 1, from P3 test on TRDI instrument"})
+        #     beam2: float = field(metadata={"desc": "RSSI coefficient for beam 2, from P3 test on TRDI instrument"})
+        #     beam3: float = field(metadata={"desc": "RSSI coefficient for beam 3, from P3 test on TRDI instrument"})
+        #     beam4: float = field(metadata={"desc": "RSSI coefficient for beam 4, from P3 test on TRDI instrument"})
                     
-        self.rssi = RSSICoefficients(
-            beam1=float(self._cfg.get('rssi_beam1', 0.41)),
-            beam2=float(self._cfg.get('rssi_beam2', 0.41)),
-            beam3=float(self._cfg.get('rssi_beam3', 0.41)),
-            beam4=float(self._cfg.get('rssi_beam4', 0.41))
-            )
+        # self.rssi = RSSICoefficients(
+        #     beam1=float(self._cfg.get('rssi_beam1', 0.41)),
+        #     beam2=float(self._cfg.get('rssi_beam2', 0.41)),
+        #     beam3=float(self._cfg.get('rssi_beam3', 0.41)),
+        #     beam4=float(self._cfg.get('rssi_beam4', 0.41))
+        #     )
         
         @dataclass
         class ADCPCorrections:
@@ -170,13 +138,11 @@ class ADCP():
             ensemble_datetimes: int = field(metadata={"desc": "DateTime corresponding to each ensemble in the dataset"})
             ensemble_numbers: NDArray[np.int64] = field(metadata={"desc": "Number corresponding to each ensemble in the dataset. Read directly from source file"})
           
-        
         self.time = ADCPTime(
             n_ensembles = self._pd0._n_ensembles,
             ensemble_datetimes = self._get_datetimes(),
             ensemble_numbers = np.array([i.ensemble_number for i in self._pd0._get_variable_leader()])
             )
-        
         
 
         @dataclass
@@ -188,29 +154,162 @@ class ADCP():
             suspended_solids_concentration: np.ndarray = field(metadata={"desc": "Estimated suspended solids concentration (e.g., mg/L) derived from absolute backscatter using calibration coefficients."})
             signal_to_noise_ratio: np.ndarray = field(metadata={"desc": "SNR in dB, calculated as the difference between backscatter and instrument noise floor."})
 
-        
-   
+
         self.beam_data = ADCPBeamData(
             echo_intensity=self._pd0._get_echo_intensity(),
             correlation_magnitude=self._pd0._get_correlation_magnitude(),
             percent_good=self._pd0._get_percent_good(),
-            absolute_backscatter = self._pd0._get_absolute_backscatter()[0],  # optional if calculated later
+            absolute_backscatter = None,  # optional if calculated later
             suspended_solids_concentration=None,  # placeholder until compute 
-            signal_to_noise_ratio = self._pd0._get_absolute_backscatter()[1]
+            signal_to_noise_ratio = None
             )
+        
+        @dataclass
+        class ADCPVelocityData:
+            """
+            Container for ADCP velocity-derived quantities in Earth coordinates.
+            """
+            u: np.ndarray = field(default=None, metadata={"desc": "Eastward (u) velocity component [m/s]"})
+            v: np.ndarray = field(default=None, metadata={"desc": "Northward (v) velocity component [m/s]"})
+            z: np.ndarray = field(default=None, metadata={"desc": "Vertical (z/upward) velocity component [m/s]"})
+            speed: np.ndarray = field(default=None, metadata={"desc": "Horizontal current speed [m/s] = sqrt(u^2 + v^2)"})
+            direction: np.ndarray = field(default=None, metadata={"desc": "Current direction in degrees from North (0°–360°)"})
+            error_velocity: np.ndarray = field(default=None, metadata={"desc": "Error velocity component from ADCP [m/s]"})
+            
+        u,v,z,ev = self._get_velocity()
+        speed = np.sqrt(u**2 + v**2)
+        direction = (np.degrees(np.arctan2(u, v)) + 360) % 360
+        
+        self.velocity_data = ADCPVelocityData(
+            u=u,
+            v=v,
+            z=z,
+            speed=speed,  # Can be calculated later as sqrt(u^2 + v^2)
+            direction=direction,  # Can be calculated later with arctan2(v, u)
+            error_velocity=ev
+        )
+               
+        @dataclass
+        class ADCPBottomTrack:
+            eval_amp: np.ndarray = field(metadata={"desc": "Bottom-track evaluation amplitude for each beam (counts)"})
+            correlation_magnitude: np.ndarray = field(metadata={"desc": "Bottom-track correlation magnitude for each beam (counts)"})
+            percent_good: np.ndarray = field(metadata={"desc": "Bottom-track percent-good per beam (0–100%)"})
+            range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters)"})
+            velocity: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s)"})
+            ref_layer_velocity: np.ndarray = field(metadata={"desc": "Reference layer velocity for each beam (m/s)"})
+            ref_correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude in reference layer (counts)"})
+            ref_echo_intensity: np.ndarray = field(metadata={"desc": "Echo intensity in reference layer (counts)"})
+            ref_percent_good: np.ndarray = field(metadata={"desc": "Percent-good in reference layer (0–100%)"})
+            rssi_amp: np.ndarray = field(metadata={"desc": "Receiver Signal Strength Indicator amplitude in bottom echo (counts)"})
+        
+            # Configuration and metadata fields
+            fid: int = field(metadata={"desc": "Bottom-track data ID (constant 0x0600)"})
+            corr_mag_min_bc: int = field(metadata={"desc": "Minimum correlation magnitude (BC command)"})
+            delay_before_reacquire_bd: int = field(metadata={"desc": "Ensembles to wait before reacquiring bottom (BD command)"})
+            error_velocity_max_be: int = field(metadata={"desc": "Maximum error velocity (mm/s) (BE command)"})
+            eval_amp_min_ba: int = field(metadata={"desc": "Minimum evaluation amplitude (BA command)"})
+            max_depth_bx: int = field(metadata={"desc": "Maximum tracking depth (decimeters) (BX command)"})
+            mode_bm: int = field(metadata={"desc": "Bottom-tracking mode (BM command)"})
+            percent_good_min_bg: int = field(metadata={"desc": "Minimum percent-good required per ensemble (BG command)"})
+            pings_per_ensemble_bp: int = field(metadata={"desc": "Bottom-track pings per ensemble (BP command)"})
+            gain: int = field(metadata={"desc": "Gain level for shallow water bottom tracking"})
+        
+            # Reference layer bounds (BL command)
+            ref_layer_far_bl: int = field(metadata={"desc": "Reference layer far boundary (dm)"})
+            ref_layer_min_bl: int = field(metadata={"desc": "Reference layer minimum size (dm)"})
+            ref_layer_near_bl: int = field(metadata={"desc": "Reference layer near boundary (dm)"})
+                    
+        bt_list = self._pd0._get_bottom_track()
 
+        self.bottom_track = ADCPBottomTrack(
+            eval_amp = np.array([[getattr(bt_list[e], f"beam{b}_eval_amp") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            correlation_magnitude = np.array([[getattr(bt_list[e], f"beam{b}_bt_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            percent_good = np.array([[getattr(bt_list[e], f"beam{b}_bt_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            range_to_seabed = np.array([[getattr(bt_list[e], f"beam{b}_bt_range") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+            velocity = np.array([[getattr(bt_list[e], f"beam{b}_bt_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+            ref_layer_velocity = np.array([[getattr(bt_list[e], f"beam_{b}_ref_layer_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+            ref_correlation_magnitude = np.array([[getattr(bt_list[e], f"bm{b}_ref_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            ref_echo_intensity = np.array([[getattr(bt_list[e], f"bm{b}_ref_int") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            ref_percent_good = np.array([[getattr(bt_list[e], f"bm{b}_ref_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            rssi_amp = np.array([[getattr(bt_list[e], f"bm{b}_rssi_amp") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
+            fid = np.array([bt.bottom_track_id for bt in bt_list]),
+            corr_mag_min_bc = np.array([bt.bt_corr_mag_min_bc for bt in bt_list]),
+            delay_before_reacquire_bd = np.array([bt.bt_delay_before_reacquire_bd for bt in bt_list]),
+            error_velocity_max_be = np.array([bt.bt_err_vel_max_be for bt in bt_list]),
+            eval_amp_min_ba = np.array([bt.bt_eval_amp_min_ba for bt in bt_list]),
+            max_depth_bx = np.array([bt.bt_max_depth_bx for bt in bt_list]),
+            mode_bm = np.array([bt.bt_mode_bm for bt in bt_list]),
+            percent_good_min_bg = np.array([bt.bt_percent_good_min_bg for bt in bt_list]),
+            pings_per_ensemble_bp = np.array([bt.bt_pings_per_ensemble_bp for bt in bt_list]),
+            gain = np.array([bt.gain for bt in bt_list]),
+            ref_layer_far_bl = np.array([bt.ref_layer_far_bl for bt in bt_list]),
+            ref_layer_min_bl = np.array([bt.ref_layer_min_bl for bt in bt_list]),
+            ref_layer_near_bl = np.array([bt.ref_layer_near_bl for bt in bt_list]),
+        )
+    
+        @dataclass
+        class AbsoluteBackscatterParams:
+            """Parameters used in calculating absolute backscatter from echo intensity."""
+            E_r: float = field(default=39.0, metadata={"desc": "Noise floor (counts)"})
+            C: Optional[float] = field(default=None, metadata={"desc": "System-specific calibration constant (dB)"})
+            alpha: Optional[float] = field(default=None, metadata={"desc": "Attenuation coefficient (dB/m)"})
+            P_dbw: Optional[float] = field(default=None, metadata={"desc": "Transmit power (dBW)"})
+            rssi: Dict[int, float] = field(
+                default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},
+                metadata={"desc": "RSSI scaling factors per beam"}
+            )
+            
+        def gen_abs_backscatter_params_from_adcp(adcp: ADCP) -> AbsoluteBackscatterParams:
+            """Derive absolute backscatter parameters from an ADCP instance."""
+        
+            # Determine system-specific default C based on bandwidth
+            bandwidth = adcp._pd0._fixed.system_bandwidth_wb
+            default_C = -139.09 if bandwidth == 0 else -149.14
+        
+            # Default alpha and P_dbw based on frequency
+            freq = adcp._pd0._fixed.system_configuration.frequency
+            freq_defaults = {
+                "75-kHz": (0.027, 27.3),
+                "300-kHz": (0.068, 14.0),
+                "600-kHz": (0.178, 9.0)
+            }
+            default_alpha, default_P_dbw = freq_defaults.get(freq, (0.5, 8.3))
+        
+            # Override with config if provided
+            C = adcp._cfg.get("absolute_backscatter_C", default_C)
+            alpha = adcp._cfg.get("absolute_backscatter_alpha", default_alpha)
+            P_dbw = adcp._cfg.get("absolute_backscatter_P_dbw", default_P_dbw)
+            E_r = adcp._cfg.get("noise_floor", 39.0)
+        
+            # Beam-specific RSSI from rssi dataclass
+            rssi ={
+                1:float(self._cfg.get('rssi_beam1', 0.41)),
+                2:float(self._cfg.get('rssi_beam2', 0.41)),
+                3:float(self._cfg.get('rssi_beam3', 0.41)),
+                4:float(self._cfg.get('rssi_beam4', 0.41))
+                }
+            
+            return AbsoluteBackscatterParams(
+                E_r=E_r,
+                C=C,
+                alpha=alpha,
+                P_dbw=P_dbw,
+                rssi=rssi
+            )
+        
+        self.abs_params = gen_abs_backscatter_params_from_adcp(self)
+        
+        
+        #self.bottom_track = build_bottom_track_data()
         # class ADCPModelParams:
         #     A,B,Water density, etc. 
         # # self.time = ADCPTime(
         # #     n_ensembles = )
         
-            
-        # adcp.beam_data.absolute_backscatter
-        # adcp.velocity_data.
+
         
-        # self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
-        # self.position.resample_to(self.get_datetimes())
-        
+        #self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
+        #self.position.resample_to(self.time.ensemble_datetimes)
         
         #class BeamData:
             
@@ -232,154 +331,24 @@ class ADCP():
             f"config_path='{self._config_path}'\n)"
         )
 
-    def print_info(self) -> None:
-        """
-        Print information about the model.
-        """
-        self._print_info(msg=f"ADCP '{self.name}' configuration loaded successfully.")
-        self._print_info(msg=f"ADCP '{self.name}' number of ensembles: {self.n_ensembles}")
-        self._print_info(msg=f"ADCP '{self.name}' number of beams: {self.n_beams}")
-        self._print_info(msg=f"ADCP '{self.name}' number of cells: {self.n_cells}")
-        self._print_info(msg=f"ADCP '{self.name}' beam facing direction: {self.beam_facing}.")
-        self._print_info(msg=f"ADCP '{self.name}' depth cell length: {self.depth_cell_length} m.")
-        self._print_info(msg=f"ADCP '{self.name}' bin 1 distance: {self.bin_1_distance} m.")
-        self._print_info(msg=f"ADCP '{self.name}' beam angle: {self.beam_angle} degrees.")
-        self._print_info(msg=f"ADCP '{self.name}' instrument depth: {self.instrument_depth} m.")
-        self._print_info(msg=f"ADCP '{self.name}' first ensemble datetime: {self.datetimes[0]}")
-        self._print_info(msg=f"ADCP '{self.name}' last ensemble datetime: {self.datetimes[-1]}")
+    # def _print_info(self) -> None:
+    #     """
+    #     Print information about the model.
+    #     """
+    #     self._print_info(msg=f"ADCP '{self.name}' configuration loaded successfully.")
+    #     self._print_info(msg=f"ADCP '{self.name}' number of ensembles: {self.n_ensembles}")
+    #     self._print_info(msg=f"ADCP '{self.name}' number of beams: {self.n_beams}")
+    #     self._print_info(msg=f"ADCP '{self.name}' number of cells: {self.n_cells}")
+    #     self._print_info(msg=f"ADCP '{self.name}' beam facing direction: {self.beam_facing}.")
+    #     self._print_info(msg=f"ADCP '{self.name}' depth cell length: {self.depth_cell_length} m.")
+    #     self._print_info(msg=f"ADCP '{self.name}' bin 1 distance: {self.bin_1_distance} m.")
+    #     self._print_info(msg=f"ADCP '{self.name}' beam angle: {self.beam_angle} degrees.")
+    #     self._print_info(msg=f"ADCP '{self.name}' instrument depth: {self.instrument_depth} m.")
+    #     self._print_info(msg=f"ADCP '{self.name}' first ensemble datetime: {self.datetimes[0]}")
+    #     self._print_info(msg=f"ADCP '{self.name}' last ensemble datetime: {self.datetimes[-1]}")
 
         
-    def _print_info(self, msg: str) -> None:
-        Utils.info(
-            logger=self.logger,
-            msg=msg,
-            level=self.__class__.__name__
-        )
 
-    # @property
-    # def pd0(self) -> Pd0Decoder:
-    #     """Return the PD0 object."""
-    #     return self._pd0
-    
-    # @property
-    # def n_beams(self) -> int:
-    #     """Return the number of beams."""
-    #     return self._pd0._n_beams
-    
-    # @property
-    # def n_cells(self) -> int:
-    #     """Return the number of cells."""
-    #     return self._pd0._n_cells
-    # n_bins = n_cells  # Alias
-
-    # @property
-    # def n_ensembles(self) -> int:
-    #     """Return the number of ensembles."""
-    #     dt = self.get_datetimes()  # Ensure datetimes are loaded
-    #     return dt.shape[0]
-
-    # @property
-    # def beam_facing(self) -> str:
-    #     """
-    #     Return the beam facing direction.
-        
-    #     Returns:
-    #     -------
-    #     str
-    #         'up' if the beams are facing upwards, 'down' if they are facing downwards.
-    #     """
-    #     return self._pd0._beam_facing
-
-    # @property
-    # def depth_cell_length(self) -> float:
-    #     """
-    #     Return the depth cell length in meters.
-        
-    #     Returns:
-    #     -------
-    #     float
-    #         The depth cell length in meters.
-    #     """
-    #     return self._pd0._depth_cell_length
-    
-    # @property
-    # def bin_1_distance(self) -> float:
-    #     """
-    #     Return the distance to the first bin in meters.
-        
-    #     Returns:
-    #     -------
-    #     float
-    #         The distance to the first bin in meters.
-    #     """
-    #     return self._pd0._bin_1_distance
-    
-    # @property
-    # def beam_angle(self) -> float:
-    #     """
-    #     Return the beam angle in degrees.
-        
-    #     Returns:
-    #     -------
-    #     float
-    #         The beam angle in degrees.
-    #     """
-    #     return self._pd0._beam_angle
-    
-    # def _load_rssi(self,cfg):
-        
-    #     ##ANDY GET RID OF THIS AND ALL OTHER LOGGER ACTIVITIES
-    #     defaults_used = []
-    #     vals = {}
-    #     for i in range(1, 5):
-    #         key = f"rssi_beam{i}"
-    #         val = float(cfg.get(key, 0.41))
-    #         vals[f"beam{i}"] = val
-    #         if cfg.get(key) is None:
-    #             defaults_used.append(f"beam{i}")
-    
-    #     if defaults_used:
-            
-    #         msg = f"Default RSSI coefficients used for ADCP {self.name} (value = 0.41). This is strongly discouraged. Please perform a P3 test to acquire instrument-specific RSSI values."
-            
-    #         Utils.warning(
-    #             logger=self.logger,
-    #             msg=msg,
-    #             level=self.__class__.__name__
-    #         )
- 
-    
-    #     return vals
-        
-    # def _get_fixed_leader(self) -> List[FixedLeader]:
-    #     """
-    #     Get the fixed leader data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     List[FixedLeader]
-    #         A list of FixedLeader objects containing fixed leader data for each ensemble.
-    #     """
-    #     if self.fixed_leaders is None:
-    #         self.fixed_leaders = self._pd0._get_fixed_leader()
-
-    #     self.fixed_leaders = np.array(self.fixed_leaders)
-    #     return self.fixed_leaders
-
-    # def _get_variable_leader(self) -> List[VariableLeader]:
-    #     """
-    #     Get the variable leader data from the PD0 file.
-        
-    #     Returns:
-    #     -------
-    #     List[VariableLeader]
-    #         A list of VariableLeader objects containing variable leader data for each ensemble.
-    #     """
-    #     if self.variable_leaders is None:
-    #         self.variable_leaders = self._pd0._get_variable_leader()
-
-    #     self.variable_leaders = np.array(self.variable_leaders)
-    #     return self.variable_leaders
 
     def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
         """
@@ -404,201 +373,67 @@ class ADCP():
             datetimes = [dt + delta for dt in datetimes]
         return datetimes
     
-    
-            
-    def _process_velocity(self, velocity: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Process the velocity data to ensure it has the correct shape and type.
         
-        Parameters:
-        ----------
-        velocity : np.ndarray
-            The raw velocity data from the PD0 file of shape (n_ensembles, n_bins, n_beams).
-        
-        Returns:
-        -------
-        np.ndarray
-            Processed velocity data with shape (n_ensembles, n_cells, n_beams).
-        """
-        vel_data = velocity.astype(np.float32)
-        vel_data[(vel_data == -32768) | (vel_data == 32768)] = np.nan  # Replace invalid values with NaN
-        vel_data = vel_data * 0.001  # Convert from mm/s to m/s
-        u = vel_data[:, :, 0]
-        v = vel_data[:, :, 1]
-        w = vel_data[:, :, 2]
-        ev = vel_data[:, :, 3] if self.n_beams > 3 else np.zeros_like(u)
-
-        magnetic_declination = float(self._cfg.get("magnetic_declination", 0.0))
-        if magnetic_declination != 0.0:
-            X = np.stack((u, v), axis=-1)  # Shape (n_ensembles, n_cells, n_beams)
-            rot = Utils.gen_rot_z(magnetic_declination)[:2, :2]  # 2x2 rotation matrix
-            X_rot = np.einsum('ij,klj->kli', rot, X)  # Efficient matrix multiplication
-            u, v = X_rot[:, :, 0], X_rot[:, :, 1]  # Unpack rotated components
-
-        t = self.get_datetimes()
-        u = u
-        v = v
-        w = w
-        ev = ev if self.n_beams > 3 else np.zeros_like(u)
-        dt = np.diff(t).astype('timedelta64[s]') / np.timedelta64(1, 's')  # Convert time differences to seconds
-        dt = np.append(dt, dt[-1])  # Append last value to match ensemble count
-        dt = dt[:, np.newaxis]  # Reshape to (n_ensembles, 1) for broadcasting
-        du = u * dt
-        dv = v * dt
-        dz = w * dt
-        return u, v, w, du, dv, dz, ev
-        
-    def _get_velocity(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _get_velocity(self,apply_corrections: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Get the velocity data from the PD0 file.
-        
-        Returns:
-        -------
-        np.ndarray
-            Velocity data with shape (n_ensembles, n_cells, n_beams).
-        """
-        if self.velocity is None:
-            velocity = self._pd0._get_velocity()
-            self.velocity = self._process_velocity(velocity)
-        u, v, w, du, dv, dz, ev = self.velocity
-        # Apply velocity masks
-        mask = (
-            (u < self._vel_min) | (u > self._vel_max) |
-            (v < self._vel_min) | (v > self._vel_max) |
-            (w < self._vel_min) | (w > self._vel_max) |
-            (ev > self._err_vel_max)
-            )
-        u[mask] = np.nan
-        v[mask] = np.nan
-        w[mask] = np.nan
-        du[mask] = np.nan
-        dv[mask] = np.nan
-        dz[mask] = np.nan
-        ev[mask] = np.nan
-        msg = "No valid {var} velocities found within the specified limits: {vel_min} to {vel_max} m/s. Please check the vel_min and vel_max in the {name} configuration file ({config_path})."
-        Utils.all_nan(u , self.logger, msg.format(var='u'    , vel_min=self._vel_min, vel_max=self._vel_max, name=self.name, config_path=self._config_path), arrname="u", class_name=self.__class__.__name__)
-        Utils.all_nan(v , self.logger, msg.format(var='v'    , vel_min=self._vel_min, vel_max=self._vel_max, name=self.name, config_path=self._config_path), arrname="v", class_name=self.__class__.__name__)
-        Utils.all_nan(w , self.logger, msg.format(var='w'    , vel_min=self._vel_min, vel_max=self._vel_max, name=self.name, config_path=self._config_path), arrname="w", class_name=self.__class__.__name__)
-        Utils.all_nan(ev, self.logger, msg.format(var='error', vel_min=self._vel_min, vel_max=self._vel_max, name=self.name, config_path=self._config_path), arrname="ev", class_name=self.__class__.__name__)
-        self.velocity = (u, v, w, du, dv, dz, ev)
-        return self.velocity
     
-    def _get_echo_intensity(self) -> np.ndarray:
-        """
-        Get the echo intensity data from the PD0 file.
-        
-        Returns:
-        -------
-        np.ndarray
-            Echo intensity data with shape (n_ensembles, n_cells).
-        """
-        if self.echo_intensity is None:
-            self.echo_intensity = self._pd0._get_echo_intensity()
-
-        self.echo_intensity = self.echo_intensity
-
-        
-        # Utils.all_nan(
-        #     arr = self.echo_intensity,
-        #     logger= self.logger,
-        #     msg = f"No valid echo intensity values found within the specified limits: {self._echo_min} to {self._echo_max}. Please check the echo_min and echo_max in the {self.name} instrument configuration.",
-        #     arrname= "echo_intensity",
-        #     class_name= self.__class__.__name__
-        # )
-        return self.echo_intensity
-
-    def _get_correlation_magnitude(self) -> np.ndarray:
-        """
-        Get the correlation magnitude data from the PD0 file.
-        
-        Returns:
-        -------
-        np.ndarray
-            Correlation magnitude data with shape (n_ensembles, n_cells).
-        """
-        if self.correlation_magnitude is None:
-            self.correlation_magnitude = self._pd0._get_correlation_magnitude()
-  
-        self.correlation_magnitude = self.correlation_magnitude
-        
-        
-
-        
-        return self.correlation_magnitude
+        Parameters
+        ----------
+        apply_corrections : bool, optional
+            Whether to apply magnetic declination correction, by default True.
     
-    def _get_percent_good(self) -> np.ndarray:
-        """
-        Get the percent good data from the PD0 file.
-        
-        Returns:
+        Returns
         -------
-        np.ndarray
-            Percent good data with shape (n_ensembles, n_cells).
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+            Tuple containing u, v, w, and error velocity arrays.
         """
-        if self.percent_good is None:
-            self.percent_good = self._pd0._get_percent_good().astype(np.float32)
-
-        self.percent_good = self.percent_good
-
-        return self.percent_good
+        data = self._pd0._get_velocity()
+        u = data[:,0] 
+        v = data[:,1]  
+        w = data[:,2]  
+        ev = data[:,3] 
     
-    def _get_bottom_track(self) -> np.ndarray:
-        """
-        Get the bottom track data from the PD0 file.
-
-        Returns:
-        -------
-        np.ndarray
-            Bottom track data with shape (n_ensembles, n_beams).
-        """
-        if self.bottom_track is None:
-            bottom_track = self._pd0._get_bottom_track()
-            beam_range_attributes = [f"beam{i+1}_bt_range" for i in range(self.n_beams)]
-            self.bottom_track = np.array([[getattr(bt, attr)/100.0 for attr in beam_range_attributes] for bt in bottom_track], dtype=np.float32)
-  
+        if apply_corrections and self.corrections.magnetic_declination != 0.0:
+            X = np.stack((u, v), axis=-1)  # Shape (n_ensembles, n_cells, 2)
+            rot = Utils.gen_rot_z(self.corrections.magnetic_declination)[:2, :2]
+            X_rot = np.einsum('ij,klj->kli', rot, X)
+            u, v = X_rot[:, :, 0], X_rot[:, :, 1]
     
-        self.bottom_track = self.bottom_track
-        return self.bottom_track
-
-    def _get_bottom_track(self) -> np.ndarray:
-        """
-        Get the bottom track data from the PD0 file.
+        return u, v, w, ev
         
-        Returns:
-        -------
-        np.ndarray
-            Bottom track data with shape (n_ensembles, n_beams).
-        """
-        return self.bottom_track
 
-    def _get_sensor_temperature(self) -> np.ndarray:
-        """
-        Get the sensor temperature data from the PD0 file.
+
+
+    # def _get_sensor_temperature(self) -> np.ndarray:
+    #     """
+    #     Get the sensor temperature data from the PD0 file.
         
-        Returns:
-        -------
-        np.ndarray
-            Sensor temperature data with shape (n_ensembles,).
-        """
-        if self.sensor_temperature is None:
-            self.sensor_temperature = self._pd0._get_sensor_temperature()
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Sensor temperature data with shape (n_ensembles,).
+    #     """
+    #     if self.sensor_temperature is None:
+    #         self.sensor_temperature = self._pd0._get_sensor_temperature()
 
-        self.sensor_temperature = self.sensor_temperature
-        return self.sensor_temperature
+    #     self.sensor_temperature = self.sensor_temperature
+    #     return self.sensor_temperature
     
-    def _get_sensor_transmit_pulse_length(self) -> np.ndarray:
-        """
-        Get the sensor transmit pulse length data from the PD0 file.
+    # def _get_sensor_transmit_pulse_length(self) -> np.ndarray:
+    #     """
+    #     Get the sensor transmit pulse length data from the PD0 file.
         
-        Returns:
-        -------
-        np.ndarray
-            Sensor transmit pulse length data with shape (n_ensembles,).
-        """
-        if self.sensor_transmit_pulse_length is None:
-            self.sensor_transmit_pulse_length = self._pd0._get_sensor_transmit_pulse_length()
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Sensor transmit pulse length data with shape (n_ensembles,).
+    #     """
+    #     if self.sensor_transmit_pulse_length is None:
+    #         self.sensor_transmit_pulse_length = self._pd0._get_sensor_transmit_pulse_length()
 
             
+
     #     self.sensor_transmit_pulse_length = self.sensor_transmit_pulse_length#
 
     # def _get_absolute_backscatter(self) -> np.ndarray:
@@ -858,59 +693,124 @@ class ADCP():
 
 
 
-            
-        
-    def _scalar_counts_to_absolute_backscatter(self,E,E_r,k_c,alpha,C,R,Tx_T, Tx_PL, P_DBW):
+    @classmethod
+    def _calculate_absolute_backscatter(self) -> np.ndarray:
         """
-        Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
-    
+        Convert echo intensity to absolute backscatter.
+
+        Returns:
+        --------
+            np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
+        """
+        echo_intensity = self._get_echo_intensity()
+        if echo_intensity is None:
+            return None
+        E_r = self.cfg.get('noise_floor', 39)
+        WB = self._fixed.system_bandwidth_wb
+        if WB == 0:
+            C = -139.09
+        else:
+            C = -149.14
+        C = self.cfg.get('absolute_backscatter_C', C)
+        default_rssis = {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41}
+        k_c = {}
+        for i in range(self._fixed.number_of_beams):
+            if f'rssi_beam_{i+1}' in self.cfg.keys():
+                k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
+            else:
+                k_c[i+1] = default_rssis.get(i+1, 0.45)
+                Utils.warning(
+                    logger=self.logger,
+                    msg=f"Using default RSSI value {k_c[i+1]} for beam {i+1}.",
+                    level=self.__class__.__name__
+                )
+        alpha = 0.5
+        P_dbw = 8.3
+        if self._fixed.system_configuration.frequency == '75-kHz':
+            alpha = 0.027
+            P_dbw = 27.3
+        elif self._fixed.system_configuration.frequency == '300-kHz':
+            alpha = 0.068
+            P_dbw = 14    
+        elif self._fixed.system_configuration.frequency == '600-kHz':
+            alpha = 0.178
+            P_dbw = 9
+            
+
+        alpha = self.cfg.get('absolute_backscatter_alpha', alpha)
+        P_dbw = self.cfg.get('absolute_backscatter_P_dbw', P_dbw)
+
+        temperature = np.outer(self._get_sensor_temperature(), np.ones(self._n_cells))
+        bin_distances = np.outer(self._get_bin_midpoints(), np.ones(self._n_ensembles)).T
+        transmit_pulse_length = np.outer(self._get_sensor_transmit_pulse_length(), np.ones(self._n_cells))
+        X = []
+        StN = []
+        for i in range(self._n_beams):
+            E = echo_intensity[:, :, i]
+            sv, stn = self._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
+            # print(k_c[i+1])
+            # quit()
+            X.append(sv)
+            StN.append(stn)
+        X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
+        StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
+        return X, StN
+
+    @staticmethod
+    def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
+        """
+        Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
+        
         Parameters
         ----------
+        E : ndarray
+            Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
+        R : ndarray
+            Along-beam range to the measurement in meters.
+        Tx_T : ndarray
+            Transducer temperature in deg C.
+        Tx_PL : ndarray
+            Transmit pulse length in dBm.
         E_r : float
-            Measured RSSI amplitude in the absence of any signal (noise), in counts.
-        C : float
-            Constant combining several parameters specific to each instrument.
+            Measured RSSI amplitude in absence of signal (noise), in counts.
         k_c : float
             Factor to convert amplitude counts to decibels (dB).
-        E : float
-            Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
-        Tx_T : float
-            Tranducer temperature in deg C.
-        R : float
-            Along-beam range to the measurement in meters
         alpha : float
-            Acoustic absorption (dB/m). 
-        Tx_PL : float
-            Transmit pulse length in dBm.
+            Acoustic absorption (dB/m).
+        C : float
+            Constant combining several parameters specific to the instrument.
         P_DBW : float
             Transmit pulse power in dBW.
-    
+        
         Returns
         -------
-        tuple
-            Tuple containing two elements:
-            - Sv : float
-                Apparent volume scattering strength.
-            - StN : float
-                True signal to noise ratio.
-    
-        Notes
-        -----
-        - The use of the backscatter equation should be limited to ranges beyond π/4 * Rayleigh Distance for the given instrument.
-        - Rayleigh Distance is calculated as transmit pulse length * α / width, representing the distance at which the beam can be considered to have fully formed.
-        - For further details, refer to the original documentation by Deines.
-        - 𝑘_c is a factor used to convert the amplitude counts reported by the ADCP’s receive circuitry to decibels (dB).
-        - 𝐸 is the measured Returned Signal Strength Indicator (RSSI) amplitude reported by the ADCP for each bin along each beam, in counts.
-        - 𝐸_r is the measured RSSI amplitude seen by the ADCP in the absence of any signal (the noise), in counts, and which is constant for a given ADCP.
+        Sv : ndarray
+            Apparent volume scattering strength.
+        StN : ndarray
+            True signal to noise ratio.
         """
-        StN = (10**(k_c * E / 10) - 10**(k_c * E_r / 10)) / (10**(k_c * E_r / 10))
-        L_DBM = 10 * np.log10(Tx_PL)
-        #P_DBW = 10 * np.log10(Tx_Pw)
-        Sv = C + 10 * np.log10((Tx_T + 273.16) * (R**2)) - L_DBM - P_DBW + 2 * alpha * R + 10 * np.log10((10**(0.1 * k_c * (E - E_r)) - 1))
-    
-        return Sv, StN
-
         
+        # Signal to noise ratio (true)
+        E_db = k_c * E / 10
+        E_r_db = k_c * E_r / 10
+        
+        StN = (10 ** E_db - 10 ** E_r_db) / (10 ** E_r_db)
+        
+        # L_DBM: Transmit pulse length in dBm
+        L_DBM = 10 * np.log10(Tx_PL)
+        
+        Sv = (
+            C
+            + 10 * np.log10((Tx_T + 273.16) * (R ** 2))
+            - L_DBM
+            - P_DBW
+            + 2 * alpha * R
+            + 10 * np.log10(10 ** (0.1 * k_c * (E - E_r)) - 1)
+        )
+        
+        return Sv, StN        
+
+    @classmethod    
     def _scalar_water_absorption_coeff(self,T, S, z, f, pH):
         '''
         Calculate water absorption coefficient.
@@ -960,7 +860,7 @@ class ADCP():
         
         return alpha_w
     
-    
+    @classmethod
     def _scalar_sediment_absorption_coeff(self,ps, pw, d, SSC, T,S, f,z):
         '''
         Calculate sediment absorption coefficient.
@@ -996,8 +896,9 @@ class ADCP():
         alpha_s = (k**4) * (d**3) / (96 * ps) + k * ((sig - 1)**2) / (2 * ps) + \
                   (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
     
-        return alpha_s     
-        
+        return alpha_s   
+    
+    @classmethod    
     def calculate_ssc_from_backscatter(self, A1: float, B1: float, A2: float) -> None:
         """
         Calculate SSC from absolute backscatter using iterative alpha correction.

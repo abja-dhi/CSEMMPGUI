@@ -224,97 +224,80 @@ class PositionSetupGUI:
 class ADCPPosition:
     """
     Class to handle ADCP position data.
-    
-    Attributes:
-        fname (str): Path to the position data file.
-        epsg (int): EPSG code for the coordinate reference system.
+
+    Attributes
+    ----------
+    fname : str
+        Path to the position data file.
+    epsg : int
+        EPSG code for the coordinate reference system.
     """
     _Vars = ["X", "Y", "Depth", "Pitch", "Roll", "Heading", "DateTime"]
-    def __init__(self, cfg: Dict[str, Any]) -> None:
-        self.logger = Utils.get_logger()
-        #_cfg = cfg
-        #fname = _cfg.get("position_data", "")
-        #fname = Utils._validate_file_path(fname, Constants._CFG_SUFFIX)
-        self._cfg = cfg #Utils._parse_kv_file(fname)
-        fname = self._cfg.get("filename", "")
-        self.fname = Utils._validate_file_path(fname, Constants._TABLE_SUFFIX)
-        self.extension = self.fname.suffix.lower()
-        self.epsg = self._cfg.get("epsg", "4326")
-        self.skiprows = int(self._cfg.get("skiprows", 0))
-        self.sep = self._cfg.get("sep", ",")
-        self.header = int(self._cfg.get("header", 0))
 
-        self.modes = {}
-        self.values = {}
-        self.columns = {}
+    def __init__(self, cfg: Dict[str, Any]) -> None:
+        self._cfg = cfg
+        fname = self._cfg.get("filename", "")
+        self._fname = Utils._validate_file_path(fname, Constants._TABLE_SUFFIX)
+        self._extension = self._fname.suffix.lower()
+        self.epsg = self._cfg.get("epsg", "4326")
+        self._skiprows = int(self._cfg.get("skiprows", 0))
+        self._sep = self._cfg.get("sep", ",")
+        self._header = int(self._cfg.get("header", 0))
+
+        self._modes = {}
+        self._values = {}
+        self._columns = {}
 
         for var in self._Vars:
-            self.modes[var] = self._cfg.get(f"{var}_mode", "Variable")
-            if self.modes[var] == "Variable":
+            self._modes[var] = self._cfg.get(f"{var}_mode", "Variable")
+            if self._modes[var] == "Variable":
                 col = self._cfg.get(f"{var}_value", "")
                 if col:
-                    self.columns[var] = col
+                    self._columns[var] = col
                 else:
                     raise ValueError(f"Variable {var} is set to 'Variable' but no column is specified.")
             else:
                 val = self._cfg.get(f"{var}_value", 0.0)
-                self.values[var] = float(val)
+                self._values[var] = float(val)
 
-        self.all_const = False
-        if len(self.columns) == 0:
-            self.all_const = True
+        self._all_const = len(self._columns) == 0
 
-        if not self.all_const:
-            if self.fname.suffix.lower() == ".csv":
-                self.df = pd.read_csv(self.fname, skiprows=self.skiprows, sep=self.sep, header=self.header)
-            elif self.fname.suffix.lower() in {".xls", ".xlsx"}:
-                self.df = pd.read_excel(self.fname, skiprows=self.skiprows, header=self.header)
+        if not self._all_const:
+            if self._fname.suffix.lower() == ".csv":
+                self._df = pd.read_csv(self._fname, skiprows=self._skiprows, sep=self._sep, header=self._header)
+            elif self._fname.suffix.lower() in {".xls", ".xlsx"}:
+                self._df = pd.read_excel(self._fname, skiprows=self._skiprows, header=self._header)
             else:
-                raise ValueError(f"Unsupported file format: {self.fname.suffix}. Supported formats are .csv, .xls, .xlsx.")
-            for var in self.columns.keys():
-                self.values[var] = self.df[self.columns[var]].to_numpy()
-            
+                raise ValueError(f"Unsupported file format: {self._fname.suffix}. Supported formats are .csv, .xls, .xlsx.")
+            for var in self._columns.keys():
+                self._values[var] = self._df[self._columns[var]].to_numpy()
 
-        
-        #TODO: Add support for z_convention and resample_method
         # self.z_convention = self._cfg.get("z_convention", "normal")
         # self.resample_method = self._cfg.get("resample_method", "nearest")
-        
-        self.x = self.values["X"]
-        self.y = self.values["Y"]
-        self.z = self.values["Depth"]
-        self.pitch = self.values["Pitch"]
-        self.roll = self.values["Roll"]
-        self.heading = self.values["Heading"]
-        self.t = self.values["DateTime"]
-        self.broadcast_constants_to_match_variable_dims()
-        
-        
-        Utils.info(
-            logger=self.logger,
-            msg=f"ADCP position data loaded from {self.fname}",
-            level=self.__class__.__name__
-            )
-            
+
+        self.x = self._values["X"]
+        self.y = self._values["Y"]
+        self.z = self._values["Depth"]
+        self.pitch = self._values["Pitch"]
+        self.roll = self._values["Roll"]
+        self.heading = self._values["Heading"]
+        self.t = self._values["DateTime"]
+        self._broadcast_constants_to_match_variable_dims()
+
         self.t = pd.to_datetime(self.t, errors='coerce')
-        # self.coords = XYZ(x=self.df.x.to_numpy(), y=self.df.y.to_numpy(), z=self.df.z.to_numpy())
 
     def load(self) -> None:
         pass
-    
+
     def resample_to(self, new_times: np.ndarray) -> None:
         """
         Resample position and orientation data to match a new datetime index.
-    
+
         Parameters
         ----------
         new_times : pd.DatetimeIndex
-            Target time series to resample to. Each of x, y, z, pitch, roll, heading, and t
-            will be interpolated using nearest-neighbor and aligned to this time index.
+            Target time series to resample to.
         """
-        if not isinstance(self.t, (np.ndarray, pd.Series, pd.DatetimeIndex)):
-            raise ValueError("Existing self.t must be a time series to perform resampling.")
-    
         df = pd.DataFrame({
             'x': self.x,
             'y': self.y,
@@ -323,11 +306,11 @@ class ADCPPosition:
             'roll': self.roll,
             'heading': self.heading
         }, index=pd.to_datetime(self.t))
-    
+
         df_resampled = df.reindex(new_times, method='nearest', tolerance=pd.Timedelta("30s"))
         if df_resampled.isnull().any().any():
             raise ValueError("Resampling failed for some timestamps. Consider adjusting tolerance.")
-    
+
         self.x = df_resampled['x'].values
         self.y = df_resampled['y'].values
         self.z = df_resampled['z'].values
@@ -335,11 +318,10 @@ class ADCPPosition:
         self.roll = df_resampled['roll'].values
         self.heading = df_resampled['heading'].values
         self.t = new_times
-        
         #print(new_times)
         #print(f'New length is {len(self.t)}')
     
-    def broadcast_constants_to_match_variable_dims(self) -> None:
+    def _broadcast_constants_to_match_variable_dims(self) -> None:
         """
         Broadcast constant-valued position attributes to match the length of variable inputs.
         Assumes 'self.t' is variable and defines the target length.
@@ -355,90 +337,12 @@ class ADCPPosition:
             if isinstance(val, (float, int)):
                 setattr(self, attr, np.full(n, val, dtype=float))
                 
-    def plot_position(self, ax: Axes = None) -> Axes:
-        if ax is None:
-            fig, ax = PlottingShell.subplots()
-        s = ax.scatter(self.x, self.y, s=5, c=self.z, cmap='jet_r')
-        ax.set_xlabel("Easting (m)")
-        ax.set_ylabel("Northing (m)")
-        ax.set_aspect('equal')
-        ax.grid(alpha=0.3, color='white')
-        ax.set_facecolor('lightgray')
-        fig = ax.figure
-        fig.colorbar(s, ax=ax, label='Depth (m)')
-        return ax
 
-    def plot_depth(self, ax: Axes = None) -> Axes:
-        if ax is None:
-            fig, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3.5, figwidth=10)
-        ax.scatter(self.t, self.z, s=5, c=self.z, cmap='jet_r')
-        ax.set_ylabel("Depth (m)")
-        ax.grid(alpha=0.3, color='white')
-        ax.set_facecolor('lightgray')
-        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-        ax.xaxis.set_major_formatter(mdates.DateFormatter(PlottingShell._DATETIME_FORMAT))
-        return ax
-
-    def plot_pitch_roll(self, ax: Axes = None) -> Axes:
-        if ax is None:
-            fig, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3.5, figwidth=10)
-        ax.plot(self.t, self.pitch, lw=1, ls='--', c='black', alpha=0.9, label='Pitch')
-        ax.plot(self.t, self.roll, lw=1, ls='-', c='black', alpha=0.9, label='Roll')
-        ax.set_ylabel("Pitch/Roll (degrees)")
-        ax.grid(alpha=0.3, color='white')
-        ax.set_facecolor('lightgray')
-        ax.legend(loc='upper right')
-        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
-        ax.xaxis.set_major_formatter(mdates.DateFormatter(PlottingShell._DATETIME_FORMAT))
-        return ax
-
-    def plot(self, ax: Tuple[Axes, Axes, Axes]=None):
-        """
-        Plot the ADCP position data on the given axes.
-        
-        Parameters
-        ----------
-            ax (Tuple[Axes, Axes, Axes], optional): Axes to plot on. If None, a new figure and axes will be created.
-        
-        Returns
-        -------
-            Tuple[Axes, Axes, Axes]: The axes with the plotted data.
-        """
-        plot_position = False
-        plot_depth = False
-        plot_pitch_roll = False
-        if ax is None:
-            fig, ax = PlottingShell.subplots(nrow=3, ncol=1, figheight=8, figwidth=11)
-            plot_position = True
-            plot_depth = True
-            plot_pitch_roll = True
-        else:
-            if isinstance(ax, Axes):
-                ax = (ax)
-                plot_position = True
-            elif len(ax) == 2:
-                plot_position = True
-                plot_depth = True
-            elif len(ax) == 3:
-                plot_position = True
-                plot_depth = True
-                plot_pitch_roll = True
-        if plot_position:
-            ax[0] = self.plot_position(ax[0])
-            ax[0].set_title("Position")
-        if plot_depth:
-            ax[1] = self.plot_depth(ax[1])
-            ax[1].set_title("Depth")
-        if plot_pitch_roll:
-            ax[2] = self.plot_pitch_roll(ax[2])
-            ax[2].set_title("Pitch and Roll")
-
-        return ax
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(\n"
-            f"fname={self.fname}\n"
+            f"fname={self._fname}\n"
             f"epsg={self.epsg}\n"
-            f"columns={list(self.df.columns)}\n)"
+            f"columns={list(self._df.columns)}\n)"
         )
