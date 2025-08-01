@@ -124,18 +124,19 @@ class ADCP():
             echo_intensity: np.ndarray = field(metadata={"desc": "Raw echo intensity from each beam. Unitless ADC counts representing backscatter strength."})
             correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude from each beam, used as a data quality metric."})
             percent_good: np.ndarray = field(metadata={"desc": "Percentage of good data for each beam and cell, based on instrument quality control logic."})
-            absolute_backscatter: np.ndarray = field(metadata={"desc": "Calibrated absolute backscatter in dB, derived from raw echo intensity using beam-specific corrections."})
-            suspended_solids_concentration: np.ndarray = field(metadata={"desc": "Estimated suspended solids concentration (e.g., mg/L) derived from absolute backscatter using calibration coefficients."})
-            signal_to_noise_ratio: np.ndarray = field(metadata={"desc": "SNR in dB, calculated as the difference between backscatter and instrument noise floor."})
-
+            absolute_backscatter: np.ndarray = field(default=None, metadata={"desc": "Calibrated absolute backscatter in dB, derived from raw echo intensity using beam-specific corrections."})
+            signal_to_noise_ratio: np.ndarray = field(default=None, metadata={"desc": "SNR in dB, calculated as the difference between backscatter and instrument noise floor."})
+            suspended_solids_concentration: np.ndarray = field(default=None, metadata={"desc": "Estimated suspended solids concentration (e.g., mg/L) derived from absolute backscatter using calibration coefficients."})
+            sediment_attenuation: np.ndarray = field(default=None, metadata={"desc": "Estimated acoustic power attenuation due to suspended sediments in water (dB/km)"})
 
         self.beam_data = ADCPBeamData(
             echo_intensity=self._pd0._get_echo_intensity(),
             correlation_magnitude=self._pd0._get_correlation_magnitude(),
             percent_good=self._pd0._get_percent_good(),
-            absolute_backscatter = None,  # optional if calculated later
+            absolute_backscatter = None,  # placeholder until compute
             suspended_solids_concentration=None,  # placeholder until compute 
-            signal_to_noise_ratio = None
+            signal_to_noise_ratio = None, # placeholder until compute
+            sediment_attenuation = None,  # placeholder until compute
             )
         
         @dataclass
@@ -221,19 +222,109 @@ class ADCP():
             ref_layer_near_bl = np.array([bt.ref_layer_near_bl for bt in bt_list]),
         )
     
+    
+
+
+        @dataclass
+        class ADCPAuxSensorData:
+            pressure: NDArray[np.float64] = field(
+                metadata={"desc": "Water pressure at the transducer head (dbar), scaled from 0.1 Pa. Range: 0–4,294,967 dbar. Requires external pressure sensor; likely manually specified if absent."}
+            )
+            pressure_var: NDArray[np.float64] = field(
+                metadata={"desc": "Pressure variance (dbar²), scaled from 0.1 Pa². Range: 0–4,294,967 dbar². Requires external pressure sensor; likely manually specified if absent."}
+            )
+            depth_of_transducer: NDArray[np.float64] = field(
+                metadata={"desc": "Depth of transducer below water surface (m), scaled from decimeters. Range: 0.1–999.9 m. May be set manually or computed from pressure sensor."}
+            )
+            temperature: NDArray[np.float64] = field(
+                metadata={"desc": "Water temperature (°C), scaled from 0.01°C. Range: -5.00–40.00°C. Requires external temperature sensor; may be manually set if absent."}
+            )
+            salinity: NDArray[np.float64] = field(
+                metadata={"desc": "Water salinity (PSU), 1:1 scaling. Range: 0–40 PSU. Requires external conductivity sensor; typically manually specified."}
+            )
+            speed_of_sound: NDArray[np.float64] = field(
+                metadata={"desc": "Speed of sound (m/s). Range: 1400–1600 m/s. May be derived from temperature, salinity, and pressure; otherwise, manually set."}
+            )
+            heading: NDArray[np.float64] = field(
+                metadata={"desc": "Instrument heading (°), scaled from 0.01°. Range: 0.00–359.99°. Requires internal compass or external gyro."}
+            )
+            pitch: NDArray[np.float64] = field(
+                metadata={"desc": "Pitch angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
+            )
+            roll: NDArray[np.float64] = field(
+                metadata={"desc": "Roll angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
+            )
+            heading_std: NDArray[np.float64] = field(
+                metadata={"desc": "Heading standard deviation (°). Range: 0–180°. Requires internal or external compass."}
+            )
+            pitch_std: NDArray[np.float64] = field(
+                metadata={"desc": "Pitch standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
+            )
+            roll_std: NDArray[np.float64] = field(
+                metadata={"desc": "Roll standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
+            )
+
+            
+        vl = self._pd0._get_variable_leader()
+        
+        self.aux_sensor_data = ADCPAuxSensorData(
+            pressure=np.array([v.pressure * 0.001 for v in vl]),  # decapascal → dbar
+            pressure_var=np.array([v.pressure_sensor_variance * 0.001 for v in vl]),
+            depth_of_transducer=np.array([v.depth_of_transducer_ed * 0.1 for v in vl]),  # dm → m
+            temperature=np.array([v.temperature_et  for v in vl]),
+            salinity=np.array([v.salinity_es for v in vl]),
+            speed_of_sound=np.array([v.speed_of_sound_ec for v in vl]),
+            heading=np.array([v.heading_eh * 0.01 for v in vl]),
+            pitch=np.array([v.pitch_tilt_1_ep * 0.01 for v in vl]),
+            roll=np.array([v.roll_tilt_2_er * 0.01 for v in vl]),
+            heading_std=np.array([v.hdg_std_dev for v in vl]),
+            pitch_std=np.array([v.pitch_std_dev * 0.1 for v in vl]),
+            roll_std=np.array([v.roll_std_dev * 0.1 for v in vl]),
+        )
+                    
+        @dataclass
+        class WaterProperties:
+            density: NDArray[np.float64] = field(metadata={"desc": "Water density (kg/m³)."})
+            salinity: NDArray[np.float64] = field(metadata={"desc": "Water salinity (PSU)."})
+            temperature: NDArray[np.float64] = field(metadata={"desc": "Water temperature (°C)."})
+            pH: NDArray[np.float64] = field(metadata={"desc": "Water pH (unitless)."})
+        
+        # default typical Singapore coastal values:
+        # Density: ~1023 kg/m³, Salinity: ~30 PSU, Temp: ~28°C, pH: ~8.1
+        
+        wp_cfg = self._cfg.get('water_properties', {})
+        self.water_properties = WaterProperties(
+            density=np.array(wp_cfg.get('density', [1023.0]), dtype=np.float64),
+            salinity=np.array(wp_cfg.get('salinity', [30.0]), dtype=np.float64),
+            temperature=np.array(wp_cfg.get('temperature', [28.0]), dtype=np.float64),
+            pH=np.array(wp_cfg.get('pH', [8.1]), dtype=np.float64),
+        )    
+                
+        @dataclass
+        class SedimentProperties:
+            particle_diameter: NDArray[np.float64] = field(metadata={"desc": "Median particle diameter (µm)."})
+            particle_density: NDArray[np.float64] = field(metadata={"desc": "Particle density (kg/m³)."})
+        
+        # Default: 30 µm diameter (fine silt), 2650 kg/m³ (quartz)
+        sed_cfg = self._cfg.get('sediment_properties', {})
+        self.sediment_properties = SedimentProperties(
+            particle_diameter=np.array(sed_cfg.get('particle_diameter', [30.0]), dtype=np.float64),
+            particle_density=np.array(sed_cfg.get('particle_density', [2650.0]), dtype=np.float64),
+        )   
+
+         
         @dataclass
         class AbsoluteBackscatterParams:
             """Parameters used in calculating absolute backscatter from echo intensity."""
-            E_r: float = field(default=39.0, metadata={"desc": "Noise floor (counts)"})
+            E_r: Optional[float] = field(default=39.0, metadata={"desc": "Noise floor (counts)"})
             C: Optional[float] = field(default=None, metadata={"desc": "System-specific calibration constant (dB)"})
             alpha: Optional[float] = field(default=None, metadata={"desc": "Attenuation coefficient (dB/m)"})
             P_dbw: Optional[float] = field(default=None, metadata={"desc": "Transmit power (dBW)"})
-            rssi: Dict[int, float] = field(
-                default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},
-                metadata={"desc": "RSSI scaling factors per beam"}
-            )
+            rssi: Dict[int, float] = field(default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},metadata={"desc": "RSSI scaling factors per beam"}),
+            frequency: float = field(default=None, metadata={"desc": "System frequency"})
+    
             
-        def gen_abs_backscatter_params_from_adcp(adcp: ADCP) -> AbsoluteBackscatterParams:
+        def _gen_abs_backscatter_params_from_adcp(adcp: ADCP) -> AbsoluteBackscatterParams:
             """Derive absolute backscatter parameters from an ADCP instance."""
         
             # Determine system-specific default C based on bandwidth
@@ -268,10 +359,11 @@ class ADCP():
                 C=C,
                 alpha=alpha,
                 P_dbw=P_dbw,
-                rssi=rssi
+                rssi=rssi,
+                frequency = freq
             )
         
-        self.abs_params = gen_abs_backscatter_params_from_adcp(self)
+        self.abs_params = _gen_abs_backscatter_params_from_adcp(self)
         
         
         ABS,StN = self._calculate_absolute_backscatter(self)
@@ -310,29 +402,20 @@ class ADCP():
             first_good_ensemble=int(self._cfg.get('first_good_ensemble', 1)),
             last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
             )
-        #self.bottom_track = build_bottom_track_data()
-        # class ADCPModelParams:
-        #     A,B,Water density, etc. 
-        # # self.time = ADCPTime(
-        # #     n_ensembles = )
         
+        
+        ## TO-DO 
+        # Apply masking to beam data and velocity data separately
+        # apply bottom track masking
+        # SSC estimation, with ability to handle Nan values
+        # accept SSC conversion parameters A and B
+    
+        # #calculate SSC and absolute backscatter
+        # ABS,SSC,Alpha_s = self._calculate_ssc()
+        # self.beam_data.absolute_backscatter = ABS
+        # self.beam_data.suspended_sediments_concentration = SSC
+        # self.beam_data.sediment_attenuation = Alpha_s
 
-        
-
-        
-        #class BeamData:
-            
-        # self.get_datetimes()
-        # self.plot = Plotting(self)
-        # #self.calculate_beam_geometry()
-        
-        
-        # if hasattr(self.position, "x"):
-        #     print("Position has attribute 'x'")
-        
-        
-
-        #self.print_info()
 
     def __repr__(self) -> str:  # pragma: no cover
         return (
@@ -881,7 +964,7 @@ class ADCP():
         return alpha_s   
     
     @classmethod    
-    def calculate_ssc_from_backscatter(self, A1: float, B1: float, A2: float) -> None:
+    def _calculate_ssc(self, A1: float, B1: float, A2: float) -> None:
         """
         Calculate SSC from absolute backscatter using iterative alpha correction.
     
@@ -894,63 +977,61 @@ class ADCP():
         A2 : float
             Coefficient for NTU to SSC conversion.
         """
-        self.mask.set_mask_status(False)
+        #self.mask.set_mask_status(False)
     
         # ---------- Instrument + CTD data ----------
-        E_r = 39
-        WB = self.fixed_leaders[0].system_bandwidth_wb
-        C = -139.09 if WB == 0 else -149.14
+        E_r = self.abs_params.E_r
+        WB = self._pd0._fixed.system_bandwidth_wb
+        C = self.abs_params.C
     
-        k_c = {1: self.rssi_beam_1,
-               2: self.rssi_beam_2,
-               3: self.rssi_beam3,
-               4: self.rssi_beam4}
+        k_c = {1: self.abs_params.rssi_beam_1,
+               2: self.abs_params.rssi_beam_2,
+               3: self.abs_params.rssi_beam3,
+               4: self.abs_params.rssi_beam4}
         
         
         
-        freq_str = self.fixed_leaders[0].system_configuration.frequency
-        P_dbw = {"300-kHz": 14, "600-kHz": 9, "75-kHz": 27.3}[freq_str]
+
+        P_dbw = self.abs_params.P_dbw
     
         # Sensor and geometry data
-        temperature = self.get_sensor_temperature()
-        bin_distances = self.get_bin_midpoints()
-        pulse_lengths = self.get_sensor_transmit_pulse_length()
-        bin_depths = abs(self.get_bin_midpoints_depth())
-        instrument_freq = int(freq_str.split("-")[0])
-    
-    
-    
-        ## andy paused here, need to accept these as constant inputs, 
         
-        # CTD data (assume self.df_ctd exists)
-        df_ctd = self.df_ctd[self.name] if self.multi_source else self.df_ctd
-        df_ctd = df_ctd.reindex(self.get_datetimes(), method='nearest')
-        temp = df_ctd['Temperature (C)'].to_numpy()
-        pressure = df_ctd['Pressure (dbar)'].to_numpy()
-        salinity = df_ctd['Salinity (PSU)'].to_numpy()
-        water_density = df_ctd['Density (kg/m3)'].to_numpy()
+        bin_distances = self.geometry.bin_midpoint_distances
+        pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
+        bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
+        instrument_freq = self.abs_params.frequency
     
+        # water properties
+        temperature = self.water_properties.temperature
+        pressure = self.aux_sensor_data.pressure
+        salinity  = self.water_properties.salinity
+        density = self.water_properties.density
+
+
         # Reshape for broadcast
-        nc = self.n_cells
-        ne = self.n_ensembles
-        temp = np.outer(temp, np.ones(nc)).T
-        pressure = np.outer(pressure, np.ones(nc)).T
-        salinity = np.outer(salinity, np.ones(nc)).T
+        nc = self.geometry.n_bins
+        ne = self.time.n_ensembles
+        
+        temp = temperature*np.ones(ne,nc)
+        pressure = pressure*np.ones(ne,nc)
+        salinity = nsalinity*np.ones(ne,nc)
+        water_density = water_density*np.ones(ne,nc)
+    
         pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
         bin_distances = np.outer(bin_distances, np.ones(ne))
-        water_density = np.outer(water_density, np.ones(nc)).T
+        
     
         if self.beam_facing == 'DOWN':
-            pressure += bin_distances
+            pressure += bin_distances*0.98 # approximation of depth to pressure
         else:
-            pressure -= bin_distances
+            pressure -= bin_distances*0.98 # approximation of depth to pressure
     
         # Absorption from water
         alpha_w = self.processing.water_absorption_coeff(
             T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
     
         # Echo intensity
-        E = self.get_echo_intensity()
+        E = self.beam_data.echo_intensity
     
         # ---------- Init arrays ----------
         ABS = np.full_like(E, np.nan, dtype=float)
@@ -961,13 +1042,16 @@ class ADCP():
         for bm in range(self.n_beams):
             for bn in range(self.n_cells):
                 if bn == 0:
+                    
+                    ##Andy fix this line with better initial SSC estimate
                     ssc = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(E[bm, bn], A=A1, B=B1), A=A2) # starting SSC from sensor 
+                    
                     for _ in range(100):
                         alpha_s = self.processing.sediment_absorption_coeff(
-                            ps=1800,
+                            ps=self.sediment_properties.particle_density,
                             pw=water_density[bn],
                             z=pressure[bn],
-                            d=100e-6,
+                            d=self.sediment_properties.particle_diameter,
                             SSC=ssc,
                             T=temp[bn],
                             S=salinity[bn],
@@ -984,7 +1068,7 @@ class ADCP():
                             Tx_PL=pulse_lengths[bn],
                             P_DBW=P_dbw
                         )
-                        ssc_new = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2)
+                        ssc_new = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2) ## andy fix this too
                         if np.allclose(ssc_new, ssc, rtol=0, atol=1e-6, equal_nan=True):
                             break
                         ssc = ssc_new
@@ -994,10 +1078,10 @@ class ADCP():
                 else:
                     ssc = np.nanmean(SSC[bm, :bn], axis=0)
                     alpha_s = self.processing.sediment_absorption_coeff(
-                        ps=1800,
+                        ps=self.sediment_properties.particle_density,
                         pw=water_density[bn],
                         z=pressure[bn],
-                        d=100e-6,
+                        d=self.sediment_properties.particle_diameter,
                         SSC=ssc,
                         T=temp[bn],
                         S=salinity[bn],
@@ -1018,10 +1102,11 @@ class ADCP():
                     SSC[bm, bn] = pp.ptools.NTU_to_SSC(pp.ptools.ABS_to_NTU(sv, A=A1, B=B1), A=A2)
                     Alpha_s[bm, bn] = alpha_s
     
-        # ---------- Store outputs ----------
-        self.processing.append_to_ensembles(ABS, 'ABSOLUTE BACKSCATTER')
-        self.processing.append_to_ensembles(SSC, 'SSC')
-        self.processing.append_to_ensembles(Alpha_s, 'SEDIMENT ATTENUATION (dB/km)')
+        
+        
+        return ABS,SSC,Alpha_s
+    
+
             
             
 

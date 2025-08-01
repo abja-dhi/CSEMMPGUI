@@ -56,6 +56,15 @@ for i,fpath in enumerate(pos_fpaths):
     #position_datasets.append(ADCPPosition(cfg))
 
 #%%
+
+water_properties =  {'density':1023,
+                     'salinity': 130,
+                     'temperature':28,
+                     'pH': 8.1}
+
+sediment_properties = {'particle_diameter':30,
+                       'particle_density':2650}
+
 cfgs = []
 position_datasets = []
 adcps = []
@@ -87,6 +96,8 @@ for i,fpath in enumerate(pd0_fpaths):
            'transect_shift_y': 0.0,
            'transect_shift_z': 0.0,
            'transect_shift_t': 0.0,
+           'water_properties': water_properties,
+           'sediment_properties':sediment_properties
            }
     
     adcp = DatasetADCP(cfg, name = name)
