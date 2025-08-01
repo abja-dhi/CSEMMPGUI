@@ -53,7 +53,7 @@ namespace CSEMMPGUI_v1
                 Description = "Select Project Directory",
                 ShowNewFolderButton = true,
                 SelectedPath = txtProjectDir.Text.Trim(),
-                InitialDirectory = ConfigData.GetProjectDir()
+                InitialDirectory = ConfigurationManager.GetSetting(settingName: "Directory")
             };
             if (fbd.ShowDialog() == DialogResult.OK)
             {
@@ -103,6 +103,7 @@ namespace CSEMMPGUI_v1
             txtProjectDir.Text = ConfigurationManager.GetSetting(settingName: "Directory");
             txtProjectEPSG.Text = ConfigurationManager.GetSetting(settingName: "EPSG");
             txtProjectDescription.Text = ConfigurationManager.GetSetting(settingName: "Description");
+            isSaved = true; // Initially, fields are populated and considered saved
         }
 
         
