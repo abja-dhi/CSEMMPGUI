@@ -343,5 +343,38 @@ namespace CSEMMPGUI_v1
         {
             FillTree(); // Refresh the tree view when the form is activated
         }
+
+        private void itemPlot_Click(object sender, EventArgs e)
+        {
+            TreeNode? selectedNode = treeProject.SelectedNode;
+            if (selectedNode != null && selectedNode.Tag is XmlNode xmlNode)
+            {
+                string type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
+                string name = xmlNode.Attributes?["name"]?.Value ?? xmlNode.Name;
+
+                switch (type)
+                {
+                    case "Project":
+                        MessageBox.Show($"Opening project: {name}", "Open Project", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                    case "Survey":
+                        MessageBox.Show($"Opening survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Implement survey opening logic here
+                        break;
+                    case "Model":
+                        PlotModel plotModel = new PlotModel(xmlNode);
+                        plotModel.ShowDialog();
+                        break;
+                    case "VesselMountedADCP":
+                        MessageBox.Show($"Opening vessel-mounted ADCP: {name}", "Open Vessel-Mounted ADCP", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Implement vessel-mounted ADCP opening logic here
+                        break;
+                    case "WaterSample":
+                        MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Implement water sample opening logic here
+                        break;
+                }
+            }
+        }
     }
 }

@@ -176,3 +176,4 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.UtilsNTU2SSC.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1._AboutUs.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.__PlumeTrack.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.PlotModel.resources

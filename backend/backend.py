@@ -2,9 +2,6 @@
 import xml.etree.ElementTree as ET
 from .tasks import *
 
-currd = r"C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests"
-test_log = f"{currd}\test_log.txt"
-
 def Call(XML):
 
     root = ET.fromstring(XML)
@@ -31,7 +28,6 @@ def Call(XML):
     elif task_type == "InstrumentSummaryADCP":
         filepath = root.find("Path").text
         results = InstrumentSummaryADCP(filepath)
-        print(results)
         
     else:
         results = {"Status": "Error", "Message": "Unknown task type"}

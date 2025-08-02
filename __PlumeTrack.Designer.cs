@@ -209,25 +209,26 @@
             // 
             cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
             cmenuNode.Name = "contextMenuStrip1";
-            cmenuNode.Size = new Size(108, 70);
+            cmenuNode.Size = new Size(181, 92);
             // 
             // itemOpen
             // 
             itemOpen.Name = "itemOpen";
-            itemOpen.Size = new Size(107, 22);
+            itemOpen.Size = new Size(180, 22);
             itemOpen.Text = "Open";
             itemOpen.Click += itemOpen_Click;
             // 
             // itemPlot
             // 
             itemPlot.Name = "itemPlot";
-            itemPlot.Size = new Size(107, 22);
+            itemPlot.Size = new Size(180, 22);
             itemPlot.Text = "Plot";
+            itemPlot.Click += itemPlot_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
-            itemDelete.Size = new Size(107, 22);
+            itemDelete.Size = new Size(180, 22);
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
@@ -268,7 +269,7 @@
             txtName.Text = "New Project";
             txtName.Leave += txtName_Leave;
             // 
-            // PlumeTrack
+            // __PlumeTrack
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -278,7 +279,7 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "PlumeTrack";
+            Name = "__PlumeTrack";
             Text = "Plume Track";
             Activated += frmMain_Activated;
             FormClosing += frmMain_FormClosing;

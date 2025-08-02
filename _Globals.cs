@@ -16,5 +16,8 @@ namespace CSEMMPGUI_v1
 
         // XML document for project configuration
         public static XmlDocument Config { get; private set; } = new XmlDocument();
+
+        // Global pathes
+        public static string _ColorMapsPath = "colormaps";
     }
 }

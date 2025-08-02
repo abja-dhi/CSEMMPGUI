@@ -48,7 +48,7 @@ def GetColumnsFromCSV(filepath, header=0, sep=','):
         return {"NColumns": 0}
 
 
-def InstrumentSummaryADCP(filepath, task):
+def InstrumentSummaryADCP(filepath):
     """
     Generate a formatted summary report of ADCP instrument configuration and timing.
 
@@ -65,14 +65,10 @@ def InstrumentSummaryADCP(filepath, task):
     """
     
     # Load file
-    part1 = ""
-    part2 = ""
-    part3 = ""
     pd0 = Pd0Decoder(filepath, cfg={})
     
     # Extract summary metadata
     fixed_leader = pd0._fixed
-    #datetimes = [datetime(2000, 1, 1, 0, 0, 0), datetime(2001, 1, 1, 0, 0, 0)]
     datetimes = pd0._get_datetimes()
     dt_diffs = np.diff(datetimes)
     duration = datetimes[-1] - datetimes[0]
@@ -83,8 +79,8 @@ def InstrumentSummaryADCP(filepath, task):
     out = {
         "Ensemble Timing and General Metadata": {
             'Number of Ensembles': pd0._n_ensembles,
-            'First Ensemble DateTime (UTC)': str(datetimes[0]),#.strftime("%Y-%b-%d %HH:%MM:%SS"),
-            'Last Ensemble DateTime (UTC)': str(datetimes[-1]),#.strftime("%Y-%b-%d %HH:%MM:%SS"),
+            'First Ensemble DateTime (UTC)': datetimes[0].strftime("%Y-%b-%d %HH:%MM:%SS"),
+            'Last Ensemble DateTime (UTC)': datetimes[-1].strftime("%Y-%b-%d %HH:%MM:%SS"),
             'Duration (d:h:m:s)': f"{days}:{hours:02}:{minutes:02}:{seconds:02}",
             'Mean Ensemble Duration (s)': round(np.nanmean(dt_diffs).total_seconds(), 3),
             'Median Ensemble Duration (s)': round(np.nanmedian(dt_diffs).total_seconds(), 3),
@@ -169,7 +165,7 @@ def InstrumentSummaryADCP(filepath, task):
 
         lines.append("")  # Blank line between sections
 
-    report = "\n".join(lines)
+    report = "_br_".join(lines)
 
     # Format dictionary into report
     

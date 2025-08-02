@@ -28,34 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            vScrollBar1 = new VScrollBar();
-            hScrollBar1 = new HScrollBar();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VesselMountedADCPPrintConfig));
             txtConfig = new TextBox();
             SuspendLayout();
             // 
-            // vScrollBar1
-            // 
-            vScrollBar1.Dock = DockStyle.Right;
-            vScrollBar1.Location = new Point(682, 0);
-            vScrollBar1.Name = "vScrollBar1";
-            vScrollBar1.Size = new Size(30, 427);
-            vScrollBar1.TabIndex = 0;
-            // 
-            // hScrollBar1
-            // 
-            hScrollBar1.Dock = DockStyle.Bottom;
-            hScrollBar1.Location = new Point(0, 410);
-            hScrollBar1.Name = "hScrollBar1";
-            hScrollBar1.Size = new Size(682, 17);
-            hScrollBar1.TabIndex = 1;
-            // 
             // txtConfig
             // 
-            txtConfig.Dock = DockStyle.Fill;
+            txtConfig.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             txtConfig.Location = new Point(0, 0);
             txtConfig.Multiline = true;
             txtConfig.Name = "txtConfig";
-            txtConfig.Size = new Size(682, 410);
+            txtConfig.ScrollBars = ScrollBars.Both;
+            txtConfig.Size = new Size(712, 427);
             txtConfig.TabIndex = 2;
             // 
             // VesselMountedADCPPrintConfig
@@ -64,8 +48,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(712, 427);
             Controls.Add(txtConfig);
-            Controls.Add(hScrollBar1);
-            Controls.Add(vScrollBar1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "VesselMountedADCPPrintConfig";
             Text = "Vessel Mounted ADCP Config";
             Load += VesselMountedADCPPrintConfig_Load;
@@ -74,9 +57,6 @@
         }
 
         #endregion
-
-        private VScrollBar vScrollBar1;
-        private HScrollBar hScrollBar1;
         private TextBox txtConfig;
     }
 }

@@ -726,12 +726,14 @@
             // btnPrintConfig
             // 
             btnPrintConfig.Dock = DockStyle.Fill;
+            btnPrintConfig.Enabled = false;
             btnPrintConfig.Location = new Point(441, 429);
             btnPrintConfig.Name = "btnPrintConfig";
             btnPrintConfig.Size = new Size(321, 43);
             btnPrintConfig.TabIndex = 9;
             btnPrintConfig.Text = "View Instrument Config";
             btnPrintConfig.UseVisualStyleBackColor = true;
+            btnPrintConfig.Click += btnPrintConfig_Click;
             // 
             // tableInputs
             // 
@@ -1239,7 +1241,7 @@
             tableMaskingEnsembles.Size = new Size(309, 57);
             tableMaskingEnsembles.TabIndex = 1;
             // 
-            // VesselMountedADCP
+            // AddVesselMountedADCP
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -1248,7 +1250,7 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "VesselMountedADCP";
+            Name = "AddVesselMountedADCP";
             Text = "Vessel Mounted ADCP";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();

@@ -121,6 +121,7 @@ namespace CSEMMPGUI_v1
                 txtLastEnsemble.Value = nEnsembles;
                 boxConfiguration.Enabled = true;
                 boxMasking.Enabled = true;
+                btnPrintConfig.Enabled = true;
                 isSaved = false; // Mark as unsaved after loading a new PD0 file
             }
         }
@@ -361,5 +362,14 @@ namespace CSEMMPGUI_v1
             isSaved = true; // Mark as saved after saving
         }
 
+        private void btnPrintConfig_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(txtPD0Path.Text.Trim()))
+            {
+                return; // No PD0 file selected, nothing to print
+            }
+            VesselMountedADCPPrintConfig printConfigForm = new VesselMountedADCPPrintConfig(txtPD0Path.Text.Trim());
+            printConfigForm.ShowDialog();
+        }
     }
 }

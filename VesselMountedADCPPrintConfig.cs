@@ -26,21 +26,23 @@ namespace CSEMMPGUI_v1
 
         private void VesselMountedADCPPrintConfig_Load(object sender, EventArgs e)
         {
-            if (!PythonEngine.IsInitialized)
-            {
-                _Tools.InitPython();
-            }
-            var inputs = new Dictionary<string, string>
+            Dictionary<string, string> inputs = new Dictionary<string, string>
             {
                 { "Task", "InstrumentSummaryADCP" },
                 { "Path", pathToPd0 },
             };
             string xmlInput = _Tools.GenerateInput(inputs);
-            XmlDocument doc = _Tools.CallPython(xmlInput);
-            string config = doc.SelectSingleNode("/Result/Config")?.InnerText ?? "Config not found!";
-            config = config.Replace("\n", Environment.NewLine);
+            XmlDocument result = _Tools.CallPython(xmlInput);
+            Dictionary<string, string> outputs = _Tools.ParseOutput(result);
+            if (outputs.ContainsKey("Error"))
+            {
+                MessageBox.Show(outputs["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            string config = outputs["Config"];
+            config = config.Replace("_br_", Environment.NewLine);
             txtConfig.Text = config;
-            this.Text = Path.GetFileName(pathToPd0) + " - Print Configuration";
+            this.Text = $"Instrument Summary for {pathToPd0}";
         }
     }
 }
