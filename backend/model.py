@@ -3,8 +3,6 @@ from typing import Union
 import numpy as np
 import os
 import pandas as pd
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
 
 from .utils import Utils, Constants
 from .utils_dfsu import DfsuUtils
@@ -13,63 +11,18 @@ from .plotting import PlottingShell
 
 
 class Model:
-    def __init__(self, cfg: str | Path, name: str) -> None:
-        self.logger = Utils.get_logger()
-        self._config_path = Utils._validate_file_path(cfg, Constants._CFG_SUFFIX)
-        if self._config_path is None:
-            #gui = ModelSetupGUI(name=name)
-            self._config_path = gui.config_path
-        self._cfg = Utils._parse_kv_file(self._config_path)
-        if self._cfg is None:
-            #gui = ModelSetupGUI(name=name)
-            self._config_path = gui.config_path
-            self._cfg = Utils._parse_kv_file(self._config_path)
+    def __init__(self, cfg: dict) -> None:
+        self._cfg = cfg
         self.name: str = self._cfg.get("name", self._config_path.stem)
         self.fname: str = self._cfg.get("filename", None)
-        if self.fname is None:
-            Utils.error(
-                logger=self.logger,
-                msg=f"Model config '{self._config_path}' must contain 'filename' entry with a valid path to a .dfsu file",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
-        self.fname = Utils._validate_file_path(self.fname, Constants._DFSU_SUFFIX).__str__()
         self.dfsu = DfsuUtils(self.fname)
-        self.print_info()
         self.plot = Plotting(self)
 
 
     # ------------------------------------------------------------------ #
-    # Properties                                                          #
-    # ------------------------------------------------------------------ #
-    @property
-    def config_path(self) -> Path:
-        """Resolved path to the configuration file."""
-        return self._config_path
-
-    # ------------------------------------------------------------------ #
     # Methods                                                            #
     # ------------------------------------------------------------------ #
-    def print_info(self) -> None:
-        """
-        Print information about the model.
-        """
-        self._print_info(msg=f"Model '{self.name}' loaded from {self.fname}")
-        self._print_info(msg=f"Model '{self.name}' number of items: {self.dfsu.n_items}")
-        self._print_info(msg=f"Model '{self.name}' number of timesteps: {self.dfsu.n_timesteps}")
-        self._print_info(msg=f"Model '{self.name}' number of nodes in 3D domain: {self.dfsu.n_nodes}")
-        self._print_info(msg=f"Model '{self.name}' number of elements in 3D domain: {self.dfsu.n_elements}")
-        self._print_info(msg=f"Model '{self.name}' number of vertical layers: {self.dfsu.n_layers}")
-        self._print_info(msg=f"Model '{self.name}' number of nodes in 2D domain: {self.dfsu.n_nodes_2d}")
-        self._print_info(msg=f"Model '{self.name}' number of elements in 2D domain: {self.dfsu.n_elements_2d}")
-        
-    def _print_info(self, msg: str) -> None:
-        Utils.info(
-            logger=self.logger,
-            msg=msg,
-            level=self.__class__.__name__
-        )
-
+    
     def extract_transect(self, x: np.ndarray, y: np.ndarray, t: np.ndarray, item_number: int) -> np.ndarray:
         """
         Extract a transect from the model data.
@@ -91,15 +44,7 @@ class Model:
         data, _, _ = self.dfsu.extract_transect(x=x, y=y, t=t, item_number=item_number)
         return data
 
-    # ------------------------------------------------------------------ #
-    # Magic methods                                                       #
-    # ------------------------------------------------------------------ #
-    def __repr__(self) -> str:  # pragma: no cover
-        return (
-            f"{self.__class__.__name__}(\n"
-            f"name='{self.name}'\n)"
-            f"config_path='{self._config_path}'\n"
-            )
+    
     
 from matplotlib.axes import Axes
 import matplotlib.dates as mdates
@@ -110,7 +55,6 @@ class Plotting:
 
     def __init__(self, model: Model) -> None:
         self.model = model
-        self.logger = Utils.get_logger()
 
     def transect(self, x: np.ndarray, y: np.ndarray, t: np.ndarray, item_number: int, ax: Axes=None, cmap: str=None, cbar_label: str=None) -> Axes:
         """

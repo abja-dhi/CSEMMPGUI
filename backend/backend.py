@@ -12,7 +12,7 @@ def Call(XML):
 
     if task_type == "LoadPd0":
         filepath = root.find("Path").text
-        results = InstrumentSummaryADCP(filepath, task=1)
+        results = LoadPd0(filepath)
         
     elif task_type == "Extern2CSVSingle":
         filepath = root.find("Path").text
@@ -30,7 +30,7 @@ def Call(XML):
 
     elif task_type == "InstrumentSummaryADCP":
         filepath = root.find("Path").text
-        results = InstrumentSummaryADCP(filepath, task=2)
+        results = InstrumentSummaryADCP(filepath)
         print(results)
         
     else:

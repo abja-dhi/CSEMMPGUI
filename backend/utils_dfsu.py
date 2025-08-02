@@ -2,13 +2,11 @@ from mikecore.DfsuFile import DfsuFile
 import numpy as np
 from matplotlib.tri import Triangulation
 import warnings
-import logging
 
 from .utils import Utils, Constants
 
 class DfsuUtils:
     def __init__(self, fname: str) -> None:
-        self.logger = Utils.get_logger()
         self.fname = fname
         self.dfsu = DfsuFile.Open(self.fname)
         
@@ -196,13 +194,6 @@ class DfsuUtils:
             Two arrays containing the indices of the model times immediately before and after each time in `times`.
         """
         model_times = self.times
-        if not np.dtype(times.dtype) == np.dtype('datetime64[ns]'):
-            Utils.error(
-                logger=self.logger,
-                msg="Input times must be of type datetime64[ns].",
-                exc=TypeError,
-                level=self.__class__.__name__
-            )
         if isinstance(times, np.datetime64):
             times = np.array(times, dtype='datetime64[ns]')
         # Find index of the first model_time > each traj_time
@@ -231,46 +222,13 @@ class DfsuUtils:
         np.ndarray
             An array of bed elevations at the specified coordinates.
         """
-        if x is None and y is None and xy is None:
-            Utils.error(
-                logger=self.logger,
-                msg="At least one of x, y, or xy must be provided.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
         if xy is not None:
             xy = np.array(xy)
-            if x is not None or y is not None:
-                Utils.warning(
-                    logger=self.logger,
-                    msg="Both x, y and xy provided; using xy coordinates.",
-                    level=self.__class__.__name__
-                )
             x, y = xy[:, 0], xy[:, 1]
         else:
             x = np.array(x).flatten()
             y = np.array(y).flatten()    
-        if loc.lower() not in ["bottom", "surface"]:
-            Utils.error(
-                logger=self.logger,
-                msg="loc must be either 'bottom' or 'surface'.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
         addition = self.n_layers if loc.lower() == "surface" else 0
-        if xy is not None:
-            xy = np.array(xy)
-            if x is not None or y is not None:
-                Utils.warning(
-                    logger=self.logger,
-                    msg="Both x, y and xy provided; using xy coordinates.",
-                    level=self.__class__.__name__
-                )
-            x, y = xy[:, 0], xy[:, 1]
-        else:
-            x = np.array(x).flatten()
-            y = np.array(y).flatten()
-            
         bottom_layer_nodes = self.nc[::self.n_layers + 1, :2]
         xy = np.column_stack((x, y))
         elevations = []
@@ -307,33 +265,8 @@ class DfsuUtils:
         np.ndarray
             An array of shape (n_points, n_layers) containing the elevations for each layer at the specified coordinates.
         """
-        if x is None and y is None and xy is None:
-            Utils.error(
-                logger=self.logger,
-                msg="At least one of x, y, or xy must be provided.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
         if xy is not None:
             xy = np.array(xy)
-            if x is not None or y is not None:
-                Utils.warning(
-                    logger=self.logger,
-                    msg="Both x, y and xy provided; using xy coordinates.",
-                    level=self.__class__.__name__
-                )
-            x, y = xy[:, 0], xy[:, 1]
-        else:
-            x = np.array(x).flatten()
-            y = np.array(y).flatten()    
-        if xy is not None:
-            xy = np.array(xy)
-            if x is not None or y is not None:
-                Utils.warning(
-                    logger=self.logger,
-                    msg="Both x, y and xy provided; using xy coordinates.",
-                    level=self.__class__.__name__
-                )
             x, y = xy[:, 0], xy[:, 1]
         else:
             x = np.array(x).flatten()

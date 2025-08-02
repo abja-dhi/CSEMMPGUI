@@ -14,14 +14,15 @@ namespace CSEMMPGUI_v1
 {
     public partial class AddSurvey : Form
     {
-        public bool isSaved = true; // Track if survey has been saved
-        public SurveyManager surveyManager = new();
+        public bool isSaved; // Track if survey has been saved
+        public _SurveyManager surveyManager = new();
 
         public AddSurvey()
         {
             InitializeComponent();
             surveyManager.Initialize();
             txtSurveyName.Text = surveyManager.GetAttribute(attribute: "name");
+            isSaved = false; // Initially, the survey is not saved
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -76,7 +77,7 @@ namespace CSEMMPGUI_v1
 
         private void menuADCPVesselMounted_Click(object sender, EventArgs e)
         {
-            VesselMountedADCP vesselMountedADCP = new VesselMountedADCP(surveyManager);
+            AddVesselMountedADCP vesselMountedADCP = new AddVesselMountedADCP(surveyManager);
             vesselMountedADCP.ShowDialog();
         }
 

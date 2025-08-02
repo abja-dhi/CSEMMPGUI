@@ -24,10 +24,8 @@
     <Compile Include="adcp.py" />
     <Compile Include="backend.py" />
     <Compile Include="ctd.py" />
-    <Compile Include="handlers.py" />
     <Compile Include="model.py" />
     <Compile Include="pd0.py" />
-    <Compile Include="pd0_old.py" />
     <Compile Include="plotting.py" />
     <Compile Include="project.py" />
     <Compile Include="survey.py" />

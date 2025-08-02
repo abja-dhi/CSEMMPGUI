@@ -108,12 +108,7 @@ class SystemConfiguration:
         self.janus_config = None
         self.beam_angle = None
 
-    def __repr__(self):
-        return (f"SystemConfiguration(beam_facing={self.beam_facing}, "
-                f"xdcr_hd={self.xdcr_hd}, sensor_config={self.sensor_config}, "
-                f"beam_pattern={self.beam_pattern}, frequency={self.frequency}, "
-                f"janus_config={self.janus_config}, beam_angle={self.beam_angle})")
-
+    
 # class ExternalFields:
 #     def __init__(self, values_dict: Dict[str, any] = None):
 #         self.leader_id = next((values_dict[k] for k in ['leader_id', 'LEADER ID'] if k in values_dict), 6241)
@@ -140,23 +135,7 @@ class SystemConfiguration:
 #         self.rssi_beam_4 = next((values_dict[k] for k in ['rssi_beam_4', 'RSSI BEAM 4'] if k in values_dict), 0.45)
 #         self.rssi_beam_5 = next((values_dict[k] for k in ['rssi_beam_5', 'RSSI BEAM 5'] if k in values_dict), 0.45)
 #         self.rssi_beam_6 = next((values_dict[k] for k in ['rssi_beam_6', 'RSSI BEAM 6'] if k in values_dict), 0.45)
-        
-class Ensemble:
-    def __init__(self, ensemble_header: Header, fixed_leader: FixedLeader, variable_leader: VariableLeader,
-                 velocity: np.ndarray, correlation_magnitude: np.ndarray, echo_intensity: np.ndarray, percent_good: np.ndarray) -> None:
-        self.ensemble_header: Header = ensemble_header
-        self.fixed_leader: FixedLeader = fixed_leader
-        self.variable_leader: VariableLeader = variable_leader
-        self.velocity: np.ndarray = velocity
-        self.correlation_magnitude: np.ndarray = correlation_magnitude
-        self.echo_intensity: np.ndarray = echo_intensity
-        self.percent_good: np.ndarray = percent_good
-        self.bottom_track: BottomTrack = None
-        self.reserved_bit_data: Dict[str, Any] = {}
-        self.system_configuration: SystemConfiguration = None
-        self.coordinate_system: str = None
-        self.checksum_passed: bool = False 
-        self.external_fields: ExternalFields = None
+       
 
 class Pd0Decoder:
     def __init__(self, filepath: str | Path, cfg: Dict[str, Any]) -> None:
@@ -166,8 +145,6 @@ class Pd0Decoder:
         Parameters:
             file_path (str): Path to the binary PD0 file.
         """
-        
-        self.logger = Utils.get_logger()
         self.filepath = Utils._validate_file_path(filepath, Constants._PD0_SUFFIX)
         self.cfg = cfg
         self.progress_bar = self.cfg.get('progress_bar', "True").lower() in ['true', '1', 'yes']
@@ -188,7 +165,7 @@ class Pd0Decoder:
         self._bin_1_distance = self._fixed.bin_1_distance
         self._beam_angle = self._fixed.beam_angle
         self._approximate_n_ensembles = True
-        #self._get_datetimes()
+        self.status = 0
         
     def close(self):
         self.fobject.close()
@@ -216,12 +193,8 @@ class Pd0Decoder:
             try:
                 header = self.decode_fields(Pd0Formats.ensemble_header, 0)
             except Exception as e:
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Failed to decode header at position {pos}: {e}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
+                self.status = 1
+                break
                 
             if header is not None:
                 self.fobject.seek(0)  # Reset to the beginning of the file
@@ -229,12 +202,7 @@ class Pd0Decoder:
             else:
                 iter_count += 1
         if iter_count >= max_iter:
-            Utils.error(
-                logger=self.logger,
-                msg=f"No valid header found in the file after {max_iter} iterations.",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+            self.status = 1
 
     def _get_info(self, initial_offset=0) -> Tuple[Header, FixedLeader, VariableLeader]:
         self.fobject.seek(initial_offset)
@@ -414,12 +382,9 @@ class Pd0Decoder:
                 fixed_leader = FixedLeader(self.decode_fields(Pd0Formats.fixed_leader))
                 fixed_leader.system_configuration = self.decode_system_configuration(fixed_leader.system_configuration)
             except:
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Failed to decode fixed leader at ensemble {i}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
+                self.status = 1
+                break
+
             if fixed_leader.fixed_leader_id is None:
                 self._n_ensembles = i
                 self._approximate_n_ensembles = False
@@ -442,12 +407,8 @@ class Pd0Decoder:
             try:
                 variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
             except Exception as e:
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Failed to decode variable leader at ensemble {i}: {e}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
+                self.status = 1
+                break
             if variable_leader.ensemble_number is None:
                 self._n_ensembles = i
                 self._approximate_n_ensembles = False
@@ -471,12 +432,9 @@ class Pd0Decoder:
             try:
                 data = self.decode_fields(Pd0Formats.variable_leader[2:9])
             except Exception as e:
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Failed to decode variable leader at ensemble {i}: {e}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
+                self.status = 1
+                break
+
             if any(d is None for d in data.values()):
                 self._n_ensembles = i
                 self._approximate_n_ensembles = False
@@ -597,11 +555,6 @@ class Pd0Decoder:
             List[BottomTrack]: A list of BottomTrack objects for each ensemble.
         """
         if self._n_data_types < 7:
-            Utils.warning(
-                logger=self.logger,
-                msg="No bottom track data found in the PD0 file.",
-                level=self.__class__.__name__,
-            )
             return []
         self.fobject.seek(0)
         bottom_tracks = []
@@ -611,12 +564,8 @@ class Pd0Decoder:
             try:
                 bottom_track = BottomTrack(self.decode_fields(Pd0Formats.bottom_track))
             except Exception as e:
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Failed to decode bottom track at ensemble {i}: {e}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
+                self.status = 1
+                break
             if bottom_track.bottom_track_id is None:
                 self._n_ensembles = i
                 self._approximate_n_ensembles = False
@@ -692,11 +641,7 @@ class Pd0Decoder:
     #             k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
     #         else:
     #             k_c[i+1] = default_rssis.get(i+1, 0.45)
-    #             Utils.warning(
-    #                 logger=self.logger,
-    #                 msg=f"Using default RSSI value {k_c[i+1]} for beam {i+1}.",
-    #                 level=self.__class__.__name__
-    #             )
+    #             
     #     alpha = 0.5
     #     P_dbw = 8.3
     #     if self._fixed.system_configuration.frequency == '75-kHz':

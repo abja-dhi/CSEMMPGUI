@@ -75,21 +75,21 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
+            menuNew.Size = new Size(180, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(107, 22);
+            menuSave.Size = new Size(180, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(107, 22);
+            menuExit.Size = new Size(180, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -131,14 +131,14 @@
             // menuOBSVerticalProfile
             // 
             menuOBSVerticalProfile.Name = "menuOBSVerticalProfile";
-            menuOBSVerticalProfile.Size = new Size(180, 22);
+            menuOBSVerticalProfile.Size = new Size(149, 22);
             menuOBSVerticalProfile.Text = "Vertical Profile";
             menuOBSVerticalProfile.Click += menuOBSVerticalProfile_Click;
             // 
             // menuOBSTransect
             // 
             menuOBSTransect.Name = "menuOBSTransect";
-            menuOBSTransect.Size = new Size(180, 22);
+            menuOBSTransect.Size = new Size(149, 22);
             menuOBSTransect.Text = "Transect";
             menuOBSTransect.Click += menuOBSTransect_Click;
             // 
@@ -237,7 +237,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "AddSurvey";
-            Text = "AddSurvey";
+            Text = "Add Survey";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             panel1.ResumeLayout(false);

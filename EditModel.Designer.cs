@@ -32,6 +32,7 @@
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
+            menuExit = new ToolStripMenuItem();
             btnLoad = new Button();
             lblFile = new Label();
             txtFilePath = new TextBox();
@@ -53,7 +54,7 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
@@ -65,23 +66,31 @@
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
+            // menuExit
+            // 
+            menuExit.Name = "menuExit";
+            menuExit.Size = new Size(107, 22);
+            menuExit.Text = "Exit";
+            menuExit.Click += menuExit_Click;
+            // 
             // btnLoad
             // 
             btnLoad.Dock = DockStyle.Fill;
-            btnLoad.Location = new Point(683, 37);
+            btnLoad.Location = new Point(703, 33);
             btnLoad.Name = "btnLoad";
-            btnLoad.Size = new Size(114, 28);
+            btnLoad.Size = new Size(94, 24);
             btnLoad.TabIndex = 1;
             btnLoad.Text = "...";
             btnLoad.UseVisualStyleBackColor = true;
+            btnLoad.Click += btnLoad_Click;
             // 
             // lblFile
             // 
             lblFile.AutoSize = true;
             lblFile.Dock = DockStyle.Fill;
-            lblFile.Location = new Point(3, 34);
+            lblFile.Location = new Point(3, 30);
             lblFile.Name = "lblFile";
-            lblFile.Size = new Size(114, 34);
+            lblFile.Size = new Size(94, 30);
             lblFile.TabIndex = 2;
             lblFile.Text = "File";
             lblFile.TextAlign = ContentAlignment.MiddleCenter;
@@ -89,18 +98,19 @@
             // txtFilePath
             // 
             txtFilePath.Dock = DockStyle.Fill;
-            txtFilePath.Location = new Point(123, 37);
+            txtFilePath.Enabled = false;
+            txtFilePath.Location = new Point(103, 33);
             txtFilePath.Name = "txtFilePath";
-            txtFilePath.Size = new Size(554, 23);
+            txtFilePath.Size = new Size(594, 23);
             txtFilePath.TabIndex = 3;
-            txtFilePath.TextChanged += setStatus;
+            txtFilePath.TextChanged += input_Changed;
             // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.ColumnCount = 3;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
             tableLayoutPanel1.Controls.Add(lblFile, 0, 1);
             tableLayoutPanel1.Controls.Add(btnLoad, 2, 1);
             tableLayoutPanel1.Controls.Add(txtFilePath, 1, 1);
@@ -110,9 +120,9 @@
             tableLayoutPanel1.Location = new Point(0, 24);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 3;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 8F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 84F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new Size(800, 426);
             tableLayoutPanel1.TabIndex = 4;
             // 
@@ -122,7 +132,7 @@
             lblModelName.Dock = DockStyle.Fill;
             lblModelName.Location = new Point(3, 0);
             lblModelName.Name = "lblModelName";
-            lblModelName.Size = new Size(114, 34);
+            lblModelName.Size = new Size(94, 30);
             lblModelName.TabIndex = 5;
             lblModelName.Text = "Model Name";
             lblModelName.TextAlign = ContentAlignment.MiddleCenter;
@@ -131,11 +141,11 @@
             // 
             tableLayoutPanel1.SetColumnSpan(txtModelName, 2);
             txtModelName.Dock = DockStyle.Fill;
-            txtModelName.Location = new Point(123, 3);
+            txtModelName.Location = new Point(103, 3);
             txtModelName.Name = "txtModelName";
-            txtModelName.Size = new Size(674, 23);
+            txtModelName.Size = new Size(694, 23);
             txtModelName.TabIndex = 6;
-            txtModelName.TextChanged += setStatus;
+            txtModelName.TextChanged += input_Changed;
             // 
             // EditModel
             // 
@@ -172,5 +182,6 @@
         private ToolStripMenuItem menuSave;
         private Label lblModelName;
         private TextBox txtModelName;
+        private ToolStripMenuItem menuExit;
     }
 }

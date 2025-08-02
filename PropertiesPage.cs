@@ -13,12 +13,13 @@ namespace CSEMMPGUI_v1
 {
     public partial class PropertiesPage : Form
     {
-        public bool isSaved = true;
+        public bool isSaved;
 
         public PropertiesPage()
         {
             InitializeComponent();
             PopulateFields();
+            isSaved = true; // Initially, fields are populated and considered saved
         }
 
         private void menuSave_Click(object sender, EventArgs e)
@@ -44,6 +45,7 @@ namespace CSEMMPGUI_v1
                     return; // Cancel the exit
                 }
             }
+            this.Close(); // Close the properties page
         }
 
         private void btnProjectDir_Click(object sender, EventArgs e)
@@ -53,7 +55,7 @@ namespace CSEMMPGUI_v1
                 Description = "Select Project Directory",
                 ShowNewFolderButton = true,
                 SelectedPath = txtProjectDir.Text.Trim(),
-                InitialDirectory = ConfigurationManager.GetSetting(settingName: "Directory")
+                InitialDirectory = _ClassConfigurationManager.GetSetting(settingName: "Directory")
             };
             if (fbd.ShowDialog() == DialogResult.OK)
             {
@@ -91,18 +93,17 @@ namespace CSEMMPGUI_v1
 
         private void Save()
         {
-            ConfigurationManager.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
-            ConfigurationManager.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
-            ConfigurationManager.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
-            ConfigurationManager.SaveConfig();
+            _ClassConfigurationManager.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
+            _ClassConfigurationManager.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
+            _ClassConfigurationManager.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
             isSaved = true;
         }
 
         private void PopulateFields()
         {
-            txtProjectDir.Text = ConfigurationManager.GetSetting(settingName: "Directory");
-            txtProjectEPSG.Text = ConfigurationManager.GetSetting(settingName: "EPSG");
-            txtProjectDescription.Text = ConfigurationManager.GetSetting(settingName: "Description");
+            txtProjectDir.Text = _ClassConfigurationManager.GetSetting(settingName: "Directory");
+            txtProjectEPSG.Text = _ClassConfigurationManager.GetSetting(settingName: "EPSG");
+            txtProjectDescription.Text = _ClassConfigurationManager.GetSetting(settingName: "Description");
             isSaved = true; // Initially, fields are populated and considered saved
         }
 

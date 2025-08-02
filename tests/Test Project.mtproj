@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project type="Project">
+  <Settings>
+    <Name>Test Project</Name>
+    <Directory>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests</Directory>
+    <EPSG>32619</EPSG>
+    <Description>
+    </Description>
+  </Settings>
+  <Survey type="Survey" name="Survey 1" id="1">
+    <VesselMountedADCP id="1" type="VesselMountedADCP" name="ADCP2">
+      <Pd0>
+        <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A_sn24156.000</Path>
+        <Configuration>
+          <MagneticDeclination>0</MagneticDeclination>
+          <UTCOffset>0</UTCOffset>
+          <RotationAngle>0</RotationAngle>
+          <CRPOffset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>0</Z>
+          </CRPOffset>
+          <RSSICoefficients>
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
+          </RSSICoefficients>
+        </Configuration>
+        <Masking>
+          <FirstEnsemble>1</FirstEnsemble>
+          <LastEnsemble>984</LastEnsemble>
+          <MaskEchoIntensity Enabled="False">
+            <Min>0</Min>
+            <Max>255</Max>
+          </MaskEchoIntensity>
+          <MaskPercentGood Enabled="False">
+            <Min>0</Min>
+          </MaskPercentGood>
+          <MaskCorrelationMagnitude Enabled="False">
+            <Min>0</Min>
+            <Max>255</Max>
+          </MaskCorrelationMagnitude>
+          <MaskCurrentSpeed Enabled="False">
+            <Min>
+            </Min>
+            <Max>
+            </Max>
+          </MaskCurrentSpeed>
+          <MaskErrorVelocity Enabled="False">
+            <Min>
+            </Min>
+            <Max>
+            </Max>
+          </MaskErrorVelocity>
+        </Masking>
+      </Pd0>
+      <PositionData>
+        <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A Position_EPSG32611.csv</Path>
+        <DateTimeColumn>DateTime (UTC)</DateTimeColumn>
+        <XColumn>Easting</XColumn>
+        <YColumn>Northing</YColumn>
+        <HeadingColumn>Heading</HeadingColumn>
+      </PositionData>
+    </VesselMountedADCP>
+  </Survey>
+  <Model name="Model 142" type="Model" id="1">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
+  </Model>
+  <Model name="Model 22" type="Model" id="2">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
+  </Model>
+  <Model name="Model 33" type="Model" id="3">
+    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
+  </Model>
+</Project>

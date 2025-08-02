@@ -28,15 +28,15 @@ namespace CSEMMPGUI_v1
         {
             if (!PythonEngine.IsInitialized)
             {
-                Tools.InitPython();
+                _Tools.InitPython();
             }
             var inputs = new Dictionary<string, string>
             {
                 { "Task", "InstrumentSummaryADCP" },
                 { "Path", pathToPd0 },
             };
-            string xmlInput = Tools.GenerateInput(inputs);
-            XmlDocument doc = Tools.CallPython(xmlInput);
+            string xmlInput = _Tools.GenerateInput(inputs);
+            XmlDocument doc = _Tools.CallPython(xmlInput);
             string config = doc.SelectSingleNode("/Result/Config")?.InnerText ?? "Config not found!";
             config = config.Replace("\n", Environment.NewLine);
             txtConfig.Text = config;
