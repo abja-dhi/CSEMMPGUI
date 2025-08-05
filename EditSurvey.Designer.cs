@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddSurvey
+    partial class EditSurvey
     {
         /// <summary>
         /// Required designer variable.
@@ -29,10 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddSurvey));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
-            menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             menuAddData = new ToolStripMenuItem();
@@ -73,17 +71,10 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
-            // 
-            // menuNew
-            // 
-            menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
-            menuNew.Text = "New...";
-            menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
@@ -188,6 +179,7 @@
             txtSurveyName.Name = "txtSurveyName";
             txtSurveyName.Size = new Size(542, 23);
             txtSurveyName.TabIndex = 1;
+            txtSurveyName.TextChanged += txtSurveyName_TextChanged;
             // 
             // lblSurveyName
             // 
@@ -238,30 +230,30 @@
             // 
             cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
             cmenuNode.Name = "cmenuNode";
-            cmenuNode.Size = new Size(181, 92);
+            cmenuNode.Size = new Size(108, 70);
             // 
             // itemOpen
             // 
             itemOpen.Name = "itemOpen";
-            itemOpen.Size = new Size(180, 22);
+            itemOpen.Size = new Size(107, 22);
             itemOpen.Text = "Open";
             itemOpen.Click += itemOpen_Click;
             // 
             // itemPlot
             // 
             itemPlot.Name = "itemPlot";
-            itemPlot.Size = new Size(180, 22);
+            itemPlot.Size = new Size(107, 22);
             itemPlot.Text = "Plot";
             itemPlot.Click += itemPlot_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
-            itemDelete.Size = new Size(180, 22);
+            itemDelete.Size = new Size(107, 22);
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
-            // AddSurvey
+            // EditSurvey
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -269,11 +261,11 @@
             Controls.Add(tableLayoutPanel1);
             Controls.Add(panel1);
             Controls.Add(menuStrip1);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "AddSurvey";
-            Text = "Add Survey";
-            Activated += AddSurvey_Activated;
+            Name = "EditSurvey";
+            Text = "Edit Survey";
+            Activated += EditSurvey_Activated;
+            FormClosing += EditSurvey_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             panel1.ResumeLayout(false);
@@ -304,7 +296,6 @@
         private ToolStripMenuItem menuOBSVerticalProfile;
         private ToolStripMenuItem menuOBSTransect;
         private TableLayoutPanel tableLayoutPanel1;
-        private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuViSeaExtern2CSVSingle;
         private ToolStripMenuItem menuViSeaExtern2CSVBatch;
         private ToolStripMenuItem menuExit;

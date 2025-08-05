@@ -14,14 +14,11 @@ using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
-    public partial class AddWaterSample : Form
+    public partial class EditWaterSample : Form
     {
-        public _SurveyManager surveyManager;
-        public XmlDocument? project;
-        public int id;
-        XmlElement? instrument;
         public bool isSaved;
-
+        public XmlElement? waterSampleElement;
+        
 
         private const string COL_SAMPLE = "colSampleName";
         private const string COL_DATETIME = "colDateTime";
@@ -39,7 +36,7 @@ namespace CSEMMPGUI_v1
                 "d MMM, yyyy HH:mm:ss"
             };
 
-        public AddWaterSample(_SurveyManager _surveyManager)
+        public EditWaterSample(XmlNode waterSampleNode)
         {
             InitializeComponent();
             DateTime now = DateTime.Now;
@@ -50,57 +47,92 @@ namespace CSEMMPGUI_v1
             }
             DataGridViewColumn colDateTime = gridData.Columns[COL_DATETIME];
             colDateTime.ToolTipText = tooltip.TrimEnd();
-            surveyManager = _surveyManager;
-            Initialize();
+            InitializeWaterSample(waterSampleNode);
         }
 
-        public void Initialize()
+        public void InitializeWaterSample(XmlNode waterSampleNode)
         {
-            if (surveyManager.survey == null)
+            waterSampleElement = waterSampleNode as XmlElement;
+            if (waterSampleElement == null)
             {
-                throw new Exception("SurveyManager.survey is null. Cannot create instrument element.");
+                MessageBox.Show("Invalid water sample node provided.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
+
             }
-            id = _ClassConfigurationManager.NObjects(type: "//WaterSample") + 1;
-            txtName.Text = $"WaterSample {id}";
+            txtName.Text = waterSampleElement.GetAttribute("name");
             gridData.Rows.Clear();
-            instrument = surveyManager.survey.OwnerDocument.CreateElement("WaterSample");
-            instrument.SetAttribute("id", id.ToString());
-            instrument.SetAttribute("type", "WaterSample");
-            instrument.SetAttribute("name", $"WaterSample {id}");
-            project = surveyManager.survey.OwnerDocument;
-            isSaved = false;
+            foreach (XmlNode node in waterSampleElement.ChildNodes)
+            {
+                if (node is XmlElement sampleElement && node.Name == "Sample")
+                {
+                    int rowIndex = gridData.Rows.Add();
+                    DataGridViewRow row = gridData.Rows[rowIndex];
+                    row.Cells[COL_SAMPLE].Value = sampleElement.GetAttribute("Sample");
+                    row.Cells[COL_DATETIME].Value = DateTime.Parse(sampleElement.GetAttribute("DateTime")).ToString("MMMM d, yyyy HH:mm:ss");
+                    row.Cells[COL_DEPTH].Value = sampleElement.GetAttribute("Depth");
+                    row.Cells[COL_X].Value = sampleElement.GetAttribute("X");
+                    row.Cells[COL_Y].Value = sampleElement.GetAttribute("Y");
+                    row.Cells[COL_SSC].Value = sampleElement.GetAttribute("SSC");
+                    row.Cells[COL_NOTES].Value = sampleElement.GetAttribute("Notes");
+                }
+            }
+            isSaved = true;
+        }
+        
+        public int UpdateWaterSample()
+        {
+            if (waterSampleElement == null)
+            {
+                MessageBox.Show("Water sample element is not initialized.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return -1; // Return 0 to indicate failure
+            }
+            if (String.IsNullOrEmpty(txtName.Text.Trim()))
+            {
+                MessageBox.Show("Please assign a name to the water sample", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return -1; // Return 0 to indicate failure
+            }
+            if (!ValidateSampleGrid())
+            {
+                return -1; // Return 0 to indicate failure
+            }
+            waterSampleElement.SetAttribute("name", txtName.Text.Trim());
+            while (waterSampleElement.HasChildNodes && waterSampleElement.FirstChild != null)
+            {
+                waterSampleElement.RemoveChild(waterSampleElement.FirstChild);
+            }
+            foreach (DataGridViewRow row in gridData.Rows)
+            {
+                if (row.IsNewRow) continue;
+                // Get all cell values
+                string sample = row.Cells[COL_SAMPLE].Value?.ToString()?.Trim() ?? "";
+                string dtText = row.Cells[COL_DATETIME].Value?.ToString()?.Trim() ?? "";
+                DateTime dt = DateTime.ParseExact(dtText, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                string depth = row.Cells[COL_DEPTH].Value?.ToString()?.Trim() ?? "";
+                string x = row.Cells[COL_X].Value?.ToString()?.Trim() ?? "";
+                string y = row.Cells[COL_Y].Value?.ToString()?.Trim() ?? "";
+                string ssc = row.Cells[COL_SSC].Value?.ToString()?.Trim() ?? "";
+                string notes = row.Cells[COL_NOTES].Value?.ToString()?.Trim() ?? "";
+                // Create new XML element
+                XmlElement sampleNode = waterSampleElement.OwnerDocument.CreateElement("Sample");
+                sampleNode.SetAttribute("Sample", sample);
+                sampleNode.SetAttribute("DateTime", dt.ToString("o")); // ISO 8601
+                sampleNode.SetAttribute("Depth", depth);
+                sampleNode.SetAttribute("X", x);
+                sampleNode.SetAttribute("Y", y);
+                sampleNode.SetAttribute("SSC", ssc);
+                sampleNode.SetAttribute("Notes", notes);
+                waterSampleElement.AppendChild(sampleNode);
+            }
+            return 1; // Return 1 to indicate success
         }
 
         public int SaveInstrument()
         {
-            if (instrument == null)
-            {
-                throw new InvalidOperationException("Instrument is not initialized. Cannot save.");
-            }
-            int status = CreateInstrument();
-            if (status == 0)
+            int status = UpdateWaterSample();
+            if (status < 0)
                 return 0;
-            string id = instrument.GetAttribute("id");
-            if (surveyManager.survey == null)
-            {
-                throw new InvalidOperationException("SurveyManager.survey is null. Cannot save instrument.");
-            }
-            string surveyId = surveyManager.survey.GetAttribute("id");
-            string xpath = $"//Survey[@id='{surveyId}']/WaterSample[@id='{id}' and @type='WaterSample']";
-            XmlNode? existingInstrument = surveyManager.survey.SelectSingleNode(xpath);
-            if (existingInstrument != null)
-            {
-                // Update existing instrument
-                XmlNode imported = surveyManager.survey.OwnerDocument.ImportNode(instrument, true);
-                surveyManager.survey.ReplaceChild(imported, existingInstrument);
-            }
-            else
-            {
-                // Add new instrument
-                surveyManager.survey.AppendChild(instrument);
-            }
-            surveyManager.SaveSurvey(name: surveyManager.GetAttribute(attribute: "name"));
-            _ClassConfigurationManager.SaveConfig(1);
+            _ClassConfigurationManager.SaveConfig(saveMode: 1);
             isSaved = true; // Mark as saved after saving
             return 1; // Return 1 to indicate success
         }
@@ -139,92 +171,6 @@ namespace CSEMMPGUI_v1
             }
 
             return true;
-        }
-
-
-        public int CreateInstrument()
-        {
-            if (String.IsNullOrEmpty(txtName.Text.Trim()))
-            {
-                MessageBox.Show("Please assign a name to the water sample", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 0;
-            }
-            if (!ValidateSampleGrid())
-            {
-                return 0;
-            }
-            if (instrument == null)
-            {
-                throw new InvalidOperationException("Instrument is not initialized. Cannot create instrument.");
-            }
-            instrument.SetAttribute("name", txtName.Text.Trim());
-            while (instrument.HasChildNodes && instrument.FirstChild != null)
-            {
-                instrument.RemoveChild(instrument.FirstChild);
-            }
-            if (surveyManager.survey == null)
-            {
-                throw new InvalidOperationException("SurveyManager.survey is null. Cannot save instrument.");
-                return 0;
-            }
-            foreach (DataGridViewRow row in gridData.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                // Get all cell values
-                string sample = row.Cells[COL_SAMPLE].Value?.ToString()?.Trim() ?? "";
-                string dtText = row.Cells[COL_DATETIME].Value?.ToString()?.Trim() ?? "";
-                DateTime dt = DateTime.ParseExact(dtText, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
-                string depth = row.Cells[COL_DEPTH].Value?.ToString()?.Trim() ?? "";
-                string x = row.Cells[COL_X].Value?.ToString()?.Trim() ?? "";
-                string y = row.Cells[COL_Y].Value?.ToString()?.Trim() ?? "";
-                string ssc = row.Cells[COL_SSC].Value?.ToString()?.Trim() ?? "";
-                string notes = row.Cells[COL_NOTES].Value?.ToString()?.Trim() ?? "";
-
-                // Create new XML element
-                XmlElement sampleNode = surveyManager.survey.OwnerDocument.CreateElement("Sample");
-                
-                sampleNode.SetAttribute("Sample", sample);
-                sampleNode.SetAttribute("DateTime", dt.ToString("o")); // ISO 8601
-                sampleNode.SetAttribute("Depth", depth);
-                sampleNode.SetAttribute("X", x);
-                sampleNode.SetAttribute("Y", y);
-                sampleNode.SetAttribute("SSC", ssc);
-                sampleNode.SetAttribute("Notes", notes);
-
-                instrument.AppendChild(sampleNode);
-            }
-
-
-            return 1; // Return 1 to indicate success
-        }
-
-        private void menuNew_Click(object sender, EventArgs e)
-        {
-            int status = 1;
-            if (!isSaved)
-            {
-                DialogResult result = MessageBox.Show(
-                    "Current instrument has unsaved changes. Do you want to save them before creating a new instrument?",
-                    "Unsaved Changes",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Warning);
-                if (result == DialogResult.Yes)
-                {
-                    status = SaveInstrument();
-                    isSaved = true; // Mark as saved after saving
-                }
-                else if (result == DialogResult.Cancel)
-                {
-                    return; // User chose to cancel, do not create a new instrument
-                }
-            }
-            if (status == 0)
-            {
-                MessageBox.Show("Failed to save the current instrument. Please resolve any issues before creating a new one.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return; // If saving failed, do not proceed
-            }
-            Initialize(); // Reinitialize the form for a new instrument
         }
 
         private void menuSave_Click(object sender, EventArgs e)

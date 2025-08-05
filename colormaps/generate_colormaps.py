@@ -13,3 +13,5 @@ for cmap_name in cmocean.cm.cmapnames:
     path = f"{cmap_name}.png"
     plt.savefig(path, bbox_inches='tight', pad_inches=0)
     plt.close(fig)
+
+# Virdis, jet, turbo, and the reversed versions of the colormaps

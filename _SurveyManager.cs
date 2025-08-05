@@ -53,6 +53,14 @@ namespace CSEMMPGUI_v1
             if (existingSurvey != null)
             {
                 // Update existing survey
+                if (existingSurvey is XmlElement existingElement)
+                {
+                    existingElement.SetAttribute("name", survey.GetAttribute("name"));
+                }
+                else
+                {
+                    throw new InvalidOperationException("Existing survey node is not an XmlElement.");
+                }
                 XmlNode imported = _Globals.Config.ImportNode(survey, true);
                 _Globals.Config.DocumentElement?.ReplaceChild(imported, existingSurvey);
             }
@@ -61,6 +69,7 @@ namespace CSEMMPGUI_v1
                 // Add new survey
                 _Globals.Config.DocumentElement?.AppendChild(survey);
             }
+            _ClassConfigurationManager.SaveConfig(saveMode: 2);
         }
 
         public int NInstrument(string type)

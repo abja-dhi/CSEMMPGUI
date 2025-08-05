@@ -161,6 +161,7 @@ namespace CSEMMPGUI_v1
                 if (result == DialogResult.Yes)
                 {
                     Save(); // Save the current project
+                    isSaved = true; // Mark the project as saved after saving
                 }
                 else if (result == DialogResult.Cancel)
                 {
@@ -176,7 +177,6 @@ namespace CSEMMPGUI_v1
             if (!string.IsNullOrEmpty(currentPath))
             {
                 string newPath = Path.Combine(projectDir, $"{txtName.Text.Trim()}.mtproj");
-                MessageBox.Show(currentPath);
                 if (File.Exists(currentPath))
                 {
                     File.Move(currentPath, newPath);
@@ -252,23 +252,25 @@ namespace CSEMMPGUI_v1
                         propertiesPage.ShowDialog();
                         break;
                     case "Survey":
-                        MessageBox.Show($"Opening survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement survey opening logic here
+                        EditSurvey editSurvey = new EditSurvey(xmlNode);
+                        editSurvey.ShowDialog();
                         break;
                     case "Model":
                         EditModel editModel = new EditModel(xmlNode);
                         editModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
-                        MessageBox.Show($"Opening vessel-mounted ADCP: {name}", "Open Vessel-Mounted ADCP", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement vessel-mounted ADCP opening logic here
+                        EditVesselMountedADCP editVesselMountedADCP = new EditVesselMountedADCP(xmlNode);
+                        editVesselMountedADCP.ShowDialog();
                         break;
                     case "WaterSample":
-                        MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement water sample opening logic here
+                        EditWaterSample editWaterSample = new EditWaterSample(xmlNode);
+                        editWaterSample.ShowDialog();
                         break;
                 }
             }
+            FillTree(); // Refresh the tree view after opening an item
+            isSaved = false;
         }
 
         private void itemDelete_Click(object sender, EventArgs e)
@@ -278,31 +280,42 @@ namespace CSEMMPGUI_v1
             {
                 string type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                 string name = xmlNode.Attributes?["name"]?.Value ?? xmlNode.Name;
+                string id = xmlNode.Attributes?["id"]?.Value ?? string.Empty;
 
                 switch (type)
                 {
-                    case "Project":
-                        PropertiesPage propertiesPage = new();
-                        propertiesPage.ShowDialog();
-                        break;
                     case "Survey":
-                        MessageBox.Show($"Opening survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement survey opening logic here
+                        DialogResult resultSurvey = MessageBox.Show($"Are you sure you want to delete the survey: {name}?", "Delete Survey", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultSurvey == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "Survey", id: id);
+                        }
                         break;
                     case "Model":
-                        MessageBox.Show($"Opening model: {name}", "Open Model", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement model opening logic here
+                        DialogResult resultMode = MessageBox.Show($"Are you sure you want to delete the model: {name}?", "Delete Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultMode == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "Model", id: id);
+                        }
                         break;
                     case "VesselMountedADCP":
-                        MessageBox.Show($"Opening vessel-mounted ADCP: {name}", "Open Vessel-Mounted ADCP", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement vessel-mounted ADCP opening logic here
+                        DialogResult resultVesselMountedADCP = MessageBox.Show($"Are you sure you want to delete the vessel-mounted ADCP: {name}?", "Delete Vessel Mounted ADCP", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultVesselMountedADCP == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "VesselMountedADCP", id: id);
+                        }
                         break;
                     case "WaterSample":
-                        MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement water sample opening logic here
+                        DialogResult resultWaterSample = MessageBox.Show($"Are you sure you want to delete the water sample: {name}?", "Delete Water Sample", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultWaterSample == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "WaterSample", id: id);
+                        }
                         break;
                 }
             }
+            isSaved = false; // Mark the project as unsaved after deletion
+            FillTree();
         }
 
         private void treeProject_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -320,8 +333,8 @@ namespace CSEMMPGUI_v1
                         propertiesPage.ShowDialog();
                         break;
                     case "Survey":
-                        MessageBox.Show($"Opening survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement survey opening logic here
+                        EditSurvey editSurvey = new EditSurvey(xmlNode);
+                        editSurvey.ShowDialog();
                         break;
                     case "Model":
                         EditModel editModel = new EditModel(xmlNode);
@@ -332,11 +345,13 @@ namespace CSEMMPGUI_v1
                         editVesselMountedADCP.ShowDialog();
                         break;
                     case "WaterSample":
-                        MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement water sample opening logic here
+                        EditWaterSample editWaterSample = new EditWaterSample(xmlNode);
+                        editWaterSample.ShowDialog();
                         break;
                 }
             }
+            FillTree(); // Refresh the tree view after double-clicking an item
+            isSaved = false; // Mark the project as unsaved after opening an item
         }
 
         private void frmMain_Activated(object sender, EventArgs e)

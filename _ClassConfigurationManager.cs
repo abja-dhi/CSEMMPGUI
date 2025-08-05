@@ -178,5 +178,24 @@ namespace CSEMMPGUI_v1
             }
             return objectNodes.Count;
         }
+
+        public static void DeleteNode(string type, string id)
+        {
+            if (_Globals.Config.DocumentElement == null)
+            {
+                throw new InvalidOperationException("Configuration is not initialized.");
+            }
+            string xpath = $"//{type}[@id='{id}' and @type='{type}']";
+            XmlNode? nodeToDelete = _Globals.Config.DocumentElement.SelectSingleNode(xpath);
+            if (nodeToDelete != null && nodeToDelete.ParentNode != null)
+            {
+                nodeToDelete.ParentNode.RemoveChild(nodeToDelete);
+                hasChanged = true;
+            }
+            else
+            {
+                throw new InvalidOperationException($"Node of type '{type}' with id '{id}' not found.");
+            }
+        }
     }
 }

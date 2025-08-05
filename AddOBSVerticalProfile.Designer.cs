@@ -32,32 +32,36 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             tableLayoutPanel1 = new TableLayoutPanel();
             tableLayoutPanel2 = new TableLayoutPanel();
-            tableLayoutPanel3 = new TableLayoutPanel();
             label1 = new Label();
+            tableLayoutPanel3 = new TableLayoutPanel();
             label2 = new Label();
             label3 = new Label();
             label4 = new Label();
+            label11 = new Label();
+            label12 = new Label();
+            textBox1 = new TextBox();
+            comboBox1 = new ComboBox();
             tableLayoutPanel4 = new TableLayoutPanel();
-            tableLayoutPanel5 = new TableLayoutPanel();
-            checkBox1 = new CheckBox();
-            label5 = new Label();
-            label6 = new Label();
-            tableLayoutPanel6 = new TableLayoutPanel();
-            checkBox2 = new CheckBox();
-            label7 = new Label();
-            label8 = new Label();
             tableLayoutPanel7 = new TableLayoutPanel();
             checkBox3 = new CheckBox();
             label9 = new Label();
             label10 = new Label();
+            tableLayoutPanel6 = new TableLayoutPanel();
+            checkBox2 = new CheckBox();
+            label7 = new Label();
+            label8 = new Label();
+            tableLayoutPanel5 = new TableLayoutPanel();
+            checkBox1 = new CheckBox();
+            label5 = new Label();
+            label6 = new Label();
             menuStrip1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
-            tableLayoutPanel5.SuspendLayout();
-            tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel7.SuspendLayout();
+            tableLayoutPanel6.SuspendLayout();
+            tableLayoutPanel5.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -105,23 +109,6 @@
             tableLayoutPanel2.Size = new Size(357, 86);
             tableLayoutPanel2.TabIndex = 0;
             // 
-            // tableLayoutPanel3
-            // 
-            tableLayoutPanel3.ColumnCount = 2;
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.Controls.Add(label2, 0, 0);
-            tableLayoutPanel3.Controls.Add(label3, 0, 1);
-            tableLayoutPanel3.Controls.Add(label4, 0, 2);
-            tableLayoutPanel3.Location = new Point(3, 95);
-            tableLayoutPanel3.Name = "tableLayoutPanel3";
-            tableLayoutPanel3.RowCount = 3;
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel3.Size = new Size(200, 100);
-            tableLayoutPanel3.TabIndex = 1;
-            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -130,6 +117,29 @@
             label1.Size = new Size(52, 15);
             label1.TabIndex = 0;
             label1.Text = "Data File";
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 2;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.Controls.Add(label2, 0, 0);
+            tableLayoutPanel3.Controls.Add(label3, 0, 1);
+            tableLayoutPanel3.Controls.Add(label4, 0, 2);
+            tableLayoutPanel3.Controls.Add(label11, 0, 3);
+            tableLayoutPanel3.Controls.Add(label12, 0, 4);
+            tableLayoutPanel3.Controls.Add(textBox1, 1, 3);
+            tableLayoutPanel3.Controls.Add(comboBox1, 1, 0);
+            tableLayoutPanel3.Location = new Point(3, 95);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 5;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel3.Size = new Size(348, 193);
+            tableLayoutPanel3.TabIndex = 1;
             // 
             // label2
             // 
@@ -143,7 +153,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(3, 40);
+            label3.Location = new Point(3, 66);
             label3.Name = "label3";
             label3.Size = new Size(39, 15);
             label3.TabIndex = 1;
@@ -152,11 +162,44 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(3, 80);
+            label4.Location = new Point(3, 132);
             label4.Name = "label4";
             label4.Size = new Size(30, 15);
             label4.TabIndex = 2;
             label4.Text = "NTU";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(3, 152);
+            label11.Name = "label11";
+            label11.Size = new Size(14, 15);
+            label11.TabIndex = 3;
+            label11.Text = "X";
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(3, 172);
+            label12.Name = "label12";
+            label12.Size = new Size(14, 15);
+            label12.TabIndex = 4;
+            label12.Text = "Y";
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(177, 155);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(100, 23);
+            textBox1.TabIndex = 5;
+            // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Location = new Point(177, 3);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(121, 23);
+            comboBox1.TabIndex = 6;
             // 
             // tableLayoutPanel4
             // 
@@ -174,96 +217,6 @@
             tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 33.34F));
             tableLayoutPanel4.Size = new Size(330, 392);
             tableLayoutPanel4.TabIndex = 2;
-            // 
-            // tableLayoutPanel5
-            // 
-            tableLayoutPanel5.ColumnCount = 3;
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.89439F));
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.10561F));
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-            tableLayoutPanel5.Controls.Add(checkBox1, 0, 0);
-            tableLayoutPanel5.Controls.Add(label5, 1, 0);
-            tableLayoutPanel5.Controls.Add(label6, 2, 0);
-            tableLayoutPanel5.Location = new Point(3, 3);
-            tableLayoutPanel5.Name = "tableLayoutPanel5";
-            tableLayoutPanel5.RowCount = 2;
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel5.Size = new Size(324, 100);
-            tableLayoutPanel5.TabIndex = 0;
-            // 
-            // checkBox1
-            // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(3, 3);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(90, 19);
-            checkBox1.TabIndex = 0;
-            checkBox1.Text = "DateTime Masking";
-            checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(99, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(84, 15);
-            label5.TabIndex = 1;
-            label5.Text = "Start DateTime";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(221, 0);
-            label6.Name = "label6";
-            label6.Size = new Size(80, 15);
-            label6.TabIndex = 2;
-            label6.Text = "End DateTime";
-            // 
-            // tableLayoutPanel6
-            // 
-            tableLayoutPanel6.ColumnCount = 3;
-            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.89439F));
-            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.10561F));
-            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
-            tableLayoutPanel6.Controls.Add(checkBox2, 0, 0);
-            tableLayoutPanel6.Controls.Add(label7, 1, 0);
-            tableLayoutPanel6.Controls.Add(label8, 2, 0);
-            tableLayoutPanel6.Location = new Point(3, 133);
-            tableLayoutPanel6.Name = "tableLayoutPanel6";
-            tableLayoutPanel6.RowCount = 2;
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel6.Size = new Size(324, 74);
-            tableLayoutPanel6.TabIndex = 1;
-            // 
-            // checkBox2
-            // 
-            checkBox2.AutoSize = true;
-            checkBox2.Location = new Point(3, 3);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(90, 19);
-            checkBox2.TabIndex = 0;
-            checkBox2.Text = "Depth Masking";
-            checkBox2.UseVisualStyleBackColor = true;
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Location = new Point(99, 0);
-            label7.Name = "label7";
-            label7.Size = new Size(84, 15);
-            label7.TabIndex = 1;
-            label7.Text = "Start DateTime";
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Location = new Point(221, 0);
-            label8.Name = "label8";
-            label8.Size = new Size(80, 15);
-            label8.TabIndex = 2;
-            label8.Text = "End DateTime";
             // 
             // tableLayoutPanel7
             // 
@@ -310,7 +263,97 @@
             label10.TabIndex = 2;
             label10.Text = "End DateTime";
             // 
-            // OBSVerticalProfile
+            // tableLayoutPanel6
+            // 
+            tableLayoutPanel6.ColumnCount = 3;
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.89439F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.10561F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+            tableLayoutPanel6.Controls.Add(checkBox2, 0, 0);
+            tableLayoutPanel6.Controls.Add(label7, 1, 0);
+            tableLayoutPanel6.Controls.Add(label8, 2, 0);
+            tableLayoutPanel6.Location = new Point(3, 133);
+            tableLayoutPanel6.Name = "tableLayoutPanel6";
+            tableLayoutPanel6.RowCount = 2;
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.Size = new Size(324, 74);
+            tableLayoutPanel6.TabIndex = 1;
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(3, 3);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(90, 19);
+            checkBox2.TabIndex = 0;
+            checkBox2.Text = "Depth Masking";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(99, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(84, 15);
+            label7.TabIndex = 1;
+            label7.Text = "Start DateTime";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(221, 0);
+            label8.Name = "label8";
+            label8.Size = new Size(80, 15);
+            label8.TabIndex = 2;
+            label8.Text = "End DateTime";
+            // 
+            // tableLayoutPanel5
+            // 
+            tableLayoutPanel5.ColumnCount = 3;
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.89439F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.10561F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 105F));
+            tableLayoutPanel5.Controls.Add(checkBox1, 0, 0);
+            tableLayoutPanel5.Controls.Add(label5, 1, 0);
+            tableLayoutPanel5.Controls.Add(label6, 2, 0);
+            tableLayoutPanel5.Location = new Point(3, 3);
+            tableLayoutPanel5.Name = "tableLayoutPanel5";
+            tableLayoutPanel5.RowCount = 2;
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.Size = new Size(324, 100);
+            tableLayoutPanel5.TabIndex = 0;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(3, 3);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(90, 19);
+            checkBox1.TabIndex = 0;
+            checkBox1.Text = "DateTime Masking";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(99, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(84, 15);
+            label5.TabIndex = 1;
+            label5.Text = "Start DateTime";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(221, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(80, 15);
+            label6.TabIndex = 2;
+            label6.Text = "End DateTime";
+            // 
+            // AddOBSVerticalProfile
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -318,7 +361,7 @@
             Controls.Add(tableLayoutPanel1);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
-            Name = "OBSVerticalProfile";
+            Name = "AddOBSVerticalProfile";
             Text = "OBSVerticalProfile";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -328,12 +371,12 @@
             tableLayoutPanel3.ResumeLayout(false);
             tableLayoutPanel3.PerformLayout();
             tableLayoutPanel4.ResumeLayout(false);
-            tableLayoutPanel5.ResumeLayout(false);
-            tableLayoutPanel5.PerformLayout();
-            tableLayoutPanel6.ResumeLayout(false);
-            tableLayoutPanel6.PerformLayout();
             tableLayoutPanel7.ResumeLayout(false);
             tableLayoutPanel7.PerformLayout();
+            tableLayoutPanel6.ResumeLayout(false);
+            tableLayoutPanel6.PerformLayout();
+            tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -362,5 +405,9 @@
         private CheckBox checkBox1;
         private Label label5;
         private Label label6;
+        private Label label11;
+        private Label label12;
+        private TextBox textBox1;
+        private ComboBox comboBox1;
     }
 }

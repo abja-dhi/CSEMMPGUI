@@ -25,7 +25,6 @@ namespace CSEMMPGUI_v1
         {
             InitializeComponent();
             surveyManager = _surveyManager;
-            id = _ClassConfigurationManager.NObjects(type: "//VesselMountedADCP") + 1;
             Initialize();
         }
 
@@ -35,6 +34,59 @@ namespace CSEMMPGUI_v1
             {
                 throw new InvalidOperationException("SurveyManager.survey is null. Cannot create instrument element.");
             }
+            id = _ClassConfigurationManager.NObjects(type: "//VesselMountedADCP") + 1;
+            txtPD0Path.Text = string.Empty;
+            txtPositionPath.Text = string.Empty;
+            txtName.Text = $"VesselMountedADCP {id}";
+            txtMagneticDeclination.Text = "0.0";
+            txtUTCOffset.Text = "0.0";
+            txtRotationAngle.Text = "0.0";
+            txtCRPX.Text = "0.0";
+            txtCRPY.Text = "0.0";
+            txtCRPZ.Text = "0.0";
+            txtRSSI1.Text = String.Empty;
+            txtRSSI2.Text = String.Empty;
+            txtRSSI3.Text = String.Empty;
+            txtRSSI4.Text = String.Empty;
+            txtFirstEnsemble.Text = "1";
+            txtLastEnsemble.Text = "1";
+            checkMaskEchoIntensity.Checked = false;
+            txtMinEchoIntensity.Text = "0";
+            txtMaxEchoIntensity.Text = "255";
+            txtMinEchoIntensity.Enabled = false;
+            txtMaxEchoIntensity.Enabled = false;
+            checkMaskPercentGood.Checked = false;
+            txtMinPercentGood.Text = "0";
+            txtMinPercentGood.Enabled = false;
+            checkMaskCorrelationMagnitude.Checked = false;
+            txtMinCorrelationMagnitude.Text = "0";
+            txtMaxCorrelationMagnitude.Text = "255";
+            txtMinCorrelationMagnitude.Enabled = false;
+            txtMaxCorrelationMagnitude.Enabled = false;
+            checkMaskingVelocity.Checked = false;
+            txtMinVelocity.Text = String.Empty;
+            txtMaxVelocity.Text = String.Empty;
+            txtMinVelocity.Enabled = false;
+            txtMaxVelocity.Enabled = false;
+            checkMaskingErrorVelocity.Checked = false;
+            txtMinErrorVelocity.Text = String.Empty;
+            txtMaxErrorVelocity.Text = String.Empty;
+            txtMinErrorVelocity.Enabled = false;
+            txtMaxErrorVelocity.Enabled = false;
+            boxConfiguration.Enabled = false;
+            boxMasking.Enabled = false;
+            boxPosition.Enabled = false;
+            btnPrintConfig.Enabled = false;
+            rbSingle.Checked = true; // Default to single file mode
+            comboDateTime.Items.Clear();
+            comboX.Items.Clear();
+            comboY.Items.Clear();
+            comboHeading.Items.Clear();
+            comboDateTime.Text = string.Empty;
+            comboX.Text = string.Empty;
+            comboY.Text = string.Empty;
+            comboHeading.Text = string.Empty;
+            // Create the instrument element
             instrument = surveyManager.survey.OwnerDocument.CreateElement("VesselMountedADCP");
             instrument.SetAttribute("id", id.ToString());
             instrument.SetAttribute("type", "VesselMountedADCP");
@@ -62,6 +114,7 @@ namespace CSEMMPGUI_v1
                     return; // User chose to cancel, do not create a new instrument
                 }
             }
+            Initialize(); // Reinitialize the instrument
         }
 
         private void menuSave_Click(object sender, EventArgs e)
@@ -400,6 +453,26 @@ namespace CSEMMPGUI_v1
                     e.Cancel = true; // Cancel the form closing event
                     return; // User chose to cancel, do not exit
                 }
+            }
+        }
+
+        private void rbSingle_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbSingle.Checked)
+            {
+                lblPD0File.Text = ".000 File";
+                lblPositionFile.Visible = true;
+                txtPositionPath.Visible = true;
+                btnLoadPosition.Visible = true;
+                boxFileInfo.Text = "File Information";
+            }
+            else
+            {
+                lblPD0File.Text = "Folder";
+                lblPositionFile.Visible = false;
+                txtPositionPath.Visible = false;
+                btnLoadPosition.Visible = false;
+                boxFileInfo.Text = "Folder Information";
             }
         }
     }

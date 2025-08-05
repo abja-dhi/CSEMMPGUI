@@ -156,14 +156,14 @@
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(107, 22);
+            menuSave.Size = new Size(180, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(107, 22);
+            menuExit.Size = new Size(180, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -766,9 +766,10 @@
             tableMain.Location = new Point(0, 24);
             tableMain.Name = "tableMain";
             tableMain.RowCount = 3;
-            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 17.6954727F));
-            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 71.8107F));
-            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 17.787159F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 72.1636047F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 10.049242F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableMain.Size = new Size(1094, 476);
             tableMain.TabIndex = 11;
             // 

@@ -178,3 +178,5 @@ C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.__PlumeTrack.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.PlotModel.resources
 C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.EditVesselMountedADCP.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.EditWaterSample.resources
+C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\obj\Debug\net8.0-windows7.0\CSEMMPGUI_v1.EditSurvey.resources

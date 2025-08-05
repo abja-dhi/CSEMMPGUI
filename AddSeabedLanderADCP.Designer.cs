@@ -57,8 +57,14 @@
             label17 = new Label();
             numericUpDown2 = new NumericUpDown();
             tablePosition = new TableLayoutPanel();
-            label5 = new Label();
+            textBox8 = new TextBox();
+            label20 = new Label();
+            textBox7 = new TextBox();
+            label3 = new Label();
+            textBox6 = new TextBox();
             label4 = new Label();
+            label5 = new Label();
+            textBox5 = new TextBox();
             button3 = new Button();
             tableInputs = new TableLayoutPanel();
             tableMain = new TableLayoutPanel();
@@ -69,12 +75,6 @@
             label18 = new Label();
             textBox4 = new TextBox();
             txtEchoMax = new TextBox();
-            textBox5 = new TextBox();
-            textBox6 = new TextBox();
-            label3 = new Label();
-            textBox7 = new TextBox();
-            label20 = new Label();
-            textBox8 = new TextBox();
             menuStrip1.SuspendLayout();
             tableConfig.SuspendLayout();
             tableCRPOffsets.SuspendLayout();
@@ -400,14 +400,44 @@
             tablePosition.TabIndex = 8;
             tablePosition.Visible = false;
             // 
-            // label5
+            // textBox8
             // 
-            label5.AutoSize = true;
-            label5.Location = new Point(3, 126);
-            label5.Name = "label5";
-            label5.Size = new Size(14, 15);
-            label5.TabIndex = 4;
-            label5.Text = "Y";
+            textBox8.Location = new Point(3, 381);
+            textBox8.Name = "textBox8";
+            textBox8.Size = new Size(100, 23);
+            textBox8.TabIndex = 10;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(218, 378);
+            label20.Name = "label20";
+            label20.Size = new Size(52, 15);
+            label20.TabIndex = 9;
+            label20.Text = "Heading";
+            // 
+            // textBox7
+            // 
+            textBox7.Location = new Point(218, 255);
+            textBox7.Name = "textBox7";
+            textBox7.Size = new Size(100, 23);
+            textBox7.TabIndex = 8;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(3, 252);
+            label3.Name = "label3";
+            label3.Size = new Size(39, 15);
+            label3.TabIndex = 7;
+            label3.Text = "Depth";
+            // 
+            // textBox6
+            // 
+            textBox6.Location = new Point(218, 129);
+            textBox6.Name = "textBox6";
+            textBox6.Size = new Size(100, 23);
+            textBox6.TabIndex = 6;
             // 
             // label4
             // 
@@ -417,6 +447,22 @@
             label4.Size = new Size(14, 15);
             label4.TabIndex = 2;
             label4.Text = "X";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(3, 126);
+            label5.Name = "label5";
+            label5.Size = new Size(14, 15);
+            label5.TabIndex = 4;
+            label5.Text = "Y";
+            // 
+            // textBox5
+            // 
+            textBox5.Location = new Point(218, 3);
+            textBox5.Name = "textBox5";
+            textBox5.Size = new Size(100, 23);
+            textBox5.TabIndex = 5;
             // 
             // button3
             // 
@@ -554,53 +600,7 @@
             txtEchoMax.Size = new Size(89, 23);
             txtEchoMax.TabIndex = 4;
             // 
-            // textBox5
-            // 
-            textBox5.Location = new Point(218, 3);
-            textBox5.Name = "textBox5";
-            textBox5.Size = new Size(100, 23);
-            textBox5.TabIndex = 5;
-            // 
-            // textBox6
-            // 
-            textBox6.Location = new Point(218, 129);
-            textBox6.Name = "textBox6";
-            textBox6.Size = new Size(100, 23);
-            textBox6.TabIndex = 6;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(3, 252);
-            label3.Name = "label3";
-            label3.Size = new Size(39, 15);
-            label3.TabIndex = 7;
-            label3.Text = "Depth";
-            // 
-            // textBox7
-            // 
-            textBox7.Location = new Point(218, 255);
-            textBox7.Name = "textBox7";
-            textBox7.Size = new Size(100, 23);
-            textBox7.TabIndex = 8;
-            // 
-            // label20
-            // 
-            label20.AutoSize = true;
-            label20.Location = new Point(218, 378);
-            label20.Name = "label20";
-            label20.Size = new Size(52, 15);
-            label20.TabIndex = 9;
-            label20.Text = "Heading";
-            // 
-            // textBox8
-            // 
-            textBox8.Location = new Point(3, 381);
-            textBox8.Name = "textBox8";
-            textBox8.Size = new Size(100, 23);
-            textBox8.TabIndex = 10;
-            // 
-            // SeabedLanderADCP
+            // AddSeabedLanderADCP
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -609,7 +609,7 @@
             Controls.Add(button3);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
-            Name = "SeabedLanderADCP";
+            Name = "AddSeabedLanderADCP";
             Text = "Seabed Lander ADCP";
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();

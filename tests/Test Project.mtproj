@@ -7,8 +7,8 @@
     <Description>
     </Description>
   </Settings>
-  <Survey type="Survey" name="Survey 1" id="1">
-    <VesselMountedADCP id="1" type="VesselMountedADCP" name="ADCP2">
+  <Survey type="Survey" name="Survey 123" id="1">
+    <VesselMountedADCP id="1" type="VesselMountedADCP" name="ADCP1">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A_sn24156.000</Path>
         <Configuration>
@@ -83,10 +83,75 @@
   <Model name="Model 142" type="Model" id="1">
     <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
   </Model>
-  <Model name="Model 22" type="Model" id="2">
-    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
-  </Model>
-  <Model name="Model 33" type="Model" id="3">
-    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
-  </Model>
+  <Survey type="Survey" name="Survey 2234" id="2">
+    <WaterSample id="1" type="WaterSample" name="Abbas">
+      <Sample Sample="Abbas" DateTime="2025-08-05T14:12:12.0000000" Depth="14" X="12" Y="20" SSC="0.321" Notes="Noted 1" />
+      <Sample Sample="Sample 2" DateTime="2023-08-02T14:12:12.0000000" Depth="10.14" X="-120." Y="12.214" SSC="0.214" Notes="Notes 1" />
+    </WaterSample>
+    <WaterSample id="1" type="WaterSample" name="WaterSample with 3 rows">
+      <Sample Sample="Smple 1" DateTime="2025-08-05T14:12:12.0000000" Depth="14" X="12" Y="20" SSC="0.321" Notes="Noted 1" />
+      <Sample Sample="Sample 2" DateTime="2023-08-02T14:12:12.0000000" Depth="34" X="120." Y="12.214" SSC="0.214" Notes="" />
+      <Sample Sample="Sample 3" DateTime="2014-08-05T01:10:01.0000000" Depth="-95.0" X="-20.1" Y="510.2" SSC="0.145" Notes="" />
+    </WaterSample>
+    <VesselMountedADCP id="2" type="VesselMountedADCP" name="VesselMountedADCP 2">
+      <Pd0>
+        <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A_sn24156.000</Path>
+        <Configuration>
+          <MagneticDeclination>0.0</MagneticDeclination>
+          <UTCOffset>0.0</UTCOffset>
+          <RotationAngle>0.0</RotationAngle>
+          <CRPOffset>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </CRPOffset>
+          <RSSICoefficients>
+            <Beam1 />
+            <Beam2 />
+            <Beam3 />
+            <Beam4 />
+          </RSSICoefficients>
+        </Configuration>
+        <Masking>
+          <FirstEnsemble>1</FirstEnsemble>
+          <LastEnsemble>984</LastEnsemble>
+          <MaskEchoIntensity Enabled="false">
+            <Min>0</Min>
+            <Max>255</Max>
+          </MaskEchoIntensity>
+          <MaskPercentGood Enabled="false">
+            <Min>0</Min>
+          </MaskPercentGood>
+          <MaskCorrelationMagnitude Enabled="false">
+            <Min>0</Min>
+            <Max>255</Max>
+          </MaskCorrelationMagnitude>
+          <MaskCurrentSpeed Enabled="false">
+            <Min />
+            <Max />
+          </MaskCurrentSpeed>
+          <MaskErrorVelocity Enabled="false">
+            <Min />
+            <Max />
+          </MaskErrorVelocity>
+        </Masking>
+      </Pd0>
+      <PositionData>
+        <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A Position_EPSG32611.csv</Path>
+        <Columns>
+          <Column0>DateTime (UTC)</Column0>
+          <Column1>Easting</Column1>
+          <Column2>Northing</Column2>
+          <Column3>Depth</Column3>
+          <Column4>Pitch</Column4>
+          <Column5>Roll</Column5>
+          <Column6>Heading</Column6>
+        </Columns>
+        <DateTimeColumn>DateTime (UTC)</DateTimeColumn>
+        <XColumn>Easting</XColumn>
+        <YColumn>Northing</YColumn>
+        <HeadingColumn>Depth</HeadingColumn>
+      </PositionData>
+    </VesselMountedADCP>
+  </Survey>
 </Project>

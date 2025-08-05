@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddWaterSample
+    partial class EditWaterSample
     {
         /// <summary>
         /// Required designer variable.
@@ -29,10 +29,8 @@
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddWaterSample));
             menu = new MenuStrip();
             menuFile = new ToolStripMenuItem();
-            menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             utilitiesToolStripMenuItem = new ToolStripMenuItem();
@@ -64,17 +62,10 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
-            // 
-            // menuNew
-            // 
-            menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
-            menuNew.Text = "New...";
-            menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
@@ -197,16 +188,15 @@
             txtName.TabIndex = 4;
             txtName.TextChanged += txtName_TextChanged;
             // 
-            // AddWaterSample
+            // EditWaterSample
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
             Controls.Add(menu);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menu;
-            Name = "AddWaterSample";
+            Name = "EditWaterSample";
             Text = "WaterSample";
             FormClosing += AddWaterSample_FormClosing;
             menu.ResumeLayout(false);
@@ -224,7 +214,6 @@
         private ToolStripMenuItem menuFile;
         private ToolStripMenuItem menuSave;
         private DataGridView gridData;
-        private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuExit;
         private DataGridViewTextBoxColumn colSampleName;
         private DataGridViewTextBoxColumn colDateTime;

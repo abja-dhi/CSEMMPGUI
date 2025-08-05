@@ -184,11 +184,6 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        public void LoadPosition(string positionPath)
-        {
-
-        }
-
         private void btnLoadPosition_Click(object sender, EventArgs e)
         {
             string[] columns = Array.Empty<string>();
@@ -657,5 +652,7 @@ namespace CSEMMPGUI_v1
                 }
             }
         }
+
+        
     }
 }

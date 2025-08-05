@@ -12,17 +12,23 @@ using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
-    public partial class AddSurvey : Form
+    public partial class EditSurvey : Form
     {
         public bool isSaved; // Track if survey has been saved
-        public _SurveyManager surveyManager = new();
+        public _SurveyManager surveyManager;
 
-        public AddSurvey()
+        public EditSurvey(XmlNode surveyNode)
         {
             InitializeComponent();
-            surveyManager.Initialize();
+            XmlElement? surveyElement = surveyNode as XmlElement;
+            string? surveyName = surveyElement?.GetAttribute("name");
+            surveyManager = new _SurveyManager
+            {
+                Name = surveyName ?? "New Survey",
+                survey = surveyElement
+            };
             txtSurveyName.Text = surveyManager.GetAttribute(attribute: "name");
-            isSaved = false; // Initially, the survey is not saved
+            isSaved = true; // Initially, the survey is not saved
             FillTree();
         }
 
@@ -60,33 +66,11 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        private void menuNew_Click(object sender, EventArgs e)
-        {
-            if (!isSaved)
-            {
-                DialogResult result = MessageBox.Show(
-                    "Current survey has unsaved changes. Do you want to save them before creating a new survey?",
-                    "Unsaved Changes",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Warning);
-                if (result == DialogResult.Yes)
-                {
-                    surveyManager.SaveSurvey(name: txtSurveyName.Text);
-                    isSaved = true; // Mark as saved after saving
-                }
-                else if (result == DialogResult.Cancel)
-                {
-                    return; // User chose to cancel, do not create a new survey
-                }
-            }
-            surveyManager.Initialize();
-            FillTree();
-        }
-
         private void menuSave_Click(object sender, EventArgs e)
         {
             surveyManager.SaveSurvey(name: txtSurveyName.Text);
             isSaved = true;
+            FillTree(); // Refresh the tree view after saving
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -140,9 +124,31 @@ namespace CSEMMPGUI_v1
             FillTree(); // Refresh the tree after adding a new water sample
         }
 
-        private void AddSurvey_Activated(object sender, EventArgs e)
+        private void EditSurvey_Activated(object sender, EventArgs e)
         {
-            FillTree(); // Refresh the tree when the form is activated
+            FillTree();
+        }
+
+        private void EditSurvey_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isSaved)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Current survey has unsaved changes. Do you want to save them before exiting?",
+                    "Unsaved Changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    surveyManager.SaveSurvey(name: txtSurveyName.Text);
+                    isSaved = true; // Mark as saved after saving
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    e.Cancel = true; // Cancel the form closing event
+                    return; // User chose to cancel, do not exit
+                }
+            }
         }
 
         private void treeSurvey_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -264,6 +270,11 @@ namespace CSEMMPGUI_v1
                         break;
                 }
             }
+        }
+
+        private void txtSurveyName_TextChanged(object sender, EventArgs e)
+        {
+            isSaved = false; // Mark as unsaved when the survey name changes
         }
     }
 }
