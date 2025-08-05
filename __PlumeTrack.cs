@@ -328,8 +328,8 @@ namespace CSEMMPGUI_v1
                         editModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
-                        MessageBox.Show($"Opening vessel-mounted ADCP: {name}", "Open Vessel-Mounted ADCP", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement vessel-mounted ADCP opening logic here
+                        EditVesselMountedADCP editVesselMountedADCP = new EditVesselMountedADCP(xmlNode);
+                        editVesselMountedADCP.ShowDialog();
                         break;
                     case "WaterSample":
                         MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);

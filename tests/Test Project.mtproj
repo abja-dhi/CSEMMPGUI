@@ -33,25 +33,25 @@
         </Configuration>
         <Masking>
           <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>984</LastEnsemble>
-          <MaskEchoIntensity Enabled="False">
+          <LastEnsemble>100</LastEnsemble>
+          <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
           </MaskEchoIntensity>
-          <MaskPercentGood Enabled="False">
+          <MaskPercentGood Enabled="false">
             <Min>0</Min>
           </MaskPercentGood>
-          <MaskCorrelationMagnitude Enabled="False">
+          <MaskCorrelationMagnitude Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
           </MaskCorrelationMagnitude>
-          <MaskCurrentSpeed Enabled="False">
+          <MaskCurrentSpeed Enabled="false">
             <Min>
             </Min>
             <Max>
             </Max>
           </MaskCurrentSpeed>
-          <MaskErrorVelocity Enabled="False">
+          <MaskErrorVelocity Enabled="false">
             <Min>
             </Min>
             <Max>
@@ -61,6 +61,18 @@
       </Pd0>
       <PositionData>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\Dive05_T3A Position_EPSG32611.csv</Path>
+        <Columns>
+          <Column0>DateTime (UTC)</Column0>
+          <Column1>Easting</Column1>
+          <Column2>Northing</Column2>
+          <Column3>Heading</Column3>
+          <Column4>Depth</Column4>
+          <Column5>Roll</Column5>
+          <Column6>Pitch</Column6>
+          <Column7>Heave</Column7>
+          <Column8>Speed</Column8>
+          <Column9>Course</Column9>
+        </Columns>
         <DateTimeColumn>DateTime (UTC)</DateTimeColumn>
         <XColumn>Easting</XColumn>
         <YColumn>Northing</YColumn>

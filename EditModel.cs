@@ -18,7 +18,6 @@ namespace CSEMMPGUI_v1
 
         private void InitializeModel(XmlNode modelNode)
         {
-            int NModels = _ClassConfigurationManager.NModels();
             modelElement = modelNode as XmlElement;
             if (modelElement == null)
             {
@@ -27,14 +26,7 @@ namespace CSEMMPGUI_v1
             }
             txtModelName.Text = modelElement.GetAttribute("name");
             XmlNode pathNode = modelElement.SelectSingleNode("Path");
-            if (pathNode != null)
-            {
-                txtFilePath.Text = pathNode.InnerText;
-            }
-            else
-            {
-                txtFilePath.Text = string.Empty;
-            }
+            txtFilePath.Text = pathNode?.InnerText ?? string.Empty;
             isSaved = true;
 
         }

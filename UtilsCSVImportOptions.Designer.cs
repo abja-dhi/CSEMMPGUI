@@ -201,7 +201,7 @@
             btnOK.UseVisualStyleBackColor = true;
             btnOK.Click += btnOK_Click;
             // 
-            // CSVImportOptions
+            // UtilsCSVImportOptions
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -209,7 +209,7 @@
             ClientSize = new Size(464, 123);
             Controls.Add(tableLayoutPanel1);
             MaximizeBox = false;
-            Name = "CSVImportOptions";
+            Name = "UtilsCSVImportOptions";
             Text = "CSVImportOptions";
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();

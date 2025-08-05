@@ -252,7 +252,7 @@ namespace CSEMMPGUI_v1
             lastEnsemble.InnerText = txtLastEnsemble.Text.Trim();
             masking.AppendChild(lastEnsemble);
             XmlElement maskEchoIntensity = project.CreateElement("MaskEchoIntensity");
-            maskEchoIntensity.SetAttribute("Enabled", checkMaskEchoIntensity.Checked.ToString());
+            maskEchoIntensity.SetAttribute("Enabled", checkMaskEchoIntensity.Checked.ToString().ToLower());
             XmlElement maskEchoIntensityMin = project.CreateElement("Min");
             maskEchoIntensityMin.InnerText = txtMinEchoIntensity.Text.Trim();
             maskEchoIntensity.AppendChild(maskEchoIntensityMin);
@@ -262,14 +262,14 @@ namespace CSEMMPGUI_v1
             masking.AppendChild(maskEchoIntensity);
 
             XmlElement maskPercentGood = project.CreateElement("MaskPercentGood");
-            maskPercentGood.SetAttribute("Enabled", checkMaskPercentGood.Checked.ToString());
+            maskPercentGood.SetAttribute("Enabled", checkMaskPercentGood.Checked.ToString().ToLower());
             XmlElement maskPercentGoodMin = project.CreateElement("Min");
             maskPercentGoodMin.InnerText = txtMinPercentGood.Text.Trim();
             maskPercentGood.AppendChild(maskPercentGoodMin);
             masking.AppendChild(maskPercentGood);
 
             XmlElement maskCorrelationMagnitude = project.CreateElement("MaskCorrelationMagnitude");
-            maskCorrelationMagnitude.SetAttribute("Enabled", checkMaskCorrelationMagnitude.Checked.ToString());
+            maskCorrelationMagnitude.SetAttribute("Enabled", checkMaskCorrelationMagnitude.Checked.ToString().ToLower());
             XmlElement maskCorrelationMagnitudeMin = project.CreateElement("Min");
             maskCorrelationMagnitudeMin.InnerText = txtMinCorrelationMagnitude.Text.Trim();
             maskCorrelationMagnitude.AppendChild(maskCorrelationMagnitudeMin);
@@ -279,7 +279,7 @@ namespace CSEMMPGUI_v1
             masking.AppendChild(maskCorrelationMagnitude);
 
             XmlElement maskCurrentSpeed = project.CreateElement("MaskCurrentSpeed");
-            maskCurrentSpeed.SetAttribute("Enabled", checkMaskingVelocity.Checked.ToString());
+            maskCurrentSpeed.SetAttribute("Enabled", checkMaskingVelocity.Checked.ToString().ToLower());
             XmlElement maskCurrentSpeedMin = project.CreateElement("Min");
             maskCurrentSpeedMin.InnerText = txtMinVelocity.Text.Trim();
             maskCurrentSpeed.AppendChild(maskCurrentSpeedMin);
@@ -289,7 +289,7 @@ namespace CSEMMPGUI_v1
             masking.AppendChild(maskCurrentSpeed);
 
             XmlElement maskErrorVelocity = project.CreateElement("MaskErrorVelocity");
-            maskErrorVelocity.SetAttribute("Enabled", checkMaskingErrorVelocity.Checked.ToString());
+            maskErrorVelocity.SetAttribute("Enabled", checkMaskingErrorVelocity.Checked.ToString().ToLower());
             XmlElement maskErrorVelocityMin = project.CreateElement("Min");
             maskErrorVelocityMin.InnerText = txtMinErrorVelocity.Text.Trim();
             maskErrorVelocity.AppendChild(maskErrorVelocityMin);
@@ -307,6 +307,16 @@ namespace CSEMMPGUI_v1
             XmlElement positionPath = project.CreateElement("Path");
             positionPath.InnerText = txtPositionPath.Text.Trim();
             position.AppendChild(positionPath);
+
+            XmlElement positionColumns = project.CreateElement("Columns");
+
+            for (int i = 0; i < comboDateTime.Items.Count; i++)
+            {
+                XmlElement column = project.CreateElement($"Column{i}");
+                column.InnerText = comboDateTime.Items[i].ToString();
+                positionColumns.AppendChild(column);
+            }
+            position.AppendChild(positionColumns);
 
             XmlElement dateTimeColumn = project.CreateElement("DateTimeColumn");
             dateTimeColumn.InnerText = comboDateTime.Text.Trim() ?? string.Empty;
@@ -370,6 +380,27 @@ namespace CSEMMPGUI_v1
             }
             VesselMountedADCPPrintConfig printConfigForm = new VesselMountedADCPPrintConfig(txtPD0Path.Text.Trim());
             printConfigForm.ShowDialog();
+        }
+
+        private void AddVesselMountedADCP_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isSaved)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Current instrument has unsaved changes. Do you want to save them before exiting?",
+                    "Unsaved Changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    SaveInstrument(); // Save the current instrument
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    e.Cancel = true; // Cancel the form closing event
+                    return; // User chose to cancel, do not exit
+                }
+            }
         }
     }
 }

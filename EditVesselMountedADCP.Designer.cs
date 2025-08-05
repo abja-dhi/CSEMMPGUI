@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddVesselMountedADCP
+    partial class EditVesselMountedADCP
     {
         /// <summary>
         /// Required designer variable.
@@ -28,10 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddVesselMountedADCP));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
-            menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             lblPD0File = new Label();
@@ -150,17 +148,10 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
-            // 
-            // menuNew
-            // 
-            menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
-            menuNew.Text = "New...";
-            menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
@@ -663,6 +654,7 @@
             // comboX
             // 
             comboX.Dock = DockStyle.Fill;
+            comboX.DropDownStyle = ComboBoxStyle.DropDownList;
             comboX.FormattingEnabled = true;
             comboX.Location = new Point(215, 34);
             comboX.Name = "comboX";
@@ -684,6 +676,7 @@
             // comboDateTime
             // 
             comboDateTime.Dock = DockStyle.Fill;
+            comboDateTime.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDateTime.FormattingEnabled = true;
             comboDateTime.Location = new Point(215, 3);
             comboDateTime.Name = "comboDateTime";
@@ -716,6 +709,7 @@
             // comboY
             // 
             comboY.Dock = DockStyle.Fill;
+            comboY.DropDownStyle = ComboBoxStyle.DropDownList;
             comboY.FormattingEnabled = true;
             comboY.Location = new Point(215, 65);
             comboY.Name = "comboY";
@@ -1241,18 +1235,17 @@
             tableMaskingEnsembles.Size = new Size(309, 57);
             tableMaskingEnsembles.TabIndex = 1;
             // 
-            // AddVesselMountedADCP
+            // EditVesselMountedADCP
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1094, 500);
             Controls.Add(tableMain);
             Controls.Add(menuStrip1);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "AddVesselMountedADCP";
-            Text = "Add Vessel Mounted ADCP";
-            FormClosing += AddVesselMountedADCP_FormClosing;
+            Name = "EditVesselMountedADCP";
+            Text = "Vessel Mounted ADCP";
+            FormClosing += EditVesselMountedADCP_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableConfig.ResumeLayout(false);
@@ -1293,7 +1286,6 @@
 
         private MenuStrip menuStrip1;
         private ToolStripMenuItem menuFile;
-        private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuSave;
         private Label lblPD0File;
         private Label lblPositionFile;
@@ -1374,7 +1366,7 @@
         private TextBox txtMaxVelocity;
         private TableLayoutPanel tableMaskingErrorVelocity;
         private CheckBox checkMaskingErrorVelocity;
-        
+
         private Label label3;
         private Label lblMinErrorVelocity;
         private Label lblMaxErrorVelocity;

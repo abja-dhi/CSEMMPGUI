@@ -1,13 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Project type="Project">
   <Settings>
-    <Name>New Project</Name>
+    <Name>Project1</Name>
     <Directory>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests</Directory>
-    <EPSG>4326</EPSG>
+    <EPSG>32619</EPSG>
     <Description>
     </Description>
   </Settings>
-  <Model name="Model 1" type="Model" id="1">
-    <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\3D_Mt.dfsu</Path>
-  </Model>
 </Project>
