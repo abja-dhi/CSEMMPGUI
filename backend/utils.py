@@ -3,17 +3,10 @@ from mikecore.DfsuFile import DfsuFile
 import numpy as np
 import pandas as pd
 import warnings
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, List, Tuple, Sequence
 from matplotlib.tri import Triangulation, TriFinder
-import logging
-import tkinter as tk
-from tkinter import ttk, messagebox
 import pickle
-    
 from pathlib import Path
-from typing import Dict, List, Tuple, Sequence
-
-from .handlers import ErrorHandler
 
 class Constants:
     """Global constants for the pyEMMP package."""
@@ -126,104 +119,6 @@ class Utils:
                          (np.sin(theta), np.cos(theta), 0),
                          (0, 0, 1)])
     
-
-    @staticmethod
-    def get_logger(name: str = "pyEMMP", log_file: str | Path = "pyEMMP.log") -> logging.Logger:
-        logger = logging.getLogger(name)
-        if not logger.handlers:  # Prevent adding handlers multiple times
-            logger.setLevel(logging.DEBUG)
-            
-            fh = logging.FileHandler(log_file, mode="w", encoding="utf-8")
-            fh.setLevel(logging.DEBUG)
-            
-            formatter = logging.Formatter(
-                "%(asctime)s - %(levelname)s - %(message)s"
-            )
-            fh.setFormatter(formatter)
-            
-            logger.addHandler(fh)
-        
-        return logger
-
-    @staticmethod
-    def error(logger: logging.Logger, msg: str, exc: type, level: str) -> None:
-        """
-        Log an error message and raise an exception if provided.
-        
-        Parameters
-        ----------
-        msg : str
-            The error message to log.
-        exc : type, optional
-            An exception to raise after logging the message.
-        """
-        logger.error(f"({level}) {msg}")
-        if exc:
-            raise exc(f"({level}) {msg}") from None
-
-    @staticmethod
-    def warning(logger: logging.Logger, msg: str, level: str) -> None:
-        """
-        Log an error message and raise an exception if provided.
-        
-        Parameters
-        ----------
-        msg : str
-            The error message to log.
-        exc : type, optional
-            An exception to raise after logging the message.
-        """
-        logger.warning(f"({level}) {msg}")
-
-    @staticmethod
-    def info(logger: logging.Logger, msg: str, level: str) -> None:
-        """
-        Log an info message.
-        
-        Parameters
-        ----------
-        msg : str
-            The info message to log.
-        """
-        logger.info(f"({level}) {msg}")
-       
-        
-    @staticmethod
-    def all_nan(arr: np.ndarray, logger: logging.Logger, msg: str, class_name: str, arrname: str = "x") -> None:
-        """
-        Check if all elements in the array are NaN and log a warning if true.
-        
-        Parameters
-        ----------
-        arr : np.ndarray
-            The array to check.
-        logger : logging.Logger
-            The logger to use for logging the warning.
-        msg : str
-            The message to log if all values are NaN.
-        """
-        try:
-            if np.all(np.isnan(arr)):
-                Utils.warning(
-                    logger=logger,
-                    msg=msg,
-                    level=class_name
-                )
-        except:
-            try:
-                if np.all([x is np.nan for x in arr]):
-                    Utils.warning(
-                        logger=logger,
-                        msg=msg,
-                        level=class_name
-                    )
-            except:
-                Utils.error(
-                    logger,
-                    f"Error checking NaN values in array: {arrname} with type {type(arr)}",
-                    ValueError,
-                    level=class_name
-                )
 
     @staticmethod
     def extern_to_csv_single(filepath: str | Path) -> int:
@@ -341,7 +236,6 @@ class ColumnSelectorGUI:
         """
         Initialize the GUI for selecting columns from a table.
         """
-        self.logger = Utils.get_logger()
         self.filepath = Path(filepath)
         self.colfile = self.filepath.with_suffix('.col')
         self.skiprows = skiprows
@@ -355,20 +249,13 @@ class ColumnSelectorGUI:
                 self.selections = pickle.load(f)
                 self.df = self._read_file()
                 self._process()
-                Utils.warning(
-                    logger=self.logger,
-                    msg=f"Column selections loaded from {self.colfile}.",
-                    level=self.__class__.__name__
-                )
+                
         else:
             self.df = self._read_file()
-            self.root = tk.Tk()
-            self.root.title("Variable Selector")
             self.comboboxes = {}
             self.selections = None
             self.result = None
-            self._build_gui()
-            self.root.mainloop()
+            
 
     def _read_file(self):
         if self.filepath.suffix == '.csv':
@@ -381,49 +268,16 @@ class ColumnSelectorGUI:
                     return pd.read_csv(self.filepath, encoding='latin1', skiprows=self.skiprows, sep=self.sep, index_col=False, header=self.header)
         elif self.filepath.suffix in ['.xls', '.xlsx']:
             return pd.read_excel(self.filepath, skiprows=self.skiprows, index_col=False, header=self.header, sheet_name=self.sheet_name)
-        else:
-            Utils.error(
-                logger=self.logger,
-                msg=f"Unsupported file type: {self.filepath}. Supported types are: {Constants._TABLE_SUFFIX}",
-                exc=ValueError,
-                level=self.__class__.__name__
-            )
+        
 
-    def _build_gui(self):
-        frame = ttk.Frame(self.root, padding=10)
-        frame.pack(fill='both', expand=True)
-
-        ttk.Label(frame, text=self.description, wraplength=400, foreground='blue').pack(anchor='w', pady=(0, 10))
-
-        ttk.Label(frame, text="File Name:").pack(anchor='w')
-        ttk.Label(frame, text=str(self.filepath), foreground='gray').pack(anchor='w', pady=(0, 10))
-
-        for var in self.variables:
-            ttk.Label(frame, text=var).pack(anchor='w')
-            cb = ttk.Combobox(frame, values=self.df.columns.tolist(), state='readonly')
-            cb.pack(fill='x', pady=(0, 10))
-            self.comboboxes[var] = cb
-
-        process_btn = ttk.Button(frame, text="Process", command=self._process)
-        process_btn.pack(pady=(10, 0))
+    
 
     def _process(self):
         if self.selections is None:
             self.selections = {var: cb.get() for var, cb in self.comboboxes.items()}
-            if not all(self.selections.values()):
-                Utils.error(
-                    logger=self.logger,
-                    msg=f"Please select all columns from {self.filepath}",
-                    exc=ValueError,
-                    level=self.__class__.__name__
-                )
             with open(self.colfile, 'wb') as f:
                 pickle.dump(self.selections, f)
-            Utils.info(
-                logger=self.logger,
-                msg=f"Column selections saved to {self.colfile}.",
-                level=self.__class__.__name__
-            )
+            
             self.root.destroy()
         self.result = self.df[[v for v in self.selections.values()]].copy()
         self.result.columns = list(self.selections.keys())
@@ -444,11 +298,6 @@ class CSVParser:
         self.requested_columns = self._cfg.get("requested_columns", None)
         self.header = self._cfg.get("header", 0)
         self.sep = self._cfg.get("sep", ",")
-        if self.requested_columns is None:
-            warnings.warn(
-                f"Parsing all columns from {self.fname} by default. It is recommended to specify 'requested_columns' to improve performance.",
-                RuntimeWarning,
-                stacklevel=2,)
         self.df = self.parse()
         
         
@@ -539,9 +388,3 @@ class XYZ:
         self.z = z
         self.xy = np.array([x, y]).T
         self.xyz = np.array([x, y, z]).T
-
-    def __repr__(self) -> str:
-        return (
-            f"XYZ(\n"
-            f"Number of points: {len(self.x)}\n)"
-        )

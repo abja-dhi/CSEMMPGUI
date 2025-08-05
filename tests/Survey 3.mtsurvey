@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<Survey type="Survey" name="Survey 3">
-  <WaterSample type="Water Sample" name="Water Sample 1">
-    <Sample id="0" DateTime="2023-Dec-12 11:23:34" />
-    <Sample id="1" DateTime="Dec 23, 2015" />
-    <Sample id="2" DateTime="Dec 28," />
-  </WaterSample>
-</Survey>

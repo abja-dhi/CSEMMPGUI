@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddSurvey));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
@@ -51,9 +52,14 @@
             panel1 = new Panel();
             treeSurvey = new TreeView();
             tableLayoutPanel1 = new TableLayoutPanel();
+            cmenuNode = new ContextMenuStrip(components);
+            itemOpen = new ToolStripMenuItem();
+            itemPlot = new ToolStripMenuItem();
+            itemDelete = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
+            cmenuNode.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -104,7 +110,7 @@
             // 
             menuADCP.DropDownItems.AddRange(new ToolStripItem[] { menuADCPVesselMounted, menuADCPSeabedLander });
             menuADCP.Name = "menuADCP";
-            menuADCP.Size = new Size(180, 22);
+            menuADCP.Size = new Size(147, 22);
             menuADCP.Text = "ADCP";
             // 
             // menuADCPVesselMounted
@@ -125,27 +131,27 @@
             // 
             menuOBS.DropDownItems.AddRange(new ToolStripItem[] { menuOBSVerticalProfile, menuOBSTransect });
             menuOBS.Name = "menuOBS";
-            menuOBS.Size = new Size(180, 22);
+            menuOBS.Size = new Size(147, 22);
             menuOBS.Text = "OBS";
             // 
             // menuOBSVerticalProfile
             // 
             menuOBSVerticalProfile.Name = "menuOBSVerticalProfile";
-            menuOBSVerticalProfile.Size = new Size(180, 22);
+            menuOBSVerticalProfile.Size = new Size(149, 22);
             menuOBSVerticalProfile.Text = "Vertical Profile";
             menuOBSVerticalProfile.Click += menuOBSVerticalProfile_Click;
             // 
             // menuOBSTransect
             // 
             menuOBSTransect.Name = "menuOBSTransect";
-            menuOBSTransect.Size = new Size(180, 22);
+            menuOBSTransect.Size = new Size(149, 22);
             menuOBSTransect.Text = "Transect";
             menuOBSTransect.Click += menuOBSTransect_Click;
             // 
             // menuWaterSample
             // 
             menuWaterSample.Name = "menuWaterSample";
-            menuWaterSample.Size = new Size(180, 22);
+            menuWaterSample.Size = new Size(147, 22);
             menuWaterSample.Text = "Water Sample";
             menuWaterSample.Click += menuWaterSample_Click;
             // 
@@ -210,6 +216,8 @@
             treeSurvey.Name = "treeSurvey";
             treeSurvey.Size = new Size(200, 437);
             treeSurvey.TabIndex = 0;
+            treeSurvey.NodeMouseClick += treeSurvey_NodeMouseClick;
+            treeSurvey.NodeMouseDoubleClick += treeSurvey_NodeMouseDoubleClick;
             // 
             // tableLayoutPanel1
             // 
@@ -226,6 +234,33 @@
             tableLayoutPanel1.Size = new Size(684, 437);
             tableLayoutPanel1.TabIndex = 5;
             // 
+            // cmenuNode
+            // 
+            cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
+            cmenuNode.Name = "cmenuNode";
+            cmenuNode.Size = new Size(181, 92);
+            // 
+            // itemOpen
+            // 
+            itemOpen.Name = "itemOpen";
+            itemOpen.Size = new Size(180, 22);
+            itemOpen.Text = "Open";
+            itemOpen.Click += itemOpen_Click;
+            // 
+            // itemPlot
+            // 
+            itemPlot.Name = "itemPlot";
+            itemPlot.Size = new Size(180, 22);
+            itemPlot.Text = "Plot";
+            itemPlot.Click += itemPlot_Click;
+            // 
+            // itemDelete
+            // 
+            itemDelete.Name = "itemDelete";
+            itemDelete.Size = new Size(180, 22);
+            itemDelete.Text = "Delete";
+            itemDelete.Click += itemDelete_Click;
+            // 
             // AddSurvey
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -237,12 +272,14 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "AddSurvey";
-            Text = "AddSurvey";
+            Text = "Add Survey";
+            Activated += AddSurvey_Activated;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             panel1.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            cmenuNode.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -271,5 +308,9 @@
         private ToolStripMenuItem menuViSeaExtern2CSVSingle;
         private ToolStripMenuItem menuViSeaExtern2CSVBatch;
         private ToolStripMenuItem menuExit;
+        private ContextMenuStrip cmenuNode;
+        private ToolStripMenuItem itemOpen;
+        private ToolStripMenuItem itemPlot;
+        private ToolStripMenuItem itemDelete;
     }
 }
