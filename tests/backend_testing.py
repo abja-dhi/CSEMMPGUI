@@ -59,7 +59,7 @@ for i,fpath in enumerate(pos_fpaths):
 
 water_properties =  {'density':1023,
                      'salinity': 130,
-                     'temperature':28,
+                     'temperature':None,
                      'pH': 8.1}
 
 sediment_properties = {'particle_diameter':30,
@@ -124,18 +124,9 @@ fsda
 #%% generic testing for ADCP functions
 import numpy as np
 
-E_r = adcp.abs_params.E_r
-WB = adcp._pd0._fixed.system_bandwidth_wb
-C = adcp.abs_params.C
+nc = adcp.geometry.n_bins
+ne = adcp.time.n_ensembles
 
-k_c = {
-    1: adcp.abs_params.rssi[1],
-    2: adcp.abs_params.rssi[2],
-    3: adcp.abs_params.rssi[3],
-    4: adcp.abs_params.rssi[4]
-}
-
-P_dbw = adcp.abs_params.P_dbw
 
 bin_distances = adcp.geometry.bin_midpoint_distances
 pulse_lengths = adcp._pd0._get_sensor_transmit_pulse_length()
@@ -147,37 +138,32 @@ pressure = adcp.aux_sensor_data.pressure
 salinity = adcp.water_properties.salinity
 density = adcp.water_properties.density
 
-nc = adcp.geometry.n_bins
-ne = adcp.time.n_ensembles
 
-temp = temperature * np.ones((ne, nc)).T
-pressure = np.outer(pressure, np.ones(nc)).T
-salinity = salinity * np.ones((ne, nc)).T
-water_density = density * np.ones((ne, nc)).T
+pressure = np.outer(pressure, np.ones(nc))
+salinity = salinity * np.ones((ne, nc))
+water_density = density * np.ones((ne, nc))
 
-pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
-bin_distances = np.outer(bin_distances, np.ones(ne))
+pulse_lengths = np.outer(pulse_lengths, np.ones(nc))
+bin_distances = np.outer(bin_distances, np.ones(ne)).T
 
-print(f"temp shape: {temp.shape}")
+print(f"temp shape: {temperature.shape}")
 print(f"pressure shape: {pressure.shape}")
 print(f"salinity shape: {salinity.shape}")
 print(f"water_density shape: {water_density.shape}")
 print(f"pulse_lengths shape: {pulse_lengths.shape}")
 print(f"bin_distances shape: {bin_distances.shape}")
 
-if adcp.geometry.beam_facing.lower() == 'down':
-    pressure += bin_distances * 0.98
-else:
-    pressure -= bin_distances * 0.98
+# if adcp.geometry.beam_facing.lower() == 'down':
+#     pressure += bin_distances * 0.98
+# else:
+#     pressure -= bin_distances * 0.98
 
-alpha_w = adcp._water_absorption_coeff(
-    T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
+# alpha_w = adcp._water_absorption_coeff(T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
 
 Echo = adcp.beam_data.echo_intensity
-
-ABS = np.zeros_like(E, dtype=float)
-SSC = np.zeros_like(E, dtype=float)
-Alpha_s = np.zeros_like(E, dtype=float)
+ABS = np.zeros_like(Echo, dtype=float)
+SSC = np.zeros_like(Echo, dtype=float)
+Alpha_s = np.zeros_like(Echo, dtype=float)
 
 
 

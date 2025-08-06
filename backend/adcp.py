@@ -277,7 +277,7 @@ class ADCP():
             pressure=np.array([v.pressure * 0.001 for v in vl]),  # decapascal → dbar
             pressure_var=np.array([v.pressure_sensor_variance * 0.001 for v in vl]),
             depth_of_transducer=np.array([v.depth_of_transducer_ed * 0.1 for v in vl]),  # dm → m
-            temperature=np.array([v.temperature_et  for v in vl]),
+            temperature=self._pd0._get_sensor_temperature(),
             salinity=np.array([v.salinity_es for v in vl]),
             speed_of_sound=np.array([v.speed_of_sound_ec for v in vl]),
             heading=np.array([v.heading_eh * 0.01 for v in vl]),
@@ -312,7 +312,7 @@ class ADCP():
         # get sensor temperature
         temperature = np.array(wp_cfg.get('temperature', None))
         if not temperature:
-            temperature = self._pd0._get_sensor_temperature() # if not manual entry, use sensor data
+            temperature = self.aux_sensor_data.temperature # if not manual entry, use sensor data
         else:
             temperature = temperature*np.ones(self.time.n_ensembles)# else cast input variable to correct dimension 
         temperature = np.outer(temperature, np.ones(self.geometry.n_bins)) # cast to correct dimensions                      
@@ -358,14 +358,15 @@ class ADCP():
         @dataclass
         class AbsoluteBackscatterParams:
             """Parameters used in calculating absolute backscatter from echo intensity."""
-            E_r: Optional[float] = field(default=39.0, metadata={"desc": "Noise floor (counts)"})
-            C: Optional[float] = field(default=None, metadata={"desc": "System-specific calibration constant (dB)"})
+            E_r: float = field(default=39.0, metadata={"desc": "Noise floor (counts)"})
+            C: float = field(default=None, metadata={"desc": "System-specific calibration constant (dB)"})
             alpha_s: Optional[NDArray[np.float64]] = field(default=None, metadata={"desc": "Sediment Attenuation coefficient array (dB/m)"})
             alpha_w: Optional[NDArray[np.float64]] = field(default=None, metadata={"desc": "Water Attenuation coefficient array (dB/m)"})
-            P_dbw: Optional[float] = field(default=None, metadata={"desc": "Transmit power (dBW)"})
-            rssi: Dict[int, float] = field(default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},metadata={"desc": "RSSI scaling factors per beam"}),
+            P_dbw: float = field(default=None, metadata={"desc": "Transmit power (dBW)"})
+            WB: float =  field(default=None, metadata={"desc": "System Bandwidth (dBW)"}) 
+            rssi: Dict[int, float] = field(default_factory=lambda: {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41},metadata={"desc": "RSSI scaling factors (counts to decibals) per beam"}),
             frequency: float = field(default=None, metadata={"desc": "System frequency"})
-            tx_pulse_length: Optional[float] = field(default=None, metadata={"desc": "Transmit pule length (m)"})
+            tx_pulse_length: float = field(default=None, metadata={"desc": "Transmit pule length (m)"})
             
             
         
@@ -402,17 +403,6 @@ class ADCP():
         #pulse_lengths = np.outer(pulse_lengths, np.ones(n_bins))
         bin_distances = np.outer(bin_distances, np.ones(n_ens)).T
         
- 
-        
-        print(f"temp shape: {temperature.shape}")
-        print(f"pressure shape: {pressure.shape}")
-        print(f"salinity shape: {salinity.shape}")
-        print(f"water_density shape: {water_density.shape}")
-        print(f"pulse_lengths shape: {pulse_lengths.shape}")
-        print(f"bin_distances shape: {bin_distances.shape}")
-        
-
-        
         alpha_w = self._water_absorption_coeff(
                           T = self.water_properties.temperature,
                           S = self.water_properties.salinity,
@@ -448,10 +438,11 @@ class ADCP():
                             P_dbw=P_dbw,
                             rssi=rssi,
                             frequency = freq,
-                            tx_pulse_length = pulse_lengths)
+                            tx_pulse_length = pulse_lengths,
+                            WB = bandwidth)
         
         
-        #print(self.abs_params)
+
         #self.abs_params = self._gen_abs_backscatter_params_from_adcp()
         
         
@@ -705,8 +696,7 @@ class ADCP():
         E_r_db = k_c * E_r / 10
         
     
-        print(f"Tx_T .. {Tx_T.shape}")
-        print(f"Tx_PL .. {Tx_PL.shape}")
+
         # Prevent division by zero and negative log input
         with np.errstate(divide='ignore', invalid='ignore'):
             delta_power = np.maximum(10 ** (0.1 * k_c * (E - E_r)) - 1, 1e-10)
@@ -742,10 +732,7 @@ class ADCP():
         k_c = self.abs_params.rssi
         alpha_w = self.abs_params.alpha_w # water attenuation coefficient 
         alpha_s = self.abs_params.alpha_s # sediment attenuation coefficient 
-        
-        
         P_dbw = self.abs_params.P_dbw
-        
         temperature = self.water_properties.temperature #np.outer(self._pd0._get_sensor_temperature(), np.ones(self.geometry.n_bins))
         bin_distances = np.outer(self.geometry.bin_midpoint_distances, np.ones(self.time.n_ensembles)).T
         transmit_pulse_length = np.outer(self.abs_params.tx_pulse_length, np.ones(self.geometry.n_bins))
