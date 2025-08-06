@@ -199,6 +199,30 @@ class Pd0Formats:
     pct_good: FieldDef = [FieldDef("PERCENT GOOD", 1, "<", "B", True)]
     variable: FieldDef = [FieldDef("Variable", 1, "<", "B", True)]
     
+    external_fields = [
+        FieldDef("LEADER ID", 2, "<", "H", True),             # 2-byte unsigned int
+        FieldDef("GEODETIC DATUM", 10, "<", "10s", True),       # 10-byte fixed-width string (e.g., "WGS84")
+        FieldDef("VERTICAL DATUM", 10, "<", "10s", True),        # 10-byte fixed-width string (e.g., "SEAFLOOR")
+        FieldDef("MAGNETIC DECLINATION", 4, "<", "f", True),     # 4-byte float
+        FieldDef("UTC OFFSET", 1, "<", "b", True),               # 1-byte signed int
+        FieldDef("CRP X", 4, "<", "f", True),                    # 4-byte float
+        FieldDef("CRP Y", 4, "<", "f", True),                    # 4-byte float
+        FieldDef("CRP Z", 4, "<", "f", True),                    # 4-byte float
+        FieldDef("SITE NAME", 20, "<", "20s", True),             # 20-byte fixed-width string
+        FieldDef("SURVEYOR", 20, "<", "20s", True),              # 20-byte fixed-width string
+        FieldDef("DEPLOYMENT ID", 20, "<", "20s", True),         # 20-byte fixed-width string
+        FieldDef("X", 4, "<", "f", True),                        # 4-byte float
+        FieldDef("Y", 4, "<", "f", True),                        # 4-byte float
+        FieldDef("Z", 4, "<", "f", True),                        # 4-byte float
+        FieldDef("PITCH", 4, "<", "f", True),                    # 4-byte float
+        FieldDef("ROLL", 4, "<", "f", True),                     # 4-byte float
+        FieldDef("YAW", 4, "<", "f", True),                      # 4-byte float
+        FieldDef("TURBIDITY", 4, "<", "f", True),                # 4-byte float
+        FieldDef("RSSI BEAM 1", 4, "<", "f", True), 
+        FieldDef("RSSI BEAM 2", 4, "<", "f", True), 
+        FieldDef("RSSI BEAM 3", 4, "<", "f", True), 
+        FieldDef("RSSI BEAM 4", 4, "<", "f", True),]
+    
     
 # Example usage:
 if __name__ == "__main__":

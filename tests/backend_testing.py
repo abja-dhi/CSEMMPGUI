@@ -114,7 +114,9 @@ for i,fpath in enumerate(pd0_fpaths):
     
     adcp = DatasetADCP(cfg, name = name)
     adcps.append(adcp)
-    break
+    
+    if i==3:
+        break
     
     
    

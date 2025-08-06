@@ -14,7 +14,7 @@ from datetime import datetime
 
 from .utils import Utils, Constants, XYZ
 from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
-from ._adcp_position import ADCPPosition, PositionSetupGUI
+from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
 
 
@@ -91,12 +91,15 @@ class ADCP():
             crp_offset_y: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Y axis, meters)"})
             crp_offset_z: float = field(metadata={"desc": "Offset of ADCP from platform CRP (Z axis, meters)"})
             crp_rotation_angle: float = field(metadata={"desc": "CCW rotation of ADCP in casing (degrees)"})
+            sensor_pitch: NDArray[np.float64] = field(metadata={"desc": "Pitch tilt angle of the ADCP, measured by instrument sensor (+20 to -20 degrees)"})
+            sensor_roll: NDArray[np.float64] = field(metadata={"desc": "Roll tilt angle of the ADCP, measured by instrument sensor (+20 to -20 degrees)"})
+            sensor_heading: NDArray[np.float64] = field(metadata={"desc": "Heading angle of the ADCP, measured by instrument sensor (0 to 360 degrees)"})
             relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
             geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
                     
                 
         
-                
+        vh_list = self._pd0._get_variable_leader()      
         self.geometry = ADCPGeometry(
             beam_facing = self._pd0._beam_facing,
             n_bins = self._pd0._n_cells,
@@ -111,6 +114,9 @@ class ADCP():
             crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER)),
             relative_beam_midpoint_positions = None,
             geographic_beam_midpoint_positions = None,
+            sensor_pitch = .01*np.array([getattr(vh_list[e], f"pitch_tilt_1_ep") for e in range(self._pd0._n_ensembles)]),
+            sensor_roll = .01*np.array([getattr(vh_list[e], f"roll_tilt_2_er")  for e in range(self._pd0._n_ensembles)]),
+            sensor_heading = .01*np.array([getattr(vh_list[e], f"heading_eh")  for e in range(self._pd0._n_ensembles)])
             )
 
 
