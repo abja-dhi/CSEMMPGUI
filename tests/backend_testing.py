@@ -11,7 +11,8 @@ from backend.adcp import ADCP as DatasetADCP
 from backend._adcp_position import ADCPPosition
 from backend.utils import Utils, CSVParser
 from backend.plotting import PlottingShell
-    
+
+import matplotlib.pyplot as plt
 
 root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
 
@@ -58,7 +59,7 @@ for i,fpath in enumerate(pos_fpaths):
 #%%
 
 water_properties =  {'density':1023,
-                     'salinity': 130,
+                     'salinity': 32,
                      'temperature':None,
                      'pH': 8.1}
 
@@ -66,15 +67,15 @@ sediment_properties = {'particle_diameter':30,
                        'particle_density':2650}
 
 
-abs_params = {'C': 39.0,
+abs_params = {'C': -139.0,
               'P_dbw': 9,
               'E_r': 39,
               'rssi_beam1': 0.41,
-              'rssi_beam2': 0.39,
-              'rssi_beam3': 0.47,
-              'rssi_beam4': 0.42,}
+              'rssi_beam2': 0.41,
+              'rssi_beam3': 0.41,
+              'rssi_beam4': 0.41,}
 
-ssc_params = {'A': 3.75, 'B':.049}
+ssc_params = {'A': 5, 'B':.049}
 cfgs = []
 position_datasets = []
 adcps = []
@@ -87,17 +88,19 @@ for i,fpath in enumerate(pd0_fpaths):
            'pg_min' : 50,
            'vel_min' : -2.0,
            'vel_max' : 2.0,
-           'echo_min' : 20,
-           'echo_max' : 180,
-           'cormag_min' : 50,
+           'echo_min' : 0,
+           'echo_max' : 255,
+           'cormag_min' : 0,
            'cormag_max' : 255,
+           'abs_min' : -55,
+           'abs_max': -30,
            'err_vel_max' : 0.5,
-           'start_datetime' : '2023 Jan 01 00:00:00',
-           'end_datetime' : '2023 Jan 15 00:00:00',
-           'first_good_ensemble' : 0,
-           'last_good_ensemble' : 100000,
-           'magnetic_declination' : 11.5,
-           'utc_offset' : 0,
+           'start_datetime' : None,
+           'end_datetime' : None,
+           'first_good_ensemble' : None,
+           'last_good_ensemble' : None,
+           'magnetic_declination' : 0,
+           'utc_offset' : None,
            'crp_rotation_angle' : 45.0,
            'crp_offset_x' : 0.0,
            'crp_offset_y' : 0.0,
@@ -114,18 +117,28 @@ for i,fpath in enumerate(pd0_fpaths):
     
     adcp = DatasetADCP(cfg, name = name)
     adcps.append(adcp)
-    
+    break
     if i==3:
         break
     
-    
-   
-fsda
+## To-Do
+## test masking more ....
+
+
 #%% generic testing for ADCP functions
 import numpy as np
 
 nc = adcp.geometry.n_bins
 ne = adcp.time.n_ensembles
+
+
+# define constant parameters
+E_r = adcp.abs_params.E_r
+WB = adcp.abs_params.WB
+C = adcp.abs_params.C
+k_c = adcp.abs_params.rssi
+alpha_w = adcp.abs_params.alpha_w # water attenuation coefficient 
+P_dbw = adcp.abs_params.P_dbw
 
 
 bin_distances = adcp.geometry.bin_midpoint_distances
@@ -153,28 +166,50 @@ print(f"water_density shape: {water_density.shape}")
 print(f"pulse_lengths shape: {pulse_lengths.shape}")
 print(f"bin_distances shape: {bin_distances.shape}")
 
-# if adcp.geometry.beam_facing.lower() == 'down':
-#     pressure += bin_distances * 0.98
-# else:
-#     pressure -= bin_distances * 0.98
 
-# alpha_w = adcp._water_absorption_coeff(T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
 
-Echo = adcp.beam_data.echo_intensity
-ABS = np.zeros_like(Echo, dtype=float)
-SSC = np.zeros_like(Echo, dtype=float)
-Alpha_s = np.zeros_like(Echo, dtype=float)
+#Echo = adcp.beam_data.echo_intensity
+# ABS = np.zeros_like(Echo, dtype=float)
+# SSC = np.zeros_like(Echo, dtype=float)
+# alpha_s = np.zeros_like(Echo, dtype=float)
 
 
 
 #%% Calculate an initial guess at SSC
 
-for beam in adcp.geometry.n_beams:
+for beam in range(adcp.geometry.n_beams):
     
 
-    echo_beam = Echo[:,:,beam]
+    abs_beam = adcp.beam_data.absolute_backscatter[:,:,beam]
     
-    # calcualte absolute backscatter with alpha_s = 0
+    abs_beam = adcp.get_beam_data(field_name = 'absolute_backscatter', mask = True)[:,:,beam] #.absolute_backscatter[:,:,beam]
+    ssc_beam = adcp._backscatter_to_ssc(abs_beam)
+    
+    
+    
+    
+    # abs_beam, stn_beam = adcp._counts_to_absolute_backscatter(E = echo_beam,
+    #                                                           E_r = E_r,
+    #                                                           k_c = k_c[beam],
+    #                                                           alpha = ,
+    #                                                           C,
+    #                                                           R,
+    #                                                           Tx_T,
+    #                                                           Tx_PL,
+    #                                                           P_dbw)
+        
+        
+    #     E,
+    #                                                           E_r,
+    #                                                           float(k_c[i+1]),
+    #                                                           alpha,
+    #                                                           C,
+    #                                                           bin_distances,
+    #                                                           temperature,
+    #                                                           transmit_pulse_length,
+    #                                                           P_dbw)
+    #     )
+    # # calcualte absolute backscatter with alpha_s = 0
     
     
     

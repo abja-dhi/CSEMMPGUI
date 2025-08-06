@@ -38,6 +38,18 @@ class ADCP():
             
         self._pd0 = Pd0Decoder(self._pd0_path, self._cfg)
 
+        def get_valid(cfg, key, default):
+            # helper for parsing dictionary values
+            val = cfg.get(key, default)
+            if val is None:
+                return default
+            try:
+                if isinstance(val, float) and np.isnan(val):
+                    return default
+            except TypeError:
+                pass
+            return val
+
 
         @dataclass
         class ADCPCorrections:
@@ -49,13 +61,15 @@ class ADCP():
             transect_shift_t: float = field(metadata={"desc": "Shifting time of entire ADCP transect for model calibration (time axis, hours)"})
             
         self.corrections = ADCPCorrections(
-            magnetic_declination= float(self._cfg.get('magnetic_declination', Constants._LOW_NUMBER)),
-            utc_offset= float(self._cfg.get('utc_offset', Constants._LOW_NUMBER)),
-            transect_shift_x= float(self._cfg.get('transect_shift_x', Constants._LOW_NUMBER)),
-            transect_shift_y= float(self._cfg.get('transect_shift_y', Constants._LOW_NUMBER)),
-            transect_shift_z= float(self._cfg.get('transect_shift_z', Constants._LOW_NUMBER)),
-            transect_shift_t= float(self._cfg.get('transect_shift_t', Constants._LOW_NUMBER)),
-            )
+            magnetic_declination=float(get_valid(self._cfg, 'magnetic_declination', 0)),
+            utc_offset=float(get_valid(self._cfg, 'utc_offset', 0)),
+            transect_shift_x=float(get_valid(self._cfg, 'transect_shift_x', 0)),
+            transect_shift_y=float(get_valid(self._cfg, 'transect_shift_y', 0)),
+            transect_shift_z=float(get_valid(self._cfg, 'transect_shift_z', 0)),
+            transect_shift_t=float(get_valid(self._cfg, 'transect_shift_t', 0)),
+        )
+        
+        print(self.corrections.utc_offset)
         
         @dataclass    
         class ADCPTime:
@@ -101,23 +115,23 @@ class ADCP():
         
         vh_list = self._pd0._get_variable_leader()      
         self.geometry = ADCPGeometry(
-            beam_facing = self._pd0._beam_facing,
-            n_bins = self._pd0._n_cells,
-            n_beams = self._pd0._fixed.number_of_beams,
-            beam_angle=self._pd0._fixed.beam_angle, 
-            bin_1_distance=self._pd0._fixed.bin_1_distance/100,  
-            bin_length= self._pd0._fixed.depth_cell_length_ws/100,  
-            bin_midpoint_distances =  self._pd0._get_bin_midpoints(),
-            crp_offset_x=float(self._cfg.get('crp_offset_x', Constants._LOW_NUMBER)),
-            crp_offset_y=float(self._cfg.get('crp_offset_y', Constants._LOW_NUMBER)),
-            crp_offset_z=float(self._cfg.get('crp_offset_z', Constants._LOW_NUMBER)),
-            crp_rotation_angle=float(self._cfg.get('crp_rotation_angle', Constants._LOW_NUMBER)),
-            relative_beam_midpoint_positions = None,
-            geographic_beam_midpoint_positions = None,
-            sensor_pitch = .01*np.array([getattr(vh_list[e], f"pitch_tilt_1_ep") for e in range(self._pd0._n_ensembles)]),
-            sensor_roll = .01*np.array([getattr(vh_list[e], f"roll_tilt_2_er")  for e in range(self._pd0._n_ensembles)]),
-            sensor_heading = .01*np.array([getattr(vh_list[e], f"heading_eh")  for e in range(self._pd0._n_ensembles)])
-            )
+            beam_facing=self._pd0._beam_facing,
+            n_bins=self._pd0._n_cells,
+            n_beams=self._pd0._fixed.number_of_beams,
+            beam_angle=self._pd0._fixed.beam_angle,
+            bin_1_distance=self._pd0._fixed.bin_1_distance / 100,
+            bin_length=self._pd0._fixed.depth_cell_length_ws / 100,
+            bin_midpoint_distances=self._pd0._get_bin_midpoints(),
+            crp_offset_x=float(get_valid(self._cfg, 'crp_offset_x', 0)),
+            crp_offset_y=float(get_valid(self._cfg, 'crp_offset_y', 0)),
+            crp_offset_z=float(get_valid(self._cfg, 'crp_offset_z', 0)),
+            crp_rotation_angle=float(get_valid(self._cfg, 'crp_rotation_angle',0)),
+            relative_beam_midpoint_positions=None,
+            geographic_beam_midpoint_positions=None,
+            sensor_pitch=0.01 * np.array([getattr(vh_list[e], "pitch_tilt_1_ep") for e in range(self._pd0._n_ensembles)]),
+            sensor_roll=0.01 * np.array([getattr(vh_list[e], "roll_tilt_2_er") for e in range(self._pd0._n_ensembles)]),
+            sensor_heading=0.01 * np.array([getattr(vh_list[e], "heading_eh") for e in range(self._pd0._n_ensembles)])
+        )
 
 
         relative_bmp, geographic_bmp = self._calculate_beam_geometry()
@@ -310,7 +324,8 @@ class ADCP():
             pressure -= bin_distances * 0.981
            
         # get sensor temperature
-        temperature = np.array(wp_cfg.get('temperature', None))
+
+        temperature = np.array(get_valid(wp_cfg,'temperature', None))
         if not temperature:
             temperature = self.aux_sensor_data.temperature # if not manual entry, use sensor data
         else:
@@ -318,13 +333,13 @@ class ADCP():
         temperature = np.outer(temperature, np.ones(self.geometry.n_bins)) # cast to correct dimensions                      
 
         self.water_properties = WaterProperties(
-            density=np.array(wp_cfg.get('density', [1023.0]), dtype=np.float64),
-            salinity=np.array(wp_cfg.get('salinity', [30.0]), dtype=np.float64),
+            density=np.array(get_valid(wp_cfg, 'density', [1023.0]), dtype=np.float64),
+            salinity=np.array(get_valid(wp_cfg, 'salinity', [30.0]), dtype=np.float64),
             temperature=temperature,
-            pressure = pressure,
-            pH=np.array(wp_cfg.get('pH', [8.1]), dtype=np.float64),
-        )    
-            
+            pressure=pressure,
+            pH=np.array(get_valid(wp_cfg, 'pH', [8.1]), dtype=np.float64),
+        )
+                    
         
         ## Sediment properties class
         @dataclass
@@ -347,8 +362,8 @@ class ADCP():
         sscpar_cfg = self._cfg.get('ssc_params', {})
         
         self.ssc_params = SSCParams(
-            A=sscpar_cfg.get('A', 0.05),
-            B=sscpar_cfg.get('B', 5)
+            A=get_valid(sscpar_cfg,'A', 0.05),
+            B=get_valid(sscpar_cfg,'B', 5)
         )
                 
         
@@ -384,7 +399,7 @@ class ADCP():
         
 
         # compute water attenuation coefficient
-        pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()/100
+        pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
         bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
         freq = self._pd0._fixed.system_configuration.frequency
         freq = float(freq.split('-')[0])
@@ -425,10 +440,10 @@ class ADCP():
         E_r = abs_cfg.get("E_r", 39.0)
     
         # Beam-specific RSSI from rssi dataclass
-        rssi ={1:float(abs_cfg.get('rssi_beam1', 0.41)),
-               2:float(abs_cfg.get('rssi_beam2', 0.41)),
-               3:float(abs_cfg.get('rssi_beam3', 0.41)),
-               4:float(abs_cfg.get('rssi_beam4', 0.41))}
+        rssi ={1:float(get_valid(abs_cfg,'rssi_beam1', 0.41)),
+               2:float(get_valid(abs_cfg,'rssi_beam2', 0.41)),
+               3:float(get_valid(abs_cfg,'rssi_beam3', 0.41)),
+               4:float(get_valid(abs_cfg,'rssi_beam4', 0.41))}
         
         self.abs_params = AbsoluteBackscatterParams(
                             E_r=E_r,
@@ -441,6 +456,10 @@ class ADCP():
                             tx_pulse_length = pulse_lengths,
                             WB = bandwidth)
         
+        #calculate absolute backscatter
+        ABS,StN = self._calculate_absolute_backscatter()
+        self.beam_data.absolute_backscatter = ABS
+        self.beam_data.signal_to_noise_ratio = StN
         
 
         #self.abs_params = self._gen_abs_backscatter_params_from_adcp()
@@ -456,6 +475,8 @@ class ADCP():
             cormag_max: int = field(metadata={"desc": "Maximum correlation magnitude accepted. Applies to masks for beam data only."})
             echo_min: int = field(metadata={"desc": "Minimum echo intensity threshold accepted. Applies to masks for beam data only."})
             echo_max: int = field(metadata={"desc": "Maximum echo intensity threshold accepted. Applies to masks for beam data only."})
+            abs_min: int = field(metadata={"desc": "Minimum absolute backscatter intensity threshold accepted. Applies to masks for beam data only."})
+            abs_max: int = field(metadata={"desc": "Maximum absolute backscatter intensity threshold accepted. Applies to masks for beam data only."})
             vel_min: float = field(metadata={"desc": "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
             vel_max: float = field(metadata={"desc": "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
             err_vel_max: float = field(metadata={"desc": "Maximum accepted error velocity (m/s). Applies to masks for velocity data only." })
@@ -463,23 +484,35 @@ class ADCP():
             end_datetime: datetime = field(metadata={"desc": "End time for valid ensemble masking window. Applies to masks for velocity and beam data."})
             first_good_ensemble: int = field(metadata={"desc": "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
             last_good_ensemble: int = field(metadata={"desc": "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
+            beam_data_mask: NDArray[np.float64] = field(metadata={"desc": "(calculated) Boolean array (n_ens,n_bin,n_beam) contaning composite mask for all beam data variables"})
+            vel_data_mask: NDArray[np.float64] = field(metadata={"desc": "(calculated) Boolean array (n_ens,n_bin) contaning composite mask for all velocity data variables"})
 
             
         self.masking = MaskParams(
-            pg_min=float(self._cfg.get('pg_min', Constants._LOW_NUMBER)),
-            cormag_min=int(self._cfg.get('cormag_min', Constants._LOW_NUMBER)),
-            cormag_max=int(self._cfg.get('cormag_max', Constants._HIGH_NUMBER)),
-            echo_min=int(self._cfg.get('echo_min', Constants._LOW_NUMBER)),
-            echo_max=int(self._cfg.get('echo_max', Constants._HIGH_NUMBER)),
-            vel_min=float(self._cfg.get('vel_min', Constants._LOW_NUMBER)),
-            vel_max=float(self._cfg.get('vel_max', Constants._HIGH_NUMBER)),
-            err_vel_max=float(self._cfg.get('err_vel_max', Constants._HIGH_NUMBER)),
-            start_datetime=parser.parse(self._cfg.get('start_datetime', Constants._FAR_PAST_DATETIME)),
-            end_datetime=parser.parse(self._cfg.get('end_datetime', Constants._FAR_FUTURE_DATETIME)),
-            first_good_ensemble=int(self._cfg.get('first_good_ensemble', 1)),
-            last_good_ensemble=int(self._cfg.get('last_good_ensemble', 1))
-            )
+            pg_min=float(get_valid(self._cfg, 'pg_min', 0)),
+            cormag_min=int(get_valid(self._cfg, 'cormag_min', 0)),
+            cormag_max=int(get_valid(self._cfg, 'cormag_max', 255)),
+            echo_min=int(get_valid(self._cfg, 'echo_min', 0)),
+            echo_max=int(get_valid(self._cfg, 'echo_max', 255)),
+            abs_min=int(get_valid(self._cfg, 'abs_min', 0)),
+            abs_max=int(get_valid(self._cfg, 'abs_max', Constants._LOW_NUMBER)),
+            vel_min=float(get_valid(self._cfg, 'vel_min', Constants._LOW_NUMBER)),
+            vel_max=float(get_valid(self._cfg, 'vel_max', Constants._HIGH_NUMBER)),
+            err_vel_max=float(get_valid(self._cfg, 'err_vel_max', Constants._HIGH_NUMBER)),
+            start_datetime=parser.parse(get_valid(self._cfg, 'start_datetime', Constants._FAR_PAST_DATETIME)),
+            end_datetime=parser.parse(get_valid(self._cfg, 'end_datetime', Constants._FAR_FUTURE_DATETIME)),
+            first_good_ensemble=int(get_valid(self._cfg, 'first_good_ensemble', 1)),
+            last_good_ensemble=int(get_valid(self._cfg, 'last_good_ensemble', self.time.n_ensembles +1)),
+            beam_data_mask=None,
+            vel_data_mask=None,
+        )
+
         
+        
+        
+        
+        #% create bottom track mask 
+        #self._generate_bottom_track_mask()
         
         ## TO-DO 
         # Apply masking to beam data and velocity data separately
@@ -490,11 +523,9 @@ class ADCP():
         # add the instrument configuration summary as a method 
         #
     
-        #calculate SSC and absolute backscatter
+
         
-        ABS,StN = self._calculate_absolute_backscatter()
-        self.beam_data.absolute_backscatter = ABS
-        self.beam_data.signal_to_noise_ratio = StN
+        self._generate_beam_data_masks()
         
         # ABS,SSC,Alpha_s = self._calculate_ssc()
         # self.beam_data.absolute_backscatter = ABS
@@ -509,12 +540,118 @@ class ADCP():
         # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
         # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
 
-    def __repr__(self) -> str:  # pragma: no cover
-        return (
-            f"{self.__class__.__name__}(\n"
-            f"config_path='{self._config_path}'\n)"
-        )
 
+
+    def get_beam_data(self, field_name: str, mask: bool = True) -> np.ndarray:
+        """
+        Retrieve a specific beam data field, optionally masked.
+    
+        Parameters
+        ----------
+        field_name : str
+            Name of the beam data field to retrieve (e.g., 'echo_intensity', 'correlation_magnitude').
+        mask : bool, optional
+            If True, returns masked data. If False, returns raw unmasked data.
+    
+        Returns
+        -------
+        np.ndarray
+            The requested beam data array.
+        """
+        field_name = field_name.lower().strip()
+    
+        # Validate field name
+        valid_fields = ['echo_intensity', 'correlation_magnitude', 'percent_good',
+                        'absolute_backscatter', 'signal_to_noise_ratio',
+                        'suspended_solids_concentration', 'sediment_attenuation']
+        if field_name not in valid_fields:
+            raise ValueError(f"Invalid field name '{field_name}'. Must be one of: {valid_fields}")
+    
+        data = getattr(self.beam_data, field_name)
+        
+        data[self.masking.beam_data_mask] = np.nan
+        
+        return data
+        
+                       
+                       
+    def _generate_beam_data_masks(self) -> None:
+        
+        # correlation magnitude
+        cmag = self.beam_data.correlation_magnitude
+        cmag_mask = (cmag <= self.masking.cormag_max) & (cmag >= self.masking.cormag_min)
+        
+        # echo intensity
+        echo = self.beam_data.echo_intensity
+        echo_mask = (echo <= self.masking.echo_max) & (echo >= self.masking.echo_min)
+        
+        # absolute backscatter
+        sv = self.beam_data.absolute_backscatter
+        sv_mask = (sv <= self.masking.abs_max) & (sv >= self.masking.abs_min)
+        
+        # first/last good ensemble 
+        ens = np.arange(start = 1, stop = self.time.n_ensembles + 1)
+        ens_mask = (ens <= self.masking.last_good_ensemble) & (ens >= self.masking.first_good_ensemble)
+        ens_mask = ens_mask[:, np.newaxis, np.newaxis]
+        ens_mask = np.broadcast_to(ens_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
+
+        #start/end dates 
+        dt = self.time.ensemble_datetimes
+        dt_mask = (dt <= self.masking.end_datetime) & (dt >= self.masking.start_datetime)
+        dt_mask = dt_mask[:, np.newaxis, np.newaxis]
+        dt_mask = np.broadcast_to(dt_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
+
+
+        bt_mask = self._generate_bottom_track_mask()
+
+
+        master_mask = np.logical_and.reduce([cmag_mask, echo_mask, sv_mask, ens_mask, dt_mask,bt_mask])
+        
+        self.masking.beam_data_mask = master_mask
+        
+ 
+        
+        
+        
+
+    def _generate_bottom_track_mask(self, cell_offset: int = 0) -> None:
+        """
+        Masks beam data below the seabed based on bottom track range.
+    
+        Parameters
+        ----------
+        cell_offset : int, optional
+            Number of bins to offset the mask above (+) or below (-) the bottom track cell.
+            Default is 0, which masks the bottom track cell itself.
+        """
+        # Get bottom track range (in meters)
+        bt_range = self.bottom_track.range_to_seabed  # shape: (n_beams, n_ensembles)
+    
+        # Expand bottom track range to match beam data shape: (n_beams, n_bins, n_ensembles)
+        bt_range_expanded = np.repeat(bt_range[:, np.newaxis, :], self.geometry.n_bins, axis=1)
+    
+        # Get bin center distances (in meters)
+        bin_centers = np.outer(self.geometry.bin_midpoint_distances, np.ones(self.time.n_ensembles))
+        bin_centers = np.repeat(bin_centers[np.newaxis, :, :], self.geometry.n_beams, axis=0)
+    
+        # Apply offset (positive = mask above bottom, negative = below)
+        bin_centers += cell_offset * self.geometry.bin_length
+    
+        # Create mask: True = valid (above bottom), False = invalid (below bottom)
+        mask = bin_centers < bt_range_expanded
+        mask = ~mask.T
+        
+        
+        # # Apply mask to beam data fields
+        # for attr in ['echo_intensity', 'correlation_magnitude', 'percent_good']:
+        #     data = getattr(self.beam_data, attr)
+        #     masked_data = np.where(mask, data, np.nan)
+        #     setattr(self.beam_data, attr, masked_data)
+    
+        return mask
+        
+        
+        
 
     def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
         """
@@ -537,7 +674,7 @@ class ADCP():
             delta = timedelta(hours=float(self.corrections.utc_offset)) + \
                     timedelta(hours=float(self.corrections.transect_shift_t))
             datetimes = [dt + delta for dt in datetimes]
-        return datetimes
+        return np.array(datetimes)
     
         
     def _get_velocity(self,apply_corrections: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -737,6 +874,20 @@ class ADCP():
         bin_distances = np.outer(self.geometry.bin_midpoint_distances, np.ones(self.time.n_ensembles)).T
         transmit_pulse_length = np.outer(self.abs_params.tx_pulse_length, np.ones(self.geometry.n_bins))
     
+        # print(f"""
+        # echo_intensity mean: {np.mean(echo_intensity)}
+        # E_r: {E_r}
+        # WB: {WB}
+        # C: {C}
+        # k_c: {k_c}
+        # alpha_w mean: {np.mean(alpha_w)}
+        # alpha_s mean: {np.mean(alpha_s)}
+        # P_dbw: {P_dbw}
+        # temperature mean: {np.mean(temperature)}
+        # bin_distances mean: {np.mean(bin_distances)}
+        # transmit_pulse_length mean: {np.mean(transmit_pulse_length)}
+        # """)
+
 
         X = []
         StN = []
@@ -753,31 +904,101 @@ class ADCP():
 
  
  
-    def _water_absorption_coeff(self,T, S, z, f, pH):
+    # def _water_absorption_coeff(self,T, S, z, f, pH):
+        
+    #     print(f"""
+    #     T mean: {np.mean(T)}
+    #     S mean: {np.mean(S)}
+    #     z mean: {np.mean(z)}
+    #     f mean: {np.mean(f)}
+    #     pH mean: {np.mean(pH)}
+    #     """)
+        
+    #     c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
+    
+    #     A1 = (8.68 / c) * 10**(0.78 * pH - 5)
+    #     P1 = 1
+    #     f1 = 2.8 * np.sqrt(S / 35) * 10**(4 - (1245 / (273 + T)))
+    
+    #     A2 = 21.44 * (S / c) * (1 + 0.025 * T)
+    #     P2 = 1 - 1.37e-4 * z + 6.2e-9 * z**2
+    #     f2 = (8.17 * 10**(8 - (1990 / (273 + T)))) / (1 + 0.0018 * (S - 35))
+    
+    #     A3 = np.where(
+    #         T <= 20,
+    #         4.937e-4 - 2.59e-5 * T + 9.11e-7 * T**2 - 1.5e-8 * T**3,
+    #         3.964e-4 - 1.146e-5 * T + 1.45e-7 * T**2 - 6.5e-8 * T**3,
+    #     )
+    #     P3 = 1 - 3.83e-5 * z + 4.9e-10 * z**2
+    
+    #     alpha_w = (
+    #         A1 * P1 * f1 * f**2 / (f**2 + f1**2) +
+    #         A2 * P2 * f2 * f**2 / (f**2 + f2**2) +
+    #         A3 * P3 * f**2
+    #     )
+        
+    #     print(f"A3 mean: {np.mean(A3)}, min: {np.min(A3)}")
+    #     print(f"P3 mean: {np.mean(P3)}")
+    #     print(f"Contribution 3 mean: {np.mean(A3 * P3 * f**2)}")
+                
+    #     return alpha_w / 1000  # dB/m
+    
+    def _water_absorption_coeff(self, T, S, z, f, pH):
+        """
+        Compute acoustic absorption in seawater using the Francois & Garrison (1982) model.
+    
+        Parameters
+        ----------
+        T : array_like
+            Temperature in °C.
+        S : array_like
+            Salinity in PSU.
+        z : array_like
+            Depth in meters.
+        f : array_like
+            Frequency in kHz.
+        pH : array_like
+            Seawater pH (unitless).
+    
+        Returns
+        -------
+        alpha_w : array_like
+            Sound absorption in dB/m.
+        """
+        T_K = 273 + T  # Temperature in Kelvin
+    
+        # Sound speed approximation (c in m/s)
         c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
     
-        A1 = (8.68 / c) * 10**(0.78 * pH - 5)
-        P1 = 1
-        f1 = 2.8 * np.sqrt(S / 35) * 10**(4 - (1245 / (273 + T)))
+        # Boric acid contribution
+        A1 = (8.686 / c) * 10**(0.78 * pH - 5)
+        f1 = 2.8 * np.sqrt(S / 35) * 10**(4 - (1245 / T_K))
     
-        A2 = 21.44 * (S / c) * (1 + 0.025 * T)
-        P2 = 1 - 1.37e-4 * z + 6.2e-9 * z**2
-        f2 = (8.17 * 10**(8 - (1990 / (273 + T)))) / (1 + 0.0018 * (S - 35))
+        # MgSO4 contribution
+        A2 = (21.44 * S / c) * (1 + 0.025 * T)
+        f2 = (8.17 * 10**(8 - (1990 / T_K))) / (1 + 0.0018 * (S - 35))
     
+        # Pure water contribution (temperature-dependent polynomial)
         A3 = np.where(
             T <= 20,
             4.937e-4 - 2.59e-5 * T + 9.11e-7 * T**2 - 1.5e-8 * T**3,
             3.964e-4 - 1.146e-5 * T + 1.45e-7 * T**2 - 6.5e-8 * T**3,
         )
+        A3 = np.clip(A3, 0, None)
+    
+        # Optional pressure corrections (empirical, not in original F&G 1982)
+        P2 = 1 - 1.37e-4 * z + 6.2e-9 * z**2
         P3 = 1 - 3.83e-5 * z + 4.9e-10 * z**2
     
-        alpha_w = (
-            A1 * P1 * f1 * f**2 / (f**2 + f1**2) +
-            A2 * P2 * f2 * f**2 / (f**2 + f2**2) +
+        # Total absorption in dB/km
+        alpha_dBkm = (
+            A1 * (f**2 / (f1**2 + f**2)) +
+            A2 * P2 * (f**2 / (f2**2 + f**2)) +
             A3 * P3 * f**2
         )
-        return alpha_w / 1000  # dB/m
     
+        # Convert to dB/m
+        return alpha_dBkm / 1000
 
     def _sediment_absorption_coeff(self,ps, pw, d, SSC, T, S, f, z):
 
@@ -797,8 +1018,8 @@ class ADCP():
         
         
  
-    def _backscatter_to_SSC(self,backscatter):
-        return 10**(self.ssc_params.A *backscatter + self.ssc_params.B)
+    def _backscatter_to_ssc(self,backscatter):
+        return 10**(self.ssc_params.A + backscatter*self.ssc_params.B)
     
     
 
