@@ -286,5 +286,84 @@ namespace CSEMMPGUI_v1
             // Otherwise, block the input
             e.Handled = true;
         }
+
+        private void gridData_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Handle Enter key to move to the next row
+            if (e.Control && e.KeyCode == Keys.C)
+            {
+                DataObject dataObj = gridData.GetClipboardContent();
+                if (dataObj != null)
+                {
+                    Clipboard.SetDataObject(dataObj);
+                }
+                e.Handled = true; // Prevent default behavior
+            }
+            else if (e.Control && e.KeyCode == Keys.V)
+            {
+                PasteFromClipboard();
+                e.Handled = true; // Prevent default behavior
+            }
+        }
+
+        private void PasteFromClipboard()
+        {
+            if (gridData.IsCurrentCellInEditMode)
+                gridData.EndEdit(); // Ensure current edit is committed
+
+            string clipboardText = Clipboard.GetText();
+            if (string.IsNullOrWhiteSpace(clipboardText))
+                return;
+
+            // Split lines and cells
+            string[] lines = clipboardText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length == 0)
+                return;
+
+            // Dirty check: more than one column?
+            if (lines.Any(line => line.Split('\t').Length > 1))
+            {
+                MessageBox.Show("Please paste only one column at a time.", "Paste Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Get current column and row
+            int startRow = gridData.CurrentCell?.RowIndex ?? 0;
+            int colIndex = gridData.CurrentCell?.ColumnIndex ?? -1;
+            if (colIndex < 0 || colIndex >= gridData.ColumnCount)
+                return;
+
+            string colName = gridData.Columns[colIndex].Name;
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string value = lines[i].Trim();
+                int rowIndex = startRow + i;
+
+                // Add new row if needed
+                while (rowIndex >= gridData.Rows.Count - 1)
+                    gridData.Rows.Add();
+
+                // Validate numeric columns
+                if ((colName == COL_X || colName == COL_Y || colName == COL_DEPTH || colName == COL_SSC) &&
+                    !string.IsNullOrWhiteSpace(value) &&
+                    !double.TryParse(value, out _))
+                {
+                    MessageBox.Show($"Invalid numeric value '{value}' in column '{colName}' (row {rowIndex + 1}).", "Paste Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+
+                // Validate datetime format
+                if (colName == COL_DATETIME &&
+                    !string.IsNullOrWhiteSpace(value) &&
+                    !DateTime.TryParseExact(value, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                {
+                    MessageBox.Show($"Invalid datetime format in row {rowIndex + 1}: '{value}'.", "Paste Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    continue;
+                }
+                if (!gridData.Rows[rowIndex].IsNewRow)
+                    gridData.Rows[rowIndex].Cells[colIndex].Value = value;
+            }
+        }
     }
 }

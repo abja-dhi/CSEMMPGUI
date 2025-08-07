@@ -108,6 +108,9 @@
             gridData.TabIndex = 2;
             gridData.CellValueChanged += gridData_CellValueChanged;
             gridData.EditingControlShowing += gridData_EditingControlShowing;
+            gridData.KeyDown += gridData_KeyDown;
+            gridData.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            gridData.MultiSelect = true;
             // 
             // colSampleName
             // 

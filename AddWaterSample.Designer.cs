@@ -107,6 +107,7 @@
             // 
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             gridData.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            gridData.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             gridData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             gridData.Columns.AddRange(new DataGridViewColumn[] { colSampleName, colDateTime, colX, colY, colDepth, colSSC, colNotes });
             tableMain.SetColumnSpan(gridData, 2);
@@ -117,6 +118,7 @@
             gridData.TabIndex = 2;
             gridData.CellValueChanged += gridData_CellValueChanged;
             gridData.EditingControlShowing += gridData_EditingControlShowing;
+            gridData.KeyDown += gridData_KeyDown;
             // 
             // colSampleName
             // 

@@ -16,7 +16,7 @@ namespace CSEMMPGUI_v1
             InitializeComponent();
             _ClassConfigurationManager.InitializeProject(name: txtName.Text);
             isSaved = false;
-            saveMode = 0;
+            saveMode = 1;
             FillTree(); // Populate the tree view with project structure
         }
 
