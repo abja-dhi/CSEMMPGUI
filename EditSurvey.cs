@@ -109,7 +109,8 @@ namespace CSEMMPGUI_v1
 
         private void menuOBSVerticalProfile_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("This feature is not yet implemented.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            AddOBSVerticalProfile obsVerticalProfile = new AddOBSVerticalProfile(surveyManager);
+            obsVerticalProfile.ShowDialog();
         }
 
         private void menuOBSTransect_Click(object sender, EventArgs e)
@@ -185,6 +186,10 @@ namespace CSEMMPGUI_v1
                         EditWaterSample editWaterSample = new EditWaterSample(xmlNode);
                         editWaterSample.ShowDialog();
                         break;
+                    case "OBSVerticalProfile":
+                        EditOBSVerticalProfile editOBSVerticalProfile = new EditOBSVerticalProfile(xmlNode);
+                        editOBSVerticalProfile.ShowDialog();
+                        break;
                 }
             }
             FillTree(); // Refresh the tree view after opening an item
@@ -214,6 +219,13 @@ namespace CSEMMPGUI_v1
                         if (resultWaterSample == DialogResult.Yes)
                         {
                             _ClassConfigurationManager.DeleteNode(type: "WaterSample", id: id);
+                        }
+                        break;
+                    case "OBSVerticalProfile":
+                        DialogResult resultOBSVerticalProfile = MessageBox.Show($"Are you sure you want to delete the OBS vertical profile: {name}?", "Delete OBS Vertical Profile", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultOBSVerticalProfile == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "OBSVerticalProfile", id: id);
                         }
                         break;
                 }

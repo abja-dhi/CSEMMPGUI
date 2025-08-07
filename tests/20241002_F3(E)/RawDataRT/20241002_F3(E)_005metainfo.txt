@@ -1,0 +1,250 @@
+
+#####################################
+###                               ###
+###   VISEA configuration file.   ###
+###   date : 02-Oct-2024          ###
+###                               ###
+#####################################
+
+#####################################
+###   Serial port communication   ###
+#####################################
+
+ DeviceString   : {ADCP}
+ Selected         : 1 
+ Port             : 8 
+ Baudrate         : 9600 
+ Parity            : {None} 
+ StopBits         : 1 
+ DataBits         : 8 
+ Delay            : 0 
+ IOMode           : 1 
+ FieldsII         : {{dummy}} 
+ PFactorII        : {[1 0 ]} 
+ FieldwidthII     : Inf 
+ ErrorstringII    : {{none}} 
+ DecodeStringII   : {None} 
+ DriverName       : {None} 
+ External         : 0 
+ PortControl      : 1 
+ PhoneNumber      : {0031302459872} 
+ IPaddress        : {0.0.0.0} 
+ LANPort          : 1 
+ SerialBreakType  : 1 
+ RefreshPeriod    : 0 
+ SerialNumber     : 2 
+ ProgramName      : {sensor.exe} 
+ WarningTimeout   : 10 
+ Status           : 0 
+ Var1             : 1 
+ Var2             : 1 
+ Var3             : 1 
+
+ DeviceString   : {GPS}
+ Selected         : 1 
+ Port             : 7 
+ Baudrate         : 4800 
+ Parity            : {None} 
+ StopBits         : 1 
+ DataBits         : 8 
+ Delay            : 2 
+ IOMode           : 1 
+ FieldsII         : {{Latitude deg.}{Longitude deg.}{Speed}{Course}{GPS_Quality}} 
+ PFactorII        : {[1 0 ][1 0 ][1 0 ][1 0 ][1 0 ]} 
+ FieldwidthII     : Inf Inf Inf Inf Inf 
+ ErrorstringII    : {{none}{none}{none}{none}{none}} 
+ DecodeStringII   : {AUTO} 
+ DriverName       : {@NMEA_RMC_GPSQuality.txt} 
+ External         : 1 
+ PortControl      : 1 
+ PhoneNumber      : {0031302459872} 
+ IPaddress        : {0.0.0.0} 
+ LANPort          : 1 
+ SerialBreakType  : 1 
+ RefreshPeriod    : 0 
+ SerialNumber     : 2 
+ ProgramName      : {sensor.exe} 
+ WarningTimeout   : 10 
+ Status           : 0 
+ Var1             : 1 
+ Var2             : 1 
+ Var3             : 1 
+
+ DeviceString   : {YSI}
+ Selected         : 0 
+ Port             : 5 
+ Baudrate         : 19200 
+ Parity           : {None} 
+ StopBits         : 1 
+ DataBits         : 8 
+ Delay            : 0 
+ IOMode           : 1 
+ FieldsII         : {{UTC Day}{UTC Month}{UTC Year}{UTC Hour}{UTC Minute}{UTC Second}{dummy}{dummy}{dummy}{dummy}{Sensor Depth}{dummy}{dummy}{dummy}{Turbidity}{dummy}} 
+ PFactorII        : {[1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ][1 0 ]} 
+ FieldwidthII     : Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf Inf 
+ ErrorstringII    : {{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}{none}} 
+ DecodeStringII   : {%f/%f/%f %f:%f:%f %f %f %f %f %f %f %f %f %f %f } 
+ DriverName       : {YSI_20151216.txt} 
+ External         : 0 
+ PortControl      : 1 
+ PhoneNumber      : {0031302459872} 
+ IPaddress        : {0.0.0.0} 
+ LANPort          : 1 
+ SerialBreakType  : 1 
+ RefreshPeriod    : 0 
+ SerialNumber     : 2 
+ ProgramName      : {sensor.exe} 
+ WarningTimeout   : 10 
+ Status           : 0 
+ Var1             : 1 
+ Var2             : 1 
+ Var3             : 1 
+
+#####################################
+###     ADCP   configuration      ###
+#####################################
+
+CR1            
+BP2            
+BX0350         
+CF11110        
+ES30           
+TP000000       
+TE00000000     
+WN70           
+WS50           
+WF0044         
+WP4            
+WV175          
+EX00000        
+ED00           
+
+##################################################################
+###       Configuration                                        ###
+###       ( Note that some parameters might have a different   ###
+###         format as in the GUIs. Keep to this format if you  ###
+###         manualy edit&reload this file. )                   ###
+###                                                            ###
+##################################################################
+
+ Datadir    : {C:\Users\dhiadmin\Desktop\ViSea\61801596\2024\10. Oct\20241002_F3[E]\RawDataRT\}
+ TransectId : {20241002_F3(E)_}
+ Nr         : 4
+ AveragingMethod             : 0 
+ AveragingInterval           : 1 
+ SmoothingInterval           : 1 
+ AveragingIntervalZ          : 1 
+ AveragingIntervalZM         : 0 
+ RestartTime                 : 86400 
+ MaxNrEnsembles              : 5000 
+ MaxFileSize                 : 5242880 
+ SensorUse_SoundSpeed        : 3 
+ FixedSoundSpeedValue        : 1500 
+ Salinity_used               : 30 
+ SVPCTDUseDepth              : 0 
+ ADCPDepth                   : 5.000000e-001 
+ ADCPdx                      : 0 
+ ADCPdy                      : 0 
+ ADCPdz                      : 0 
+ SensorUse_Heading           : 3 
+ FixedHeadingValue           : 0 
+ ADCPHeadingMisalignment     : 0 
+ ADCPHeadingOffset           : 0 
+ SensorUse_PitchRoll         : 3 
+ FixedPitchValue             : 0 
+ FixedRollValue              : 0 
+ ADCPPitchMisalignment       : 0 
+ ADCPRollMisalignment        : 0 
+ PitchOffset                 : 0 
+ RollOffset                  : 0 
+ SensorUse_Orientation       : 0 
+ MRUHeadingMisalignment      : 0 
+ MRUPitchMisalignment        : 0 
+ MRURollMisalignment         : 0 
+ MRUdx                       : 0 
+ MRUdy                       : 0 
+ MRUdz                       : 0 
+ GYROHeadingMisalignment     : 0 
+ GPSdx                       : 0 
+ GPSdy                       : 0 
+ GPSdz                       : 0 
+ VesselL                     : 8 
+ VesselW                     : 2 
+ VesselH                     : 2 
+ Vesseldx                    : 0 
+ Vesseldy                    : 0 
+ Vesseldz                    : 0 
+ SensorUse_Depth             : 5 
+ SensorUse_Surface           : 5 
+ FixedDepthValue             : 0 
+ FixedSurfaceValue           : 0 
+ DS1dx                       : 0 
+ DS1dy                       : 0 
+ DS1dz                       : 5.000000e-001 
+ DS2dx                       : 0 
+ DS2dy                       : 0 
+ DS2dz                       : 5.000000e-001 
+ WaterLevelOffset            : 0 
+ ADCPXpos                    : 0 
+ ADCPYpos                    : 0 
+ ADCPZpos                    : 0 
+ StartNearShoreDistance      : 0 
+ EndNearShoreDistance        : 0 
+ Edge_slopeCoefficient       : 0 
+ StartNearShoreDischarge     : 0 
+ EndNearShoreDischarge       : 0 
+ TopQMethod                  : 0 
+ BottomQMethod               : 2 
+ PowerCurveExponent          : 1.666667e-001 
+ MinimumValidCrossRange      : 0 
+ MaximumValidCrossRange      : 100 
+ BottomRoughnessParameter    : 3.500000e-004 
+ PressureGradient            : 1 
+ UseInternalBeamangle        : 1 
+ DefaultBeamangle            : 25 
+ TransducerDiameter          : 2.500000e-001 
+ BeamWidth                   : 1 
+ SerialBreakLength           : 300 
+ DataAxes                    : {Earth} 
+ RawDataAxes                 : {Earth} 
+ ProgramVersion              : 5.045000e+000 
+ IntensityScale              : 4.300000e-001 
+ Absorption                  : 3.820000e-001 
+ Use3BmSolution              : 1 
+ UseBinMapping               : 1 
+ UseSSForBinSize             : 0 
+ UseBeam                     : 2 
+ SBS_Apply                   : 0 
+ SBS_UseAveragedDepth        : 0 
+ SBS_AverageMagnitude        : 0 
+ SBS_AverageIntensity        : 0 
+ ViSeaHBinMapAngle           : 0 
+ ViSeaHNearRangeQScalefactor : 1 
+ ViSeaHFarRangeQScalefactor  : 1 
+ ViSeaHNearRangeNrOfBins     : 255 
+ ViSeaHFarRangeNrOfBins      : 255 
+ ViSeaHMeanVStartBin         : 1 
+ ViSeaHMeanVEndBin           : 10 
+ ViSeaHMeanVStartDepth       : 0 
+ ViSeaHMeanVEndDepth         : -5 
+ LRDischargeSign             : 1 
+ dummy                       : {dummy} 
+ Salinity                    : 30 
+ DGPSdx                      : 0 
+ DGPSdy                      : 0 
+ DGPSdz                      : 0 
+ TransducerMisalignment      : 0 
+ MagneticVariation           : 0 
+ TiltMisalignment            : 0 
+ CompassOffset               : 0 
+ DSdx                        : 0 
+ DSdy                        : 0 
+ DSdz                        : 5.000000e-001 
+ SoundSpeedValue             : 1500 
+ FixedHeadingUse             : 0 
+ UsePitchRoll                : 0 
+ SoundSpeedUse               : 0 
+
+#####################################
+###          End of file          ###
+#####################################

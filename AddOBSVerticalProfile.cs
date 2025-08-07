@@ -48,13 +48,9 @@ namespace CSEMMPGUI_v1
             comboDateTime.Items.Clear();
             comboDepth.Items.Clear();
             comboNTU.Items.Clear();
-            comboX.Items.Clear();
-            comboY.Items.Clear();
             comboDateTime.Text = string.Empty;
             comboDepth.Text = string.Empty;
             comboNTU.Text = string.Empty;
-            comboX.Text = string.Empty;
-            comboY.Text = string.Empty;
             tblColumnInfo.Enabled = false;
             tblMasking.Enabled = false;
             // Create the instrument element
@@ -140,7 +136,7 @@ namespace CSEMMPGUI_v1
         {
             string[] columns = Array.Empty<string>();
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "OBS Vertical Profile File (*.csv)|*.csv";
+            openFileDialog.Filter = "OBS Vertical Profile File (*.csv;*.txt)|*.csv;*.txt";
             openFileDialog.Title = "Select OBS Vertical Profile File";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -152,7 +148,7 @@ namespace CSEMMPGUI_v1
                     int headerLines = csvOptions._headerLines;
                     string delimiter = csvOptions._delimiter;
                     columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLines);
-                    if (columns.Length < 5)
+                    if (columns.Length < 3)
                     {
                         MessageBox.Show("The selected CSV file does not contain enough columns for OBS Vertical Profile data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
@@ -172,8 +168,6 @@ namespace CSEMMPGUI_v1
             updateCombo(comboDateTime, columns, 0);
             updateCombo(comboDepth, columns, 1);
             updateCombo(comboNTU, columns, 2);
-            updateCombo(comboX, columns, 3);
-            updateCombo(comboY, columns, 4);
             isSaved = false; // Mark as unsaved after loading a new position file
         }
 
@@ -238,14 +232,6 @@ namespace CSEMMPGUI_v1
             XmlElement ntuColumn = project.CreateElement("NTUColumn");
             ntuColumn.InnerText = comboNTU.Text.Trim() ?? string.Empty;
             fileInfo.AppendChild(ntuColumn);
-
-            XmlElement xColumn = project.CreateElement("XColumn");
-            xColumn.InnerText = comboX.Text.Trim() ?? string.Empty;
-            fileInfo.AppendChild(xColumn);
-
-            XmlElement yColumn = project.CreateElement("YColumn");
-            yColumn.InnerText = comboY.Text.Trim() ?? string.Empty;
-            fileInfo.AppendChild(yColumn);
 
             instrument.AppendChild(fileInfo);
 

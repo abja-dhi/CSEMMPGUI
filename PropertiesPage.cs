@@ -96,6 +96,7 @@ namespace CSEMMPGUI_v1
             _ClassConfigurationManager.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
             _ClassConfigurationManager.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
             _ClassConfigurationManager.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
+            _ClassConfigurationManager.SaveConfig(saveMode: 1);
             isSaved = true;
         }
 

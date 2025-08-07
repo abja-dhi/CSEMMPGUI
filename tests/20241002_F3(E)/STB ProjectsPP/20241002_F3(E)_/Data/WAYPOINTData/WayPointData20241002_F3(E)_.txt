@@ -1,0 +1,6 @@
+    Nr	         userID	                Xpos	                Ypos	    LR	      Marker	  Edge	SlopeCoeff
+     1	            HS8	       373131.370975	         4458.269500	     L	           ^	     1	  0.353500
+     2	 SNLG DISCHARGE	       373205.498712	         4450.356189	     R	           s	     1	  0.353500
+     3	      DISCHARGE	       373198.248727	         4465.724267	     L	           ^	     1	  0.353500
+     4	        KOBELCO	       373140.233580	         4449.754173	     R	           s	     1	  0.353500
+     5	        SIRRAFF	       373140.860470	         4438.943697	     R	           ^	     1	  0.353500

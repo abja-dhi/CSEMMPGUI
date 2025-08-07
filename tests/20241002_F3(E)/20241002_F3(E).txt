@@ -1,0 +1,34 @@
+20241002-F3
+Exp4, Bm.1
+
+Surveyor: LEBR
+Weather Condition: SUNNY
+Tide: EBB
+
+Coefficients (EXP4)
+New Coefficient:4.7678+0.0629, R=0.94 (LEBR)
+OBS: 0.0727+1.6046
+Note: MUDA updated the cal coef produced by LEBR. The updated cal coef is 5.0473+0.0678, R=0.97 (MUDA).
+reviewed by Tany. Accepted Cal coefficient by MUDA.
+
+
+Operation(s): HS8
+
+01- DEL
+02- 300M [LPC]
+03- 250M [LPC]
+04- 280M [LPC]
+05- 240M [LPC]
+06- 300M [LPC]
+07- EXO [10.6, 6.5]
+08- 280M [LPC]
+09- 370M [LPC - MPC]
+10- EXO [11.2, 7.9, 7.1, 5.3]
+11- 200M [LPC]
+12- 200M [LPC]
+13- 200M [LPC]
+14- 210M [LPC]
+15- 240M [LPC]
+16- 210M [LPC]
+17- 200M [LPC]
+18- 250M [LPC]

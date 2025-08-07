@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DHI;
+using Python.Runtime;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using Python.Runtime;
 
 namespace CSEMMPGUI_v1
 {
@@ -86,11 +87,7 @@ namespace CSEMMPGUI_v1
             comboX.Text = string.Empty;
             comboY.Text = string.Empty;
             comboHeading.Text = string.Empty;
-            // Create the instrument element
-            instrument = surveyManager.survey.OwnerDocument.CreateElement("VesselMountedADCP");
-            instrument.SetAttribute("id", id.ToString());
-            instrument.SetAttribute("type", "VesselMountedADCP");
-            instrument.SetAttribute("name", $"VesselMountedADCP {id}");
+            rbSingle.Checked = true; // Default to single file mode            
             project = surveyManager.survey.OwnerDocument;
             isSaved = false; // Initially, the instrument is not saved
         }
@@ -146,37 +143,148 @@ namespace CSEMMPGUI_v1
 
         private void btnLoadPD0_Click(object sender, EventArgs e)
         {
-            var ofd = new OpenFileDialog
+            if (rbSingle.Checked)
             {
-                Filter = "PD0 files (*.000)|*.000",
-                Title = "Select PD0 File",
-                InitialDirectory = _ClassConfigurationManager.GetSetting(settingName: "Directory")
-            };
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                Dictionary<string, string> inputs = new Dictionary<string, string>
+                var ofd = new OpenFileDialog
+                {
+                    Filter = "PD0 files (*.000)|*.000",
+                    Title = "Select PD0 File",
+                    InitialDirectory = _ClassConfigurationManager.GetSetting(settingName: "Directory")
+                };
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    Dictionary<string, string> inputs = new Dictionary<string, string>
                 {
                     { "Task", "LoadPd0" },
                     { "Path", ofd.FileName },
                 };
 
-                string xmlInput = _Tools.GenerateInput(inputs);
-                XmlDocument result = _Tools.CallPython(xmlInput);
-                Dictionary<string, string> outputs = _Tools.ParseOutput(result);
-                if (outputs.ContainsKey("Error"))
-                {
-                    MessageBox.Show(outputs["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    string xmlInput = _Tools.GenerateInput(inputs);
+                    XmlDocument result = _Tools.CallPython(xmlInput);
+                    Dictionary<string, string> outputs = _Tools.ParseOutput(result);
+                    if (outputs.ContainsKey("Error"))
+                    {
+                        MessageBox.Show(outputs["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    txtPD0Path.Text = ofd.FileName;
+                    int nEnsembles = Convert.ToInt32(outputs["NEnsembles"]);
+                    txtLastEnsemble.Maximum = nEnsembles;
+                    txtLastEnsemble.Value = nEnsembles;
+                    boxConfiguration.Enabled = true;
+                    boxMasking.Enabled = true;
+                    tableMaskingEnsembles.Enabled = true;
+                    btnPrintConfig.Enabled = true;
+                    isSaved = false; // Mark as unsaved after loading a new PD0 file
                 }
-                txtPD0Path.Text = ofd.FileName;
-                int nEnsembles = Convert.ToInt32(outputs["NEnsembles"]);
-                txtLastEnsemble.Maximum = nEnsembles;
-                txtLastEnsemble.Value = nEnsembles;
-                boxConfiguration.Enabled = true;
-                boxMasking.Enabled = true;
-                btnPrintConfig.Enabled = true;
-                isSaved = false; // Mark as unsaved after loading a new PD0 file
             }
+            else
+            {
+                using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+                {
+                    string[] columns = Array.Empty<string>();
+                    fbd.Description = "Select folder containing .000 and .csv files";
+                    fbd.SelectedPath = _ClassConfigurationManager.GetSetting("Directory");
+
+                    if (fbd.ShowDialog() == DialogResult.OK)
+                    {
+                        txtPD0Path.Text = fbd.SelectedPath;
+                        bool valid = IsValidFolder(fbd.SelectedPath);
+                        if (valid)
+                        {
+                            boxConfiguration.Enabled = true;
+                            boxMasking.Enabled = true;
+                            btnPrintConfig.Enabled = true;
+                            // Get the first  position file in the folder to select columns
+                            string[] pd0Files = Directory.GetFiles(txtPD0Path.Text, "*r.000");
+                            // Get the .csv files that correspond to the .000 files by basename
+                            string[] positionFiles = pd0Files
+                                .Select(pd0 =>
+                                {
+                                    string filename = Path.GetFileNameWithoutExtension(pd0);
+                                    if (filename.EndsWith("r", StringComparison.OrdinalIgnoreCase))
+                                        filename = filename.Substring(0, filename.Length - 1); // Remove trailing "r"
+
+                                    string[] matches = Directory.GetFiles(txtPD0Path.Text, filename + "*.csv");
+                                    return matches.FirstOrDefault(); // or LastOrDefault() if you want most recent-looking
+                                })
+                                .ToArray();
+                            string firstPositionFile = positionFiles.FirstOrDefault(File.Exists);
+                            int nLines = File.ReadAllLines(firstPositionFile).Length;
+                            UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
+                            if (csvOptions.ShowDialog() == DialogResult.OK)
+                            {
+                                int headerLines = csvOptions._headerLines;
+                                string delimiter = csvOptions._delimiter;
+                                columns = _Utils.ParseCSVAndReturnColumns(firstPositionFile, delimiter, headerLines);
+                                if (columns.Length < 4)
+                                {
+                                    MessageBox.Show("The selected CSV file does not contain enough columns for position data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                return; // User cancelled the CSV options dialog
+                            }
+                            boxPosition.Enabled = true;
+                            updateCombo(comboDateTime, columns, 0);
+                            updateCombo(comboX, columns, 1);
+                            updateCombo(comboY, columns, 2);
+                            updateCombo(comboHeading, columns, 3);
+                            tableMaskingEnsembles.Enabled = false;
+                            txtFirstEnsemble.Text = "1";
+                            txtLastEnsemble.Text = "9999";
+                            btnPrintConfig.Enabled = false;
+                            isSaved = false; // Mark as unsaved after loading a new position file
+                        }
+                        else
+                        {
+                            return; // If validation fails, do not proceed
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+
+        private bool IsValidFolder(string folderPath)
+        {
+            string[] pd0Files = Directory.GetFiles(txtPD0Path.Text, "*r.000");
+
+            if (pd0Files.Length == 0)
+            {
+                MessageBox.Show("No .000 files were found in the selected folder.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                rbSingle.Checked = true; // Revert to single mode
+                return false;
+            }
+
+            List<string> missingCsvFiles = new();
+
+            foreach (string pd0Path in pd0Files)
+            {
+                string baseName = Path.GetFileNameWithoutExtension(pd0Path);
+                if (baseName.EndsWith("r", StringComparison.OrdinalIgnoreCase))
+                    baseName = baseName.Substring(0, baseName.Length - 1);
+
+                string[] matches = Directory.GetFiles(folderPath, baseName + "*.csv");
+                if (matches.Length == 0)
+                    missingCsvFiles.Add(baseName + "*.csv");
+            }
+
+            if (missingCsvFiles.Count > 0)
+            {
+                string message = "The following .csv files are missing for corresponding .000 files:\n\n" +
+                                 string.Join("\n", missingCsvFiles);
+                MessageBox.Show(message, "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                rbSingle.Checked = true; // Revert to single mode
+                return false;
+            }
+
+            return true;
         }
 
         private void btnLoadPosition_Click(object sender, EventArgs e)
@@ -231,19 +339,13 @@ namespace CSEMMPGUI_v1
             isSaved = false; // Mark as unsaved when the name changes
         }
 
-        public int CreateInstrument()
+        public int CreateInstrument(string name, string pd0FilePath, string positionFilePath)
         {
-            if (String.IsNullOrEmpty(txtPD0Path.Text.Trim()))
-            {
-                MessageBox.Show("Please select a PD0 file before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 0;
-            }
-            if (String.IsNullOrEmpty(txtPositionPath.Text.Trim()))
-            {
-                MessageBox.Show("Please select a position file before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 0;
-            }
-            instrument.SetAttribute("name", txtName.Text.Trim());
+            instrument = surveyManager.survey.OwnerDocument.CreateElement("VesselMountedADCP");
+            id = _ClassConfigurationManager.NObjects(type: "//VesselMountedADCP") + 1;
+            instrument.SetAttribute("id", id.ToString());
+            instrument.SetAttribute("type", "VesselMountedADCP");
+            instrument.SetAttribute("name", name);
             while (instrument.HasChildNodes && instrument.FirstChild != null)
             {
                 instrument.RemoveChild(instrument.FirstChild);
@@ -256,7 +358,7 @@ namespace CSEMMPGUI_v1
             // Pd0 related attributes
             XmlElement pd0 = project.CreateElement("Pd0");
             XmlElement pd0Path = project.CreateElement("Path");
-            pd0Path.InnerText = txtPD0Path.Text.Trim();
+            pd0Path.InnerText = pd0FilePath;
             pd0.AppendChild(pd0Path);
             XmlElement configuration = project.CreateElement("Configuration");
             XmlElement magneticDeclination = project.CreateElement("MagneticDeclination");
@@ -358,7 +460,7 @@ namespace CSEMMPGUI_v1
             // Position related attributes
             XmlElement position = project.CreateElement("PositionData");
             XmlElement positionPath = project.CreateElement("Path");
-            positionPath.InnerText = txtPositionPath.Text.Trim();
+            positionPath.InnerText = positionFilePath;
             position.AppendChild(positionPath);
 
             XmlElement positionColumns = project.CreateElement("Columns");
@@ -394,35 +496,108 @@ namespace CSEMMPGUI_v1
 
         public void SaveInstrument()
         {
-            if (instrument == null)
+            if (String.IsNullOrEmpty(txtName.Text.Trim()))
             {
-                throw new InvalidOperationException("Instrument is not initialized. Cannot save.");
-            }
-            int status = CreateInstrument();
-            if (status == 0)
+                MessageBox.Show("Please enter a name for the instrument before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            string id = instrument.GetAttribute("id");
-            if (surveyManager.survey == null)
-            {
-                throw new InvalidOperationException("SurveyManager.survey is null. Cannot save instrument.");
             }
-            string surveyId = surveyManager.survey.GetAttribute("id");
-            string xpath = $"//Survey[@id='{surveyId}']/VesselMountedADCP[@id='{id}' and @type='VesselMountedADCP']";
-            XmlNode? existingInstrument = surveyManager.survey.SelectSingleNode(xpath);
-            if (existingInstrument != null)
+            if (rbSingle.Checked && String.IsNullOrEmpty(txtPD0Path.Text.Trim()))
             {
-                // Update existing instrument
-                XmlNode imported = surveyManager.survey.OwnerDocument.ImportNode(instrument, true);
-                surveyManager.survey.ReplaceChild(imported, existingInstrument);
+                MessageBox.Show("Please select a PD0 file before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (rbSingle.Checked && String.IsNullOrEmpty(txtPositionPath.Text.Trim()))
+            {
+                MessageBox.Show("Please select a position file before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!rbSingle.Checked && String.IsNullOrEmpty(txtPD0Path.Text.Trim()))
+            {
+                MessageBox.Show("Please select a folder containing .000 files before saving.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (rbSingle.Checked)
+            {
+                string name = txtName.Text.Trim();
+                string pd0FilePath = txtPD0Path.Text.Trim();
+                string positionFilePath = txtPositionPath.Text.Trim();
+                int status = CreateInstrument(name: name, pd0FilePath: pd0FilePath, positionFilePath: positionFilePath);
+                if (status == 0)
+                    return;
+                string id = instrument.GetAttribute("id");
+                if (surveyManager.survey == null)
+                {
+                    throw new InvalidOperationException("SurveyManager.survey is null. Cannot save instrument.");
+                }
+                string surveyId = surveyManager.survey.GetAttribute("id");
+                string xpath = $"//Survey[@id='{surveyId}']/VesselMountedADCP[@id='{id}' and @type='VesselMountedADCP']";
+                XmlNode? existingInstrument = surveyManager.survey.SelectSingleNode(xpath);
+                if (existingInstrument != null)
+                {
+                    // Update existing instrument
+                    XmlNode imported = surveyManager.survey.OwnerDocument.ImportNode(instrument, true);
+                    surveyManager.survey.ReplaceChild(imported, existingInstrument);
+                }
+                else
+                {
+                    // Add new instrument
+                    surveyManager.survey.AppendChild(instrument);
+                }
+                surveyManager.SaveSurvey(name: surveyManager.GetAttribute(attribute: "name"));
+                _ClassConfigurationManager.SaveConfig(1);
+                isSaved = true; // Mark as saved after saving
             }
             else
             {
-                // Add new instrument
-                surveyManager.survey.AppendChild(instrument);
+                string[] pd0Files = Directory.GetFiles(txtPD0Path.Text, "*r.000");
+                // Get the .csv files that correspond to the .000 files by basename
+                string[] positionFiles = pd0Files
+                    .Select(pd0 =>
+                    {
+                        string filename = Path.GetFileNameWithoutExtension(pd0);
+                        if (filename.EndsWith("r", StringComparison.OrdinalIgnoreCase))
+                            filename = filename.Substring(0, filename.Length - 1); // Remove trailing "r"
+
+                        string[] matches = Directory.GetFiles(txtPD0Path.Text, filename + "*.csv");
+                        return matches.FirstOrDefault(); // or LastOrDefault() if you want most recent-looking
+                    })
+                    .ToArray();
+                string prefix = txtName.Text.Trim();
+                for (int i = 0; i < pd0Files.Length; i++)
+                {
+                                       string pd0FilePath = pd0Files[i];
+                    string positionFilePath = positionFiles[i];
+                    if (!File.Exists(pd0FilePath) || !File.Exists(positionFilePath))
+                    {
+                        MessageBox.Show($"Missing .000 or .csv file for {Path.GetFileName(pd0FilePath)}.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    string name = $"{prefix} {i + 1}";
+                    int status = CreateInstrument(name: name, pd0FilePath: pd0FilePath, positionFilePath: positionFilePath);
+                    if (status == 0)
+                        return;
+                    string id = instrument.GetAttribute("id");
+                    if (surveyManager.survey == null)
+                    {
+                        throw new InvalidOperationException("SurveyManager.survey is null. Cannot save instrument.");
+                    }
+                    string surveyId = surveyManager.survey.GetAttribute("id");
+                    string xpath = $"//Survey[@id='{surveyId}']/VesselMountedADCP[@id='{id}' and @type='VesselMountedADCP']";
+                    XmlNode? existingInstrument = surveyManager.survey.SelectSingleNode(xpath);
+                    if (existingInstrument != null)
+                    {
+                        // Update existing instrument
+                        XmlNode imported = surveyManager.survey.OwnerDocument.ImportNode(instrument, true);
+                        surveyManager.survey.ReplaceChild(imported, existingInstrument);
+                    }
+                    else
+                    {
+                        // Add new instrument
+                        surveyManager.survey.AppendChild(instrument);
+                    }
+                }
             }
-            surveyManager.SaveSurvey(name: surveyManager.GetAttribute(attribute: "name"));
-            _ClassConfigurationManager.SaveConfig(1);
-            isSaved = true; // Mark as saved after saving
+            
         }
 
         private void btnPrintConfig_Click(object sender, EventArgs e)
@@ -465,6 +640,8 @@ namespace CSEMMPGUI_v1
                 txtPositionPath.Visible = true;
                 btnLoadPosition.Visible = true;
                 boxFileInfo.Text = "File Information";
+                lblName.Text = "Name";
+                btnPrintConfig.Enabled = true;
             }
             else
             {
@@ -473,6 +650,8 @@ namespace CSEMMPGUI_v1
                 txtPositionPath.Visible = false;
                 btnLoadPosition.Visible = false;
                 boxFileInfo.Text = "Folder Information";
+                lblName.Text = "Prefix";
+                btnPrintConfig.Enabled = false; // Disable print config for folder mode
             }
         }
     }

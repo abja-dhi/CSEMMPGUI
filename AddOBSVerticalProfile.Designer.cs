@@ -46,12 +46,8 @@
             lblDateTime = new Label();
             lblDepth = new Label();
             lblNTU = new Label();
-            lblX = new Label();
-            lblY = new Label();
             comboDateTime = new ComboBox();
             comboNTU = new ComboBox();
-            comboY = new ComboBox();
-            comboX = new ComboBox();
             tblMasking = new TableLayoutPanel();
             tblNTUMasking = new TableLayoutPanel();
             checkMaskingNTU = new CheckBox();
@@ -215,12 +211,8 @@
             tblColumnInfo.Controls.Add(lblDateTime, 0, 0);
             tblColumnInfo.Controls.Add(lblDepth, 0, 1);
             tblColumnInfo.Controls.Add(lblNTU, 0, 2);
-            tblColumnInfo.Controls.Add(lblX, 0, 3);
-            tblColumnInfo.Controls.Add(lblY, 0, 4);
             tblColumnInfo.Controls.Add(comboDateTime, 1, 0);
             tblColumnInfo.Controls.Add(comboNTU, 1, 2);
-            tblColumnInfo.Controls.Add(comboY, 1, 4);
-            tblColumnInfo.Controls.Add(comboX, 1, 3);
             tblColumnInfo.Dock = DockStyle.Fill;
             tblColumnInfo.Enabled = false;
             tblColumnInfo.Location = new Point(3, 62);
@@ -277,28 +269,6 @@
             lblNTU.Text = "NTU";
             lblNTU.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lblX
-            // 
-            lblX.AutoSize = true;
-            lblX.Dock = DockStyle.Fill;
-            lblX.Location = new Point(3, 120);
-            lblX.Name = "lblX";
-            lblX.Size = new Size(231, 40);
-            lblX.TabIndex = 3;
-            lblX.Text = "X";
-            lblX.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblY
-            // 
-            lblY.AutoSize = true;
-            lblY.Dock = DockStyle.Fill;
-            lblY.Location = new Point(3, 160);
-            lblY.Name = "lblY";
-            lblY.Size = new Size(231, 40);
-            lblY.TabIndex = 4;
-            lblY.Text = "Y";
-            lblY.TextAlign = ContentAlignment.MiddleLeft;
-            // 
             // comboDateTime
             // 
             comboDateTime.Dock = DockStyle.Fill;
@@ -318,26 +288,6 @@
             comboNTU.Size = new Size(231, 23);
             comboNTU.TabIndex = 8;
             comboNTU.SelectedIndexChanged += input_Changed;
-            // 
-            // comboY
-            // 
-            comboY.Dock = DockStyle.Fill;
-            comboY.FormattingEnabled = true;
-            comboY.Location = new Point(240, 163);
-            comboY.Name = "comboY";
-            comboY.Size = new Size(231, 23);
-            comboY.TabIndex = 9;
-            comboY.SelectedIndexChanged += input_Changed;
-            // 
-            // comboX
-            // 
-            comboX.Dock = DockStyle.Fill;
-            comboX.FormattingEnabled = true;
-            comboX.Location = new Point(240, 123);
-            comboX.Name = "comboX";
-            comboX.Size = new Size(231, 23);
-            comboX.TabIndex = 10;
-            comboX.SelectedIndexChanged += input_Changed;
             // 
             // tblMasking
             // 
@@ -631,8 +581,6 @@
         private CheckBox checkMaskingDateTime;
         private Label lblMaskingStartDateTime;
         private Label lblMaskingEndDateTime;
-        private Label lblX;
-        private Label lblY;
         private ComboBox comboDateTime;
         private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuSave;
@@ -643,8 +591,6 @@
         private Button btnLoadPath;
         private ComboBox comboDepth;
         private ComboBox comboNTU;
-        private ComboBox comboY;
-        private ComboBox comboX;
         private TextBox txtMaskingMinNTU;
         private TextBox txtMaskingMaxNTU;
         private TextBox txtMaskingMinDepth;
