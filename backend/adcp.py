@@ -146,7 +146,7 @@ class ADCP():
         ## Platform Position class
         self.position = ADCPPosition(self._cfg['pos_cfg'])
         
-        print(self._cfg['pos_cfg'])
+
         self.position._resample_to(self.time.ensemble_datetimes)
         
         
@@ -629,11 +629,11 @@ class ADCP():
         dt_mask = dt_mask[:, np.newaxis, np.newaxis]
         dt_mask = np.broadcast_to(dt_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
 
-        print(f"cmag_mask has unmasked values: {np.any(~cmag_mask)}")
-        print(f"echo_mask has unmasked values: {np.any(~echo_mask)}")
-        print(f"sv_mask has unmasked values: {np.any(~sv_mask)}")
-        print(f"ens_mask has unmasked values: {np.any(~ens_mask)}")
-        print(f"dt_mask has unmasked values: {np.any(~dt_mask)}")
+        # print(f"cmag_mask has unmasked values: {np.any(~cmag_mask)}")
+        # print(f"echo_mask has unmasked values: {np.any(~echo_mask)}")
+        # print(f"sv_mask has unmasked values: {np.any(~sv_mask)}")
+        # print(f"ens_mask has unmasked values: {np.any(~ens_mask)}")
+        # print(f"dt_mask has unmasked values: {np.any(~dt_mask)}")
         bt_mask = self._generate_bottom_track_mask()
 
         master_mask = bt_mask
@@ -805,8 +805,7 @@ class ADCP():
         X_base = np.stack([xx, yy, zz])[:, None, :]
         X_base = np.repeat(X_base, n_cells, axis=1)  # shape (3, n_cells, n_ensembles)
         X_base = np.repeat(X_base[None, :, :, :], n_beams, axis=0)  # (n_beams, 3, n_cells, n_ensembles)
-        print(f'rel {rel.shape}')
-        print(f'X_base {rel.shape}')
+       
         abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
         abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
     
@@ -911,19 +910,19 @@ class ADCP():
         bin_distances = np.outer(self.geometry.bin_midpoint_distances, np.ones(self.time.n_ensembles)).T
         transmit_pulse_length = np.outer(self.abs_params.tx_pulse_length, np.ones(self.geometry.n_bins))
     
-        print(f"""
-        echo_intensity mean: {np.mean(echo_intensity)}
-        E_r: {E_r}
-        WB: {WB}
-        C: {C}
-        k_c: {k_c}
-        alpha_w mean: {np.mean(alpha_w)}
-        alpha_s mean: {np.mean(alpha_s)}
-        P_dbw: {P_dbw}
-        temperature mean: {np.mean(temperature)}
-        bin_distances mean: {np.mean(bin_distances)}
-        transmit_pulse_length mean: {np.mean(transmit_pulse_length)}
-        """)
+        # print(f"""
+        # echo_intensity mean: {np.mean(echo_intensity)}
+        # E_r: {E_r}
+        # WB: {WB}
+        # C: {C}
+        # k_c: {k_c}
+        # alpha_w mean: {np.mean(alpha_w)}
+        # alpha_s mean: {np.mean(alpha_s)}
+        # P_dbw: {P_dbw}
+        # temperature mean: {np.mean(temperature)}
+        # bin_distances mean: {np.mean(bin_distances)}
+        # transmit_pulse_length mean: {np.mean(transmit_pulse_length)}
+        # """)
 
 
         X = []
@@ -1037,22 +1036,81 @@ class ADCP():
         # Convert to dB/m
         return alpha_dBkm / 1000
 
-    def _sediment_absorption_coeff(self,ps, pw, d, SSC, T, S, f, z):
+    # def _sediment_absorption_coeff(self,ps, pw, d, SSC, T, S, f, z):
 
-        c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
-        v = (40e-6) / (20 + T)
-        B = (np.pi * f / v) * 0.5
-        delt = 0.5 * (1 + 9 / (B * d))
-        sig = ps / pw
-        s = 9 / (2 * B * d) * (1 + 2 / (B * d))
-        k = 2 * np.pi / c
+    #     c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
+    #     v = (40e-6) / (20 + T)
+    #     B = (np.pi * f / v) * 0.5
+    #     delt = 0.5 * (1 + 9 / (B * d))
+    #     sig = ps / pw
+    #     s = 9 / (2 * B * d) * (1 + 2 / (B * d))
+    #     k = 2 * np.pi / c
     
-        term1 = k**4 * d**3 / (96 * ps)
-        term2 = k * (sig - 1)**2 / (2 * ps)
-        term3 = (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
+    #     term1 = k**4 * d**3 / (96 * ps)
+    #     term2 = k * (sig - 1)**2 / (2 * ps)
+    #     term3 = (s / (s**2 + (sig + delt)**2)) * (20 / np.log(10)) * SSC
     
-        return term1 + term2 + term3
+    #     return term1 + term2 + term3
         
+    def _sediment_absorption_coeff(self, ps, pw, d, SSC, T, S, f, z):
+        """
+        Calculate sediment-induced acoustic attenuation (alpha_s) [dB/m] using
+        visco-inertial absorption and scattering theory for spherical particles.
+        
+        Parameters
+        ----------
+        ps : float
+            Particle density [kg/m³]
+        pw : array_like
+            Water density [kg/m³]
+        d : float
+            Particle diameter [m]
+        SSC : array_like
+            Suspended sediment concentration [mg/L]
+        T : array_like
+            Temperature [°C]
+        S : array_like
+            Salinity [PSU]
+        f : float
+            Acoustic frequency [Hz]
+        z : array_like
+            Depth [m]
+        
+        Returns
+        -------
+        alpha_s : array_like
+            Sediment-induced attenuation coefficient [dB/m]
+        """
+        import numpy as np
+    
+        # Convert SSC from mg/L to g/L
+        SSC_gL = SSC #/ 1000.0
+    
+        # Speed of sound [m/s] — Mackenzie (1981) approximation
+        c = (1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 +
+             (0.0134 * T) * (S - 35) + 0.016 * z)
+    
+        # Kinematic viscosity [m²/s]
+        nu = (40e-6) / (20 + T)
+    
+        # Wave number [rad/m]
+        k = 2 * np.pi * f / c
+    
+        # Inertial term
+        B = 0.5 * np.pi * f / nu
+        delta = 0.5 * (1 + 9 / (B * d))
+        sigma = ps / pw
+        s = (9 / (2 * B * d)) * (1 + 2 / (B * d))
+    
+        # Scattering and inertial damping terms
+        term1 = (k**4 * d**3) / (96 * ps)                        # Scattering loss
+        term2 = (k * (sigma - 1)**2) / (2 * ps)                  # Inertial loss
+    
+        # Viscous absorption term
+        viscous_term = (s / (s**2 + (sigma + delta)**2))
+        term3 = viscous_term * (20 / np.log(10)) * SSC_gL       # dB/m
+
+        return term1 + term2 + term3
         
  
     def _backscatter_to_ssc(self,backscatter):
@@ -1093,7 +1151,7 @@ class ADCP():
         bin_distances = self.geometry.bin_midpoint_distances
         pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
         bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
-        instrument_freq = self.abs_params.frequency
+        instrument_freq = self.abs_params.frequency*1000 # in hZ
         
         temperature = self.water_properties.temperature
         pressure = self.aux_sensor_data.pressure

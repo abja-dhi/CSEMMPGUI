@@ -74,7 +74,7 @@ water_properties =  {'density':1023,
                      'temperature':None,
                      'pH': 8.1}
 
-sediment_properties = {'particle_diameter':30,
+sediment_properties = {'particle_diameter':2.5e-4,
                        'particle_density':2650}
 
 
@@ -86,7 +86,7 @@ abs_params = {'C': -139.0,
               'rssi_beam3': 0.41,
               'rssi_beam4': 0.41,}
 
-ssc_params = {'A': 5, 'B':.049}
+ssc_params = {'A': 3.5, 'B':.049}
 cfgs = []
 position_datasets = []
 adcps = []
@@ -103,7 +103,7 @@ for i,fpath in enumerate(pd0_fpaths):
            'echo_max' : 255,
            'cormag_min' : 0,
            'cormag_max' : 255,
-           'abs_min' : -70,
+           'abs_min' : -100,
            'abs_max': 0,
            'err_vel_max' : 0.5,
            'start_datetime' : None,
@@ -146,9 +146,15 @@ ax.imshow(m[:,:,0].T)
 ax.set_aspect('auto', adjustable = 'box')
 
 ## To-Do
-## test masking more ....
+## SSC
+## plotting
+## beam plots, 
+## beam geometry verification 
+## correction for ADCP instrument pitch roll if beam 3 not forward. 
+## bottom track velocity correction 
 
-fdas
+
+
 #%% generic testing for ADCP functions
 import numpy as np
 
@@ -166,19 +172,21 @@ P_dbw = adcp.abs_params.P_dbw
 
 
 bin_distances = adcp.geometry.bin_midpoint_distances
-pulse_lengths = adcp._pd0._get_sensor_transmit_pulse_length()
+pulse_lengths = adcp.abs_params.tx_pulse_length
 bin_depths = abs(adcp.geometry.geographic_beam_midpoint_positions.z)
-instrument_freq = adcp.abs_params.frequency
+instrument_freq = adcp.abs_params.frequency*1000 # in hz
 
 temperature = adcp.water_properties.temperature
 pressure = adcp.aux_sensor_data.pressure
 salinity = adcp.water_properties.salinity
-density = adcp.water_properties.density
+water_density = adcp.water_properties.density
 
+particle_density = adcp.sediment_properties.particle_density
+particle_diameter = adcp.sediment_properties.particle_diameter
 
 pressure = np.outer(pressure, np.ones(nc))
 salinity = salinity * np.ones((ne, nc))
-water_density = density * np.ones((ne, nc))
+water_density = water_density * np.ones((ne, nc))
 
 pulse_lengths = np.outer(pulse_lengths, np.ones(nc))
 bin_distances = np.outer(bin_distances, np.ones(ne)).T
@@ -191,27 +199,214 @@ print(f"pulse_lengths shape: {pulse_lengths.shape}")
 print(f"bin_distances shape: {bin_distances.shape}")
 
 
+print(f"""\
+Means:
+------
+E_r: {E_r}
+WB: {WB}
+C: {C}
+k_c (mean over beams): {np.mean(list(k_c.values())):.4f}
+alpha_w (mean): {np.mean(alpha_w):.6f}
+P_dbw: {P_dbw}
+instrument_freq: {instrument_freq} Hz
+pulse_lengths (mean): {np.mean(pulse_lengths):.4f} m
+bin_distances (mean): {np.mean(bin_distances):.4f} m
+bin_depths (mean): {np.mean(bin_depths):.4f} m
+temperature (mean): {np.mean(temperature):.4f} °C
+pressure (mean): {np.mean(pressure):.4f} dbar
+salinity (mean): {np.mean(salinity):.4f} PSU
+water_density (mean): {np.mean(water_density):.4f} kg/m³
+particle_density: {particle_density} kg/m³
+particle_diameter: {particle_diameter} m
+""")
 
-#Echo = adcp.beam_data.echo_intensity
+echo = adcp.beam_data.echo_intensity
 # ABS = np.zeros_like(Echo, dtype=float)
 # SSC = np.zeros_like(Echo, dtype=float)
 # alpha_s = np.zeros_like(Echo, dtype=float)
 
+#%%
+alpha_s = np.zeros(echo.shape, dtype=float)
 
-
-#%% Calculate an initial guess at SSC
-
-for beam in range(adcp.geometry.n_beams):
+for bm in range(adcp.geometry.n_beams):
     
+    echo_beam = adcp.get_beam_data(field_name='echo_intensity', mask=False)[:, :, bm]
+    abs_beam = adcp.get_beam_data(field_name='absolute_backscatter', mask=False)[:, :, bm]
 
-    abs_beam = adcp.beam_data.absolute_backscatter[:,:,beam]
-    
-    abs_beam = adcp.get_beam_data(field_name = 'absolute_backscatter', mask = True)[:,:,beam] #.absolute_backscatter[:,:,beam]
     ssc_beam = adcp._backscatter_to_ssc(abs_beam)
+
+    # --------- Iteratively update bin 0 ---------
+    n_iter = 0
+    max_iter = 100
+    stop = False
+    bn = 0
+    while not stop and n_iter < max_iter:
+
+        alpha_s_bm_bn = adcp._sediment_absorption_coeff(
+            ps=particle_density,
+            pw=water_density[:, bn],
+            z=pressure[:, bn],
+            d=particle_diameter,
+            SSC=ssc_beam[:, bn],             # ✅ vector
+            T=temperature[:, bn],
+            S=salinity[:, bn],
+            f=instrument_freq
+        )
+
+        sv, _ = adcp._counts_to_absolute_backscatter(
+            E=echo_beam[:, bn],
+            E_r=E_r,
+            k_c=k_c[bm + 1],
+            alpha=alpha_w[:, bn] + alpha_s_bm_bn,
+            C=C,
+            R=bin_distances[:, bn],
+            Tx_T=temperature[:, bn],
+            Tx_PL=pulse_lengths[:, bn],
+            P_dbw=P_dbw
+        )
+
+        stop = np.allclose(abs_beam[:, bn], sv, rtol=1e-5, atol=1e-8)
+        abs_beam[:, bn] = sv
+        ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
+        n_iter += 1
+
+    alpha_s[:, bn, bm] = alpha_s_bm_bn
+
+    # --------- Propagate to deeper bins ---------
+    for bn in range(1, adcp.geometry.n_bins - 1):
+
+        # ✅ Vector of ensemble-wise mean SSC from above bins
+        ssc_beam_column = np.nanmean(ssc_beam[:, :bn], axis=1)
+
+        print(f'beam = {bm} | bin = {bn} | ssc mean = {np.nanmean(ssc_beam_column):.3f} mg/L')
+
+        alpha_s_bm_bn = adcp._sediment_absorption_coeff(
+            ps=particle_density,
+            pw=water_density[:, bn],
+            z=pressure[:, bn],
+            d=particle_diameter,
+            SSC=ssc_beam_column,              # ✅ vector
+            T=temperature[:, bn],
+            S=salinity[:, bn],
+            f=instrument_freq
+        )
+
+        sv, _ = adcp._counts_to_absolute_backscatter(
+            E=echo_beam[:, bn],
+            E_r=E_r,
+            k_c=k_c[bm + 1],
+            alpha=alpha_w[:, bn] + alpha_s_bm_bn,
+            C=C,
+            R=bin_distances[:, bn],
+            Tx_T=temperature[:, bn],
+            Tx_PL=pulse_lengths[:, bn],
+            P_dbw=P_dbw
+        )
+
+        abs_beam[:, bn] = sv
+        ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
+        alpha_s[:, bn, bm] = alpha_s_bm_bn
+
+
+
+fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+a = ssc_beam
+ax.imshow(a.T, vmax = 10)
+ax.set_aspect('auto', adjustable = 'box')   
+
+fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+a = ssc_beam_init
+ax.imshow(a.T, vmax = 10)
+ax.set_aspect('auto', adjustable = 'box')  
+
+fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+a = alpha_s[:,:,-1]
+ax.imshow(a.T)
+ax.set_aspect('auto', adjustable = 'box') 
+
+
+# #%% Calculate an initial guess at SSC
+
+# alpha_s = np.zeros(echo.shape,dtype = float)
+# for bm in range(adcp.geometry.n_beams):
     
+#     echo_beam = adcp.get_beam_data(field_name = 'echo_intensity', mask = False)[:,:,bm]
+#     abs_beam = adcp.get_beam_data(field_name = 'absolute_backscatter', mask = False)[:,:,bm]
     
+#     #abs_beam = adcp.get_beam_data(field_name = 'absolute_backscatter', mask = False)[:,:,bm] #.absolute_backscatter[:,:,beam]
+#     ssc_beam = adcp._backscatter_to_ssc(abs_beam)
+#     ssc_beam_init = ssc_beam.copy()
+#     # iterate on soluton for alpha_s first bin
+#     n_iter = 0
+#     max_iter = 100
+#     stop = False
+#     while (not stop):
+#         bn = 0
+#         alpha_s_bm_bn = adcp._sediment_absorption_coeff(ps = particle_density,
+#                                                 pw = water_density[:,bn],
+#                                                 z = pressure[:,bn],
+#                                                 d = particle_diameter,
+#                                                 SSC = ssc_beam[:,bn],
+#                                                 T = temperature[:,bn],
+#                                                 S = salinity[:,bn],
+#                                                 f = instrument_freq)
+        
+        
+#         sv,_ = adcp._counts_to_absolute_backscatter(E = echo_beam[:,bn],
+#                                                 E_r = E_r,
+#                                                 k_c= k_c[bm+1],
+#                                                 alpha = alpha_w[:,bn] + alpha_s_bm_bn,
+#                                                 C = C,
+#                                                 R = bin_distances[:,bn],
+#                                                 Tx_T = temperature[:,bn],
+#                                                 Tx_PL = pulse_lengths[:,bn],
+#                                                 P_dbw = P_dbw)
+  
+#         # diff = abs(np.sum(abs_beam[:,bn]- sv))
+#         # print(f'diff  = {diff} | iter = {n_iter} | beam = {bm}')
+#         stop = np.allclose(abs_beam[:,bn], sv, rtol=1e-5, atol=1e-8)
+#         abs_beam[:,bn] = sv
+#         ssc_beam[:,bn] = adcp._backscatter_to_ssc(sv)
+#         n_iter +=1
+#     alpha_s[:,bn,bm] = alpha_s_bm_bn    
     
+
+#     # for each bin, calculate alpha_s using SSC from bin above
+#     for bn in range(1,adcp.geometry.n_bins-1):
+#         if bn<2:
+#             ssc_beam_column = ssc_beam[bn-1,bm]
+#         else:
+#             ssc_beam_column = np.nanmean(ssc_beam[:bn,bm])
+            
+            
+#         print(f'beam = [{bm} | bin = {bn} | ssc mean = {ssc_beam_column}')
+#         alpha_s_bm_bn = adcp._sediment_absorption_coeff(ps = particle_density,
+#                                                 pw = water_density[:,bn],
+#                                                 z = pressure[:,bn],
+#                                                 d = particle_diameter,
+#                                                 SSC = ssc_beam_column,
+#                                                 T = temperature[:,bn],
+#                                                 S = salinity[:,bn],
+#                                                 f = instrument_freq)
+        
+#         sv,_ = adcp._counts_to_absolute_backscatter(E = echo_beam[:,bn],
+#                                                 E_r = E_r,
+#                                                 k_c= k_c[bm+1],
+#                                                 alpha = alpha_w[:,bn] + alpha_s_bm_bn,
+#                                                 C = C,
+#                                                 R = bin_distances[:,bn],
+#                                                 Tx_T = temperature[:,bn],
+#                                                 Tx_PL = pulse_lengths[:,bn],
+#                                                 P_dbw = P_dbw)
+        
+        
+#         abs_beam[:,bn] = sv
+#         ssc_beam[:,bn] = adcp._backscatter_to_ssc(sv)
+#         alpha_s[:,bn,bm] = alpha_s_bm_bn 
+        
+   
     
+ 
     # abs_beam, stn_beam = adcp._counts_to_absolute_backscatter(E = echo_beam,
     #                                                           E_r = E_r,
     #                                                           k_c = k_c[beam],
