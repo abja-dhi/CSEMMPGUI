@@ -16,6 +16,8 @@ namespace CSEMMPGUI_v1
 
         public bool isSaved; // Track if survey has been saved
         public XmlElement obsElement; // OBS Vertical Profile element
+        int headerLine;
+        string delimiter;
 
         public EditOBSVerticalProfile(XmlNode obsNode)
         {
@@ -127,9 +129,9 @@ namespace CSEMMPGUI_v1
                 UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
                 if (csvOptions.ShowDialog() == DialogResult.OK)
                 {
-                    int headerLines = csvOptions._headerLines;
-                    string delimiter = csvOptions._delimiter;
-                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLines);
+                    headerLine = csvOptions._headerLine;
+                    delimiter = csvOptions._delimiter;
+                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLine);
                     if (columns.Length < 3)
                     {
                         MessageBox.Show("The selected CSV file does not contain enough columns for OBS Vertical Profile data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -177,6 +179,39 @@ namespace CSEMMPGUI_v1
             else
             {
                 return -1; // Path node not found
+            }
+            XmlElement? columnsElement = fileInfo?.SelectSingleNode("Columns") as XmlElement;
+            if (columnsElement != null)
+            {
+                columnsElement.RemoveAll(); // Clear existing columns
+                for (int i = 0; i < comboDateTime.Items.Count; i++)
+                {
+                    XmlElement columnElement = obsElement.OwnerDocument.CreateElement($"Column{i}");
+                    columnElement.InnerText = comboDateTime.Items[i].ToString();
+                    columnsElement.AppendChild(columnElement);
+                }
+            }
+            else
+            {
+                return -1; // Columns element not found
+            }
+            XmlNode? headeLineNode = fileInfo?.SelectSingleNode("HeaderLine");
+            if (headeLineNode != null)
+            {
+                headeLineNode.InnerText = headerLine.ToString();
+            }
+            else
+            {
+                return -1; // HeaderLine node not found
+            }
+            XmlNode? delimiterNode = fileInfo?.SelectSingleNode("Delimiter");
+            if (delimiterNode != null)
+            {
+                delimiterNode.InnerText = delimiter;
+            }
+            else
+            {
+                return -1; // Delimiter node not found
             }
             XmlNode? dateTimeColumn = fileInfo?.SelectSingleNode("DateTimeColumn");
             if (dateTimeColumn != null)

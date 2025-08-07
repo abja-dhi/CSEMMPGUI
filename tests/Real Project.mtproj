@@ -17,6 +17,8 @@
           <Column3>DEP m</Column3>
           <Column4 />
         </Columns>
+        <HeaderLine>0</HeaderLine>
+        <Delimiter>\t</Delimiter>
         <DateTimeColumn>Date</DateTimeColumn>
         <DepthColumn>DEP m</DepthColumn>
         <NTUColumn>NTU</NTUColumn>
@@ -46,6 +48,8 @@
           <Column3>DEP m</Column3>
           <Column4 />
         </Columns>
+        <HeaderLine>0</HeaderLine>
+        <Delimiter>\t</Delimiter>
         <DateTimeColumn>Date</DateTimeColumn>
         <DepthColumn>DEP m</DepthColumn>
         <NTUColumn>NTU</NTUColumn>

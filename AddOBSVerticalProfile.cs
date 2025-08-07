@@ -19,6 +19,8 @@ namespace CSEMMPGUI_v1
         public int id; // ID of the instrument
         XmlElement? instrument;
         public bool isSaved; // Track if survey has been saved
+        int headerLine;
+        string delimiter;
 
         public AddOBSVerticalProfile(_SurveyManager _surveyManager)
         {
@@ -145,9 +147,9 @@ namespace CSEMMPGUI_v1
                 UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
                 if (csvOptions.ShowDialog() == DialogResult.OK)
                 {
-                    int headerLines = csvOptions._headerLines;
-                    string delimiter = csvOptions._delimiter;
-                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLines);
+                    headerLine = csvOptions._headerLine;
+                    delimiter = csvOptions._delimiter;
+                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLine);
                     if (columns.Length < 3)
                     {
                         MessageBox.Show("The selected CSV file does not contain enough columns for OBS Vertical Profile data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -220,6 +222,14 @@ namespace CSEMMPGUI_v1
                 fileColumns.AppendChild(column);
             }
             fileInfo.AppendChild(fileColumns);
+
+            XmlElement elemHeaderLine = project.CreateElement("HeaderLine");
+            elemHeaderLine.InnerText = headerLine.ToString();
+            fileInfo.AppendChild(elemHeaderLine);
+
+            XmlElement elemDelimiter = project.CreateElement("Delimiter");
+            elemDelimiter.InnerText = delimiter;
+            fileInfo.AppendChild(elemDelimiter);
 
             XmlElement dateTimeColumn = project.CreateElement("DateTimeColumn");
             dateTimeColumn.InnerText = comboDateTime.Text.Trim() ?? string.Empty;

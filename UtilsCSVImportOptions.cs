@@ -13,7 +13,7 @@ namespace CSEMMPGUI_v1
     public partial class UtilsCSVImportOptions : Form
     {
         public string _delimiter = ",";
-        public int _headerLines = 1;
+        public int _headerLine = 1;
         public UtilsCSVImportOptions(int nLines)
         {
             InitializeComponent();
@@ -54,7 +54,7 @@ namespace CSEMMPGUI_v1
             {
                 _delimiter = txtCustom.Text;
             }
-            _headerLines = (int)txtHeader.Value - 1;
+            _headerLine = (int)txtHeader.Value - 1;
             DialogResult = DialogResult.OK;
         }
     }
