@@ -150,124 +150,29 @@ class Pd0Decoder:
         #self.progress_bar = self.cfg.get('progress_bar', "True").lower() in ['true', '1', 'yes']
         
         
-
+        self._instrument_depth = float(self.cfg.get('instrument_depth', 0.0))
+        self._instrument_HAB = float(self.cfg.get('instrument_HAB', 0.0))
         self.name = self.cfg.get('name', self.filepath.stem)
-        
         self.filesize = self.filepath.stat().st_size
         self.fobject = open(self.filepath, 'rb')
-        
-        # read the first ensemble
         self._first_ensemble_pos = self._find_first_ensemble()
         
-        self._first_ensemble_header = self._get_single_header(offset = self._first_ensemble_pos) # read the header of the first ensemble
-
-        # # extract metadata from first header
-        self._n_data_types = self._first_ensemble_header.n_data_types
-        self._n_bytes_in_ensemble = self._first_ensemble_header.n_bytes_in_ensemble
+        
+        self._header, self._fixed, self._variable = self._get_info()
+        self._n_data_types = self._header.n_data_types
+        self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
+        self._n_cells = self._fixed.number_of_cells_wn
+        self._n_beams = self._fixed.number_of_beams
         self._n_ensembles = self.filesize // self._n_bytes_in_ensemble - 3
-        
-        
-        # get all ensemble headers
-        self.ensemble_headers = self._getensemble_headers()
-        
-        #update n_ensembles 
-        self._n_ensembles = len(self.ensemble_headers)
-        
-        
-        #get fixed and variable leader data 
-        self.fixed_leaders = self._getfixed_leaders()
-        self.variable_leaders = self._getvariable_leaders()   
-        
-        
-        
-        # # extract other useful metadata 
-        # self._n_cells = self.fixed_leaders[0].number_of_cells_wn
-        # self._n_beams = self.fixed_leaders[0].number_of_beams
-        
-        # self._beam_facing = self.fixed_leaders[0].system_configuration.beam_facing.lower()
-        # self._depth_cell_length = self.fixed_leaders[0].depth_cell_length_ws
-        # self._bin_1_distance = self.fixed_leaders[0].bin_1_distance
-        # self._beam_angle = self.fixed_leaders[0].beam_angle
-        
-        
-        # # self._n_cells = self._fixed.number_of_cells_wn
-        # # self._n_beams = self._fixed.number_of_beams
-        # # self._variable_leader = self._getvariable_leaders()
-        # # self._n_data_types = self._header.n_data_types
-        # # self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
-        
-        
-        # #self._header, self._fixed, self._variable = self._get_info()
-        # # self._n_data_types = self._header.n_data_types
-        # # self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
-        # # self._n_cells = self._fixed.number_of_cells_wn
-        # # self._n_beams = self._fixed.number_of_beams
-        # # self._n_ensembles = self.filesize // self._n_bytes_in_ensemble - 3
-        # # self._beam_facing = self._fixed.system_configuration.beam_facing.lower()
-        # # self._depth_cell_length = self._fixed.depth_cell_length_ws
-        # # self._bin_1_distance = self._fixed.bin_1_distance
-        # # self._beam_angle = self._fixed.beam_angle
-        # #self._approximate_n_ensembles = True
-        # #self.status = 0
-        #self.close()
-        
-        
+        self._beam_facing = self._fixed.system_configuration.beam_facing.lower()
+        self._depth_cell_length = self._fixed.depth_cell_length_ws
+        self._bin_1_distance = self._fixed.bin_1_distance
+        self._beam_angle = self._fixed.beam_angle
+        self._approximate_n_ensembles = True
+        self.status = 0
         
     def close(self):
         self.fobject.close()
-        
-    def get_fixed_leader_attr(self, attr: str) -> np.ndarray:
-        """
-        Retrieve a specific attribute from each fixed leader.
-    
-        Parameters
-        ----------
-        attr : str
-            Name of the attribute to retrieve.
-    
-        Returns
-        -------
-        np.ndarray
-            Array of attribute values from all ensembles.
-    
-        Raises
-        ------
-        AttributeError
-            If the attribute does not exist on the fixed leader object.
-        """
-        if not hasattr(self.fixed_leaders[0], attr):
-            raise AttributeError(f"'{type(self.fixed_leaders[0]).__name__}' has no attribute '{attr}'")
-    
-        return np.array([getattr(f, attr) for f in self.fixed_leaders])
-            
-    def get_variable_leader_attr(self, attr: str) -> np.ndarray:
-        """
-        Retrieve a specific attribute from each variable leader.
-    
-        Parameters
-        ----------
-        attr : str
-            Name of the attribute to retrieve.
-    
-        Returns
-        -------
-        np.ndarray
-            Array of attribute values from all ensembles.
-    
-        Raises
-        ------
-        AttributeError
-            If the attribute does not exist on the variable leader object.
-        """
-        if not hasattr(self.variable_leaders[0], attr):
-            raise AttributeError(f"'{type(self.variable_leader[0]).__name__}' has no attribute '{attr}'")
-    
-        vals = []
-        for v in self.variable_leaders:
-            vals.append(getattr(v, attr))
-    
-        return np.array(vals)
-        
 
     def _find_first_ensemble(self, max_iter: int = 100) -> int:
         """
@@ -287,11 +192,10 @@ class Pd0Decoder:
         valid = False
         pos = 0
         iter_count = 0
-        
         while not valid and iter_count < max_iter:
             self.fobject.seek(pos)
             try:
-                header = self._decode_fields(Pd0Formats.ensemble_header, 0)
+                header = self.decode_fields(Pd0Formats.ensemble_header, 0)
             except Exception as e:
                 self.status = 1
                 break
@@ -303,121 +207,68 @@ class Pd0Decoder:
                 iter_count += 1
         if iter_count >= max_iter:
             self.status = 1
-        
-    
-    def _get_single_header(self, offset: int = 0) -> Header:
-        """
-        Retrieve the header for a single ensemble at the specified byte offset.
-    
-        Parameters
-        ----------
-        offset : int, optional
-            Byte offset in the file to seek to before reading the header (default is 0).
-    
-        Returns
-        -------
-        Header
-            Parsed ensemble header at the specified file offset.
-        """
-        self.fobject.seek(offset)
-        header = Header(self._decode_fields(Pd0Formats.ensemble_header, 0))
+
+    def _get_info(self, initial_offset=0) -> Tuple[Header, FixedLeader, VariableLeader]:
+        self.fobject.seek(initial_offset)
+        header = Header(self.decode_fields(Pd0Formats.ensemble_header, 0))
         n_data_types = header.n_data_types if header.n_data_types is not np.nan else 0
         address_offsets = []
         for i in range(n_data_types):
             value, _ = self._decode_field(Pd0Formats.address_offsets[0])
             address_offsets.append(value)
-        header.address_offset = address_offsets 
-        return header
-
-    def _getensemble_headers(self) -> List[Header]:
-        """
-        Get the fixed leader data from the PD0 file.
-
-        Returns:
-            List[FixedLeader]: A list of FixedLeader objects for each ensemble.
-        """
-        self.fobject.seek(0)
-        headers = []
-        for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) 
-            self.fobject.seek(pos)
-            #fixed_leader = FixedLeader(self._decode_fields(Pd0Formats.ensemble_header))
-            try:
-                header = Header(self._decode_fields(Pd0Formats.ensemble_header))
-            except:
-                self.status = 1
-                break
-            n_data_types = header.n_data_types if header.n_data_types is not np.nan else 0
-            address_offsets = []
-            for i in range(n_data_types):
-                value, _ = self._decode_field(Pd0Formats.address_offsets[0])
-                address_offsets.append(value)
-            header.address_offset = address_offsets 
-
-            if n_data_types >0:
-                headers.append(header)
-            
-        return headers
-    
-    def _getfixed_leaders(self) -> List[FixedLeader]:
-        """
-        Get the fixed leader data from the PD0 file.
-
-        Returns:
-            List[FixedLeader]: A list of FixedLeader objects for each ensemble.
-        """
-        self.fobject.seek(0)
-        fixed_leaders = []
-        for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self.ensemble_headers[i].address_offset[0]
-            self.fobject.seek(pos)
-            try:
-                fixed_leader = FixedLeader(self._decode_fields(Pd0Formats.fixed_leader))
-                fixed_leader.system_configuration = self._decode_system_configuration(fixed_leader.system_configuration)
-            except:
-                self.status = 1
-                break
-
-            fixed_leaders.append(fixed_leader)
-        return fixed_leaders
-
-    def _getvariable_leaders(self) -> List[VariableLeader]:
-        """
-        Get the variable leader data from all ensembles in the PD0 file.
-
-        Returns:
-            List[VariableLeader]: A list of VariableLeader objects for each ensemble.
-        """
-        self.fobject.seek(0)
-        variable_leaders = []
-        for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self.ensemble_headers[i].address_offset[1]
-            self.fobject.seek(pos)
-            try:
-                variable_leader = VariableLeader(self._decode_fields(Pd0Formats.variable_leader))
-            except Exception as e:
-                self.status = 1
-                break
- 
-            variable_leaders.append(variable_leader)
-        return variable_leaders
-    # def _get_info(self, initial_offset=0) -> Tuple[Header, FixedLeader, VariableLeader]:
-    #     self.fobject.seek(initial_offset)
-    #     header = Header(self.decode_fields(Pd0Formats.ensemble_header, 0))
-    #     n_data_types = header.n_data_types if header.n_data_types is not np.nan else 0
-    #     address_offsets = []
-    #     for i in range(n_data_types):
-    #         value, _ = self._decode_field(Pd0Formats.address_offsets[0])
-    #         address_offsets.append(value)
-    #     header.address_offset = address_offsets        
-    #     fixed_leader = FixedLeader(self.decode_fields(Pd0Formats.fixed_leader))
-    #     fixed_leader.system_configuration = self.decode_system_configuration(fixed_leader.system_configuration)
-    #     variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
-    #     return header, fixed_leader, variable_leader
+        header.address_offset = address_offsets        
+        fixed_leader = FixedLeader(self.decode_fields(Pd0Formats.fixed_leader))
+        fixed_leader.system_configuration = self.decode_system_configuration(fixed_leader.system_configuration)
+        variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
+        return header, fixed_leader, variable_leader
         
 
-
+    def _get_bin_midpoints(self) -> np.ndarray:
+        """
+        Get the midpoints of the bins as function of distance from the transducer. 
+        
+        Returns:
+        -------
+        np.ndarray
+            Midpoints of the bins with shape (n_cells,).
+        """
+        beam_length = self._n_cells * self._depth_cell_length
+        bin_midpoints = np.linspace(
+            self._bin_1_distance,
+            beam_length + self._bin_1_distance,
+            self._n_cells
+        )
+        return bin_midpoints / 100.0
     
+    # def _get_bin_midpoints_depth(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins in depth.
+        
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins in depth with shape (n_cells,).
+    #     """
+    #     if self._beam_facing == "up":
+    #         bin_midpoints = self._instrument_depth - self._get_bin_midpoints()
+    #     else:
+    #         bin_midpoints = self._instrument_depth + self._get_bin_midpoints()
+    #     return bin_midpoints
+    
+    # def _get_bin_midpoints_hab(self) -> np.ndarray:
+    #     """
+    #     Get the midpoints of the bins in height above bed (HAB).
+        
+    #     Returns:
+    #     -------
+    #     np.ndarray
+    #         Midpoints of the bins in HAB with shape (n_cells,).
+    #     """
+    #     if self._beam_facing == "up":
+    #         bin_midpoints = self._instrument_HAB + self._get_bin_midpoints()
+    #     else:
+    #         bin_midpoints = self._instrument_HAB - self._get_bin_midpoints()
+    #     return bin_midpoints
 
     def _decode_field(self, field: FieldDef) -> Tuple[Any, bytes]:
         fmtstr = f"{field.endian}{field.fmt}"
@@ -431,7 +282,7 @@ class Pd0Decoder:
             value = field_bytes
         return value, nbytes
 
-    def _decode_fields(self, fields: List[FieldDef], initial_offset: int = 0) -> Dict[str, Any]:
+    def decode_fields(self, fields: List[FieldDef], initial_offset: int = 0) -> Dict[str, Any]:
         """
         Decode fields from the binary file based on the provided field definitions.
 
@@ -452,7 +303,7 @@ class Pd0Decoder:
             offset += nbytes
         return result
 
-    def _get_LE_bit_string(self, byte: bytes) -> str:
+    def get_LE_bit_string(self, byte: bytes) -> str:
         """
         make a bit string from little endian byte
 
@@ -470,7 +321,7 @@ class Pd0Decoder:
                 bits += "0"
         return bits
 
-    def _decode_system_configuration(self, syscfg: str) -> SystemConfiguration:
+    def decode_system_configuration(self, syscfg: str) -> SystemConfiguration:
         """
         determine the system configuration parameters from 2-byte hex
 
@@ -480,8 +331,8 @@ class Pd0Decoder:
             SystemConfiguration: a SystemConfiguration object with the decoded parameters
         """
         try:
-            LSB = self._get_LE_bit_string(syscfg[0])
-            MSB = self._get_LE_bit_string(syscfg[1])
+            LSB = self.get_LE_bit_string(syscfg[0])
+            MSB = self.get_LE_bit_string(syscfg[1])
         except:
             return SystemConfiguration()  # return empty object if decoding fails
         # determine system configuration
@@ -519,9 +370,59 @@ class Pd0Decoder:
         
         return system_configuration 
 
+    def _get_fixed_leader(self) -> List[FixedLeader]:
+        """
+        Get the fixed leader data from the PD0 file.
 
+        Returns:
+            List[FixedLeader]: A list of FixedLeader objects for each ensemble.
+        """
+        self.fobject.seek(0)
+        fixed_leaders = []
+        for i in range(self._n_ensembles):
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[0]
+            self.fobject.seek(pos)
+            try:
+                fixed_leader = FixedLeader(self.decode_fields(Pd0Formats.fixed_leader))
+                fixed_leader.system_configuration = self.decode_system_configuration(fixed_leader.system_configuration)
+            except:
+                self.status = 1
+                break
+
+            if fixed_leader.fixed_leader_id is None:
+                self._n_ensembles = i
+                self._approximate_n_ensembles = False
+                print(f'broke {i}')
+                break
+            fixed_leaders.append(fixed_leader)
+        return fixed_leaders
+
+    def _get_variable_leader(self) -> List[VariableLeader]:
+        """
+        Get the variable leader data from the PD0 file.
+
+        Returns:
+            List[VariableLeader]: A list of VariableLeader objects for each ensemble.
+        """
+        print('decoding Variable leader')
+        self.fobject.seek(0)
+        variable_leaders = []
+        for i in range(self._n_ensembles):
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1]
+            self.fobject.seek(pos)
+            try:
+                variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
+            except Exception as e:
+                self.status = 1
+                break
+            if variable_leader.ensemble_number is None:
+                self._n_ensembles = i
+                self._approximate_n_ensembles = False
+                break
+            variable_leaders.append(variable_leader)
+        return variable_leaders
     
-    def get_datetimes(self) -> List[VariableLeader]:
+    def _get_datetimes(self) -> List[VariableLeader]:
         """
         Get the variable leader data from the PD0 file.
 
@@ -532,10 +433,10 @@ class Pd0Decoder:
         datetimes = []
         first_offset = np.sum([Pd0Formats.variable_leader[i].nbytes for i in [0, 1]])
         for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self.ensemble_headers[i].address_offset[1] + first_offset
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1] + first_offset
             self.fobject.seek(pos)
             try:
-                data = self._decode_fields(Pd0Formats.variable_leader[2:9])
+                data = self.decode_fields(Pd0Formats.variable_leader[2:9])
             except Exception as e:
                 self.status = 1
                 break
@@ -546,7 +447,7 @@ class Pd0Decoder:
                 break
             _ = np.sum([Pd0Formats.variable_leader[i].nbytes for i in range(9,37)])
             _ = self.fobject.read(_)
-            century = str(self._decode_fields([Pd0Formats.variable_leader[37]]))
+            century = str(self.decode_fields([Pd0Formats.variable_leader[37]]))
             if not century in ['19','20']: century = '20'
             year = int(century + str(data["RTC YEAR {TS}"]))
             month = int(data["RTC MONTH {TS}"])
@@ -560,18 +461,18 @@ class Pd0Decoder:
         datetimes = np.array(datetimes)
         return datetimes
 
-    def get_velocity(self) -> np.ndarray:
+    def _get_velocity(self) -> np.ndarray:
         self.fobject.seek(0)
         data = []
         break_flag = False
         for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self.ensemble_headers[i].address_offset[2]
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[2]
             self.fobject.seek(pos)
             self._decode_field(Pd0Formats.data_ID_code[0])
             ens_data = []
-            for _ in range(self.fixed_leaders[i].number_of_cells_wn):
+            for _ in range(self._fixed.number_of_cells_wn):
                 cell_data = []
-                for __ in range(self.fixed_leaders[i].number_of_beams):
+                for __ in range(self._fixed.number_of_beams):
                     value, _ = self._decode_field(Pd0Formats.velocity[0])
                     if value is None:
                         break_flag = True
@@ -590,9 +491,9 @@ class Pd0Decoder:
         Wrapper function to get variable data from the PD0 file.
         """
         address_offsets = {
-            "correlation_magnitude": self.ensemble_headers[0].address_offset[3],
-            "echo_intensity": self.ensemble_headers[0].address_offset[4],
-            "percent_good": self.ensemble_headers[0].address_offset[5]
+            "correlation_magnitude": self._header.address_offset[3],
+            "echo_intensity": self._header.address_offset[4],
+            "percent_good": self._header.address_offset[5]
         }
 
         labels = {
@@ -616,9 +517,9 @@ class Pd0Decoder:
             self.fobject.seek(pos)
             self._decode_field(Pd0Formats.data_ID_code[0])
             ens_data = []
-            for _ in range(self.fixed_leaders[i].number_of_cells_wn):
+            for _ in range(self._fixed.number_of_cells_wn):
                 cell_data = []
-                for __ in range(self.fixed_leaders[i].number_of_beams):
+                for __ in range(self._fixed.number_of_beams):
                     value, _ = self._decode_field(field_map[name])
                     #value, _ = self._decode_field(Pd0Formats.variable[0])
                     if value is None:
@@ -633,7 +534,7 @@ class Pd0Decoder:
             data.append(ens_data)
         return np.array(data)
 
-    def get_echo_intensity(self) -> np.ndarray:
+    def _get_echo_intensity(self) -> np.ndarray:
         """
         Get the echo intensity data from the PD0 file.
 
@@ -642,7 +543,7 @@ class Pd0Decoder:
         """
         return self._get_variable("echo_intensity")
     
-    def get_correlation_magnitude(self) -> np.ndarray:
+    def _get_correlation_magnitude(self) -> np.ndarray:
         """
         Get the correlation magnitude data from the PD0 file.
 
@@ -651,7 +552,7 @@ class Pd0Decoder:
         """
         return self._get_variable("correlation_magnitude")
     
-    def get_percent_good(self) -> np.ndarray:
+    def _get_percent_good(self) -> np.ndarray:
         """
         Get the percent good data from the PD0 file.
 
@@ -660,7 +561,7 @@ class Pd0Decoder:
         """
         return self._get_variable("percent_good")
 
-    def get_bottom_track(self) -> List[BottomTrack]:
+    def _get_bottom_track(self) -> List[BottomTrack]:
         """
         Get the bottom track data from the PD0 file.
 
@@ -672,12 +573,181 @@ class Pd0Decoder:
         self.fobject.seek(0)
         bottom_tracks = []
         for i in range(self._n_ensembles):
-            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self.ensemble_headers[i].address_offset[6]
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[6]
             self.fobject.seek(pos)
             try:
-                bottom_track = BottomTrack(self._decode_fields(Pd0Formats.bottom_track))
+                bottom_track = BottomTrack(self.decode_fields(Pd0Formats.bottom_track))
             except Exception as e:
                 self.status = 1
                 break
+            if bottom_track.bottom_track_id is None:
+                self._n_ensembles = i
+                self._approximate_n_ensembles = False
+                break
             bottom_tracks.append(bottom_track)
         return bottom_tracks
+
+    def _get_sensor_temperature(self) -> np.ndarray:
+        """
+        Get the sensor temperature data from the PD0 file.
+
+        Returns:
+        --------
+            np.ndarray: A 1D array of sensor temperature values for each ensemble.
+        """
+        self.fobject.seek(0)
+        data = []
+        for i in range(self._n_ensembles):
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[1] + np.sum([Pd0Formats.variable_leader[i].nbytes for i in range(17)]) - 1
+            self.fobject.seek(pos)
+            value, _ = self._decode_field(Pd0Formats.variable_leader[17])
+            if value is None:
+                self._n_ensembles = i
+                self._approximate_n_ensembles = False
+                break
+            data.append(value / 100.0)
+        return np.array(data)
+        
+    def _get_sensor_transmit_pulse_length(self) -> np.ndarray:
+        """
+        Get the sensor transmit pulse length data from the PD0 file.
+
+        Returns:
+        --------
+            np.ndarray: A 1D array of sensor transmit pulse length values for each ensemble.
+        """
+        self.fobject.seek(0)
+        data = []
+        for i in range(self._n_ensembles):
+            pos = self._first_ensemble_pos + i * (self._n_bytes_in_ensemble + 2) + self._header.address_offset[0] + np.sum([Pd0Formats.fixed_leader[i].nbytes for i in range(25)])
+            self.fobject.seek(pos)
+            value, _ = self._decode_field(Pd0Formats.variable_leader[17])
+            if value is None:
+                self._n_ensembles = i
+                self._approximate_n_ensembles = False
+                break
+            data.append(value / 100.0)
+        return np.array(data)
+        
+
+    # def _get_absolute_backscatter(self) -> np.ndarray:
+    #     """
+    #     Convert echo intensity to absolute backscatter.
+
+    #     Returns:
+    #     --------
+    #         np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
+    #     """
+    #     echo_intensity = self._get_echo_intensity()
+    #     if echo_intensity is None:
+    #         return None
+    #     E_r = self.cfg.get('noise_floor', 39)
+    #     WB = self._fixed.system_bandwidth_wb
+    #     if WB == 0:
+    #         C = -139.09
+    #     else:
+    #         C = -149.14
+    #     C = self.cfg.get('absolute_backscatter_C', C)
+    #     default_rssis = {1: 0.41, 2: 0.41, 3: 0.41, 4: 0.41}
+    #     k_c = {}
+    #     for i in range(self._fixed.number_of_beams):
+    #         if f'rssi_beam_{i+1}' in self.cfg.keys():
+    #             k_c[i+1] = self.cfg[f'rssi_beam_{i+1}']
+    #         else:
+    #             k_c[i+1] = default_rssis.get(i+1, 0.45)
+    #             
+    #     alpha = 0.5
+    #     P_dbw = 8.3
+    #     if self._fixed.system_configuration.frequency == '75-kHz':
+    #         alpha = 0.027
+    #         P_dbw = 27.3
+    #     elif self._fixed.system_configuration.frequency == '300-kHz':
+    #         alpha = 0.068
+    #         P_dbw = 14    
+    #     elif self._fixed.system_configuration.frequency == '600-kHz':
+    #         alpha = 0.178
+    #         P_dbw = 9
+    #     alpha = self.cfg.get('absolute_backscatter_alpha', alpha)
+    #     P_dbw = self.cfg.get('absolute_backscatter_P_dbw', P_dbw)
+
+    #     temperature = np.outer(self._get_sensor_temperature(), np.ones(self._n_cells))
+    #     bin_distances = np.outer(self._get_bin_midpoints(), np.ones(self._n_ensembles)).T
+    #     transmit_pulse_length = np.outer(self._get_sensor_transmit_pulse_length(), np.ones(self._n_cells))
+    #     X = []
+    #     StN = []
+    #     for i in range(self._n_beams):
+    #         E = echo_intensity[:, :, i]
+    #         sv, stn = self._scalar_counts_to_absolute_backscatter(E, E_r, float(k_c[i+1]), alpha, C, bin_distances, temperature, transmit_pulse_length, P_dbw)
+    #         # print(k_c[i+1])
+    #         # quit()
+    #         X.append(sv)
+    #         StN.append(stn)
+    #     X = np.array(X).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Absolute backscatter
+    #     StN = np.array(StN).transpose(1, 2, 0).astype(int).astype(float)  # Shape: (n_ensembles, n_cells, n_beams) Signal to noise ratio
+    #     return X, StN
+
+    # @staticmethod
+    # def _scalar_counts_to_absolute_backscatter(E, E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_DBW):
+    #     """
+    #     Vectorized Absolute Backscatter Equation from Deines (Updated - Mullison 2017 TRDI Application Note FSA031)
+        
+    #     Parameters
+    #     ----------
+    #     E : ndarray
+    #         Measured Returned Signal Strength Indicator (RSSI) amplitude, in counts.
+    #     R : ndarray
+    #         Along-beam range to the measurement in meters.
+    #     Tx_T : ndarray
+    #         Transducer temperature in deg C.
+    #     Tx_PL : ndarray
+    #         Transmit pulse length in dBm.
+    #     E_r : float
+    #         Measured RSSI amplitude in absence of signal (noise), in counts.
+    #     k_c : float
+    #         Factor to convert amplitude counts to decibels (dB).
+    #     alpha : float
+    #         Acoustic absorption (dB/m).
+    #     C : float
+    #         Constant combining several parameters specific to the instrument.
+    #     P_DBW : float
+    #         Transmit pulse power in dBW.
+        
+    #     Returns
+    #     -------
+    #     Sv : ndarray
+    #         Apparent volume scattering strength.
+    #     StN : ndarray
+    #         True signal to noise ratio.
+    #     """
+        
+    #     # Signal to noise ratio (true)
+    #     E_db = k_c * E / 10
+    #     E_r_db = k_c * E_r / 10
+        
+    #     StN = (10 ** E_db - 10 ** E_r_db) / (10 ** E_r_db)
+        
+    #     # L_DBM: Transmit pulse length in dBm
+    #     L_DBM = 10 * np.log10(Tx_PL)
+        
+    #     Sv = (
+    #         C
+    #         + 10 * np.log10((Tx_T + 273.16) * (R ** 2))
+    #         - L_DBM
+    #         - P_DBW
+    #         + 2 * alpha * R
+    #         + 10 * np.log10(10 ** (0.1 * k_c * (E - E_r)) - 1)
+    #     )
+        
+    #     return Sv, StN
+
+    def __repr__(self) -> str:
+        if self._approximate_n_ensembles:
+            n_ensembles = "approximately " + str(self._n_ensembles)
+        else:
+            n_ensembles = str(self._n_ensembles)
+        return f"""{self.__class__.__name__}(
+        filepath='{self.filepath}',
+        n_ensembles={n_ensembles},
+        n_cells={self._n_cells},
+        n_beams={self._n_beams})
+        """

@@ -79,53 +79,54 @@ class Pd0Formats:
         FieldDef("BEAM ANGLE", 1, "<", "B", True)
     ]
 
-    variable_leader: List[FieldDef] = [
-        FieldDef("VARIABLE LEADER ID", 2, "<", "H", True),
-        FieldDef("ENSEMBLE NUMBER", 2, "<", "H", True),
-        FieldDef("RTC YEAR {TS}", 1, "<", "B", True),
-        FieldDef("RTC MONTH {TS}", 1, "<", "B", True),
-        FieldDef("RTC DAY {TS}", 1, "<", "B", True),
-        FieldDef("RTC HOUR {TS}", 1, "<", "B", True),
-        FieldDef("RTC MINUTE {TS}", 1, "<", "B", True),
-        FieldDef("RTC SECOND {TS}", 1, "<", "B", True),
-        FieldDef("RTC HUNDREDTHS {TS}", 1, "<", "B", True),
-        FieldDef("ENSEMBLE # MSB", 2, "<", "H", True),
-        FieldDef("BIT RESULT", 2, "<", "H", True),
-        FieldDef("SPEED OF SOUND {EC}", 2, "<", "H", True),
-        FieldDef("DEPTH OF TRANSDUCER {ED}", 2, "<", "H", True),
-        FieldDef("HEADING {EH}", 2, "<", "H", True),
-        FieldDef("PITCH TILT 1 {EP}", 2, "<", "h", True),
-        FieldDef("ROLL TILT 2 {ER}", 2, "<", "h", True),
-        FieldDef("SALINITY {ES}", 2, "<", "H", True),
-        FieldDef("TEMPERATURE {ET}", 2, "<", "h", True),
-        FieldDef("MPT MINUTES", 1, "<", "B", True),
-        FieldDef("MPT SECONDS", 1, "<", "B", True),
-        FieldDef("MPT HUNDREDTHS", 1, "<", "B", True),
-        FieldDef("HDG STD DEV", 1, "<", "B", True),
-        FieldDef("PITCH STD DEV", 1, "<", "B", True),
-        FieldDef("ROLL STD DEV", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 0", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 1", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 2", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 3", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 4", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 5", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 6", 1, "<", "B", True),
-        FieldDef("ADC CHANNEL 7", 1, "<", "B", True),
-        FieldDef("ERROR STATUS WORD ESW {CY}", 4, "<", "I", True),
-        FieldDef("SPARE1", 1, "<", "B", True),
-        FieldDef("PRESSURE", 4, "<", "I", True),
-        FieldDef("PRESSURE SENSOR VARIANCE", 4, "<", "I", True),
-        FieldDef("SPARE2", 1, "<", "B", True),
-        FieldDef("RTC CENTURY", 1, "<", "B", True),
-        FieldDef("RTC YEAR", 1, "<", "B", True),
-        FieldDef("RTC MONTH", 1, "<", "B", True),
-        FieldDef("RTC DAY", 1, "<", "B", True),
-        FieldDef("RTC HOUR", 1, "<", "B", True),
-        FieldDef("RTC MINUTE", 1, "<", "B", True),
-        FieldDef("RTC SECOND", 1, "<", "B", True),
-        FieldDef("RTC HUNDREDTH", 1, "<", "B", True)
+    variable_leader = [
+        FieldDef('VARIABLE LEADER ID', 2, '<', 'H', True),
+        FieldDef('ENSEMBLE NUMBER', 2, '<', 'H', True),
+        FieldDef('RTC YEAR {TS}', 1, '<', 'B', True),
+        FieldDef('RTC MONTH {TS}', 1, '<', 'B', True),
+        FieldDef('RTC DAY {TS}', 1, '<', 'B', True),
+        FieldDef('RTC HOUR {TS}', 1, '<', 'B', True),
+        FieldDef('RTC MINUTE {TS}', 1, '<', 'B', True),
+        FieldDef('RTC SECOND {TS}', 1, '<', 'B', True),
+        FieldDef('RTC HUNDREDTHS {TS}', 1, '<', 'B', True),
+        FieldDef('ENSEMBLE # MSB', 1, '<', 'B', True),
+        FieldDef('BIT RESULT', 2, '<', 'H', True),
+        FieldDef('SPEED OF SOUND {EC}', 2, '<', 'H', True),
+        FieldDef('DEPTH OF TRANSDUCER {ED}', 2, '<', 'H', True),
+        FieldDef('HEADING {EH}', 2, '<', 'H', True),
+        FieldDef('PITCH TILT 1 {EP}', 2, '<', 'h', True),
+        FieldDef('ROLL TILT 2 {ER}', 2, '<', 'h', True),
+        FieldDef('SALINITY {ES}', 2, '<', 'H', True),
+        FieldDef('TEMPERATURE {ET}', 2, '<', 'h', True),
+        FieldDef('MPT MINUTES', 1, '<', 'B', True),
+        FieldDef('MPT SECONDS', 1, '<', 'B', True),
+        FieldDef('MPT HUNDREDTHS', 1, '<', 'B', True),
+        FieldDef('HDG STD DEV', 1, '<', 'B', True),
+        FieldDef('PITCH STD DEV', 1, '<', 'B', True),
+        FieldDef('ROLL STD DEV', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 0', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 1', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 2', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 3', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 4', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 5', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 6', 1, '<', 'B', True),
+        FieldDef('ADC CHANNEL 7', 1, '<', 'B', True),
+        FieldDef('ERROR STATUS WORD ESW {CY}', 4, '<', 'I', True),
+        FieldDef('SPARE1', 2, '<', 'B', False),
+        FieldDef('PRESSURE', 4, '<', 'I', True),
+        FieldDef('PRESSURE SENSOR VARIANCE', 4, '<', 'I', True),
+        FieldDef('SPARE2', 1, '<', 'B', False),
+        FieldDef('RTC CENTURY', 1, '<', 'B', True),
+        FieldDef('RTC YEAR', 1, '<', 'B', True),
+        FieldDef('RTC MONTH', 1, '<', 'B', True),
+        FieldDef('RTC DAY', 1, '<', 'B', True),
+        FieldDef('RTC HOUR', 1, '<', 'B', True),
+        FieldDef('RTC MINUTE', 1, '<', 'B', True),
+        FieldDef('RTC SECOND', 1, '<', 'B', True),
+        FieldDef('RTC HUNDREDTH', 1, '<', 'B', True)
     ]
+
     
     bottom_track: List[FieldDef] = [
         FieldDef("BOTTOM TRACK ID", 2, ">", "H", True),
@@ -190,14 +191,17 @@ class Pd0Formats:
     ]
     
     # Miscellaneous field definitions
-    reserved_bit_data: FieldDef = [FieldDef("RESERVED BIT DATA", 2, "<", "H", True)]
     address_offsets: FieldDef = [FieldDef("ADDRESS OFFSET", 2, "<", "H", True)]
+    
+    
     data_ID_code: FieldDef = [FieldDef("DATA ID CODE", 2, "<", "H", True)]
     echo_intensity: FieldDef = [FieldDef("ECHO INTENSITY", 1, "<", "B", True)]
     velocity: FieldDef = [FieldDef("VELOCITY", 2, "<", "h", True)]
     corr_mag: FieldDef = [FieldDef("CORRELATION MAGNITUDE", 1, "<", "B", True)]
     pct_good: FieldDef = [FieldDef("PERCENT GOOD", 1, "<", "B", True)]
-    variable: FieldDef = [FieldDef("Variable", 1, "<", "B", True)]
+    #variable: FieldDef = [FieldDef("Variable", 1, "<", "B", True)]
+    
+    reserved_bit_data: FieldDef = [FieldDef("RESERVED BIT DATA", 2, "<", "H", True)]
     
     external_fields = [
         FieldDef("LEADER ID", 2, "<", "H", True),             # 2-byte unsigned int

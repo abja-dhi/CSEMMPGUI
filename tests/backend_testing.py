@@ -28,6 +28,17 @@ for dirpath, _, filenames in os.walk(root):
             pd0_fpaths.append(fpath)
         elif fname.endswith('extern.csv'):
             pos_fpaths.append(fpath)
+            
+
+
+
+
+#%%
+
+pd0 = Pd0Decoder(pd0_fpaths[0], cfg = {})
+
+#vl = pd0._get_variable_leader()[0].to_dict()
+
 
 
 
@@ -92,8 +103,8 @@ for i,fpath in enumerate(pd0_fpaths):
            'echo_max' : 255,
            'cormag_min' : 0,
            'cormag_max' : 255,
-           'abs_min' : -55,
-           'abs_max': -30,
+           'abs_min' : -70,
+           'abs_max': 0,
            'err_vel_max' : 0.5,
            'start_datetime' : None,
            'end_datetime' : None,
@@ -101,7 +112,7 @@ for i,fpath in enumerate(pd0_fpaths):
            'last_good_ensemble' : None,
            'magnetic_declination' : 0,
            'utc_offset' : None,
-           'crp_rotation_angle' : 45.0,
+           'crp_rotation_angle' : 0,
            'crp_offset_x' : 0.0,
            'crp_offset_y' : 0.0,
            'crp_offset_z' : 0.0,
@@ -120,11 +131,24 @@ for i,fpath in enumerate(pd0_fpaths):
     break
     if i==3:
         break
-    
+
+
+#%%
+import numpy as np 
+fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+a = adcp.get_beam_data('absolute_backscatter', mask = True)
+ax.imshow(a[:,:,0].T)
+ax.set_aspect('auto', adjustable = 'box')
+
+fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+m = adcp.masking.beam_data_mask
+ax.imshow(m[:,:,0].T)
+ax.set_aspect('auto', adjustable = 'box')
+
 ## To-Do
 ## test masking more ....
 
-
+fdas
 #%% generic testing for ADCP functions
 import numpy as np
 

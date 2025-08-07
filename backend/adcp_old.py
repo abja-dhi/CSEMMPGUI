@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from .utils import Utils, Constants, XYZ
-from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
+from .pd0_decoder import Pd0Decoder, FixedLeader, VariableLeader
 from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
 
@@ -82,82 +82,17 @@ class ADCP():
         self.time = ADCPTime(
             n_ensembles = self._pd0._n_ensembles,
             ensemble_datetimes = self._get_datetimes(),
-            ensemble_numbers = self._pd0.get_variable_leader_attr('ensemble_number')
+            ensemble_numbers = np.array([i.ensemble_number for i in self._pd0._get_variable_leader()])
             )
         
-        @dataclass
-        class ADCPAuxSensorData:
-            pressure: NDArray[np.float64] = field(
-                metadata={"desc": "Water pressure at the transducer head (dbar), scaled from 0.1 Pa. Range: 0–4,294,967 dbar. Requires external pressure sensor; likely manually specified if absent."}
-            )
-            pressure_var: NDArray[np.float64] = field(
-                metadata={"desc": "Pressure variance (dbar²), scaled from 0.1 Pa². Range: 0–4,294,967 dbar². Requires external pressure sensor; likely manually specified if absent."}
-            )
-            depth_of_transducer: NDArray[np.float64] = field(
-                metadata={"desc": "Depth of transducer below water surface (m), scaled from decimeters. Range: 0.1–999.9 m. May be set manually or computed from pressure sensor."}
-            )
-            temperature: NDArray[np.float64] = field(
-                metadata={"desc": "Water temperature (°C), scaled from 0.01°C. Range: -5.00–40.00°C. Requires external temperature sensor; may be manually set if absent."}
-            )
-            salinity: NDArray[np.float64] = field(
-                metadata={"desc": "Water salinity (PSU), 1:1 scaling. Range: 0–40 PSU. Requires external conductivity sensor; typically manually specified."}
-            )
-            speed_of_sound: NDArray[np.float64] = field(
-                metadata={"desc": "Speed of sound (m/s). Range: 1400–1600 m/s. May be derived from temperature, salinity, and pressure; otherwise, manually set."}
-            )
-            heading: NDArray[np.float64] = field(
-                metadata={"desc": "Instrument heading (°), scaled from 0.01°. Range: 0.00–359.99°. Requires internal compass or external gyro."}
-            )
-            pitch: NDArray[np.float64] = field(
-                metadata={"desc": "Pitch angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
-            )
-            roll: NDArray[np.float64] = field(
-                metadata={"desc": "Roll angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
-            )
-            heading_std: NDArray[np.float64] = field(
-                metadata={"desc": "Heading standard deviation (°). Range: 0–180°. Requires internal or external compass."}
-            )
-            pitch_std: NDArray[np.float64] = field(
-                metadata={"desc": "Pitch standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
-            )
-            roll_std: NDArray[np.float64] = field(
-                metadata={"desc": "Roll standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
-            )
-
-            
-
-        
-        self.aux_sensor_data = ADCPAuxSensorData(
-            pressure=self._pd0.get_variable_leader_attr("pressure") * 0.001,  # decapascal → dbar
-            pressure_var=self._pd0.get_variable_leader_attr("pressure_sensor_variance") * 0.001,
-            depth_of_transducer=self._pd0.get_variable_leader_attr("depth_of_transducer_ed") * 0.1,  # dm → m
-            temperature=self._pd0.get_variable_leader_attr("temperature_et") * 0.01,
-            salinity=self._pd0.get_variable_leader_attr("salinity_es"),
-            speed_of_sound= self._pd0.get_variable_leader_attr("speed_of_sound_ec"),
-            heading=self._pd0.get_variable_leader_attr("heading_eh") * 0.01,
-            pitch=self._pd0.get_variable_leader_attr("pitch_tilt_1_ep") * 0.01,
-            roll=self._pd0.get_variable_leader_attr("roll_tilt_2_er") * 0.01,
-            heading_std=self._pd0.get_variable_leader_attr("hdg_std_dev")*.1,
-            pitch_std=self._pd0.get_variable_leader_attr("pitch_std_dev") * 0.1,
-            roll_std=self._pd0.get_variable_leader_attr("roll_std_dev") * 0.1,
-        )
-        
-        
+    
         ## Platform Position class
-        self.position = ADCPPosition(self._cfg['pos_cfg'])
-        
-        print(self._cfg['pos_cfg'])
+        self.position: ADCPPosition | None = ADCPPosition(self._cfg['pos_cfg'])
         self.position._resample_to(self.time.ensemble_datetimes)
         
         
-        if np.all(self.position.heading ==0):
-            self.position.heading = self.aux_sensor_data.heading
-            
-        if np.all(self.position.pitch ==0):
-            self.position.pitch = self.aux_sensor_data.pitch  
-            
-        if np.all(self.position.roll ==0):
-            self.position.roll = self.aux_sensor_data.roll
+
+        
         
         @dataclass
         class ADCPGeometry:
@@ -177,25 +112,26 @@ class ADCP():
                     
                 
         
-        #vh_list = self._pd0._get_variable_leader()  
-        
+        vh_list = self._pd0._get_variable_leader()      
         self.geometry = ADCPGeometry(
-            beam_facing=self._pd0.fixed_leaders[0].system_configuration.beam_facing.lower(),
-            n_bins=self._pd0.fixed_leaders[0].number_of_cells_wn,
-            n_beams=self._pd0.fixed_leaders[0].number_of_beams,
-            beam_angle=self._pd0.fixed_leaders[0].beam_angle,
-            bin_1_distance=self._pd0.fixed_leaders[0].bin_1_distance / 100,
-            bin_length=self._pd0.fixed_leaders[0].depth_cell_length_ws / 100,
-            bin_midpoint_distances=None,
+            beam_facing=self._pd0._beam_facing,
+            n_bins=self._pd0._n_cells,
+            n_beams=self._pd0._fixed.number_of_beams,
+            beam_angle=self._pd0._fixed.beam_angle,
+            bin_1_distance=self._pd0._fixed.bin_1_distance / 100,
+            bin_length=self._pd0._fixed.depth_cell_length_ws / 100,
+            bin_midpoint_distances=self._pd0._get_bin_midpoints(),
             crp_offset_x=float(get_valid(self._cfg, 'crp_offset_x', 0)),
             crp_offset_y=float(get_valid(self._cfg, 'crp_offset_y', 0)),
             crp_offset_z=float(get_valid(self._cfg, 'crp_offset_z', 0)),
             crp_rotation_angle=float(get_valid(self._cfg, 'crp_rotation_angle',0)),
             relative_beam_midpoint_positions=None,
             geographic_beam_midpoint_positions=None,
+            # sensor_pitch=0.01 * np.array([getattr(vh_list[e], "pitch_tilt_1_ep") for e in range(self._pd0._n_ensembles)]),
+            # sensor_roll=0.01 * np.array([getattr(vh_list[e], "roll_tilt_2_er") for e in range(self._pd0._n_ensembles)]),
+            # sensor_heading=0.01 * np.array([getattr(vh_list[e], "heading_eh") for e in range(self._pd0._n_ensembles)])
         )
 
-        self.geometry.bin_midpoint_distances=self._get_bin_midpoints()
 
         relative_bmp, geographic_bmp = self._calculate_beam_geometry()
         self.geometry.relative_beam_midpoint_positions = relative_bmp
@@ -213,9 +149,9 @@ class ADCP():
             sediment_attenuation: np.ndarray = field(default=None, metadata={"desc": "Estimated acoustic power attenuation due to suspended sediments in water (dB/km)"})
 
         self.beam_data = ADCPBeamData(
-            echo_intensity=self._pd0.get_echo_intensity().astype(float),
-            correlation_magnitude=self._pd0.get_correlation_magnitude().astype(float),
-            percent_good=self._pd0.get_percent_good().astype(float),
+            echo_intensity=self._pd0._get_echo_intensity(),
+            correlation_magnitude=self._pd0._get_correlation_magnitude(),
+            percent_good=self._pd0._get_percent_good(),
             absolute_backscatter = None,  # placeholder until compute
             suspended_solids_concentration=None,  # placeholder until compute 
             signal_to_noise_ratio = None, # placeholder until compute
@@ -277,7 +213,7 @@ class ADCP():
             ref_layer_min_bl: int = field(metadata={"desc": "Reference layer minimum size (dm)"})
             ref_layer_near_bl: int = field(metadata={"desc": "Reference layer near boundary (dm)"})
                     
-        bt_list = self._pd0.get_bottom_track()
+        bt_list = self._pd0._get_bottom_track()
 
         self.bottom_track = ADCPBottomTrack(
             eval_amp = np.array([[getattr(bt_list[e], f"beam{b}_eval_amp") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
@@ -308,8 +244,62 @@ class ADCP():
     
 
 
+        @dataclass
+        class ADCPAuxSensorData:
+            pressure: NDArray[np.float64] = field(
+                metadata={"desc": "Water pressure at the transducer head (dbar), scaled from 0.1 Pa. Range: 0–4,294,967 dbar. Requires external pressure sensor; likely manually specified if absent."}
+            )
+            pressure_var: NDArray[np.float64] = field(
+                metadata={"desc": "Pressure variance (dbar²), scaled from 0.1 Pa². Range: 0–4,294,967 dbar². Requires external pressure sensor; likely manually specified if absent."}
+            )
+            depth_of_transducer: NDArray[np.float64] = field(
+                metadata={"desc": "Depth of transducer below water surface (m), scaled from decimeters. Range: 0.1–999.9 m. May be set manually or computed from pressure sensor."}
+            )
+            temperature: NDArray[np.float64] = field(
+                metadata={"desc": "Water temperature (°C), scaled from 0.01°C. Range: -5.00–40.00°C. Requires external temperature sensor; may be manually set if absent."}
+            )
+            salinity: NDArray[np.float64] = field(
+                metadata={"desc": "Water salinity (PSU), 1:1 scaling. Range: 0–40 PSU. Requires external conductivity sensor; typically manually specified."}
+            )
+            speed_of_sound: NDArray[np.float64] = field(
+                metadata={"desc": "Speed of sound (m/s). Range: 1400–1600 m/s. May be derived from temperature, salinity, and pressure; otherwise, manually set."}
+            )
+            heading: NDArray[np.float64] = field(
+                metadata={"desc": "Instrument heading (°), scaled from 0.01°. Range: 0.00–359.99°. Requires internal compass or external gyro."}
+            )
+            pitch: NDArray[np.float64] = field(
+                metadata={"desc": "Pitch angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
+            )
+            roll: NDArray[np.float64] = field(
+                metadata={"desc": "Roll angle (°), scaled from 0.01°. Range: -20.00–20.00°. Requires internal tilt sensor."}
+            )
+            heading_std: NDArray[np.float64] = field(
+                metadata={"desc": "Heading standard deviation (°). Range: 0–180°. Requires internal or external compass."}
+            )
+            pitch_std: NDArray[np.float64] = field(
+                metadata={"desc": "Pitch standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
+            )
+            roll_std: NDArray[np.float64] = field(
+                metadata={"desc": "Roll standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
+            )
 
-
+            
+        vl = self._pd0._get_variable_leader()
+        
+        self.aux_sensor_data = ADCPAuxSensorData(
+            pressure=np.array([v.pressure * 0.001 for v in vl]),  # decapascal → dbar
+            pressure_var=np.array([v.pressure_sensor_variance * 0.001 for v in vl]),
+            depth_of_transducer=np.array([v.depth_of_transducer_ed * 0.1 for v in vl]),  # dm → m
+            temperature=self._pd0._get_sensor_temperature(),
+            salinity=np.array([v.salinity_es for v in vl]),
+            speed_of_sound=np.array([v.speed_of_sound_ec for v in vl]),
+            heading=np.array([v.heading_eh * 0.01 for v in vl]),
+            pitch=np.array([v.pitch_tilt_1_ep * 0.01 for v in vl]),
+            roll=np.array([v.roll_tilt_2_er * 0.01 for v in vl]),
+            heading_std=np.array([v.hdg_std_dev for v in vl]),
+            pitch_std=np.array([v.pitch_std_dev * 0.1 for v in vl]),
+            roll_std=np.array([v.roll_std_dev * 0.1 for v in vl]),
+        )
                  
         ## water properties class
         @dataclass
@@ -400,7 +390,7 @@ class ADCP():
         n_ens = self.time.n_ensembles
         
         # Determine system-specific default C based on bandwidth
-        bandwidth = self._pd0.fixed_leaders[0].system_bandwidth_wb
+        bandwidth = self._pd0._fixed.system_bandwidth_wb
         C = -139.09 if bandwidth == 0 else -149.14
     
         # set default sediment attenuation coefficient  (all zeros)
@@ -408,9 +398,9 @@ class ADCP():
         
 
         # compute water attenuation coefficient
-        pulse_lengths = self._pd0.get_fixed_leader_attr('xmit_pulse_length_based_on_wt')*.01#_get_sensor_transmit_pulse_length()
+        pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
         bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
-        freq = self._pd0.fixed_leaders[0].system_configuration.frequency
+        freq = self._pd0._fixed.system_configuration.frequency
         freq = float(freq.split('-')[0])
         
         temperature = self.water_properties.temperature
@@ -549,22 +539,7 @@ class ADCP():
         # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
         # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
 
-    def _get_bin_midpoints(self) -> np.ndarray:
-        """
-        Get the midpoints of the bins as function of distance from the transducer. 
-        
-        Returns:
-        -------
-        np.ndarray
-            Midpoints of the bins with shape (n_cells,).
-        """
-        beam_length = self.geometry.n_bins * self.geometry.bin_length
-        bin_midpoints = np.linspace(
-            self.geometry.bin_1_distance,
-            beam_length + self.geometry.bin_1_distance,
-            self.geometry.n_bins
-        )
-        return bin_midpoints 
+
 
     def get_beam_data(self, field_name: str, mask: bool = True) -> np.ndarray:
         """
@@ -592,7 +567,8 @@ class ADCP():
             raise ValueError(f"Invalid field name '{field_name}'. Must be one of: {valid_fields}")
     
         data = getattr(self.beam_data, field_name)
-       
+        
+        
         if mask:
             data[self.masking.beam_data_mask] = np.nan
         
@@ -607,38 +583,34 @@ class ADCP():
         
         # correlation magnitude
         cmag = self.beam_data.correlation_magnitude
-        cmag_mask = (cmag > self.masking.cormag_max) | (cmag < self.masking.cormag_min)
+        cmag_mask = (cmag >= self.masking.cormag_max) | (cmag <= self.masking.cormag_min)
         
         # echo intensity
         echo = self.beam_data.echo_intensity
-        echo_mask = (echo > self.masking.echo_max) | (echo < self.masking.echo_min)
+        echo_mask = (echo >= self.masking.echo_max) | (echo <= self.masking.echo_min)
         
         # absolute backscatter
         sv = self.beam_data.absolute_backscatter
-        sv_mask = (sv > self.masking.abs_max) | (sv < self.masking.abs_min)
+        sv_mask = (sv >= self.masking.abs_max) | (sv <= self.masking.abs_min)
         
         # first/last good ensemble 
         ens = np.arange(start = 1, stop = self.time.n_ensembles + 1)
-        ens_mask = (ens > self.masking.last_good_ensemble) | (ens < self.masking.first_good_ensemble)
+        ens_mask = (ens >= self.masking.last_good_ensemble) | (ens <= self.masking.first_good_ensemble)
         ens_mask = ens_mask[:, np.newaxis, np.newaxis]
         ens_mask = np.broadcast_to(ens_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
 
         #start/end dates 
         dt = self.time.ensemble_datetimes
-        dt_mask = (dt > self.masking.end_datetime) | (dt < self.masking.start_datetime)
+        dt_mask = (dt >= self.masking.end_datetime) | (dt <= self.masking.start_datetime)
         dt_mask = dt_mask[:, np.newaxis, np.newaxis]
         dt_mask = np.broadcast_to(dt_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
 
-        print(f"cmag_mask has unmasked values: {np.any(~cmag_mask)}")
-        print(f"echo_mask has unmasked values: {np.any(~echo_mask)}")
-        print(f"sv_mask has unmasked values: {np.any(~sv_mask)}")
-        print(f"ens_mask has unmasked values: {np.any(~ens_mask)}")
-        print(f"dt_mask has unmasked values: {np.any(~dt_mask)}")
+
         bt_mask = self._generate_bottom_track_mask()
 
         master_mask = bt_mask
         
-        master_mask = np.logical_or.reduce([cmag_mask, echo_mask, sv_mask, ens_mask, dt_mask, ~bt_mask])
+        #master_mask = np.logical_or.reduce([cmag_mask, echo_mask, sv_mask, ens_mask, dt_mask, ~bt_mask])
         #master_mask = np.logical_or.reduce([sv_mask])
         
         self.masking.beam_data_mask = master_mask
@@ -703,7 +675,7 @@ class ADCP():
         List[datetime]
             A list of datetime objects corresponding to each ensemble.
         """
-        datetimes = self._pd0.get_datetimes()
+        datetimes = self._pd0._get_datetimes()
         if apply_corrections:
             delta = timedelta(hours=float(self.corrections.utc_offset)) + \
                     timedelta(hours=float(self.corrections.transect_shift_t))
@@ -725,7 +697,7 @@ class ADCP():
         Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
             Tuple containing u, v, w, and error velocity arrays.
         """
-        data = self._pd0.get_velocity()
+        data = self._pd0._get_velocity()
         u = data[:,0] 
         v = data[:,1]  
         w = data[:,2]  
@@ -782,8 +754,6 @@ class ADCP():
                 yaw = self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e]
                 pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
                 roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
-                
-                
                 R_att = Utils.gen_rot_x(roll) @ Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch)
                 rel[:, b, :, e] = (rel[:, b, :, e].T @ R_att).T
     
@@ -805,8 +775,7 @@ class ADCP():
         X_base = np.stack([xx, yy, zz])[:, None, :]
         X_base = np.repeat(X_base, n_cells, axis=1)  # shape (3, n_cells, n_ensembles)
         X_base = np.repeat(X_base[None, :, :, :], n_beams, axis=0)  # (n_beams, 3, n_cells, n_ensembles)
-        print(f'rel {rel.shape}')
-        print(f'X_base {rel.shape}')
+    
         abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
         abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
     
@@ -899,9 +868,9 @@ class ADCP():
         --------
             np.ndarray: A 2D array of absolute backscatter values for each ensemble and cell.
         """
-        echo_intensity = self._pd0.get_echo_intensity()
+        echo_intensity = self._pd0._get_echo_intensity()
         E_r = self.abs_params.E_r
-        WB = self.abs_params.WB
+        WB = self._pd0._fixed.system_bandwidth_wb
         C = self.abs_params.C
         k_c = self.abs_params.rssi
         alpha_w = self.abs_params.alpha_w # water attenuation coefficient 
