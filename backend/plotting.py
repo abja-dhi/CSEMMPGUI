@@ -21,12 +21,12 @@ class PlottingShell:
     _DATETIME_FORMAT = '%d-%b-%y %H:%M'
     _DATE_FORMAT = '%d-%b-%y'
     _TIME_FORMAT = '%H:%M'
-    mpl.rcParams['font.size'] = 9
-    mpl.rcParams['lines.linewidth'] = 2
+    mpl.rcParams['font.size'] = 8
+    mpl.rcParams['lines.linewidth'] = 0.75
     mpl.rcParams['lines.color'] = 'black'
     mpl.rcParams['patch.edgecolor'] = 'white'
     mpl.rcParams['axes.grid.which'] = 'major'
-    mpl.rcParams['lines.markersize'] = 1.6
+    mpl.rcParams['lines.markersize'] = 1
     mpl.rcParams['ytick.labelsize'] = 8
     mpl.rcParams['xtick.labelsize'] = 8
     mpl.rcParams['ytick.labelright'] = False
@@ -38,11 +38,11 @@ class PlottingShell:
     mpl.rcParams['axes.labelweight'] = 'normal'
     mpl.rcParams['legend.fontsize'] = 8
     mpl.rcParams['legend.framealpha']= 0.5
-    mpl.rcParams['axes.titlesize'] = 12
+    mpl.rcParams['axes.titlesize'] = 9
     mpl.rcParams['axes.titleweight'] ='normal'
-    mpl.rcParams['font.family'] ='TImes New Roman'
+    mpl.rcParams['font.family'] ='Arial'
     mpl.rcParams['axes.labelsize'] = 10
-    mpl.rcParams['axes.linewidth'] = 1.25
+    mpl.rcParams['axes.linewidth'] = 0.5
     mpl.rcParams['xtick.major.size'] = 5.0
     mpl.rcParams['xtick.minor.size'] = 3.0
     mpl.rcParams['ytick.major.size'] = 5.0
@@ -60,7 +60,85 @@ class PlottingShell:
     mpl.rcParams['ytick.direction'] = 'in'
 
     @staticmethod
-    def subplots(figheight: float = None, figwidth: float = None, nrow: int = None, ncol: int = None, sharex: bool = None, sharey: bool = None, width_ratios: list = None, height_ratios: list = None) -> Tuple[Figure, Union[Axes, np.ndarray]]:
+    def subplots3d(figheight: float = None,
+                   figwidth: float = None,
+                   nrow: int = None,
+                   ncol: int = None,
+                   sharex: bool = None,
+                   sharey: bool = None,
+                   width_ratios: list = None,
+                   height_ratios: list = None) -> Tuple[Figure, Union[Axes, np.ndarray]]:
+        """
+        Create a matplotlib figure with 3D subplots and set default parameters.
+    
+        Parameters
+        ----------
+        figheight : float, optional
+            Height of the figure in inches. Default is 4.25 * (1 + (5 ** 0.5)) / 2.
+        figwidth : float, optional
+            Width of the figure in inches. Default is equal to figheight.
+        nrow : int, optional
+            Number of rows of subplots. Default is 1.
+        ncol : int, optional
+            Number of columns of subplots. Default is 1.
+        sharex : bool, optional
+            Whether to share the x-axis among subplots. Default is False.
+        sharey : bool, optional
+            Whether to share the y-axis among subplots. Default is False.
+        width_ratios : list, optional
+            List of width ratios for the subplots. Default is equal width for all columns.
+        height_ratios : list, optional
+            List of height ratios for the subplots. Default is equal height for all rows.
+    
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            The created figure object.
+        axs : numpy.ndarray
+            Array of 3D Axes objects for the subplots.
+        """
+        _FIGHEIGHT = 4.25 * (1 + (5 ** 0.5)) / 2
+        _FIGWIDTH = _FIGHEIGHT
+        _NROW = 1
+        _NCOL = 1
+        _SHAREX = False
+        _SHAREY = False
+        figheight = _FIGHEIGHT if figheight is None else figheight
+        figwidth = _FIGWIDTH if figwidth is None else figwidth
+        nrow = _NROW if nrow is None else max(1, nrow)
+        ncol = _NCOL if ncol is None else max(1, ncol)
+        sharex = _SHAREX if sharex is None else sharex
+        sharey = _SHAREY if sharey is None else sharey
+        width_ratios = [1] * ncol if width_ratios is None else width_ratios
+        height_ratios = [1] * nrow if height_ratios is None else height_ratios
+    
+        fig, ax = plt.subplots(
+            figsize=(figwidth, figheight),
+            nrows=nrow,
+            ncols=ncol,
+            gridspec_kw={'width_ratios': width_ratios, 'height_ratios': height_ratios},
+            sharex=sharex,
+            sharey=sharey,
+            subplot_kw={'projection': '3d'}
+        )
+    
+        if nrow == 1 and ncol == 1:
+            ax.grid(alpha=0.25)
+        else:
+            for a in ax.flatten():
+                a.grid(alpha=0.25)
+    
+        return fig, ax
+
+    @staticmethod
+    def subplots(figheight: float = None,
+                 figwidth: float = None,
+                 nrow: int = None,
+                 ncol: int = None,
+                 sharex: bool = None,
+                 sharey: bool = None,
+                 width_ratios: list = None,
+                 height_ratios: list = None) -> Tuple[Figure, Union[Axes, np.ndarray]]:
         """
         Create a matplotlib figure with subplots and set default parameters.
         Parameters
@@ -118,6 +196,8 @@ class PlottingShell:
         if add_date:
             ax.text(0.985, 0.02, os.getlogin() + '\n' + datetime.now().strftime("%d/%m/%y %H:%M"), transform=ax.transAxes, fontsize=6, color='black', alpha=0.4, ha='right', va='bottom', rotation=0, weight='bold', fontname=r'Arial', zorder=1)
         return ax
+    
+    
     
     @staticmethod
     def _mesh_plot(X: np.ndarray,
@@ -218,6 +298,8 @@ class PlottingShell:
                     location: str = "right",
                     fraction: float = 0.046,
                     alpha: float = 0.1) -> Axes:
+        
+        
         im = ax.matshow(
                 data,
                 origin=origin,
