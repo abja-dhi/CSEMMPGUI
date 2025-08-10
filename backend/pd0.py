@@ -519,7 +519,26 @@ class Pd0Decoder:
         
         return system_configuration 
 
-
+    def __parse_EX_command(self,ex):
+        """
+        determine the coordinate transformation processing parameters (EX command). parameters from 1-byte hex
+        
+        Args:
+            ex: 1-byte hex string 
+        Returns:
+            string - coordinate transformation processing parameter 
+        """      
+    
+        LSB = self.__get_LE_bit_string(ex[0])
+        
+        coord_sys = {'00': 'BEAM COORDINATES',
+                     '01': 'INSTRUMENT COORDINATES',
+                     '10': 'SHIP COORDINATES',
+                     '11': 'EARTH COORDINATES'}    
+        
+        coord_system= coord_sys[LSB[3:5]]
+        
+        return coord_system
     
     def get_datetimes(self) -> List[VariableLeader]:
         """
@@ -576,6 +595,8 @@ class Pd0Decoder:
                     if value is None:
                         break_flag = True
                         break
+                    if value == -32768:
+                        value = np.nan
                     cell_data.append(value)
                 ens_data.append(cell_data)
             if break_flag:

@@ -17,7 +17,20 @@ from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
 from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
 from pyproj import CRS, Transformer
+import cmocean.cm as cmo
 
+
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation, PillowWriter
+from matplotlib import dates as mdates
+from matplotlib.lines import Line2D
+import numpy as np
+import numpy.ma as ma
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.gridspec as gridspec
+        
+        
 class ADCP():
     def __init__(self, cfg: str | Path, name: str) -> None:
 
@@ -147,9 +160,9 @@ class ADCP():
         
         ## Platform Position class
         self.position = ADCPPosition(self._cfg['pos_cfg'])
+        self.position._resample_to(self.time.ensemble_datetimes)
         
 
-        self.position._resample_to(self.time.ensemble_datetimes)
         
         
         
@@ -733,10 +746,10 @@ class ADCP():
             Tuple containing u, v, w, and error velocity arrays.
         """
         data = self._pd0.get_velocity()
-        u = data[:,0] 
-        v = data[:,1]  
-        w = data[:,2]  
-        ev = data[:,3] 
+        u = data[:,:,0]/100
+        v = data[:,:,1]/100
+        w = data[:,:,2]/100
+        ev = data[:,:,3]/100
     
         if apply_corrections and self.corrections.magnetic_declination != 0.0:
             X = np.stack((u, v), axis=-1)  # Shape (n_ensembles, n_cells, 2)
@@ -835,103 +848,194 @@ class ADCP():
         
     
 
-    def _calculate_beam_geometry(self):
+    # def _calculate_beam_geometry(self):
         
         
-        crp_theta = self.geometry.crp_rotation_angle
-        off = np.array([self.geometry.crp_offset_x,
-                        self.geometry.crp_offset_y,
-                        self.geometry.crp_offset_z])
-        dr = self.geometry.beam_dr
-        R_crp = Utils.gen_rot_z(crp_theta)
+    #     crp_theta = self.geometry.crp_rotation_angle
+    #     off = np.array([self.geometry.crp_offset_x,
+    #                     self.geometry.crp_offset_y,
+    #                     self.geometry.crp_offset_z])
+    #     dr = self.geometry.beam_dr
+    #     R_crp = Utils.gen_rot_z(crp_theta)
     
-        # beam bases in body frame (about instrument origin)
-        bases = np.array([[ dr, -dr,  0,   0],
-                          [  0,   0, dr, -dr],
-                          [  0,   0,  0,   0]], dtype=float)
+    #     # beam bases in body frame (about instrument origin)
+    #     bases = np.array([[ dr, -dr,  0,   0],
+    #                       [  0,   0, dr, -dr],
+    #                       [  0,   0,  0,   0]], dtype=float)
 
-        # CRP rotation + CRP offsets (still body frame)
-        rel_orig = (R_crp @ bases) #+ off[:, None]        # (3, n_beams)
+    #     # CRP rotation + CRP offsets (still body frame)
+    #     rel_orig = (R_crp @ bases) #+ off[:, None]        # (3, n_beams)
     
-        n_beams = self.geometry.n_beams
-        n_cells = self.geometry.n_bins
-        ne = self.time.n_ensembles
-        beam_angle = self.geometry.beam_angle
-        rel = np.zeros((3, n_beams, n_cells, ne))
+    #     n_beams = self.geometry.n_beams
+    #     n_cells = self.geometry.n_bins
+    #     ne = self.time.n_ensembles
+    #     beam_angle = self.geometry.beam_angle
+    #     rel = np.zeros((3, n_beams, n_cells, ne))
     
-        bin_mids = self.geometry.bin_midpoint_distances
-        z_off = -bin_mids if self.geometry.beam_facing == "down" else bin_mids
+    #     bin_mids = self.geometry.bin_midpoint_distances
+    #     z_off = -bin_mids if self.geometry.beam_facing == "down" else bin_mids
     
-        # build per-beam tilt matrices in body frame
-        for b in range(n_beams):
-            if b in (0, 1):
-                Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
-            else:
-                Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
-            # mids = np.zeros((3, n_cells))
-            # mids[2, :] = z_off
-            # rel[:, b, :, :] = Rb @ mids
-            mids = np.zeros((3, n_cells))
-            mids[2, :] = z_off
+    #     # build per-beam tilt matrices in body frame
+    #     for b in range(n_beams):
+    #         if b in (0, 1):
+    #             Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
+    #         else:
+    #             Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
+    #         # mids = np.zeros((3, n_cells))
+    #         # mids[2, :] = z_off
+    #         # rel[:, b, :, :] = Rb @ mids
+    #         mids = np.zeros((3, n_cells))
+    #         mids[2, :] = z_off
         
-            base = Rb @ mids                 # (3, n_cells)
-            rel[:, b, :, :] = base[:, :, None]   # -> (3, n_cells, ne)
-        # apply attitude and add CRP-offset beam origins (now earth frame, meters)
-        for e in range(ne):
-            yaw = -(self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e] + crp_theta)
-            pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
-            roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
-            R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
+    #         base = Rb @ mids                 # (3, n_cells)
+    #         rel[:, b, :, :] = base[:, :, None]   # -> (3, n_cells, ne)
+    #     # apply attitude and add CRP-offset beam origins (now earth frame, meters)
+    #     for e in range(ne):
+    #         yaw = -(self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e] + crp_theta)
+    #         pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
+    #         roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
+    #         R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
+    #         for b in range(n_beams):
+    #             #rel[:, b, :, e] = R_att @ rel[:, b, :, e] + (R_att @ rel_orig[:, b])[:, None]
+    #             rel[:, b, :, e] = (
+    #             R_att @ rel[:, b, :, e]
+    #             + (R_att @ rel_orig[:, b])[:, None]
+    #             + (R_att @ (R_crp @ off))[:, None]   # apply offsets after CRP + attitude
+    #         )
+    
+    #     # #% update offsets 
+    #     # rel_orig = rel_orig + off[:, None]
+    #     # rel = rel + off[:, None]
+        
+    #     # # platform positions
+    #     xx = np.full(ne, self.position.x) if isinstance(self.position.x, float) else np.asarray(self.position.x)
+    #     yy = np.full(ne, self.position.y) if isinstance(self.position.y, float) else np.asarray(self.position.y)
+    #     zz = np.full(ne, self.position.z) if isinstance(self.position.z, float) else np.asarray(self.position.z)
+    
+    #     src = CRS.from_user_input(self.position.epsg)
+    #     gx = np.empty((ne, n_cells, n_beams))
+    #     gy = np.empty((ne, n_cells, n_beams))
+    #     gz = np.empty((ne, n_cells, n_beams))
+    
+    #     for e in range(ne):
+    #         if src.is_geographic:
+    #             lat0, lon0 = float(yy[e]), float(xx[e])
+    #             aeqd = CRS.from_proj4(f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} +ellps=WGS84 +units=m +no_defs")
+    #             fwd = Transformer.from_crs(src, aeqd, always_xy=True)
+    #             inv = Transformer.from_crs(aeqd, src, always_xy=True)
+    #             x0, y0 = fwd.transform(lon0, lat0)
+    #             Xm = xx + rel[0, :, :, e]     # east (m)
+    #             Ym = yy + rel[1, :, :, e]     # north (m)
+    #             lon, lat = inv.transform(Xm, Ym)
+    #             gx[e] = lon.T
+    #             gy[e] = lat.T
+    #             gz[e] = (zz[e] + rel[2, :, :, e]).T
+    #         else:
+   
+                
+    #             gx[e] = (xx[e] + rel[0, :, :, e]).T
+    #             gy[e] = (yy[e] + rel[1, :, :, e]).T
+    #             gz[e] = (zz[e] + rel[2, :, :, e]).T
+    
+    #     relative_beam_midpoint_positions = XYZ(
+    #         x=rel[0].transpose(2, 1, 0),
+    #         y=rel[1].transpose(2, 1, 0),
+    #         z=rel[2].transpose(2, 1, 0),
+    #     )
+        
+    #     rel_orig += off[:, None]  
+    #     geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
+    
+    #     return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+    
+    def _calculate_beam_geometry(self):
+            
+            crp_theta = self.geometry.crp_rotation_angle
+            off = np.array([self.geometry.crp_offset_x,
+                            self.geometry.crp_offset_y,
+                            self.geometry.crp_offset_z])
+            dr = self.geometry.beam_dr
+            R_crp = Utils.gen_rot_z(crp_theta)
+        
+            bases = np.array([[ dr, -dr,  0,   0],
+                              [  0,   0, dr, -dr],
+                              [  0,   0,  0,   0]], dtype=float)
+    
+            rel_orig = (R_crp @ bases)
+        
+            n_beams = self.geometry.n_beams
+            n_cells = self.geometry.n_bins
+            ne = self.time.n_ensembles
+            beam_angle = self.geometry.beam_angle
+            rel = np.zeros((3, n_beams, n_cells, ne))
+        
+            bin_mids = self.geometry.bin_midpoint_distances
+            z_off = -bin_mids if self.geometry.beam_facing == "down" else bin_mids
+        
             for b in range(n_beams):
-                #rel[:, b, :, e] = R_att @ rel[:, b, :, e] + (R_att @ rel_orig[:, b])[:, None]
-                rel[:, b, :, e] = (
-                R_att @ rel[:, b, :, e]
-                + (R_att @ rel_orig[:, b])[:, None]
-                + (R_att @ (R_crp @ off))[:, None]   # apply offsets after CRP + attitude
-            )
+                if b in (0, 1):
+                    Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
+                else:
+                    Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
+                mids = np.zeros((3, n_cells))
+                mids[2, :] = z_off
+                base = Rb @ mids
+                rel[:, b, :, :] = base[:, :, None]
     
-        # #% update offsets 
-        # rel_orig = rel_orig + off[:, None]
-        # rel = rel + off[:, None]
-        
-        # platform positions
-        xx = np.full(ne, self.position.x) if isinstance(self.position.x, float) else np.asarray(self.position.x)
-        yy = np.full(ne, self.position.y) if isinstance(self.position.y, float) else np.asarray(self.position.y)
-        zz = np.full(ne, self.position.z) if isinstance(self.position.z, float) else np.asarray(self.position.z)
+            for e in range(ne):
+                yaw = -(self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e] + crp_theta)
+                pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
+                roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
+                R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
+                for b in range(n_beams):
+                    rel[:, b, :, e] = (
+                        R_att @ rel[:, b, :, e]
+                        + (R_att @ rel_orig[:, b])[:, None]
+                        + (R_att @ (R_crp @ off))[:, None]
+                    )
     
-        src = CRS.from_user_input(self.position.epsg)
-        gx = np.empty((ne, n_cells, n_beams))
-        gy = np.empty((ne, n_cells, n_beams))
-        gz = np.empty((ne, n_cells, n_beams))
-    
-        for e in range(ne):
+            # choose position source based on EPSG type
+            from pyproj import CRS
+            src = CRS.from_user_input(self.position.epsg)
             if src.is_geographic:
-                lat0, lon0 = float(yy[e]), float(xx[e])
-                aeqd = CRS.from_proj4(f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} +ellps=WGS84 +units=m +no_defs")
-                fwd = Transformer.from_crs(src, aeqd, always_xy=True)
-                inv = Transformer.from_crs(aeqd, src, always_xy=True)
-                x0, y0 = fwd.transform(lon0, lat0)
-                Xm = x0 + rel[0, :, :, e]     # east (m)
-                Ym = y0 + rel[1, :, :, e]     # north (m)
-                lon, lat = inv.transform(Xm, Ym)
-                gx[e] = lon.T
-                gy[e] = lat.T
-                gz[e] = (zz[e] + rel[2, :, :, e]).T
+                xloc = np.full(ne, self.position.x_local_m) if isinstance(self.position.x_local_m, (float, int)) else np.asarray(self.position.x_local_m)
+                yloc = np.full(ne, self.position.y_local_m) if isinstance(self.position.y_local_m, (float, int)) else np.asarray(self.position.y_local_m)
             else:
-                gx[e] = (xx[e] + rel[0, :, :, e]).T
-                gy[e] = (yy[e] + rel[1, :, :, e]).T
+                xloc = np.full(ne, self.position.x) if isinstance(self.position.x, (float, int)) else np.asarray(self.position.x)
+                yloc = np.full(ne, self.position.y) if isinstance(self.position.y, (float, int)) else np.asarray(self.position.y)
+            zz = np.full(ne, self.position.z) if isinstance(self.position.z, float) else np.asarray(self.position.z)
+    
+            from pyproj import CRS
+    
+            xx = np.full(ne, self.position.x) if isinstance(self.position.x, float) else np.asarray(self.position.x)
+            yy = np.full(ne, self.position.y) if isinstance(self.position.y, float) else np.asarray(self.position.y)
+            xloc = np.full(ne, self.position.x_local_m) if isinstance(self.position.x_local_m, (float, int)) else np.asarray(self.position.x_local_m)
+            yloc = np.full(ne, self.position.y_local_m) if isinstance(self.position.y_local_m, (float, int)) else np.asarray(self.position.y_local_m)
+    
+            src = CRS.from_user_input(self.position.epsg)
+            use_local = src.is_geographic
+    
+            gx = np.empty((ne, n_cells, n_beams))
+            gy = np.empty((ne, n_cells, n_beams))
+            gz = np.empty((ne, n_cells, n_beams))
+    
+            for e in range(ne):
+                xb = xloc[e] if use_local else xx[e]
+                yb = yloc[e] if use_local else yy[e]
+                gx[e] = (xb + rel[0, :, :, e]).T
+                gy[e] = (yb + rel[1, :, :, e]).T
                 gz[e] = (zz[e] + rel[2, :, :, e]).T
     
-        relative_beam_midpoint_positions = XYZ(
-            x=rel[0].transpose(2, 1, 0),
-            y=rel[1].transpose(2, 1, 0),
-            z=rel[2].transpose(2, 1, 0),
-        )
-        
-        rel_orig += off[:, None]  
-        geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
+            relative_beam_midpoint_positions = XYZ(
+                x=rel[0].transpose(2, 1, 0),
+                y=rel[1].transpose(2, 1, 0),
+                z=rel[2].transpose(2, 1, 0),
+            )
+            
+            rel_orig += off[:, None]  
+            geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
     
-        return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+            return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
 
 
 
@@ -1568,8 +1672,15 @@ class Plotting:
         
         t = np.asarray(adcp.time.ensemble_datetimes)
         ens = np.asarray(adcp.time.ensemble_numbers)
-        x = np.asarray(adcp.position.x, dtype=float)
-        y = np.asarray(adcp.position.y, dtype=float)
+        
+        if adcp.position.epsg == 4326:
+            x = np.asarray(adcp.position.x_local_m, dtype=float)
+            y = np.asarray(adcp.position.y_local_m, dtype=float)
+        else:
+            x = np.asarray(adcp.position.x, dtype=float)
+            y = np.asarray(adcp.position.y, dtype=float)
+        
+        
         beam_x = np.asarray(adcp.geometry.geographic_beam_midpoint_positions.x, dtype=float)
         beam_y = np.asarray(adcp.geometry.geographic_beam_midpoint_positions.y, dtype=float)
         beam_bs = np.asarray(adcp.get_beam_data(field_name='absolute_backscatter', mask=True), dtype=float)
@@ -1732,11 +1843,7 @@ class Plotting:
         ax : matplotlib.axes._subplots.Axes3DSubplot
             The 3D axes used for plotting.
         """
-        import numpy as np
-        import matplotlib.pyplot as plt
-        from matplotlib.animation import FuncAnimation, PillowWriter
-        from matplotlib import dates as mdates
-        from matplotlib.lines import Line2D
+
 
         adcp = self._adcp
 
@@ -1867,530 +1974,366 @@ class Plotting:
             plt.show()
 
         return ani, ax
-
-
-    # def flood_plot(self, variable: str, ax: Axes=None, plot_by: str="bin", beam_number: int=1, start_bin: int=None, end_bin: int=None, start_ensemble: int=None, end_ensemble: int=None, vmin: float=None, vmax: float=None, cmap: str = 'turbo_r') -> Axes:
-    #     """
-    #     Create a flood plot on the given axes.
-
-    #     Parameters
-    #     ----------
-    #     ax : Axes
-    #         The matplotlib Axes object to plot on.
-    #     data : np.ndarray
-    #         The data to plot.
-    #     cmap : mpl.colors.Colormap
-    #         The colormap to use for the plot.
-    #     """
-    #     variable = variable.lower().replace(" ", "_")
-    #     start_bin = 0 if start_bin is None else start_bin
-    #     end_bin = self.adcp.n_bins-1 if end_bin is None else end_bin
-    #     start_ensemble = 0 if start_ensemble is None else start_ensemble
-    #     end_ensemble = self.adcp.n_ensembles-1 if end_ensemble is None else end_ensemble
-    #     if plot_by.lower() not in ["bin", "depth", "hab"]:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid plot_by value '{plot_by}'. Must be 'Bin', 'Depth', or 'HAB'.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     cmap = cmap #self._CMAPS.get(variable, cmap)
-    #     if variable == "percent_good":
-    #         data = self.adcp.get_percent_good()
-    #     elif variable == "absolute_backscatter":
-    #         data = self.adcp.get_absolute_backscatter()
-    #     elif variable == "signal_to_noise_ratio":
-    #         data = self.adcp.get_signal_to_noise_ratio()
-    #     elif variable == "echo_intensity":
-    #         data = self.adcp.get_echo_intensity()
-    #     elif variable == "correlation_magnitude":
-    #         data = self.adcp.get_correlation_magnitude()
-    #     elif variable == "filtered_echo_intensity":
-    #         data = self.adcp.get_filtered_echo_intensity()
-    #     elif variable == "ntu":
-    #         data = self.adcp.get_ntu()
-    #     elif variable == "ssc":
-    #         data = self.adcp.get_ssc()
-    #     elif variable == 'u':
-    #         data = self.adcp.get_velocity()[0]
-    #     elif variable == 'v':
-    #         data = self.adcp.get_velocity()[1]
-    #     elif variable == 'w':
-    #         data = self.adcp.get_velocity()[2]
-    #     elif variable == 'cs':
-    #         u = self.adcp.get_velocity()[0]
-    #         v = self.adcp.get_velocity()[1]
-    #         w = self.adcp.get_velocity()[2]
-    #         data = np.sqrt(u**2 + v**2 + w**2)
-    #     elif variable == 'error_velocity':
-    #         data = self.adcp.get_velocity()[6]
-    #     else:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid variable '{variable}'. Must be 'percent_good', 'absolute_backscatter', 'signal_to_noise_ratio', 'echo_intensity', 'correlation_magnitude', 'filtered_echo_intensity', 'ntu', 'ssc', 'u', 'v', 'w', 'CS', or 'error_velocity'.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     if plot_by.lower() == "bin":
-    #         ylim = (start_bin, end_bin)
-    #     elif plot_by.lower() == "depth":
-    #         bin_midpoints = self.adcp.get_bin_midpoints_depth()
-    #         ylim = (bin_midpoints[start_bin], bin_midpoints[end_bin])
-    #     elif plot_by.lower() == "hab":
-    #         bin_midpoints = self.adcp.get_bin_midpoints_hab()
-    #         ylim = (bin_midpoints[start_bin], bin_midpoints[end_bin])
-
-    #     datetimes = self.adcp.get_datetimes()
-    #     if beam_number < 1 or beam_number > self.adcp.n_beams:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid beam number {beam_number}. Must be between 1 and {self.adcp.n_beams}.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     if len(data.shape) == 3:
-    #         x = data[start_ensemble:end_ensemble, start_bin:end_bin, beam_number-1]
-    #     elif len(data.shape) == 2:
-    #         x = data[start_ensemble:end_ensemble, start_bin:end_bin]
-    #         data = data[:, :, np.newaxis]  # Add a new axis for compatibility
-    #     else:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid data shape {data.shape}. Expected 2D or 3D array.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     if ax is None:
-    #         _, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3, figwidth=10.5, sharex=True, sharey=True)
         
-    #     topax = ax.twiny()
-    #     topax.set_xlim(start_ensemble, end_ensemble)
-    #     if plot_by.lower() == "bin":
-    #         ax.set_ylabel("Bin", fontsize=8)
-    #     elif plot_by.lower() == "depth":
-    #         ax.set_ylabel("Depth", fontsize=8)
-    #     elif plot_by.lower() == "hab":
-    #         ax.set_ylabel("Height Above Bed (m)", fontsize=8)
-
-    #     origin = 'lower' if self.adcp.beam_facing == "up" else 'upper'
-        
-    #     vmins = {"percent_good": 0, "absolute_backscatter": -95}
-    #     vmaxs = {"percent_good": 100, "absolute_backscatter": -10, "signal_to_noise_ratio": 50}
-    #     vmin = vmins.get(variable, np.nanmin(data[start_ensemble:end_ensemble, start_bin:end_bin, :])) if vmin is None else vmin
-    #     vmax = vmaxs.get(variable, np.nanmax(data[start_ensemble:end_ensemble, start_bin:end_bin, :])) if vmax is None else vmax
-        
-    #     xlim = mdates.date2num(datetimes[start_ensemble:end_ensemble])
-    #     if self.adcp.beam_facing == "up":
-    #         extent = (xlim[0], xlim[-1], ylim[0], ylim[-1])
-    #     else:
-    #         extent = (xlim[0], xlim[-1], ylim[1], ylim[0])
-    #     ax = PlottingShell._flood_plot(
-    #         ax=ax,
-    #         data=x.T,
-    #         origin=origin,
-    #         extent=extent,
-    #         cmap=cmap,
-    #         aspect='auto',
-    #         resample=False,
-    #         vmin=vmin,
-    #         vmax=vmax,
-    #         cbar_label=self._CBAR_LABELS.get(variable, f"Beam {beam_number}"),
-    #     )
-    #     ax.xaxis.set_major_locator(mticker.FixedLocator(ax.get_xticks()))
-    #     ax.xaxis.set_major_formatter(mdates.DateFormatter(PlottingShell._DATETIME_FORMAT))
-    #     ax.set_xticklabels(ax.get_xticklabels(), rotation=0, ha='center')
-    #     ax.xaxis.tick_bottom()
-    #     ax.xaxis.set_label_position('bottom')
-    #     ax.yaxis.set_major_locator(AutoLocator())
-
-    #     return ax
-        
-    # def four_beam_flood_plot(self, variable: str, ax: Tuple[Axes, Axes, Axes, Axes] = None, plot_by: str = "bin",
-    #                          start_bin: int = None, end_bin: int = None,
-    #                          start_ensemble: int = None, end_ensemble: int = None, cmap: str = 'turbo_r') -> Tuple[Axes, Axes, Axes, Axes]:
-    #     """
-    #     Create a flood plot for the four beams of the ADCP data.
-    #     Parameters
-    #     ----------
-    #     variable : str
-    #         The variable to plot, must be one of 'echo_intensity', 'correlation_magnitude', or 'percent_good'.
-    #     ax : Axes, optional
-    #         The matplotlib Axes object to plot on. If None, a new figure and axes will be created.
-    #     plot_by : str, optional
-    #         The dimension to plot by, either 'bin', 'depth', or 'HAB'. Default is 'bin'.
-    #     start_bin : int, optional
-    #         The starting bin index for the plot. Default is None, which means all bins will be plotted.
-    #     end_bin : int, optional
-    #         The ending bin index for the plot. Default is None, which means all bins will be plotted.
-    #     start_ensemble : int, optional
-    #         The starting ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     end_ensemble : int, optional
-    #         The ending ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     Returns
-    #     -------
-    #     Axes
-    #         The matplotlib Axes object with the flood plot.
-    #     """
-    #     if ax is None:
-    #         fig, ax = PlottingShell.subplots(nrow=self.adcp.n_beams, ncol=1, figheight=5, figwidth=7, sharex=True, sharey=False)
-    #     else:
-    #         fig = ax[0].figure
-
-    #     for i in range(self.adcp.n_beams):
-    #         ax[i] = self.flood_plot(
-    #             variable=variable,
-    #             ax=ax[i],
-    #             beam_number=i + 1,
-    #             plot_by=plot_by,
-    #             start_bin=start_bin,
-    #             end_bin=end_bin,
-    #             start_ensemble=start_ensemble,
-    #             end_ensemble=end_ensemble,
-    #             cmap = cmap,
-    #         )
-
-    #     return ax
+    def single_beam_flood_plot(
+        self,
+        beam: int,
+        field_name: str = "echo_intensity",
+        y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+        cmap=None,                            # None → "turbo"
+        vmin: float | None = None,
+        vmax: float | None = None,
+        n_time_ticks: int = 6,
+        title: str | None = None,
+    ):
+        """
+        Single-beam curtain plot with colorbar and top distance axis.
     
+        Parameters
+        ----------
+        beam : int
+            Beam number in [1, n_beams].
+        field_name, y_axis_mode, cmap, vmin, vmax, n_time_ticks, title : see four-beam version.
     
-
-
-    # def mesh_plot(self, variable: str, ax: Axes = None, beam_number: int = 1,
-    #               plot_by: str = "bin", start_bin: int = None, end_bin: int = None,
-    #               start_ensemble: int = None, end_ensemble: int = None, vmin: float = None, vmax: float = None) -> Axes:
-    #     """        Create a mesh plot on the given axes.
-    #     Parameters
-    #     ----------
-    #     ax : Axes
-    #         The matplotlib Axes object to plot on.
-    #     variable : str
-    #         The variable to plot.
-    #     beam_number : int
-    #         The beam number to plot (1 to n_beams).
-    #     plot_by : str, optional
-    #         The dimension to plot by, either 'bin', 'depth', or 'HAB'. Default is 'bin'.
-    #     start_bin : int, optional
-    #         The starting bin index for the plot. Default is None, which means all bins will be plotted.
-    #     end_bin : int, optional
-    #         The ending bin index for the plot. Default is None, which means all bins will be plotted.
-    #     start_ensemble : int, optional
-    #         The starting ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     end_ensemble : int, optional
-    #         The ending ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     Returns
-    #     -------
-    #     Axes
-    #         The matplotlib Axes object with the mesh plot.
-    #     """
-    #     variable = variable.lower().replace(" ", "_")
-    #     start_bin = 0 if start_bin is None else start_bin
-    #     end_bin = self.adcp.n_bins-1 if end_bin is None else end_bin
-    #     start_ensemble = 0 if start_ensemble is None else start_ensemble
-    #     end_ensemble = self.adcp.n_ensembles-1 if end_ensemble is None else end_ensemble
-    #     if plot_by.lower() not in ["bin", "depth", "hab"]:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid plot_by value '{plot_by}'. Must be 'Bin', 'Depth', or 'HAB'.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     cmap = self._CMAPS.get(variable, plt.cm.viridis)
-    #     if variable == "percent_good":
-    #         data = self.adcp.get_percent_good()
-    #     elif variable == "absolute_backscatter":
-    #         data = self.adcp.get_absolute_backscatter()
-    #     elif variable == "signal_to_noise_ratio":
-    #         data = self.adcp.get_signal_to_noise_ratio()
-    #     elif variable == "echo_intensity":
-    #         data = self.adcp.get_echo_intensity()
-    #     elif variable == "correlation_magnitude":
-    #         data = self.adcp.get_correlation_magnitude()
-    #     elif variable == "filtered_echo_intensity":
-    #         data = self.adcp.get_filtered_echo_intensity()
-    #     elif variable == "ntu":
-    #         data = self.adcp.get_ntu()
-    #     elif variable == "ssc":
-    #         data = self.adcp.get_ssc()
-    #     else:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid variable '{variable}'. Must be 'percent_good', 'absolute_backscatter', or 'signal_to_noise_ratio'.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     if plot_by.lower() == "bin":
-    #         Z = self.adcp.relative_beam_midpoint_positions.z[:, :, beam_number-1]
-    #         z_platform = (self.adcp.bin_1_distance / 100) + np.zeros(self.adcp.get_bottom_track().shape[0])
-    #         ylim = (np.nanmin(Z), np.nanmax(Z))
-    #     elif plot_by.lower() == "depth":
-    #         Z = self.adcp.absolute_beam_midpoint_positions.z[:, :, beam_number-1]
-    #         z_platform = self.adcp.position.coords.z
-    #         ylim = (np.nanmin(Z), np.nanmax(Z))
-    #     elif plot_by.lower() == "hab":
-    #         Z = self.adcp.absolute_beam_midpoint_positions_hab.z[:, :, beam_number-1]
-    #         z_platform = self.adcp.get_bottom_track()[:, beam_number-1]
-    #         ylim = (0, 1.1*np.nanmax(z_platform))
-    #     Z = Z[start_ensemble:(end_ensemble+1), start_bin:(end_bin+1)]
-    #     z_platform = z_platform[start_ensemble:(end_ensemble+1)]
-
-    #     datetimes = self.adcp.get_datetimes()[start_ensemble:(end_ensemble+1)]
-    #     if beam_number < 1 or beam_number > self.adcp.n_beams:
-    #         Utils.error(
-    #             logger=self.adcp.logger,
-    #             msg=f"Invalid beam number {beam_number}. Must be between 1 and {self.adcp.n_beams}.",
-    #             exc=ValueError,
-    #             level=self.__class__.__name__
-    #         )
-    #     x = data[start_ensemble:end_ensemble, start_bin:end_bin, beam_number-1]
-    #     if ax is None:
-    #         _, ax = PlottingShell.subplots(nrow=1, ncol=1, figheight=3, figwidth=10.5, sharex=True, sharey=True)
-        
-    #     # topax = ax.twiny()
-    #     # topax.set_xlim(start_ensemble, end_ensemble)
-    #     # if plot_by.lower() == "bin":
-    #     #     ax.set_ylabel("Bin", fontsize=8)
-    #     # elif plot_by.lower() == "depth":
-    #     #     ax.set_ylabel("Depth", fontsize=8)
-    #     # elif plot_by.lower() == "hab":
-    #     #     ax.set_ylabel("Height Above Bed (m)", fontsize=8)
-
-    #     vmins = {"percent_good": 0, "absolute_backscatter": -95, "ntu": 0}
-    #     vmaxs = {"percent_good": 100, "absolute_backscatter": -45, "signal_to_noise_ratio": 50}
-    #     vmin = vmins.get(variable, np.nanmin(x)) if vmin is None else vmin
-    #     vmax = vmaxs.get(variable, np.nanmax(x)) if vmax is None else vmax
-    #     T = np.repeat(datetimes[:, np.newaxis], self.adcp.n_cells, axis=1)[:, start_bin:(end_bin+1)]
-    #     ax = PlottingShell._mesh_plot(
-    #         ax=ax,
-    #         X = T,
-    #         Y = Z,
-    #         C = x,
-    #         vmin=vmin,
-    #         vmax=vmax,
-    #         cmap=cmap,
-    #         cbar_label=f"Beam {beam_number}",
-    #         orientation="vertical",
-    #         location="right",
-    #         fraction=0.046,
-    #         rotation=90,
-    #         fontsize=8,
-    #         T=datetimes,
-    #         Z=z_platform,
-    #         color="black",
-    #         linewidth=1.0,
-    #         alpha=0.7,
-    #         Z_label="ROV (z)",
-    #         ylim=ylim,
-    #     )
-    #     ax.xaxis.set_major_locator(mticker.FixedLocator(ax.get_xticks()))
-    #     ax.xaxis.set_major_formatter(mdates.DateFormatter(PlottingShell._DATE_FORMAT))
-    #     ax.set_xticklabels(ax.get_xticklabels(), rotation=0, ha='center')
-    #     ax.xaxis.tick_bottom()
-    #     ax.xaxis.set_label_position('bottom')
-    #     ax.yaxis.set_major_locator(AutoLocator())
-
-    #     return ax
-
-
-    # def four_beam_mesh_plot(self, variable: str, ax: Tuple[Axes, Axes, Axes, Axes] = None,
-    #                          plot_by: str = "bin", start_bin: int = None, end_bin: int = None,
-    #                          start_ensemble: int = None, end_ensemble: int = None) -> Tuple[Axes, Axes, Axes, Axes]:
-    #     """
-    #     Create a mesh plot for the four beams of the ADCP data.
-    #     Parameters
-    #     ----------
-    #     variable : str
-    #         The variable to plot, must be one of 'echo_intensity', 'correlation_magnitude', or 'percent_good'.
-    #     ax : Axes, optional
-    #         The matplotlib Axes object to plot on. If None, a new figure and axes will be created.
-    #     plot_by : str, optional
-    #         The dimension to plot by, either 'bin', 'depth', or 'HAB'. Default is 'bin'.
-    #     start_bin : int, optional
-    #         The starting bin index for the plot. Default is None, which means all bins will be plotted.
-    #     end_bin : int, optional
-    #         The ending bin index for the plot. Default is None, which means all bins will be plotted.
-    #     start_ensemble : int, optional
-    #         The starting ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     end_ensemble : int, optional
-    #         The ending ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     Returns
-    #     -------
-    #     Axes
-    #         The matplotlib Axes object with the mesh plot.
-    #     """
-    #     if ax is None:
-    #         fig, ax = PlottingShell.subplots(nrow=self.adcp.n_beams, ncol=1, figheight=8, figwidth=10.5, sharex=True, sharey=True)
-    #     else:
-    #         fig = ax[0].figure
-
-    #     for i in range(self.adcp.n_beams):
-    #         ax[i] = self.mesh_plot(
-    #             variable=variable,
-    #             ax=ax[i],
-    #             beam_number=i + 1,
-    #             plot_by=plot_by,
-    #             start_bin=start_bin,
-    #             end_bin=end_bin,
-    #             start_ensemble=start_ensemble,
-    #             end_ensemble=end_ensemble
-    #         )
-
-    #     return ax
+        Returns
+        -------
+        fig, (ax, ax_cbar)
+        """
+        import numpy as np
+        import numpy.ma as ma
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+        import matplotlib.gridspec as gridspec
     
-    # def velocity_plot(self,ax: Tuple[Axes, Axes, Axes, Axes, Axes] = None,
-    #                          plot_by: str = "bin", start_bin: int = None, end_bin: int = None,
-    #                          start_ensemble: int = None, end_ensemble: int = None) -> Tuple[Axes, Axes, Axes, Axes]:
-    #     """
-    #     Create a flood plot for the measured velocity with 5 axes for u, v, and w components, current speed, and error velocity.
-    #     Parameters
-    #     ----------
-    #     ax : Axes, optional
-    #         The matplotlib Axes object to plot on. If None, a new figure and axes will be created.
-    #     plot_by : str, optional
-    #         The dimension to plot by, either 'bin', 'depth', or 'HAB'. Default is 'bin'.
-    #     start_bin : int, optional
-    #         The starting bin index for the plot. Default is None, which means all bins will be plotted.
-    #     end_bin : int, optional
-    #         The ending bin index for the plot. Default is None, which means all bins will be plotted.
-    #     start_ensemble : int, optional
-    #         The starting ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     end_ensemble : int, optional
-    #         The ending ensemble index for the plot. Default is None, which means all ensembles will be plotted.
-    #     Returns
-    #     -------
-    #     Axes
-    #         The matplotlib Axes object with the mesh plot.
-    #     """
-    #     if ax is None:
-    #         fig, ax = PlottingShell.subplots(nrow=5, ncol=1, figheight=8, figwidth=10.5, sharex=True, sharey=True)
-    #     else:
-    #         fig = ax[0].figure
-    #     variables = ['u', 'v', 'w', 'CS', 'error_velocity']
-    #     for i, variable in enumerate(variables):
-    #         ax[i] = self.flood_plot(
-    #             variable=variable,
-    #             ax=ax[i],
-    #             beam_number=1,
-    #             plot_by=plot_by,
-    #             start_bin=start_bin,
-    #             end_bin=end_bin,
-    #             start_ensemble=start_ensemble,
-    #             end_ensemble=end_ensemble
-    #         )
-
-    #     return ax
+        # Colormap default
+        if cmap is None:
+            cmap = "turbo"
     
+        # Validate beam
+        if not (1 <= int(beam) <= int(self._adcp.geometry.n_beams)):
+            raise ValueError(f"beam must be in [1, {self._adcp.geometry.n_beams}]")
+        ib = int(beam) - 1
     
+        # Small fonts
+        plt.rcParams.update({
+            "axes.titlesize": 8,
+            "axes.labelsize": 8,
+            "xtick.labelsize": 8,
+            "ytick.labelsize": 8,
+        })
     
-    # def calculate_beam_geometry_OLD(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    #     #TODO: Check the logic and update the function to 1. work with the correct shapes instead of transposing outputs, 2. use vectorized operations where possible
-    #     """
-    #     Calculate the beam geometry coordinates.
-    #     Returns:
-    #         Tuple[np.ndarray, np.ndarray, np.ndarray]: Arrays of x, y, z coordinates for the beams.
-    #     """
-    #     theta    = float(self._cfg.get('rotation_angle', 0.0))
-    #     offset_x = float(self._cfg.get('offset_x', 0.0))
-    #     offset_y = float(self._cfg.get('offset_y', 0.0))
-    #     offset_z = float(self._cfg.get('offset_z', 0.0))
-    #     dr       = float(self._cfg.get('radial_distance', 0.1))
-    #     bt_range = self._get_bottom_track().T
-    #     R = Utils.gen_rot_z(theta)
-    #     if self.beam_facing == "down":
-    #         relative_beam_origin = np.array([(dr, 0, 0),
-    #                                          (-dr, 0, 0),
-    #                                          (0, dr, 0),
-    #                                          (0, -dr, 0)])
-    #     else:
-    #         relative_beam_origin = np.array([(-dr, 0, 0),
-    #                                          (dr, 0, 0),
-    #                                          (0, dr, 0),
-    #                                          (0, -dr, 0)])
-            
-    #     relative_beam_origin = np.array([offset_x, offset_y, offset_z]) + relative_beam_origin
-    #     relative_beam_origin = relative_beam_origin.dot(R).T
-    #     relative_beam_midpoint_positions = np.full((3, self.n_beams, self.n_cells, self.n_ensembles), 0, dtype=float)
-        
-    #     if isinstance(self.position.x, float):
-    #         xx = np.ones(self.n_ensembles) * self.position.x
-    #     else:
-    #         xx = self.position.x
-    #     if isinstance(self.position.y, float):
-    #         yy = np.ones(self.n_ensembles) * self.position.y
-    #     else:
-    #         yy = self.position.y
-    #     if isinstance(self.position.z, float):
-    #         zz = np.ones(self.n_ensembles) * self.position.z
-    #     else:
-    #         zz = self.position.z
-    #     X = np.repeat(np.stack([xx, yy, zz])[:, np.newaxis, :], self.n_cells, axis=1)
-    #     X = np.repeat(X[:, np.newaxis, :, :], self.n_beams, axis=1)
-    #     X_hab = X.copy()
-    #     bt_vec = np.full((3, self.n_beams, self.n_ensembles), 0, dtype=float)
-        
-    #     if any(~np.isnan(bt_range).flatten()):
-    #         bt_vec[2] = -bt_range
-    #     for b in range(self.n_beams):
-    #         beam_midpoints = np.repeat(np.outer((0, 0, 0), np.ones(self.n_cells))[:, :, np.newaxis], self.n_ensembles, axis=2)
-    #         if self.beam_facing == "down":
-    #             beam_midpoints[2] += -np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-    #         else:
-    #             beam_midpoints[2] += np.repeat(self.get_bin_midpoints()[:, np.newaxis], self.n_ensembles, axis=1)
-    #         theta_beam = self.beam_angle
-    #         Ry_cw = Utils.gen_rot_y(-theta_beam)
-    #         Rx_cw = Utils.gen_rot_x(-theta_beam)
-    #         Ry_ccw = Utils.gen_rot_y(theta_beam)
-    #         Rx_ccw = Utils.gen_rot_x(theta_beam)
+        # ---------- Data ----------
+        t_dt = np.asarray(self._adcp.time.ensemble_datetimes)
+        t_num = mdates.date2num(t_dt).astype(float)
+        t0, t1 = float(t_num[0]), float(t_num[-1])
+    
+        beam_data = ma.masked_invalid(self._adcp.get_beam_data(field_name=field_name, mask=True))  # (time,bins,beams)
+        data_tb = ma.masked_invalid(beam_data[:, :, ib])  # (time,bins)
+    
+        bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
+        z_rel = np.asarray(self._adcp.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
+        bt_range = np.asarray(self._adcp.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
+        invert_y = str(self._adcp.geometry.beam_facing).lower() == "down"
+    
+        # Color limits from this beam only
+        if vmin is None or vmax is None:
+            finite_vals = data_tb.compressed()
+            if finite_vals.size == 0:
+                raise ValueError("No finite data in selected field for this beam.")
+            if vmin is None:
+                vmin = float(np.nanmin(finite_vals))
+            if vmax is None:
+                vmax = float(np.nanmax(finite_vals))
+    
+        units_map = {
+            "echo_intensity": "Counts",
+            "correlation_magnitude": "Counts",
+            "percent_good": "%",
+            "absolute_backscatter": "dB",
+            "absolute backscatter": "dB",
+            "alpha_s": "dB/km",
+            "alpha_w": "dB/km",
+            "signal_to_noise_ratio": "",
+            "suspended_solids_concentration": "mg/L",
+        }
+    
+        def pretty(s: str) -> str:
+            return s.replace("_", " ").strip().capitalize()
+    
+        # ---------- Y axis config ----------
+        ymode = (y_axis_mode or "depth").lower()
+        if ymode == "bin":
+            # Bin 0 at TOP: normal extent then invert axis
+            y_label = "Bin distance (m)"
+            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            do_invert = True
+            bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
+        elif ymode == "depth":
+            # Depth positive downward; invert only for down-looking heads
+            y_label = "Depth (m)"
+            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            do_invert = bool(invert_y)
+            bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
+        else:  # "z"
+            y_label = "Mean z (m)"
+            z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
+            if not np.isfinite(z_mean).any():
+                z_mean = bin_dist_m
+            y0, y1 = float(np.nanmin(z_mean)), float(np.nanmax(z_mean))
+            do_invert = bool(invert_y)
+            # Project range to z for each time
+            bt_abs = np.asarray(np.abs(bt_range[:, ib]), float)
+            bt_single = np.full(bt_abs.shape, np.nan, float)
+            for it in range(len(t_num)):
+                zi = z_rel[it, :, ib]
+                if np.all(~np.isfinite(zi)):
+                    continue
+                bt_single[it] = np.interp(bt_abs[it], bin_dist_m, zi)
+    
+        # ---------- Layout ----------
+        fig = plt.figure(figsize=(8, 4.5))
+        gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
+        ax = fig.add_subplot(gs[0, 0])
+        ax_cbar = fig.add_subplot(gs[0, 1])
+    
+        fig.suptitle(str(title) if title is not None else str(self._adcp.name), fontsize=9, fontweight="bold")
+    
+        # Time ticks
+        xticks = np.linspace(t0, t1, n_time_ticks)
+    
+        # Image
+        im = ax.matshow(
+            data_tb.T,
+            origin="lower",
+            aspect="auto",
+            extent=[t0, t1, y0, y1],
+            vmin=vmin,
+            vmax=vmax,
+            cmap=cmap,
+        )
+    
+        # Invert only when requested
+        if do_invert:
+            ax.invert_yaxis()
+    
+        # Bottom track line clipped to axis y-range
+        if np.isfinite(bt_single).any():
+            bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
+            ax.plot(t_num, bt_clipped, color="k", linewidth=1)
+    
+        # X axis formatting
+        ax.xaxis.set_ticks_position("bottom")
+        ax.xaxis.set_label_position("bottom")
+        ax.set_xticks(xticks)
+    
+        lbls = []
+        for i, x in enumerate(xticks):
+            dt = mdates.num2date(x)
+            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks) - 1) else dt.strftime("%H:%M:%S"))
+        ax.set_xticklabels(lbls)
+        ax.set_xlabel("Time", fontsize=8)
+    
+        # Y label and beam tag
+        ax.set_ylabel(y_label, fontsize=8)
+        ax.text(
+            0.01,
+            0.02,
+            f"Beam {ib + 1}",
+            transform=ax.transAxes,
+            ha="left",
+            va="bottom",
+            fontsize=7,
+            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9),
+        )
+    
+        # Top distance axis aligned to time ticks
+        dist = np.asarray(self._adcp.position.distance, dtype=float)
+        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        dist_ticks = dist[idx]
+        ax_top = ax.twiny()
+        ax_top.set_xlim(t0, t1)
+        ax_top.set_xticks(xticks)
+        ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
+        ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
+        ax_top.tick_params(axis="x", labelsize=8)
+    
+        # Colorbar
+        cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
+        cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
+        cbar.set_label(cblabel, fontsize=8)
+        cbar.ax.tick_params(labelsize=8)
+    
+        plt.tight_layout(rect=[0, 0, 1, 0.93])
+        return fig, (ax, ax_cbar)
 
-    #         for e in range(self.n_ensembles):
-    #             if b == 0:
-    #                 relative_beam_midpoint_positions[:, 0, :, e] = Ry_cw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Ry_cw.dot(bt_vec[:, b, e])
-    #             elif b == 1:
-    #                 relative_beam_midpoint_positions[:, 1, :, e] = Ry_ccw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Ry_ccw.dot(bt_vec[:, b, e])
-    #             elif b == 2:
-    #                 relative_beam_midpoint_positions[:, 2, :, e] = Rx_ccw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Rx_ccw.dot(bt_vec[:, b, e])
-    #             elif b == 3:
-    #                 relative_beam_midpoint_positions[:, 3, :, e] = Rx_cw.dot(beam_midpoints[:, :, e])
-    #                 bt_vec[:, b, e] = Rx_cw.dot(bt_vec[:, b, e])
-                
-    #             if isinstance(self.position.heading, float):
-    #                 yaw = self.position.heading
-    #             else:
-    #                 yaw = self.position.heading[e]
-    #             if isinstance(self.position.pitch, float):
-    #                 pitch = self.position.pitch
-    #             else:
-    #                 pitch = self.position.pitch[e]
-    #             if isinstance(self.position.roll, float):
-    #                 roll = self.position.roll
-    #             else:
-    #                 roll = self.position.roll[e]
-                
-    #             R = np.dot(Utils.gen_rot_x(roll), Utils.gen_rot_z(yaw).dot(Utils.gen_rot_y(pitch)))
-    #             relative_beam_midpoint_positions[:, b, :, e] = relative_beam_midpoint_positions[:, b, :, e].T.dot(R).T
-    #             bt_vec[:, b, e] = bt_vec[:, b, e].dot(R).T
+    
+    def four_beam_flood_plot(
+        self,
+        field_name: str = "echo_intensity",
+        y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+        cmap=None,                            # str or Colormap; defaults to cmocean.thermal if available else "turbo"
+        vmin: float | None = None,
+        vmax: float | None = None,
+        n_time_ticks: int = 6,
+        title: str | None = None,
+    ):
+        """
+        Four-beam curtain plot with shared colorbar and distance top axis.
+    
+        Params
+        ------
+        field_name : beam_data attribute to plot (time,bins,beams)
+        y_axis_mode : "depth", "bin", or "z"
+        cmap : Matplotlib colormap or name
+        vmin, vmax : color scale limits; if None, computed from finite data
+        n_time_ticks : number of evenly spaced time ticks
+        title : optional suptitle (defaults to self._adcp.name)
+    
+        Returns
+        -------
+        fig, (ax_beams, ax_cbar)
+        """
+        import numpy as np
+        import numpy.ma as ma
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+        import matplotlib.gridspec as gridspec
+    
+        # Colormap default
+        if cmap is None:
+                cmap = "turbo"
+    
+        A = self._adcp  # shorthand
+    
+        # Small fonts
+        plt.rcParams.update({
+            "axes.titlesize": 8,
+            "axes.labelsize": 8,
+            "xtick.labelsize": 8,
+            "ytick.labelsize": 8,
+        })
+    
+        # ---------- Data ----------
+        t_dt = np.asarray(A.time.ensemble_datetimes)
+        t_num = mdates.date2num(t_dt).astype(float)
+        t0, t1 = float(t_num[0]), float(t_num[-1])
+    
+        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=True))  # (time,bins,beams)
+        bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
+        z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
+        bt_range = np.asarray(A.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
+        invert_y = str(A.geometry.beam_facing).lower() == "down"
+    
+        # Color limits
+        if vmin is None or vmax is None:
+            finite_vals = beam_data.compressed()
+            if finite_vals.size == 0:
+                raise ValueError("No finite data in selected field.")
+            if vmin is None: vmin = float(np.nanmin(finite_vals))
+            if vmax is None: vmax = float(np.nanmax(finite_vals))
+    
+        # Units for colorbar
+        units_map = {
+            "echo_intensity": "Counts",
+            "correlation_magnitude": "Counts",
+            "percent_good": "%",
+            "absolute_backscatter": "dB",
+            "absolute backscatter": "dB",
+            "alpha_s": "dB/km",
+            "alpha_w": "dB/km",
+            "signal_to_noise_ratio": "",
+            "suspended_solids_concentration": "mg/L",
+        }
+        def pretty(s): return s.replace("_", " ").strip().capitalize()
+    
+        # Y label & seabed sign
+        ymode = (y_axis_mode or "depth").lower()
+        if ymode == "depth":
+            y_label = "Depth (m)"
+            bt_range = -np.abs(bt_range)
+        elif ymode == "bin":
+            y_label = "Bin distance (m)"
 
-    #             X[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-    #             X_hab[:, b, :, e] += relative_beam_midpoint_positions[:, b, :, e]
-    #             X_hab[2, b, :, e] = relative_beam_midpoint_positions[2, b, :, e] - bt_vec[2, b, e]
-        
-    #     self.bottom_track = np.abs(bt_vec[2, :, :])
-    #     instrument_range = (self.bin_1_distance + self.depth_cell_length * self.n_cells) / 100
-        
-    #     relative_beam_midpoint_positions = relative_beam_midpoint_positions.transpose(0, 3, 2, 1)
-    #     self.bottom_track[self.bottom_track > instrument_range] = bt_range[self.bottom_track > instrument_range]
-    #     absolute_beam_midpoint_positions = X.copy().transpose(0, 3, 2, 1)
-    #     absolute_beam_midpoint_positions_hab = X_hab.copy().transpose(0, 3, 2, 1)
-    #     self.absolute_beam_midpoint_positions_hab = absolute_beam_midpoint_positions_hab
+    
+        # ---------- Layout ----------
+        fig = plt.figure(figsize=(8, 6))
+        gs = gridspec.GridSpec(nrows=A.geometry.n_beams, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
+        ax_beams = [fig.add_subplot(gs[i, 0]) for i in range(A.geometry.n_beams)]
+        ax_cbar  = fig.add_subplot(gs[:, 1])
+    
+        fig.suptitle(str(title) if title is not None else str(A.name), fontsize=9, fontweight="bold")
+    
+        # Time ticks
+        xticks = np.linspace(t0, t1, n_time_ticks)
+    
+        # ---------- Plot per beam ----------
+        last_im = None
+        for ib, ax in enumerate(ax_beams):
+            data_tb = ma.masked_invalid(beam_data[:, :, ib])  # (time,bins)
+    
+            if ymode == "bin":
+                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            else:  # depth or z → mean z per bin
+                z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
+                if not np.isfinite(z_mean).any():
+                    z_mean = bin_dist_m
+                y0, y1 = float(z_mean[0]), float(z_mean[-1])
+    
+            last_im = ax.matshow(
+                data_tb.T, origin="lower", aspect="auto",
+                extent=[t0, t1, y0, y1],
+                vmin=vmin, vmax=vmax, cmap=cmap
+            )
+    
+            if invert_y:
+                ax.invert_yaxis()
+    
+            # bottom track
+            ax.plot(t_num, bt_range[:, ib], color="k", linewidth=1)
+    
+            # x-axis bottom; labels only on last
+            ax.xaxis.set_ticks_position("bottom")
+            ax.xaxis.set_label_position("bottom")
+            ax.set_xticks(xticks)
+            if ib != A.geometry.n_beams - 1:
+                ax.tick_params(labelbottom=False)
+    
+            # beam tag
+            ax.text(0.01, 0.02, f"Beam {ib+1}", transform=ax.transAxes,
+                    ha="left", va="bottom", fontsize=7,
+                    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
+    
+        # bottom labels (first/last full date, middle HH:MM:SS)
+        lbls = []
+        for i, x in enumerate(xticks):
+            dt = mdates.num2date(x)
+            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+        ax_beams[-1].set_xticklabels(lbls)
+        ax_beams[-1].set_xlabel("Time", fontsize=8)
+    
+        # top distance axis aligned to time ticks
+        dist = np.asarray(A.position.distance, dtype=float)
+        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        dist_ticks = dist[idx]
+        ax_top = ax_beams[0].twiny()
+        ax_top.set_xlim(t0, t1)
+        ax_top.set_xticks(xticks)
+        ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
+        ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
+        ax_top.tick_params(axis="x", labelsize=8)
+    
+        # colorbar
+        cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
+        cbar = fig.colorbar(last_im, cax=ax_cbar, orientation="vertical")
+        cbar.set_label(cblabel, fontsize=8)
+        cbar.ax.tick_params(labelsize=8)
+    
+        # shared y-label placed manually after layout
+        fig.canvas.draw()
+        left_edges = [ax.get_position().x0 for ax in ax_beams]
+        x_left = min(left_edges)
+        fig.text(x_left - 0.05, 0.5, y_label, rotation=90, va="center", ha="right", fontsize=8, transform=fig.transFigure)
+    
+        plt.tight_layout(rect=[0, 0, 1, 0.96])  # space for suptitle
+        return fig, (ax_beams, ax_cbar)
 
-    #     self.relative_beam_midpoint_positions = XYZ(x=relative_beam_midpoint_positions[0, :, :, :],
-    #                                                y=relative_beam_midpoint_positions[1, :, :, :],
-    #                                                z=relative_beam_midpoint_positions[2, :, :, :])
-    #     self.bottom_track = self.bottom_track.T
-    #     self.absolute_beam_midpoint_positions = XYZ(x=absolute_beam_midpoint_positions[0, :, :, :],
-    #                                                 y=absolute_beam_midpoint_positions[1, :, :, :],
-    #                                                 z=absolute_beam_midpoint_positions[2, :, :, :])
-    #     self.absolute_beam_midpoint_positions_hab = XYZ(x=absolute_beam_midpoint_positions_hab[0, :, :, :],
-    #                                                     y=absolute_beam_midpoint_positions_hab[1, :, :, :],
-    #                                                     z=absolute_beam_midpoint_positions_hab[2, :, :, :])
