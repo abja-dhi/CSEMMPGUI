@@ -108,6 +108,15 @@ class SystemConfiguration:
         self.janus_config = None
         self.beam_angle = None
 
+
+
+class CoordTransform:
+    def __init__(self):
+        self.frame = None
+        self.tilts_used = None
+        self.three_beam = None
+        self.bin_mapping = None
+        self.raw_bytes = None
     
 # class ExternalFields:
 #     def __init__(self, values_dict: Dict[str, any] = None):
@@ -168,15 +177,15 @@ class Pd0Decoder:
         
         
         # get all ensemble headers
-        self.ensemble_headers = self._getensemble_headers()
+        self.ensemble_headers = self._get_ensemble_headers()
         
         #update n_ensembles 
         self._n_ensembles = len(self.ensemble_headers)
         
         
         #get fixed and variable leader data 
-        self.fixed_leaders = self._getfixed_leaders()
-        self.variable_leaders = self._getvariable_leaders()   
+        self.fixed_leaders = self._get_fixed_leaders()
+        self.variable_leaders = self._get_variable_leaders()   
         
         
         
@@ -329,7 +338,7 @@ class Pd0Decoder:
         header.address_offset = address_offsets 
         return header
 
-    def _getensemble_headers(self) -> List[Header]:
+    def _get_ensemble_headers(self) -> List[Header]:
         """
         Get the fixed leader data from the PD0 file.
 
@@ -359,7 +368,7 @@ class Pd0Decoder:
             
         return headers
     
-    def _getfixed_leaders(self) -> List[FixedLeader]:
+    def _get_fixed_leaders(self) -> List[FixedLeader]:
         """
         Get the fixed leader data from the PD0 file.
 
@@ -374,6 +383,7 @@ class Pd0Decoder:
             try:
                 fixed_leader = FixedLeader(self._decode_fields(Pd0Formats.fixed_leader))
                 fixed_leader.system_configuration = self._decode_system_configuration(fixed_leader.system_configuration)
+                fixed_leader.coordinate_transform = self._decode_EX(fixed_leader.coordinate_transform_ex)
             except:
                 self.status = 1
                 break
@@ -381,7 +391,7 @@ class Pd0Decoder:
             fixed_leaders.append(fixed_leader)
         return fixed_leaders
 
-    def _getvariable_leaders(self) -> List[VariableLeader]:
+    def _get_variable_leaders(self) -> List[VariableLeader]:
         """
         Get the variable leader data from all ensembles in the PD0 file.
 
@@ -470,6 +480,9 @@ class Pd0Decoder:
                 bits += "0"
         return bits
 
+
+    
+
     def _decode_system_configuration(self, syscfg: str) -> SystemConfiguration:
         """
         determine the system configuration parameters from 2-byte hex
@@ -518,27 +531,54 @@ class Pd0Decoder:
         system_configuration.beam_angle = beam_angle[MSB[-2:]]
         
         return system_configuration 
-
-    def __parse_EX_command(self,ex):
-        """
-        determine the coordinate transformation processing parameters (EX command). parameters from 1-byte hex
-        
-        Args:
-            ex: 1-byte hex string 
-        Returns:
-            string - coordinate transformation processing parameter 
-        """      
     
-        LSB = self.__get_LE_bit_string(ex[0])
+    
+    def _decode_EX(self,ex_bytes: bytes) -> CoordTransform:
         
-        coord_sys = {'00': 'BEAM COORDINATES',
-                     '01': 'INSTRUMENT COORDINATES',
-                     '10': 'SHIP COORDINATES',
-                     '11': 'EARTH COORDINATES'}    
+        """Decode PD0 Variable Leader EX / Coord Transform."""
+        if len(ex_bytes) < 1:
+            raise ValueError("need at least 1 byte")
+        low = ex_bytes[0]                   # PD0 is LSB then MSB
+        transform = (low >> 3) & 0b11       # bits 4..3 → xx
+        frame = {0b00:"beam", 0b01:"instrument", 0b10:"ship", 0b11:"earth"}[transform]
         
-        coord_system= coord_sys[LSB[3:5]]
+    #     "frame": frame,
+    #     "tilts_used": bool((low >> 2) & 1),   # p
+    #     "three_beam": bool((low >> 1) & 1),   # t
+    #     "bin_mapping": bool(low & 1),         # b
+    #     "raw_low_byte": low,
+    # }
         
-        return coord_system
+        coord_trans = CoordTransform()
+        
+        coord_trans.frame = frame
+        coord_trans.tilts_used = bool((low >> 2) & 1)
+        coord_trans.three_beam = bool((low >> 1) & 1)
+        coord_trans.bin_mapping = bool(low & 1)
+        coord_trans.raw_bytes = ex_bytes
+        
+        return coord_trans 
+
+    # def __parse_EX_command(self,ex):
+    #     """
+    #     determine the coordinate transformation processing parameters (EX command). parameters from 1-byte hex
+        
+    #     Args:
+    #         ex: 1-byte hex string 
+    #     Returns:
+    #         string - coordinate transformation processing parameter 
+    #     """      
+    
+    #     LSB = self.__get_LE_bit_string(ex[0])
+        
+    #     coord_sys = {'00': 'BEAM COORDINATES',
+    #                  '01': 'INSTRUMENT COORDINATES',
+    #                  '10': 'SHIP COORDINATES',
+    #                  '11': 'EARTH COORDINATES'}    
+        
+    #     coord_system= coord_sys[LSB[3:5]]
+        
+    #     return coord_system
     
     def get_datetimes(self) -> List[VariableLeader]:
         """

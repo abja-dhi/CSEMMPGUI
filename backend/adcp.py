@@ -253,27 +253,177 @@ class ADCP():
             speed: np.ndarray = field(default=None, metadata={"desc": "Horizontal current speed [m/s] = sqrt(u^2 + v^2)"})
             direction: np.ndarray = field(default=None, metadata={"desc": "Current direction in degrees from North (0°–360°)"})
             error_velocity: np.ndarray = field(default=None, metadata={"desc": "Error velocity component from ADCP [m/s]"})
-            
-        u,v,z,ev = self._get_velocity()
-        speed = np.sqrt(u**2 + v**2)
-        direction = (np.degrees(np.arctan2(u, v)) + 360) % 360
         
-        self.velocity_data = ADCPVelocityData(
-            u=u,
-            v=v,
-            z=z,
-            speed=speed,  # Can be calculated later as sqrt(u^2 + v^2)
-            direction=direction,  # Can be calculated later with arctan2(v, u)
-            error_velocity=ev
-        )
-               
+            
+        @dataclass
+        class BeamVel:
+            b1: np.ndarray
+            b2: np.ndarray
+            b3: np.ndarray
+            b4: np.ndarray
+            units: str = field(default="m/s")
+        
+        @dataclass
+        class InstVel:
+            x: np.ndarray
+            y: np.ndarray
+            z: np.ndarray
+            ev: np.ndarray
+            units: str = field(default="m/s")
+        
+        @dataclass
+        class ShipVel:
+            S: np.ndarray
+            F: np.ndarray
+            U: np.ndarray
+            ev: np.ndarray
+            units: str = field(default="m/s")
+        
+        @dataclass
+        class EarthVel:
+            u: np.ndarray
+            v: np.ndarray
+            z: np.ndarray
+            ev: np.ndarray
+            units: str = field(default="m/s")
+        
+        @dataclass
+        class Velocity:
+            """
+            Access patterns:
+              self.velocity.from_beam.b1 .. b4
+              self.velocity.from_instrument.x, y, z
+              self.velocity.from_ship.S, F, U
+              self.velocity.from_earth.u, v, z
+              self.velocity.ev  # error velocity, if available
+            """
+            from_beam: Optional[BeamVel] = None
+            from_instrument: Optional[InstVel] = None
+            from_ship: Optional[ShipVel] = None
+            from_earth: Optional[EarthVel] = None
+
+
+        def _populate_velocity() -> None:
+            """
+            Populate self.velocity using native frame and forward transforms only.
+            Uses class methods; no re-derivations.
+            """
+    
+    
+                
+                
+            frame = self._pd0.fixed_leaders[0].coordinate_transform.frame.lower()
+        
+            # Attitude and corrections (length T)
+            heading_deg = self.aux_sensor_data.heading
+            pitch_deg = self.aux_sensor_data.pitch
+            roll_deg = self.aux_sensor_data.roll
+            declination_deg = self.corrections.magnetic_declination
+            heading_bias_deg = self.geometry.crp_rotation_angle
+            use_tilts = True
+        
+            # Native profile velocities (T, K, 4): mm/s → m/s
+            raw = self._pd0.get_velocity() / 1000.0
+        
+            # Reset container
+            self.velocity = Velocity()
+        
+            if frame == "beam":
+                # Beam
+                b1, b2, b3, b4 = raw[..., 0], raw[..., 1], raw[..., 2], raw[..., 3]
+                self.velocity.from_beam = BeamVel(b1, b2, b3, b4)
+        
+                # Instrument
+                I4 = self._beam_to_inst_coords(raw)                 # (T,K,4)
+                X, Y, Z, ev = I4[..., 0], I4[..., 1], I4[..., 2], I4[..., 3]
+                self.velocity.from_instrument = InstVel(X, Y, Z, ev)
+        
+                # Ship
+                S3 = self._inst_to_ship_coords(I4[..., :3], pitch_deg, roll_deg, use_tilts)
+                S, F, U = S3[..., 0], S3[..., 1], S3[..., 2]
+                self.velocity.from_ship = ShipVel(S, F, U, ev)
+        
+                # Earth
+                E3 = self._inst_to_earth_coords(
+                    I4[..., :3],
+                    heading_deg,
+                    pitch_deg,
+                    roll_deg,
+                    declination_deg,
+                    heading_bias_deg,
+                    use_tilts,
+                )
+                u, v, z = E3[..., 0], E3[..., 1], E3[..., 2]
+                self.velocity.from_earth = EarthVel(u, v, z, ev)
+        
+            elif frame == "instrument":
+                # Instrument
+                X, Y, Z, ev = raw[..., 0], raw[..., 1], raw[..., 2], raw[..., 3]
+                self.velocity.from_instrument = InstVel(X, Y, Z, ev)
+        
+                # Ship
+                S3 = self._inst_to_ship_coords(raw[..., :3], pitch_deg, roll_deg, use_tilts)
+                S, F, U = S3[..., 0], S3[..., 1], S3[..., 2]
+                self.velocity.from_ship = ShipVel(S, F, U, ev)
+        
+                # Earth
+                E3 = self._inst_to_earth_coords(
+                    raw[..., :3],
+                    heading_deg,
+                    pitch_deg,
+                    roll_deg,
+                    declination_deg,
+                    heading_bias_deg,
+                    use_tilts,
+                )
+                u, v, z = E3[..., 0], E3[..., 1], E3[..., 2]
+                self.velocity.from_earth = EarthVel(u, v, z, ev)
+        
+            elif frame == "ship":
+                # Ship
+                S, F, U, ev = raw[..., 0], raw[..., 1], raw[..., 2], raw[..., 3]
+                self.velocity.from_ship = ShipVel(S, F, U, ev)
+        
+                # Earth
+                E4 = self._ship_to_earth_coords(raw, heading_deg)   # preserves err
+                u, v, z, ev_e = E4[..., 0], E4[..., 1], E4[..., 2], E4[..., 3]
+                self.velocity.from_earth = EarthVel(u, v, z, ev_e)
+        
+            elif frame == "earth":
+                # Earth
+                u, v, z, ev = raw[..., 0], raw[..., 1], raw[..., 2], raw[..., 3]
+                self.velocity.from_earth = EarthVel(u, v, z, ev)
+        
+            else:
+                raise ValueError(f"Unknown native frame '{frame}'")            
+            
+            
+            
+                    
+                    # u,v,z,ev = self._get_velocity()
+                    # speed = np.sqrt(u**2 + v**2)
+                    # direction = (np.degrees(np.arctan2(u, v)) + 360) % 360
+                    
+                    # self.velocity_data = ADCPVelocityData(
+                    #     u=u,
+                    #     v=v,
+                    #     z=z,
+                    #     speed=speed,  # Can be calculated later as sqrt(u^2 + v^2)
+                    #     direction=direction,  # Can be calculated later with arctan2(v, u)
+                    #     error_velocity=ev
+                    # )
+            
+        _populate_velocity()       
+        
         @dataclass
         class ADCPBottomTrack:
             eval_amp: np.ndarray = field(metadata={"desc": "Bottom-track evaluation amplitude for each beam (counts)"})
             correlation_magnitude: np.ndarray = field(metadata={"desc": "Bottom-track correlation magnitude for each beam (counts)"})
             percent_good: np.ndarray = field(metadata={"desc": "Bottom-track percent-good per beam (0–100%)"})
             range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters)"})
-            velocity: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s)"})
+            velocity: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), in raw coordinate frame (set by EX_command)"})
+            # velocity_ship: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (F,B,Z,ev) in ship coordinate frame"})
+            # velocity_earth: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (E,N,U,ev) in earth coordinate frame"})
             ref_layer_velocity: np.ndarray = field(metadata={"desc": "Reference layer velocity for each beam (m/s)"})
             ref_correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude in reference layer (counts)"})
             ref_echo_intensity: np.ndarray = field(metadata={"desc": "Echo intensity in reference layer (counts)"})
@@ -304,8 +454,8 @@ class ADCP():
             correlation_magnitude = np.array([[getattr(bt_list[e], f"beam{b}_bt_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
             percent_good = np.array([[getattr(bt_list[e], f"beam{b}_bt_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
             range_to_seabed = np.array([[getattr(bt_list[e], f"beam{b}_bt_range") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
-            velocity = np.array([[getattr(bt_list[e], f"beam{b}_bt_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
-            ref_layer_velocity = np.array([[getattr(bt_list[e], f"beam_{b}_ref_layer_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+            velocity = np.array([[getattr(bt_list[e], f"beam{b}_bt_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
+            ref_layer_velocity = np.array([[getattr(bt_list[e], f"beam_{b}_ref_layer_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
             ref_correlation_magnitude = np.array([[getattr(bt_list[e], f"bm{b}_ref_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
             ref_echo_intensity = np.array([[getattr(bt_list[e], f"bm{b}_ref_int") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
             ref_percent_good = np.array([[getattr(bt_list[e], f"bm{b}_ref_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
@@ -326,7 +476,9 @@ class ADCP():
         )
     
     
-
+        self.bottom_track.velocity_ship = self._get_bt_velocity(target_frame = 'ship')
+        self.bottom_track.velocity_earth = self._get_bt_velocity(target_frame = 'earth')
+        
 
 
 
@@ -568,6 +720,8 @@ class ADCP():
         
         # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
         # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
+        
+
 
     def _get_bin_midpoints(self) -> np.ndarray:
         """
@@ -730,223 +884,302 @@ class ADCP():
             datetimes = [dt + delta for dt in datetimes]
         return np.array(datetimes)
     
-        
-    def _get_velocity(self,apply_corrections: bool = True) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    
+    def _beam_to_inst_coords(self, B):
         """
-        Get the velocity data from the PD0 file.
+        Beam/bottom-track → instrument-frame.
     
         Parameters
         ----------
-        apply_corrections : bool, optional
-            Whether to apply magnetic declination correction, by default True.
+        B : np.ndarray
+            Profile beams: (T, K, 4) = [b1,b2,b3,b4]
+            Bottom-track beams: (T, 4)
+            Bottom-track instrument: (T, 3) = [X,Y,Z]
+    
+        Returns
+        -------
+        I : np.ndarray
+            If B is (T,K,4): (T, K, 4) = [X,Y,Z,error]
+            If B is (T,4):   (T, 3)    = [X,Y,Z]
+            If B is (T,3):   (T, 3)    = [X,Y,Z]
+        """
+        B = np.asarray(B, dtype=float)
+    
+        # Geometry from PD0 fixed leader
+        beam_pattern = self._pd0.fixed_leaders[0].system_configuration.beam_pattern
+        beam_angle = int(self._pd0.fixed_leaders[0].system_configuration.beam_angle[:2])
+        c = {"CONVEX": 1, "CONCAVE": -1}[beam_pattern]
+    
+        th = np.deg2rad(beam_angle)
+        a = 1.0 / (2.0 * np.sin(th))
+        b = 1.0 / (4.0 * np.cos(th))
+        d = a / np.sqrt(2.0)
+    
+        # Matrices
+        M = np.array([  # 4x4, rows X,Y,Z,err; cols b1..b4
+            [c * a, -c * a, 0.0, 0.0],
+            [0.0, 0.0, -c * a, c * a],
+            [b, b, b, b],
+            [d, d, -d, -d],
+        ], float)
+        
+        I =  B @ M.T
+        return I
+  
+  
+    
+        
+    
+    def _inst_to_earth_coords(self,I, heading_deg, pitch_deg, roll_deg,
+                      declination_deg=0.0, heading_bias_deg=0.0, use_tilts=True):
+        """
+        Rotate instrument-frame velocities to Earth (ENU).
+    
+        Parameters
+        ----------
+        I : ndarray, shape (T, K, 3)
+            Instrument velocities [X,Y,Z] in m/s for T ensembles and K bins.
+        heading_deg, pitch_deg, roll_deg : ndarray, shape (T,)
+            Timeseries of heading, pitch, roll in degrees.
+        declination_deg : float, optional
+            Magnetic declination added to heading.
+        heading_bias_deg : float, optional
+            Additional heading bias.
+        use_tilts : bool, optional
+            If False, set pitch=roll=0.
+    
+        Returns
+        -------
+        E : ndarray, shape (T, K, 3)
+            Earth velocities [E,N,U] in m/s.
+        """
+        T = I.shape[0]
+        K = I.shape[1]
+        E = np.empty_like(I)
+    
+        H = np.deg2rad(heading_deg + declination_deg + heading_bias_deg)
+        P = np.deg2rad(pitch_deg if use_tilts else 0.0)
+        R = np.deg2rad(roll_deg if use_tilts else 0.0)
+    
+        CH, SH = np.cos(H), np.sin(H)
+        CP, SP = np.cos(P), np.sin(P)
+        CR, SR = np.cos(R), np.sin(R)
+    
+        for t in range(T):
+            # Rotation matrix M_t (instrument XYZ → earth ENU), Eq. 18 (TRDI)
+            M_t = np.array([
+                [CH[t]*CR[t] + SH[t]*SP[t]*SR[t],  SH[t]*CP[t],  CH[t]*SR[t] - SH[t]*SP[t]*CR[t]],
+                [-SH[t]*CR[t] + CH[t]*SP[t]*SR[t], CH[t]*CP[t], -SH[t]*SR[t] - CH[t]*SP[t]*CR[t]],
+                [          -CP[t]*SR[t],                 SP[t],              CP[t]*CR[t]],
+            ], dtype=float)
+    
+            # (K,3) @ (3,3) → (K,3)
+            E[t] = I[t] @ M_t.T
+    
+        return E
+    
+    def _inst_to_ship_coords(self,I, pitch_deg, roll_deg, use_tilts=True):
+        """
+        Rotate instrument-frame velocities to Ship (SFU).
+    
+        Parameters
+        ----------
+        I : ndarray, shape (T, K, 3)
+            Instrument velocities [X, Y, Z] in m/s.
+        pitch_deg, roll_deg : ndarray, shape (T,)
+            Pitch and roll time series in degrees.
+        use_tilts : bool, default True
+            If False, set pitch=roll=0.
+    
+        Returns
+        -------
+        S : ndarray, shape (T, K, 3)
+            Ship velocities [Starboard, Forward, Up] in m/s.
+        """
+        
+        T = I.shape[0]
+        K = I.shape[1]
+        S = np.empty_like(I)
+    
+        P = np.deg2rad(pitch_deg if use_tilts else 0.0)
+        R = np.deg2rad(roll_deg if use_tilts else 0.0)
+        CP, SP = np.cos(P), np.sin(P)
+        CR, SR = np.cos(R), np.sin(R)
+    
+        for t in range(T):
+            # H=0 ⇒ CH=1, SH=0. TRDI Eq. 18 reduced to ship frame.
+            M = np.array([
+                [CR[t],          0.0,        SR[t]],       # → Starboard
+                [SP[t]*SR[t],    CP[t],     -SP[t]*CR[t]], # → Forward
+                [-CP[t]*SR[t],   SP[t],      CP[t]*CR[t]], # → Up
+            ], dtype=float)
+    
+            # (K,3) @ (3,3) → (K,3)
+            S[t] = I[t] @ M.T
+    
+        return S
+            
+            
+    def _get_transformed_velocity(
+        self, target_frame: str = "earth"
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Get velocity data from PD0 and convert to the target frame.
+    
+        Returns
+        -------
+        u, v, w, err arrays. For beam/instrument these map to b1..b4 / X,Y,Z,err.
+        """
+        frame = self._pd0.fixed_leaders[0].coordinate_transform.frame
+        heading_deg = self.aux_sensor_data.heading
+        pitch_deg = self.aux_sensor_data.pitch
+        roll_deg = self.aux_sensor_data.roll
+        declination_deg = self.corrections.magnetic_declination
+        heading_bias_deg = self.geometry.crp_rotation_angle
+        use_tilts = True
+    
+        raw = self._pd0.get_velocity() / 1000.0  # (T,K,4) mm/s → m/s
+    
+        if frame == target_frame:
+            return raw[..., 0], raw[..., 1], raw[..., 2], raw[..., 3]
+    
+        if frame == "beam":
+            I4 = self._beam_to_inst_coords(raw)     # (T,K,4)
+            err = I4[..., 3]
+            I = I4[..., :3]
+     
+     
+            if target_frame == "instrument":
+                return I[..., 0], I[..., 1], I[..., 2], err
+            if target_frame == "ship":
+     
+                S = self._inst_to_ship_coords(I, pitch_deg, roll_deg)
+                return S[..., 0], S[..., 1], S[..., 2], err
+            if target_frame == "earth":
+                E = self._inst_to_earth_coords(
+                    I, heading_deg, pitch_deg, roll_deg,
+                    declination_deg, heading_bias_deg,)
+                return E[..., 0], E[..., 1], E[..., 2], err
+    
+        elif frame == "instrument":
+            err = raw[..., 3]
+            I = raw[..., :3]
+            if target_frame == "instrument":
+                return I[..., 0], I[..., 1], I[..., 2], err
+            if target_frame == "ship":
+                S = self._inst_to_ship_coords(I, pitch_deg, roll_deg)
+                return S[..., 0], S[..., 1], S[..., 2], err
+            if target_frame == "earth":
+                E = self._inst_to_earth_coords(
+                    I, heading_deg, pitch_deg, roll_deg,
+                    declination_deg, heading_bias_deg)
+                return E[..., 0], E[..., 1], E[..., 2], err
+    
+        elif frame == "ship":
+            S = raw[..., :3]
+            err = raw[..., 3]
+            if target_frame == "ship":
+                return S[..., 0], S[..., 1], S[..., 2], err
+            if target_frame == "earth":
+                E = self._ship_to_earth_coords(raw, heading_deg)  # preserves err
+                return E[..., 0], E[..., 1], E[..., 2], E[..., 3]
+    
+        elif frame == "earth":
+            if target_frame == "ship":
+                raise NotImplementedError("earth → ship not supported")
+    
+        else:
+            raise ValueError(f"Unknown native frame '{frame}'.")
+    
+        raise ValueError(
+            f"Transformation from native '{frame}' to '{target_frame}' not supported."
+        )
+
+    
+    
+    
+
+        
+    def _get_bt_velocity(
+        self, target_frame: str = "earth"
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Bottom-track velocities converted to the target frame.
+    
+        Parameters
+        ----------
+        target_frame : {'beam', 'instrument', 'ship', 'earth'}, default 'earth'
     
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
-            Tuple containing u, v, w, and error velocity arrays.
+            Component arrays with shape (T,):
+            - beam: b1, b2, b3, b4
+            - instrument: X, Y, Z, err
+            - ship: S, F, U, err
+            - earth: E, N, U, err
         """
-        data = self._pd0.get_velocity()
-        u = data[:,:,0]/100
-        v = data[:,:,1]/100
-        w = data[:,:,2]/100
-        ev = data[:,:,3]/100
+        frame = self._pd0.fixed_leaders[0].coordinate_transform.frame
     
-        if apply_corrections and self.corrections.magnetic_declination != 0.0:
-            X = np.stack((u, v), axis=-1)  # Shape (n_ensembles, n_cells, 2)
-            rot = Utils.gen_rot_z(self.corrections.magnetic_declination)[:2, :2]
-            X_rot = np.einsum('ij,klj->kli', rot, X)
-            u, v = X_rot[:, :, 0], X_rot[:, :, 1]
+        # Attitude and corrections (length T)
+        heading_deg = self.aux_sensor_data.heading
+        pitch_deg = self.aux_sensor_data.pitch
+        roll_deg = self.aux_sensor_data.roll
+        declination_deg = self.corrections.magnetic_declination
+        heading_bias_deg = self.geometry.crp_rotation_angle
+        use_tilts = True
     
-        return u, v, w, ev
-        
-
-    # def _calculate_beam_geometry(self) -> XYZ:
-    #     """Calculate relative and geoaphic positions of each beam/bin/ensemble pair"""
-        
-        
-    #     theta = self.geometry.crp_rotation_angle
-    #     offset_x = self.geometry.crp_offset_x
-    #     offset_y = self.geometry.crp_offset_y
-    #     offset_z = self.geometry.crp_offset_z
-    #     dr = self.geometry.beam_dr
-    #     R = Utils.gen_rot_z(theta)
+        # Native BT: (T,4) in mm/s → m/s
+        raw = self.bottom_track.velocity.T / 1000.0  # (T,4)
     
-    #     if self.geometry.beam_facing == "down":
-    #         rel_orig = np.array([(dr, 0, 0), (-dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
-    #     else:
-    #         rel_orig = np.array([(-dr, 0, 0), (dr, 0, 0), (0, dr, 0), (0, -dr, 0)])
+        # Already in requested frame
+        if frame == target_frame:
+            return raw[:, 0], raw[:, 1], raw[:, 2], raw[:, 3]
+    
+        
+        
+           
+        # Beam/instrument → ship/earth, split error BEFORE rotation
+        if frame in ("beam", "instrument"):
+            I4 = self._beam_to_inst_coords(raw) if frame == "beam" else raw  # (T,4)
+            err = I4[:, 3]
+            I = I4[:, :3]                                                    # (T,3)
+    
+            if target_frame == "instrument":
+                return I[:, 0], I[:, 1], I[:, 2], err
+    
+            if target_frame == "ship":
+                S3 = self._inst_to_ship_coords(I[:, None, :], pitch_deg, roll_deg, use_tilts)
+                S = S3[:, 0, :]                                              # (T,3)
+                return S[:, 0], S[:, 1], S[:, 2], err
+    
+            if target_frame == "earth":
+                E3 = self._inst_to_earth_coords(
+                    I[:, None, :],
+                    heading_deg,
+                    pitch_deg,
+                    roll_deg,
+                    declination_deg,
+                    heading_bias_deg,
+                    use_tilts,
+                )
+                E = E3[:, 0, :]                                              # (T,3)
+                return E[:, 0], E[:, 1], E[:, 2], err
+    
+        # Ship → earth or pass-through
+        if frame == "ship":
+            if target_frame == "ship":
+                return raw[:, 0], raw[:, 1], raw[:, 2], raw[:, 3]
             
-    #     rel_orig = rel_orig.dot(R) 
-       
-    #     rel_orig = np.array([-offset_x, offset_y, offset_z]) + rel_orig
-        
-    #     rel_orig = rel_orig.T
-        
+            if target_frame == "earth":
+                E4 = self._ship_to_earth_coords(raw, heading_deg)            # (T,4)
+                return E4[:, 0], E4[:, 1], E4[:, 2], E4[:, 3]
     
-    #     n_beams, n_cells, n_ensembles, = self.geometry.n_beams, self.geometry.n_bins, self.time.n_ensembles
-    #     beam_angle = self.geometry.beam_angle
-    #     rel = np.zeros((3, n_beams, n_cells, n_ensembles))
-    
-    #     bin_mids = self.geometry.bin_midpoint_distances
-    #     if self.geometry.beam_facing == "down":
-    #         z_offsets = -bin_mids
-    #     else:
-    #         z_offsets = bin_mids
-    
-    #     for b in range(n_beams):
-    #         if b in [0, 1]:
-    #             R_beam = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
-    #         else:
-    #             R_beam = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
-    
-    #         for e in range(n_ensembles):
-    #             midpoints = np.zeros((3, n_cells))
-    #             midpoints[2, :] = z_offsets
-    #             rel[:, b, :, e] = R_beam @ midpoints
-    
-    #             yaw = self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e]
-    #             pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
-    #             roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
-                
-                
-    #             R_att = Utils.gen_rot_x(roll) @ Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch)
-    #             rel[:, b, :, e] = (rel[:, b, :, e].T @ R_att).T
-    
-
-    #     # Absolute positions
-    #     if isinstance(self.position.x, float):
-    #         xx = np.full(n_ensembles, self.position.x)
-    #     else:
-    #         xx = self.position.x
-    #     if isinstance(self.position.y, float):
-    #         yy = np.full(n_ensembles, self.position.y)
-    #     else:
-    #         yy = self.position.y
-    #     if isinstance(self.position.z, float):
-    #         zz = np.full(n_ensembles, self.position.z)
-    #     else:
-    #         zz = self.position.z
-    
-    #     X_base = np.stack([xx, yy, zz])[:, None, :]
-    #     X_base = np.repeat(X_base, n_cells, axis=1)  # shape (3, n_cells, n_ensembles)
-    #     X_base = np.repeat(X_base[None, :, :, :], n_beams, axis=0)  # (n_beams, 3, n_cells, n_ensembles)
-       
-    #     abs_pos = rel + np.transpose(X_base, (1, 0, 2, 3))  # shape (3, n_beams, n_cells, n_ensembles)
-    #     abs_pos = abs_pos.transpose(0, 3, 2, 1)  # to (3, ens, cell, beam)
-    
-    #     relative_beam_midpoint_positions = XYZ(
-    #             x=rel[0].transpose(1, 2, 0),
-    #             y=rel[1].transpose(1, 2, 0),
-    #             z=rel[2].transpose(1, 2, 0),
-    #         )
-    
-    #     geographic_beam_midpoint_positions = XYZ(x=abs_pos[0], y=abs_pos[1], z=abs_pos[2])
-        
-    #     return rel_orig,relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+        # Earth → ship not implemented
+        raise ValueError(f"Transformation from native '{frame}' to '{target_frame}' not supported for BT.")
 
 
-        
-    
-
-    # def _calculate_beam_geometry(self):
-        
-        
-    #     crp_theta = self.geometry.crp_rotation_angle
-    #     off = np.array([self.geometry.crp_offset_x,
-    #                     self.geometry.crp_offset_y,
-    #                     self.geometry.crp_offset_z])
-    #     dr = self.geometry.beam_dr
-    #     R_crp = Utils.gen_rot_z(crp_theta)
-    
-    #     # beam bases in body frame (about instrument origin)
-    #     bases = np.array([[ dr, -dr,  0,   0],
-    #                       [  0,   0, dr, -dr],
-    #                       [  0,   0,  0,   0]], dtype=float)
-
-    #     # CRP rotation + CRP offsets (still body frame)
-    #     rel_orig = (R_crp @ bases) #+ off[:, None]        # (3, n_beams)
-    
-    #     n_beams = self.geometry.n_beams
-    #     n_cells = self.geometry.n_bins
-    #     ne = self.time.n_ensembles
-    #     beam_angle = self.geometry.beam_angle
-    #     rel = np.zeros((3, n_beams, n_cells, ne))
-    
-    #     bin_mids = self.geometry.bin_midpoint_distances
-    #     z_off = -bin_mids if self.geometry.beam_facing == "down" else bin_mids
-    
-    #     # build per-beam tilt matrices in body frame
-    #     for b in range(n_beams):
-    #         if b in (0, 1):
-    #             Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
-    #         else:
-    #             Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
-    #         # mids = np.zeros((3, n_cells))
-    #         # mids[2, :] = z_off
-    #         # rel[:, b, :, :] = Rb @ mids
-    #         mids = np.zeros((3, n_cells))
-    #         mids[2, :] = z_off
-        
-    #         base = Rb @ mids                 # (3, n_cells)
-    #         rel[:, b, :, :] = base[:, :, None]   # -> (3, n_cells, ne)
-    #     # apply attitude and add CRP-offset beam origins (now earth frame, meters)
-    #     for e in range(ne):
-    #         yaw = -(self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e] + crp_theta)
-    #         pitch = self.position.pitch if isinstance(self.position.pitch, float) else self.position.pitch[e]
-    #         roll = self.position.roll if isinstance(self.position.roll, float) else self.position.roll[e]
-    #         R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
-    #         for b in range(n_beams):
-    #             #rel[:, b, :, e] = R_att @ rel[:, b, :, e] + (R_att @ rel_orig[:, b])[:, None]
-    #             rel[:, b, :, e] = (
-    #             R_att @ rel[:, b, :, e]
-    #             + (R_att @ rel_orig[:, b])[:, None]
-    #             + (R_att @ (R_crp @ off))[:, None]   # apply offsets after CRP + attitude
-    #         )
-    
-    #     # #% update offsets 
-    #     # rel_orig = rel_orig + off[:, None]
-    #     # rel = rel + off[:, None]
-        
-    #     # # platform positions
-    #     xx = np.full(ne, self.position.x) if isinstance(self.position.x, float) else np.asarray(self.position.x)
-    #     yy = np.full(ne, self.position.y) if isinstance(self.position.y, float) else np.asarray(self.position.y)
-    #     zz = np.full(ne, self.position.z) if isinstance(self.position.z, float) else np.asarray(self.position.z)
-    
-    #     src = CRS.from_user_input(self.position.epsg)
-    #     gx = np.empty((ne, n_cells, n_beams))
-    #     gy = np.empty((ne, n_cells, n_beams))
-    #     gz = np.empty((ne, n_cells, n_beams))
-    
-    #     for e in range(ne):
-    #         if src.is_geographic:
-    #             lat0, lon0 = float(yy[e]), float(xx[e])
-    #             aeqd = CRS.from_proj4(f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} +ellps=WGS84 +units=m +no_defs")
-    #             fwd = Transformer.from_crs(src, aeqd, always_xy=True)
-    #             inv = Transformer.from_crs(aeqd, src, always_xy=True)
-    #             x0, y0 = fwd.transform(lon0, lat0)
-    #             Xm = xx + rel[0, :, :, e]     # east (m)
-    #             Ym = yy + rel[1, :, :, e]     # north (m)
-    #             lon, lat = inv.transform(Xm, Ym)
-    #             gx[e] = lon.T
-    #             gy[e] = lat.T
-    #             gz[e] = (zz[e] + rel[2, :, :, e]).T
-    #         else:
-   
-                
-    #             gx[e] = (xx[e] + rel[0, :, :, e]).T
-    #             gy[e] = (yy[e] + rel[1, :, :, e]).T
-    #             gz[e] = (zz[e] + rel[2, :, :, e]).T
-    
-    #     relative_beam_midpoint_positions = XYZ(
-    #         x=rel[0].transpose(2, 1, 0),
-    #         y=rel[1].transpose(2, 1, 0),
-    #         z=rel[2].transpose(2, 1, 0),
-    #     )
-        
-    #     rel_orig += off[:, None]  
-    #     geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
-    
-    #     return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+ 
     
     def _calculate_beam_geometry(self):
             
@@ -1036,8 +1269,6 @@ class ADCP():
             geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
     
             return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
-
-
 
 
 

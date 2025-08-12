@@ -15,7 +15,7 @@ from backend.plotting import PlottingShell
 import matplotlib.pyplot as plt
 
 root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
-
+#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241003_F3(F)'
 pd0_fpaths = []
 pos_fpaths = []
 
@@ -130,9 +130,17 @@ for i,fpath in enumerate(pd0_fpaths):
     adcp = DatasetADCP(cfg, name = name)
     adcps.append(adcp)
     
-    break
+ 
     if i==1:
         break
+    
+# adcp._get_transformed_velocity(target_frame = 'ship')    
+# fasd
+    
+##%% TO-DO 
+
+#Handle velocity coordinate conversions for earth and ship, deal with units appropriately !!!!
+#%%   
 adcp.plot.single_beam_flood_plot(beam=4,
                                 field_name= "echo_intensity",
                                 y_axis_mode = "bin",          # "depth", "bin", or "z"
@@ -142,14 +150,27 @@ adcp.plot.single_beam_flood_plot(beam=4,
                                 n_time_ticks= 6,
                                 title= None)
     
-#%%
+
+
+
+
 adcp.plot.platform_orientation()
+
+
 adcp.plot.beam_geometry_animation()
-adcp.plot.transect_animation(cmap = 'turbo',
-                             save_gif = False,
-                             show_beam_trail = False,
-                             show_pos_trail = True, 
-                             pos_trail_len = 200,)
+
+
+
+adcp.plot.transect_animation(cmap= 'jet',
+                                    vmin= None,
+                                    vmax= None,
+                                    show_pos_trail = True,
+                                    show_beam_trail = False,
+                                    pos_trail_len= 200,
+                                    beam_trail_len = 50,
+                                    interval_ms= 10,
+                                    save_gif = True,
+                                    gif_name= None)
 
 
 adcp.plot.four_beam_flood_plot(field_name= "echo_intensity",
@@ -168,187 +189,226 @@ adcp.plot.single_beam_flood_plot(beam=4,
                                 vmax=None,
                                 n_time_ticks= 6,
                                 title= 'test')
+
+
 #%%
-# Single-beam flood plot — standalone script (not a function)
-# Requires an `adcp` object in scope and a target `beam` index (1..n_beams).
-# Single-beam flood plot — standalone script (not a function)
-# Requires an `adcp` object in scope and a target `beam` index (1..n_beams).
+
+u,v,z,ev = adcp._get_velocity(target_frame = 'earth')
+
+ubt,vbt,zbt,evbt = adcp._get_bt_velocity(target_frame = 'earth')
+
+#%%
+# #b1,b2,b3,b4 = 
+
+# # fl = adcp._pd0.fixed_leaders
+# # fl0 = fl[0]
+
+# import numpy as np
+
+
+# def beam_to_inst_coords(B):
+    
+#     beam_pattern = adcp._pd0.fixed_leaders[0].system_configuration.beam_pattern
+#     beam_angle = int(adcp._pd0.fixed_leaders[0].system_configuration.beam_angle[:2])
+    
+#     c_ref = {'CONVEX':1,'CONCAVE':-1}
+#     c = c_ref[beam_pattern]
+    
+#     a = 1/(2*np.sin(beam_angle*np.pi/180)) 
+#     b = 1/(4*np.cos(beam_angle*np.pi/180)) 
+#     d = a/ np.sqrt(2) 
+    
+#     M = np.array([
+#         [  c*a, -c*a,  0.0,  0.0],   # X
+#         [  0.0,  0.0, -c*a,  c*a],   # Y
+#         [    b,    b,    b,    b],   # Z
+#         [    d,    d,   -d,   -d],   # error velocity
+#     ], dtype=float)
+#     I = B @ M.T
+#     return I
+
+
+# def inst_to_earth(I, heading_deg, pitch_deg, roll_deg,
+#                   declination_deg=0.0, heading_bias_deg=0.0, use_tilts=True):
+#     """
+#     Rotate instrument-frame velocities to Earth (ENU).
+
+#     Parameters
+#     ----------
+#     I : ndarray, shape (T, K, 3)
+#         Instrument velocities [X,Y,Z] in m/s for T ensembles and K bins.
+#     heading_deg, pitch_deg, roll_deg : ndarray, shape (T,)
+#         Timeseries of heading, pitch, roll in degrees.
+#     declination_deg : float, optional
+#         Magnetic declination added to heading.
+#     heading_bias_deg : float, optional
+#         Additional heading bias.
+#     use_tilts : bool, optional
+#         If False, set pitch=roll=0.
+
+#     Returns
+#     -------
+#     E : ndarray, shape (T, K, 3)
+#         Earth velocities [E,N,U] in m/s.
+#     """
+#     T = I.shape[0]
+#     K = I.shape[1]
+#     E = np.empty_like(I)
+
+#     H = np.deg2rad(heading_deg + declination_deg + heading_bias_deg)
+#     P = np.deg2rad(pitch_deg if use_tilts else 0.0)
+#     R = np.deg2rad(roll_deg if use_tilts else 0.0)
+
+#     CH, SH = np.cos(H), np.sin(H)
+#     CP, SP = np.cos(P), np.sin(P)
+#     CR, SR = np.cos(R), np.sin(R)
+
+#     for t in range(T):
+#         # Rotation matrix M_t (instrument XYZ → earth ENU), Eq. 18 (TRDI)
+#         M_t = np.array([
+#             [CH[t]*CR[t] + SH[t]*SP[t]*SR[t],  SH[t]*CP[t],  CH[t]*SR[t] - SH[t]*SP[t]*CR[t]],
+#             [-SH[t]*CR[t] + CH[t]*SP[t]*SR[t], CH[t]*CP[t], -SH[t]*SR[t] - CH[t]*SP[t]*CR[t]],
+#             [          -CP[t]*SR[t],                 SP[t],              CP[t]*CR[t]],
+#         ], dtype=float)
+
+#         # (K,3) @ (3,3) → (K,3)
+#         E[t] = I[t] @ M_t.T
+
+#     return E
+
+# def inst_to_ship(I, pitch_deg, roll_deg, use_tilts=True):
+#     """
+#     Rotate instrument-frame velocities to Ship (SFU).
+
+#     Parameters
+#     ----------
+#     I : ndarray, shape (T, K, 3)
+#         Instrument velocities [X, Y, Z] in m/s.
+#     pitch_deg, roll_deg : ndarray, shape (T,)
+#         Pitch and roll time series in degrees.
+#     use_tilts : bool, default True
+#         If False, set pitch=roll=0.
+
+#     Returns
+#     -------
+#     S : ndarray, shape (T, K, 3)
+#         Ship velocities [Starboard, Forward, Up] in m/s.
+#     """
+
+#     T = I.shape[0]
+#     K = I.shape[1]
+#     S = np.empty_like(I)
+
+#     P = np.deg2rad(pitch_deg if use_tilts else 0.0)
+#     R = np.deg2rad(roll_deg if use_tilts else 0.0)
+#     CP, SP = np.cos(P), np.sin(P)
+#     CR, SR = np.cos(R), np.sin(R)
+
+#     for t in range(T):
+#         # H=0 ⇒ CH=1, SH=0. TRDI Eq. 18 reduced to ship frame.
+#         M = np.array([
+#             [CR[t],          0.0,        SR[t]],       # → Starboard
+#             [SP[t]*SR[t],    CP[t],     -SP[t]*CR[t]], # → Forward
+#             [-CP[t]*SR[t],   SP[t],      CP[t]*CR[t]], # → Up
+#         ], dtype=float)
+
+#         # (K,3) @ (3,3) → (K,3)
+#         S[t] = I[t] @ M.T
+
+#     return S
+
+
+
+
+#%%
+# B = adcp._get_bt_velocity()
+
+# I = beam_to_inst_coords(B)
+
+
+# ev = I[:,-1]
+# I = I[:,:3]
+# E = inst_to_earth(
+
+
+# S = inst_to_ship(I,  pitch_deg, roll_deg, use_tilts=True)
+
+
+#%%
+
+
+
+#%%
+
+# Feather plot using local-meter x_m, y_m with robust length alignment.
 
 import numpy as np
-import numpy.ma as ma
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.gridspec as gridspec
 
 # -----------------
 # CONFIG
 # -----------------
-beam = 1                              # 1..n_beams
-field_name = "echo_intensity"         # beam_data field (time,bins,beams)
-y_axis_mode = "bin"                  # "depth", "bin", or "z"
-cmap = None                           # None → cmocean.thermal if available else "turbo"
-vmin = None
-vmax = None
-n_time_ticks = 6
-title = None                          # None → adcp.name
+bin_number = 15  # 1-based
+every_n    = 1
+scale      = 1
+color      = None
+title      = None
 
-# Colormap default
-if cmap is None:
-    cmap = "turbo"
+# -----------------
+# DATA
+# -----------------
+ub,vb,zb,evb = adcp.velocity.from_
 
-if not (1 <= int(beam) <= int(adcp.geometry.n_beams)):
-    raise ValueError(f"beam must be in [1, {adcp.geometry.n_beams}]")
-ib = int(beam) - 1
 
-# Small fonts
-plt.rcParams.update({
-    "axes.titlesize": 8,
-    "axes.labelsize": 8,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
-})
+u = adcp.adcp.velocity.from_earth.u
+v = adcp.adcp.velocity.from_earth.u
+z = adcp.adcp.velocity.from_earth.u
 
-# ---------- Data ----------
-t_dt = np.asarray(adcp.time.ensemble_datetimes)
-t_num = mdates.date2num(t_dt).astype(float)
-t0, t1 = float(t_num[0]), float(t_num[-1])
+#u, v, w, ev = adcp.adcp.velocity.from_earth.    # (time, bins)
 
-beam_data = ma.masked_invalid(adcp.get_beam_data(field_name=field_name, mask=True))  # (time,bins,beams)
-data_tb = ma.masked_invalid(beam_data[:, :, ib])  # (time,bins)
+x = np.asarray(adcp.position.x_local_m).ravel()   # (time,)
+y = np.asarray(adcp.position.y_local_m).ravel()
 
-bin_dist_m = np.asarray(adcp.geometry.bin_midpoint_distances, dtype=float)
-z_rel = np.asarray(adcp.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
-bt_range = np.asarray(adcp.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
-invert_y = str(adcp.geometry.beam_facing).lower() == "down"
+u = u-ub[:,None]
+v = v-vb[:,None]
 
-# Color limits from this beam only
-if vmin is None or vmax is None:
-    finite_vals = data_tb.compressed()
-    if finite_vals.size == 0:
-        raise ValueError("No finite data in selected field for this beam.")
-    if vmin is None:
-        vmin = float(np.nanmin(finite_vals))
-    if vmax is None:
-        vmax = float(np.nanmax(finite_vals))
+bin_idx = int(bin_number) - 1
+if bin_idx < 0 or bin_idx >= u.shape[1]:
+    raise IndexError(f"bin_number {bin_number} out of range 1..{u.shape[1]}")
 
-units_map = {
-    "echo_intensity": "Counts",
-    "correlation_magnitude": "Counts",
-    "percent_good": "%",
-    "absolute_backscatter": "dB",
-    "absolute backscatter": "dB",
-    "alpha_s": "dB/km",
-    "alpha_w": "dB/km",
-    "signal_to_noise_ratio": "",
-    "suspended_solids_concentration": "mg/L",
-}
+u_b = np.asarray(u[:, bin_idx]).ravel()
+v_b = np.asarray(v[:, bin_idx]).ravel()
 
-def pretty(s: str) -> str:
-    return s.replace("_", " ").strip().capitalize()
+# align lengths
+n = min(x.size, y.size, u_b.size, v_b.size)
+x, y, u_b, v_b = x[:n], y[:n], u_b[:n], v_b[:n]
 
-# ---------- Y axis config ----------
-ymode = (y_axis_mode or "depth").lower()
-if ymode == "bin":
-    # Bin 0 at TOP: normal extent then invert axis
-    y_label = "Bin distance (m)"
-    y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-    do_invert = True
-    bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
-elif ymode == "depth":
+# global valid mask, then subsample with a shared index
+valid = np.isfinite(x) & np.isfinite(y) & np.isfinite(u_b) & np.isfinite(v_b)
+idx = np.nonzero(valid)[0][::max(1, int(every_n))]
+if idx.size == 0:
+    raise ValueError("No valid samples to plot after masking/subsampling.")
 
-    # Depth positive downward; invert only for down-looking heads
-    y_label = "Depth (m)"
-    y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-    do_invert = bool(invert_y)
-    bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
-else:  # "z"
-    y_label = "Mean z (m)"
-    z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
-    if not np.isfinite(z_mean).any():
-        z_mean = bin_dist_m
-    y0, y1 = float(np.nanmin(z_mean)), float(np.nanmax(z_mean))
-    do_invert = bool(invert_y)
-    # Project range to z for each time
-    bt_abs = np.asarray(np.abs(bt_range[:, ib]), float)
-    bt_single = np.full(bt_abs.shape, np.nan, float)
-    for it in range(len(t_num)):
-        zi = z_rel[it, :, ib]
-        if np.all(~np.isfinite(zi)):
-            continue
-        bt_single[it] = np.interp(bt_abs[it], bin_dist_m, zi)
+X, Y = x[idx], y[idx]
+U, V = (u_b[idx] * scale), (v_b[idx] * scale)
 
-# ---------- Layout ----------
-fig = plt.figure(figsize=(8, 4.5))
-gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
-ax = fig.add_subplot(gs[0, 0])
-ax_cbar = fig.add_subplot(gs[0, 1])
+# -----------------
+# PLOT
+# -----------------
+fig, ax = PlottingShell.subplots(figheight=5, figwidth=5)
+q = ax.quiver(X, Y, U, V, angles="xy", scale_units="xy", scale=.04,
+              color=color, width=0.002, headwidth=3, headlength=4, pivot="tail")
 
-fig.suptitle(str(title) if title is not None else str(adcp.name), fontsize=9, fontweight="bold")
+spd = np.hypot(U, V)
+ref = np.nanpercentile(spd, 75)
+if np.isfinite(ref) and ref > 0:
+    ax.quiverkey(q, 0.05, 0.95, ref, f"{ref:.2f} m/s", labelpos="E")
 
-# Time ticks
-xticks = np.linspace(t0, t1, n_time_ticks)
+ax.set_aspect("equal", adjustable="datalim")
+ax.set_xlabel("X (m)")
+ax.set_ylabel("Y (m)")
+ax.set_title(title or f"{getattr(adcp,'name','ADCP')} — Feather plot, bin {bin_number}")
+ax.grid(True, alpha=0.3)
 
-# Image
-im = ax.matshow(
-    data_tb.T,
-    origin="lower",
-    aspect="auto",
-    extent=[t0, t1, y0, y1],
-    vmin=vmin,
-    vmax=vmax,
-    cmap=cmap,
-)
-
-# Invert only when requested
-if do_invert:
-    ax.invert_yaxis()
-
-# Bottom track line clipped to axis y-range
-if np.isfinite(bt_single).any():
-    bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
-    ax.plot(t_num, bt_clipped, color="k", linewidth=1)
-
-# X axis formatting
-ax.xaxis.set_ticks_position("bottom")
-ax.xaxis.set_label_position("bottom")
-ax.set_xticks(xticks)
-
-lbls = []
-for i, x in enumerate(xticks):
-    dt = mdates.num2date(x)
-    lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks) - 1) else dt.strftime("%H:%M:%S"))
-ax.set_xticklabels(lbls)
-ax.set_xlabel("Time", fontsize=8)
-
-# Y label and beam tag
-ax.set_ylabel(y_label, fontsize=8)
-ax.text(
-    0.01,
-    0.02,
-    f"Beam {ib + 1}",
-    transform=ax.transAxes,
-    ha="left",
-    va="bottom",
-    fontsize=7,
-    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9),
-)
-
-# Top distance axis aligned to time ticks
-dist = np.asarray(adcp.position.distance, dtype=float)
-idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
-dist_ticks = dist[idx]
-ax_top = ax.twiny()
-ax_top.set_xlim(t0, t1)
-ax_top.set_xticks(xticks)
-ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
-ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
-ax_top.tick_params(axis="x", labelsize=8)
-
-# Colorbar
-cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
-cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
-cbar.set_label(cblabel, fontsize=8)
-cbar.ax.tick_params(labelsize=8)
-
-plt.tight_layout(rect=[0, 0, 1, 0.93])
 plt.show()
+
