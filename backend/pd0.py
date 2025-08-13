@@ -358,14 +358,18 @@ class Pd0Decoder:
                 break
             n_data_types = header.n_data_types if header.n_data_types is not np.nan else 0
             address_offsets = []
-            for i in range(n_data_types):
-                value, _ = self._decode_field(Pd0Formats.address_offsets[0])
-                address_offsets.append(value)
-            header.address_offset = address_offsets 
-
-            if n_data_types >0:
-                headers.append(header)
             
+
+            if n_data_types:
+                for i in range(n_data_types):
+                    value, _ = self._decode_field(Pd0Formats.address_offsets[0])
+                    address_offsets.append(value)
+                header.address_offset = address_offsets 
+    
+    
+                if n_data_types >0:
+                    headers.append(header)
+                
         return headers
     
     def _get_fixed_leaders(self) -> List[FixedLeader]:
@@ -729,7 +733,7 @@ class Pd0Decoder:
             List[BottomTrack]: A list of BottomTrack objects for each ensemble.
         """
         if self._n_data_types < 7:
-            return []
+            return None
         self.fobject.seek(0)
         bottom_tracks = []
         for i in range(self._n_ensembles):

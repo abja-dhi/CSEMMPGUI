@@ -115,8 +115,8 @@ class ADCPPosition:
         }, index=pd.to_datetime(self._t))
 
         df_resampled = df.reindex(new_times, method='nearest', tolerance=pd.Timedelta("30s"))
-        if df_resampled.isnull().any().any():
-            raise ValueError("Resampling failed for some timestamps. Consider adjusting tolerance.")
+        # if df_resampled.isnull().any().any():
+        #     raise ValueError("Resampling failed for some timestamps. Consider adjusting tolerance.")
 
         self.x = df_resampled['x'].values
         self.y = df_resampled['y'].values

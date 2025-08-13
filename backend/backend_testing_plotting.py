@@ -15,6 +15,12 @@ from backend.plotting import PlottingShell
 import matplotlib.pyplot as plt
 
 root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
+
+
+root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
+
+
+#Utils.extern_to_csv_batch(r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul')
 #root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241003_F3(F)'
 pd0_fpaths = []
 pos_fpaths = []
@@ -35,7 +41,10 @@ for dirpath, _, filenames in os.walk(root):
 
 #%%
 
-pd0 = Pd0Decoder(pd0_fpaths[0], cfg = {})
+   
+fpath = r'//usden1-stor.dhi.dk/Projects/41806287/41806287 NORI-D Data/Data/Fixed Stations/02_Fixed_Bottom_Current_Turbidity/02_FBCT2/01_ADCP_600kHz-24144/Raw/Full Duration/FBCT2000b.000'
+
+pd0 = Pd0Decoder(fpath, cfg = {})
 
 #vl = pd0._get_variable_leader()[0].to_dict()
 
@@ -90,68 +99,70 @@ ssc_params = {'A': 3.5, 'B':.049}
 cfgs = []
 position_datasets = []
 adcps = []
-for i,fpath in enumerate(pd0_fpaths):
-    print(i)
-    name = fpath.split(os.sep)[-1].split('.000')[0]
-    cfg = {'filename':fpath,
-           'name':name,
-           'pos_cfg':pos_cfgs[i],
-           'pg_min' : 50,
-           'vel_min' : -2.0,
-           'vel_max' : 2.0,
-           'echo_min' : 0,
-           'echo_max' : 255,
-           'cormag_min' : 0,
-           'cormag_max' : 255,
-           'abs_min' : -100,
-           'abs_max': 0,
-           'err_vel_max' : 0.5,
-           'start_datetime' : None,
-           'end_datetime' : None,
-           'first_good_ensemble' : None,
-           'last_good_ensemble' : None,
-           'magnetic_declination' : 0,
-           'utc_offset' : None,
-           'beam_dr': 0.1,
-           'crp_rotation_angle' : 0,
-           'crp_offset_x' : 0,
-           'crp_offset_y' : -3,
-           'crp_offset_z' : 0,
-           'transect_shift_x': 0.0,
-           'transect_shift_y': 0.0,
-           'transect_shift_z': 0.0,
-           'transect_shift_t': 0.0,
-           'water_properties': water_properties,
-           'sediment_properties':sediment_properties,
-           'abs_params': abs_params,
-           'ssc_params': ssc_params
-           }
-    
-    adcp = DatasetADCP(cfg, name = name)
-    adcps.append(adcp)
-    
- 
-    if i==1:
-        break
-    
-# adcp._get_transformed_velocity(target_frame = 'ship')    
-# fasd
-    
-##%% TO-DO 
 
-#Handle velocity coordinate conversions for earth and ship, deal with units appropriately !!!!
+
+
+# for i,fpath in enumerate(pd0_fpaths):
+# print(i)
+ 
+ 
+i = 6
+fpath = pd0_fpaths[i]
+name = fpath.split(os.sep)[-1].split('.000')[0]
+#fpath = r'//usden1-stor.dhi.dk/Projects/41806287/41806287 NORI-D Data/Data/Fixed Stations/02_Fixed_Bottom_Current_Turbidity/02_FBCT2/01_ADCP_600kHz-24144/Raw/Full Duration/FBCT2000b.000'
+
+cfg = {'filename':fpath,
+    'name':name,
+    'pos_cfg':pos_cfgs[i],
+    'pg_min' : 90,
+    'vel_min' : -2.0,
+    'vel_max' : 2.0,
+    'echo_min' : 0,
+    'echo_max' : 255,
+    'cormag_min' : None,
+    'cormag_max' : 255,
+    'abs_min' : -100,
+    'abs_max': 0,
+    'err_vel_max' : 'auto',
+    'start_datetime' : None,
+    'end_datetime' : None,
+    'first_good_ensemble' : None,
+    'last_good_ensemble' : None,
+    'magnetic_declination' : 0,
+    'utc_offset' : None,
+    'beam_dr': 0.1,
+    'bt_bin_offset': 1,
+    'crp_rotation_angle' : 0,
+    'crp_offset_x' : 0,
+    'crp_offset_y' : -3,
+    'crp_offset_z' : 0,
+    'transect_shift_x': 0.0,
+    'transect_shift_y': 0.0,
+    'transect_shift_z': 0.0,
+    'transect_shift_t': 0.0,
+    'water_properties': water_properties,
+    'sediment_properties':sediment_properties,
+    'abs_params': abs_params,
+    'ssc_params': ssc_params
+    }
+ 
+adcp = DatasetADCP(cfg, name = name)
+adcps.append(adcp)
+ 
+print(f'max roll :{adcp.aux_sensor_data.roll.max()}')
+print(f'max roll :{adcp.aux_sensor_data.pitch.max()}')
+ 
+adcp.plot.velocity_flood_plot(field_name = 'speed', mask = True, cmap = 'jet')
+
 #%%   
 adcp.plot.single_beam_flood_plot(beam=4,
-                                field_name= "echo_intensity",
+                                field_name= "suspended_solids_concentration",
                                 y_axis_mode = "bin",          # "depth", "bin", or "z"
                                 cmap='jet',                            # str or Colormap; defaults to cmocean.thermal else "turbo"
                                 vmin=None,
-                                vmax=None,
+                                vmax=10,
                                 n_time_ticks= 6,
                                 title= None)
-    
-
-
 
 
 adcp.plot.platform_orientation()
@@ -165,249 +176,218 @@ adcp.plot.transect_animation(cmap= 'jet',
                                     vmin= None,
                                     vmax= None,
                                     show_pos_trail = True,
-                                    show_beam_trail = False,
+                                    show_beam_trail = True,
                                     pos_trail_len= 200,
-                                    beam_trail_len = 50,
+                                    beam_trail_len = 200,
                                     interval_ms= 10,
-                                    save_gif = True,
+                                    save_gif = False,
                                     gif_name= None)
 
 
-adcp.plot.four_beam_flood_plot(field_name= "echo_intensity",
+adcp.plot.four_beam_flood_plot(field_name= "percent_good",
                                 y_axis_mode= "bin",          
                                 cmap='jet',                            
                                 vmin= None,
                                 vmax= None,
                                 n_time_ticks= 6,
-                                title= 'test')
+                                title= None, 
+                                mask = False)
 
-adcp.plot.single_beam_flood_plot(beam=4,
+adcp.plot.single_beam_flood_plot(beam=2,
                                 field_name= "echo_intensity",
-                                y_axis_mode = "depth",          # "depth", "bin", or "z"
-                                cmap='jet',                            # str or Colormap; defaults to cmocean.thermal else "turbo"
+                                y_axis_mode = "bin",          # "depth", "bin", or "z"
+                                cmap='turbo',                            # str or Colormap; defaults to cmocean.thermal else "turbo"
                                 vmin=None,
                                 vmax=None,
                                 n_time_ticks= 6,
-                                title= 'test')
+                                title= None, 
+                                mask = True)
 
-
-#%%
-
-u,v,z,ev = adcp._get_velocity(target_frame = 'earth')
-
-ubt,vbt,zbt,evbt = adcp._get_bt_velocity(target_frame = 'earth')
-
-#%%
-# #b1,b2,b3,b4 = 
-
-# # fl = adcp._pd0.fixed_leaders
-# # fl0 = fl[0]
-
-# import numpy as np
-
-
-# def beam_to_inst_coords(B):
-    
-#     beam_pattern = adcp._pd0.fixed_leaders[0].system_configuration.beam_pattern
-#     beam_angle = int(adcp._pd0.fixed_leaders[0].system_configuration.beam_angle[:2])
-    
-#     c_ref = {'CONVEX':1,'CONCAVE':-1}
-#     c = c_ref[beam_pattern]
-    
-#     a = 1/(2*np.sin(beam_angle*np.pi/180)) 
-#     b = 1/(4*np.cos(beam_angle*np.pi/180)) 
-#     d = a/ np.sqrt(2) 
-    
-#     M = np.array([
-#         [  c*a, -c*a,  0.0,  0.0],   # X
-#         [  0.0,  0.0, -c*a,  c*a],   # Y
-#         [    b,    b,    b,    b],   # Z
-#         [    d,    d,   -d,   -d],   # error velocity
-#     ], dtype=float)
-#     I = B @ M.T
-#     return I
-
-
-# def inst_to_earth(I, heading_deg, pitch_deg, roll_deg,
-#                   declination_deg=0.0, heading_bias_deg=0.0, use_tilts=True):
-#     """
-#     Rotate instrument-frame velocities to Earth (ENU).
-
-#     Parameters
-#     ----------
-#     I : ndarray, shape (T, K, 3)
-#         Instrument velocities [X,Y,Z] in m/s for T ensembles and K bins.
-#     heading_deg, pitch_deg, roll_deg : ndarray, shape (T,)
-#         Timeseries of heading, pitch, roll in degrees.
-#     declination_deg : float, optional
-#         Magnetic declination added to heading.
-#     heading_bias_deg : float, optional
-#         Additional heading bias.
-#     use_tilts : bool, optional
-#         If False, set pitch=roll=0.
-
-#     Returns
-#     -------
-#     E : ndarray, shape (T, K, 3)
-#         Earth velocities [E,N,U] in m/s.
-#     """
-#     T = I.shape[0]
-#     K = I.shape[1]
-#     E = np.empty_like(I)
-
-#     H = np.deg2rad(heading_deg + declination_deg + heading_bias_deg)
-#     P = np.deg2rad(pitch_deg if use_tilts else 0.0)
-#     R = np.deg2rad(roll_deg if use_tilts else 0.0)
-
-#     CH, SH = np.cos(H), np.sin(H)
-#     CP, SP = np.cos(P), np.sin(P)
-#     CR, SR = np.cos(R), np.sin(R)
-
-#     for t in range(T):
-#         # Rotation matrix M_t (instrument XYZ → earth ENU), Eq. 18 (TRDI)
-#         M_t = np.array([
-#             [CH[t]*CR[t] + SH[t]*SP[t]*SR[t],  SH[t]*CP[t],  CH[t]*SR[t] - SH[t]*SP[t]*CR[t]],
-#             [-SH[t]*CR[t] + CH[t]*SP[t]*SR[t], CH[t]*CP[t], -SH[t]*SR[t] - CH[t]*SP[t]*CR[t]],
-#             [          -CP[t]*SR[t],                 SP[t],              CP[t]*CR[t]],
-#         ], dtype=float)
-
-#         # (K,3) @ (3,3) → (K,3)
-#         E[t] = I[t] @ M_t.T
-
-#     return E
-
-# def inst_to_ship(I, pitch_deg, roll_deg, use_tilts=True):
-#     """
-#     Rotate instrument-frame velocities to Ship (SFU).
-
-#     Parameters
-#     ----------
-#     I : ndarray, shape (T, K, 3)
-#         Instrument velocities [X, Y, Z] in m/s.
-#     pitch_deg, roll_deg : ndarray, shape (T,)
-#         Pitch and roll time series in degrees.
-#     use_tilts : bool, default True
-#         If False, set pitch=roll=0.
-
-#     Returns
-#     -------
-#     S : ndarray, shape (T, K, 3)
-#         Ship velocities [Starboard, Forward, Up] in m/s.
-#     """
-
-#     T = I.shape[0]
-#     K = I.shape[1]
-#     S = np.empty_like(I)
-
-#     P = np.deg2rad(pitch_deg if use_tilts else 0.0)
-#     R = np.deg2rad(roll_deg if use_tilts else 0.0)
-#     CP, SP = np.cos(P), np.sin(P)
-#     CR, SR = np.cos(R), np.sin(R)
-
-#     for t in range(T):
-#         # H=0 ⇒ CH=1, SH=0. TRDI Eq. 18 reduced to ship frame.
-#         M = np.array([
-#             [CR[t],          0.0,        SR[t]],       # → Starboard
-#             [SP[t]*SR[t],    CP[t],     -SP[t]*CR[t]], # → Forward
-#             [-CP[t]*SR[t],   SP[t],      CP[t]*CR[t]], # → Up
-#         ], dtype=float)
-
-#         # (K,3) @ (3,3) → (K,3)
-#         S[t] = I[t] @ M.T
-
-#     return S
 
 
 
 
 #%%
-# B = adcp._get_bt_velocity()
 
-# I = beam_to_inst_coords(B)
+# u,v,z,ev = adcp._get_velocity(target_frame = 'earth')
 
-
-# ev = I[:,-1]
-# I = I[:,:3]
-# E = inst_to_earth(
+# ubt,vbt,zbt,evbt = adcp._get_bt_velocity(target_frame = 'earth')
 
 
-# S = inst_to_ship(I,  pitch_deg, roll_deg, use_tilts=True)
-
-
-#%%
 
 
 
 #%%
+u = adcp.velocity.from_earth.u
+v = adcp.velocity.from_earth.v
+se = np.hypot(u,v)
 
-# Feather plot using local-meter x_m, y_m with robust length alignment.
+
+u = adcp.velocity.from_ship.S
+v = adcp.velocity.from_ship.F
+ss = np.hypot(u,v)
+
+
+u = adcp.velocity.from_instrument.x
+v = adcp.velocity.from_instrument.y
+si = np.hypot(u,v)
+
+# u = adcp.velocity.from_beam.u
+# v = adcp.velocity.from_beam.v
+# sb = np.hypot(u,v)
+
+#%%
+# Feather plot + centerline colored by aggregated beam data.
+# Updates: shared colormap (default 'jet'), bottom-left map-style scale bar of constant size using axis coordinates,
+# quivers colored by beam data, bin aggregation applied consistently to velocity and beam data,
+# `scale` passed to quiver.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+from matplotlib.colors import Normalize
+from matplotlib import patches as mpatches
 
 # -----------------
 # CONFIG
 # -----------------
-bin_number = 15  # 1-based
+bin_sel    = 'mean'
 every_n    = 1
-scale      = 1
-color      = None
+scale      = 0.01
 title      = None
+
+field_name = "absolute_backscatter"
+beam_sel   = "mean"
+mask_data  = True
+cmap       = plt.cm.get_cmap("jet")
+vmin       = None
+vmax       = None
+line_width = 2.5
+line_alpha = 0.9
+add_cbar   = True
 
 # -----------------
 # DATA
 # -----------------
-ub,vb,zb,evb = adcp.velocity.from_
-
-
-u = adcp.adcp.velocity.from_earth.u
-v = adcp.adcp.velocity.from_earth.u
-z = adcp.adcp.velocity.from_earth.u
-
-#u, v, w, ev = adcp.adcp.velocity.from_earth.    # (time, bins)
-
-x = np.asarray(adcp.position.x_local_m).ravel()   # (time,)
+u,v,z,ev,s,d = adcp.get_velocity_data(coord_sys = 'earth',mask = True)
+# u = adcp.velocity.from_earth.u
+# v = adcp.velocity.from_earth.v
+x = np.asarray(adcp.position.x_local_m).ravel()
 y = np.asarray(adcp.position.y_local_m).ravel()
 
-u = u-ub[:,None]
-v = v-vb[:,None]
+if isinstance(bin_sel, (int, np.integer)):
+    bni = int(bin_sel) - 1
+    if bni < 0 or bni >= u.shape[1]:
+        raise IndexError(f"bin_sel {bin_sel} out of range 1..{u.shape[1]}")
+    u_b = np.asarray(u[:, bni]).ravel()
+    v_b = np.asarray(v[:, bni]).ravel()
+elif str(bin_sel).lower() in {"mean", "avg"}:
+    u_b = np.nanmean(u, axis=1).ravel()
+    v_b = np.nanmean(v, axis=1).ravel()
+else:
+    raise ValueError("bin_sel must be 'mean' or 1..n_bins")
 
-bin_idx = int(bin_number) - 1
-if bin_idx < 0 or bin_idx >= u.shape[1]:
-    raise IndexError(f"bin_number {bin_number} out of range 1..{u.shape[1]}")
-
-u_b = np.asarray(u[:, bin_idx]).ravel()
-v_b = np.asarray(v[:, bin_idx]).ravel()
-
-# align lengths
 n = min(x.size, y.size, u_b.size, v_b.size)
 x, y, u_b, v_b = x[:n], y[:n], u_b[:n], v_b[:n]
 
-# global valid mask, then subsample with a shared index
+S = None
+if field_name is not None:
+    D = adcp.get_beam_data(field_name=field_name, mask=mask_data)[:n, :, :]
+    if isinstance(bin_sel, (int, np.integer)):
+        D = D[:, bni, :]
+    else:
+        D = np.nanmean(D, axis=1)
+    if isinstance(beam_sel, (int, np.integer)):
+        bmi = int(beam_sel) - 1
+        if bmi < 0 or bmi >= D.shape[1]:
+            raise IndexError(f"beam_sel {beam_sel} out of range 1..{D.shape[1]}")
+        S = D[:, bmi]
+    elif str(beam_sel).lower() in {"mean", "avg"}:
+        S = np.nanmean(D, axis=1)
+    else:
+        raise ValueError("beam_sel must be 'mean' or 1..n_beams")
+
 valid = np.isfinite(x) & np.isfinite(y) & np.isfinite(u_b) & np.isfinite(v_b)
+if S is not None: valid &= np.isfinite(S)
 idx = np.nonzero(valid)[0][::max(1, int(every_n))]
-if idx.size == 0:
-    raise ValueError("No valid samples to plot after masking/subsampling.")
+if idx.size < 2: raise ValueError("Need ≥2 valid samples.")
 
 X, Y = x[idx], y[idx]
-U, V = (u_b[idx] * scale), (v_b[idx] * scale)
+U, V = u_b[idx], v_b[idx]
+C = None if S is None else S[idx]
 
 # -----------------
 # PLOT
 # -----------------
 fig, ax = PlottingShell.subplots(figheight=5, figwidth=5)
-q = ax.quiver(X, Y, U, V, angles="xy", scale_units="xy", scale=.04,
-              color=color, width=0.002, headwidth=3, headlength=4, pivot="tail")
 
-spd = np.hypot(U, V)
-ref = np.nanpercentile(spd, 75)
-if np.isfinite(ref) and ref > 0:
-    ax.quiverkey(q, 0.05, 0.95, ref, f"{ref:.2f} m/s", labelpos="E")
+if C is not None:
+    norm = Normalize(vmin if vmin is not None else np.nanmin(C), vmax if vmax is not None else np.nanmax(C))
+    pts  = np.column_stack([X, Y])
+    segs = np.stack([pts[:-1], pts[1:]], axis=1)
+    lc = LineCollection(segs, cmap=cmap, norm=norm, linewidths=line_width, alpha=line_alpha)
+    lc.set_array(C[:-1])
+    ax.add_collection(lc)
+
+q = ax.quiver(X, Y, U, V, None if C is None else C,
+              cmap=None if C is None else cmap,
+              norm=None if C is None else norm,
+              angles="xy", scale_units="xy", scale=scale,
+              width=0.002, headwidth=3, headlength=4, pivot="tail")
+
+if C is not None and add_cbar:
+    cb = fig.colorbar(lc, ax=ax, shrink=0.85, pad=0.02)
+    cb.set_label(field_name.replace("_", " "))
+
+# -----------------
+# CONSTANT-SIZE SPEED SCALEBAR (anchored in axes coords, bottom-left, labels above)
+# -----------------
+# Draw the bar in AXES coordinates so it stays in the lower-left regardless of data limits.
+# The label values reflect the speed corresponding to the bar length via the quiver scale.
+
+# fixed visual size as fraction of axes width/height
+bar_width_axes = 0.25   # 25% of axes width
+bar_height_axes = 0.025 # thin bar height
+pad_x = 0.05            # left padding in axes coords
+pad_y = 0.05            # bottom padding in axes coords
+
+# compute equivalent data-length for labeling speeds
+x0_data, x1_data = ax.get_xlim()
+L_data = bar_width_axes * (x1_data - x0_data)
+ref_speed = L_data * float(scale)
+
+# bar geometry in axes coordinates
+x0_ax = pad_x
+y0_ax = pad_y
+
+# two-tone rectangles
+rect1 = mpatches.Rectangle((x0_ax, y0_ax), bar_width_axes/2, bar_height_axes,
+                           transform=ax.transAxes, facecolor="k", edgecolor="k", clip_on=False)
+rect2 = mpatches.Rectangle((x0_ax + bar_width_axes/2, y0_ax), bar_width_axes/2, bar_height_axes,
+                           transform=ax.transAxes, facecolor="w", edgecolor="k", clip_on=False)
+ax.add_patch(rect1)
+ax.add_patch(rect2)
+
+# tick marks at 0, mid, end
+for dx in (0.0, bar_width_axes/2, bar_width_axes):
+    ax.plot([x0_ax + dx, x0_ax + dx], [y0_ax, y0_ax + bar_height_axes],
+            transform=ax.transAxes, color="k", lw=0.8, clip_on=False)
+
+# labels above bar, small font
+font_small = 6
+ax.text(x0_ax, y0_ax + bar_height_axes*1.6, "0", transform=ax.transAxes,
+        va="bottom", ha="center", fontsize=font_small, clip_on=False)
+ax.text(x0_ax + bar_width_axes/2, y0_ax + bar_height_axes*1.6, f"{ref_speed/2:.2f}",
+        transform=ax.transAxes, va="bottom", ha="center", fontsize=font_small, clip_on=False)
+ax.text(x0_ax + bar_width_axes, y0_ax + bar_height_axes*1.6, f"{ref_speed:.2f}",
+        transform=ax.transAxes, va="bottom", ha="center", fontsize=font_small, clip_on=False)
+ax.text(x0_ax + bar_width_axes/2, y0_ax + bar_height_axes*3.2, "speed (m/s)",
+        transform=ax.transAxes, va="bottom", ha="center", fontsize=font_small, clip_on=False)
 
 ax.set_aspect("equal", adjustable="datalim")
 ax.set_xlabel("X (m)")
 ax.set_ylabel("Y (m)")
-ax.set_title(title or f"{getattr(adcp,'name','ADCP')} — Feather plot, bin {bin_number}")
+ax.set_title(title or f"{getattr(adcp,'name','ADCP')} — Feather plot, bin {bin_sel}")
 ax.grid(True, alpha=0.3)
 
 plt.show()
