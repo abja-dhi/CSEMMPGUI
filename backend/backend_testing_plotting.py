@@ -146,16 +146,15 @@ adcp.plot.four_beam_flood_plot(field_name= "suspended_solids_concentration",
 
 adcp.plot.transect_velocities(bin_sel='mean',                 # int or "mean"
                                 every_n=1,                   # subsample step
-                                scale=0.005,                  # quiver scale (visual only)
+                                scale=0.005,                  # quiver scale (visual only), smaller = longer quiver lines
                                 title=None,
-                                shared_cmap='jet',       # single cmap for line & quiver
-                                shared_vmin=None,            # shared colormap min
-                                shared_vmax=None,            # shared colormap max
+                                cmap='jet',       
+                                vmin=None,            # colormap min
+                                vmax=None,            # colormap max
                                 line_width=2.5,              # centerline width
                                 line_alpha=0.9,              # centerline transparency
-                                hist_bins=20,                # bins for inset histogram
-                                figsize=(5, 5)               # figure size
-                            )
+                                hist_bins=20)                # bins for inset histogram
+    
 
   
 adcp.plot.single_beam_flood_plot(beam='mean', # int or 'mean'
@@ -164,7 +163,7 @@ adcp.plot.single_beam_flood_plot(beam='mean', # int or 'mean'
                                 cmap='jet',                  # str or Colormap; defaults to cmocean.thermal else "turbo"
                                 vmin=None,
                                 vmax=10,
-                                n_time_ticks= 6,
+                                n_time_ticks= 6, # number of time axis ticks and labels 
                                 title= None, 
                                 mask = True)
 

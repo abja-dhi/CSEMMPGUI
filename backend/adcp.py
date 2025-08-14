@@ -2955,9 +2955,9 @@ class Plotting:
                             every_n=1,
                             scale=0.01,
                             title=None,
-                            shared_cmap='viridis',
-                            shared_vmin=None,
-                            shared_vmax=None,
+                            cmap='viridis',
+                            vmin=None,
+                            vmax=None,
                             line_width=2.5,
                             line_alpha=0.9,
                             hist_bins=20,
@@ -2967,7 +2967,7 @@ class Plotting:
         from matplotlib.collections import LineCollection
         from matplotlib.colors import Normalize
     
-        cmap = plt.cm.get_cmap(shared_cmap) if isinstance(shared_cmap, str) else shared_cmap
+        cmap = plt.cm.get_cmap(cmap) if isinstance(cmap, str) else cmap
     
         u,v,z,ev,spd,dirn = self._adcp.get_velocity_data(coord_sys = 'earth', mask = True)
         
@@ -2991,8 +2991,8 @@ class Plotting:
         SPD = np.hypot(U, V)
     
         fig, ax = plt.subplots(figsize=figsize)
-        norm = Normalize(shared_vmin if shared_vmin is not None else np.nanmin(SPD),
-                         shared_vmax if shared_vmax is not None else np.nanmax(SPD))
+        norm = Normalize(vmin if vmin is not None else np.nanmin(SPD),
+                         vmax if vmax is not None else np.nanmax(SPD))
     
         pts = np.column_stack([X, Y])
         segs = np.stack([pts[:-1], pts[1:]], axis=1)
