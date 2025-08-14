@@ -30,6 +30,25 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from typing import Union
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+from matplotlib.ticker import AutoLocator
+from matplotlib.collections import LineCollection
+import matplotlib as mpl
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import matplotlib.dates as mdates
+from matplotlib.collections import LineCollection
+from matplotlib import colors as mcolors
+from matplotlib.ticker import ScalarFormatter
+
+
         
 class ADCP():
     def __init__(self, cfg: str | Path, name: str) -> None:
@@ -1924,25 +1943,9 @@ class ADCP():
            
             
            
-#%%
 
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from typing import Union
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-from matplotlib.ticker import AutoLocator
-from matplotlib.collections import LineCollection
-import matplotlib as mpl
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import matplotlib.dates as mdates
-from matplotlib.collections import LineCollection
-from matplotlib import colors as mcolors
-from matplotlib.ticker import ScalarFormatter
+
 class Plotting:
     # _CMAPS = {
     #     "percent_good": plt.cm.binary,
@@ -2950,7 +2953,7 @@ class Plotting:
     def transect_velocities(self,
                             bin_sel=15,
                             every_n=1,
-                            scale=0.04,
+                            scale=0.01,
                             title=None,
                             shared_cmap='viridis',
                             shared_vmin=None,
