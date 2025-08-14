@@ -74,7 +74,7 @@ class ADCP():
             transect_shift_y: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)"})
             transect_shift_z: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)"})
             transect_shift_t: float = field(metadata={"desc": "Shifting time of entire ADCP transect for model calibration (time axis, hours)"})
-            
+            velocity_average_window_len: int = field(metadata={"desc": "Number of ensembles to average (via rolling window) for velocity data"})
             
         self.corrections = ADCPCorrections(
             magnetic_declination=float(get_valid(self._cfg, 'magnetic_declination', 0)),
@@ -83,6 +83,7 @@ class ADCP():
             transect_shift_y=float(get_valid(self._cfg, 'transect_shift_y', 0)),
             transect_shift_z=float(get_valid(self._cfg, 'transect_shift_z', 0)),
             transect_shift_t=float(get_valid(self._cfg, 'transect_shift_t', 0)),
+            velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 0))
         )
         
      
@@ -819,9 +820,12 @@ class ADCP():
         
         return data
     
-    def get_velocity_data(self, coord_sys: str = "earth", mask: bool = True):
+    def get_velocity_data(self,
+                          coord_sys: str = "earth",
+                          mask: bool = True,):
         """
-        Retrieve velocity data in a chosen orthogonal frame, optionally masked.
+        Retrieve velocity data in a chosen orthogonal frame. Optionally mask and
+        apply a centered rolling average over ensembles.
     
         Parameters
         ----------
@@ -832,49 +836,63 @@ class ADCP():
     
         Returns
         -------
-        tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
-            (v1, v2, v3, ev, speed, direction)
+        tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+            (v1, v2, v3, ev, speed, direction_deg_azimuth)
         """
+        import numpy as np
+        from numpy.lib.stride_tricks import sliding_window_view
+    
+        def _nanmean_centered(a: np.ndarray, win: int) -> np.ndarray:
+            if win is None or win <= 1:
+                return a
+            if a.ndim == 1:
+                a = a[:, None]
+            left = (win - 1) // 2
+            right = win - 1 - left
+            w = sliding_window_view(a, window_shape=(win,), axis=0)  # (T-win+1, ..., win)
+            m = np.nanmean(w, axis= -1)                              # (T-win+1, ...)
+            pad = [(left, right)] + [(0, 0)] * (m.ndim - 1)
+            out = np.pad(m, pad_width=pad, mode="constant", constant_values=np.nan)
+            return out.squeeze()
+    
         coord_sys = coord_sys.lower().strip()
         valid_fields = ["instrument", "ship", "earth"]
         if coord_sys not in valid_fields:
-            raise ValueError(
-                f"Invalid coordinate system '{coord_sys}'. "
-                f"Must be one of: {valid_fields}"
-            )
-        ev = self.velocity.from_earth.ev
+            raise ValueError(f"Invalid coordinate system '{coord_sys}'. Must be one of: {valid_fields}")
+            
+        averaging_window = self.corrections.velocity_average_window_len
+    
+        ev = self.velocity.from_earth.ev  # error velocity is defined in earth frame
+    
         if coord_sys == "instrument":
             src = self.velocity.from_instrument
-            v1, v2, v3 = src.x, src.y, src.z
-            speed = getattr(src, "speed", None)
-            direction = getattr(src, "direction", None)
-    
+            v1, v2, v3 = np.array(src.x, float), np.array(src.y, float), np.array(src.z, float)
         elif coord_sys == "ship":
             src = self.velocity.from_ship
-            v1, v2, v3 = src.S, src.F, src.U
-            v
-            speed = getattr(src, "speed", None)
-            direction = getattr(src, "direction", None)
-    
+            v1, v2, v3 = np.array(src.S, float), np.array(src.F, float), np.array(src.U, float)
         else:  # earth
             src = self.velocity.from_earth
-            v1, v2, v3 = src.u, src.v, src.z
-            speed = src.speed
-            direction = src.direction
+            v1, v2, v3 = np.array(src.u, float), np.array(src.v, float), np.array(src.z, float)
     
+        # Mask first
         if mask:
-            print('MASKING')
-            m = self.masking.velocity_data_mask
-            v1[m] = np.nan
-            v2[m] = np.nan
-            v3[m] = np.nan
-            ev[m] = np.nan
-            if speed is not None:
-                speed[m] = np.nan
-            if direction is not None:
-                direction[m] = np.nan
-                
-        return v1, v2, v3,ev, speed, direction
+            m = self.masking.velocity_data_mask  # shape matches (time, bins)
+            for arr in (v1, v2, v3, ev):
+                arr[m] = np.nan
+    
+        # Rolling average on v1,v2,v3
+        if averaging_window and averaging_window > 1:
+            v1 = _nanmean_centered(v1, averaging_window)
+            v2 = _nanmean_centered(v2, averaging_window)
+            v3 = _nanmean_centered(v3, averaging_window)
+    
+        # Recompute speed and azimuth from averaged v1,v2
+        speed = np.hypot(v1, v2)
+        # Azimuth: 0 = toward +v2 axis, increases clockwise toward +v1 axis.
+        direction = (np.degrees(np.arctan2(v1, v2)) + 360.0) % 360.0
+    
+        return v1, v2, v3, ev, speed, direction
+
 
     
     
@@ -1002,7 +1020,7 @@ class ADCP():
         
         
 
-    def _generate_bottom_track_mask(self, cell_offset: int = 0) -> None:
+    def _generate_bottom_track_mask(self, cell_offset: int = 0, incl_sidelobe = True) -> None:
         """
         Masks beam data below the seabed based on bottom track range.
     
@@ -1011,10 +1029,22 @@ class ADCP():
         cell_offset : int, optional
             Number of bins to offset the mask above (+) or below (-) the bottom track cell.
             Default is 0, which masks the bottom track cell itself.
+        
+        incl_sidelobe: bool, optional
+            Include estimated sidelobe interference in the calculation.
+            
+            An additional d*cos(beam_angle) of depth to seabed removed (~6% for 20 degree beam angle).
         """
+        
+        
         # Get bottom track range (in meters)
         bt_range = self.bottom_track.range_to_seabed  # shape: (n_beams, n_ensembles)
-    
+        
+        
+        if incl_sidelobe:
+            bt_range = bt_range*np.cos(self.geometry.beam_angle*np.pi/180)
+            
+            
         # Expand bottom track range to match beam data shape: (n_beams, n_bins, n_ensembles)
         bt_range_expanded = np.repeat(bt_range[:, np.newaxis, :], self.geometry.n_bins, axis=1)
     
@@ -1028,6 +1058,9 @@ class ADCP():
         # Create mask: True = valid (above bottom), False = invalid (below bottom)
         mask = bin_centers < bt_range_expanded
         mask = mask.T
+        
+        
+        
         
         
         # # Apply mask to beam data fields
@@ -2366,199 +2399,231 @@ class Plotting:
             plt.show()
 
         return ani, ax
-        
+            
     def single_beam_flood_plot(
-        self,
-        beam: int,
-        field_name: str = "echo_intensity",
-        y_axis_mode: str = "depth",          # "depth", "bin", or "z"
-        cmap=None,                            # None → "turbo"
-        vmin: float | None = None,
-        vmax: float | None = None,
-        n_time_ticks: int = 6,
-        title: str | None = None,
-        mask: bool = True
-    ):
-        """
-        Single-beam curtain plot with colorbar and top distance axis.
+            self,
+            beam: int | str,
+            field_name: str = "echo_intensity",
+            y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+            cmap=None,                            # None → "turbo"
+            vmin: float | None = None,
+            vmax: float | None = None,
+            n_time_ticks: int = 6,
+            title: str | None = None,
+            mask: bool = True
+        ):
+            """
+            Single-beam curtain plot with colorbar and top distance axis.
     
-        Parameters
-        ----------
-        beam : int
-            Beam number in [1, n_beams].
-        field_name, y_axis_mode, cmap, vmin, vmax, n_time_ticks, title : see four-beam version.
+            Parameters
+            ----------
+            beam : int or "mean"
+                Beam number in [1, n_beams] or 'mean' to average across beams.
+            field_name, y_axis_mode, cmap, vmin, vmax, n_time_ticks, title : standard.
     
-        Returns
-        -------
-        fig, (ax, ax_cbar)
-        """
-        import numpy as np
-        import numpy.ma as ma
-        import matplotlib.pyplot as plt
-        import matplotlib.dates as mdates
-        import matplotlib.gridspec as gridspec
+            Returns
+            -------
+            fig, (ax, ax_cbar)
+            """
+            import numpy as np
+            import numpy.ma as ma
+            import matplotlib.pyplot as plt
+            import matplotlib.dates as mdates
+            import matplotlib.gridspec as gridspec
     
-        # Colormap default
-        if cmap is None:
-            cmap = "turbo"
+            # Colormap default
+            if cmap is None:
+                cmap = "turbo"
     
-        # Validate beam
-        if not (1 <= int(beam) <= int(self._adcp.geometry.n_beams)):
-            raise ValueError(f"beam must be in [1, {self._adcp.geometry.n_beams}]")
-        ib = int(beam) - 1
+            # Beam selection
+            if isinstance(beam, (str,)):
+                beam_text = beam.strip().lower()
+            elif isinstance(beam, (bytes, bytearray)):
+                try:
+                    beam_text = bytes(beam).decode().strip().lower()
+                except Exception:
+                    beam_text = str(beam).strip().lower()
+            else:
+                beam_text = None
     
-        # Small fonts
-        plt.rcParams.update({
-            "axes.titlesize": 8,
-            "axes.labelsize": 8,
-            "xtick.labelsize": 8,
-            "ytick.labelsize": 8,
-        })
+            use_mean = bool(beam_text in {"mean", "avg", "average"})
+            if not use_mean:
+                try:
+                    ib = int(beam) - 1
+                except Exception:
+                    raise TypeError("beam must be an int 1..n or 'mean'")
+                n_beams = int(self._adcp.geometry.n_beams)
+                if not (0 <= ib < n_beams):
+                    raise ValueError(f"beam must be in [1, {n_beams}] or 'mean'")
     
-        # ---------- Data ----------
-        t_dt = np.asarray(self._adcp.time.ensemble_datetimes)
-        t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+            # Small fonts
+            plt.rcParams.update({
+                "axes.titlesize": 8,
+                "axes.labelsize": 8,
+                "xtick.labelsize": 8,
+                "ytick.labelsize": 8,
+            })
     
-        beam_data = ma.masked_invalid(self._adcp.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
-        data_tb = ma.masked_invalid(beam_data[:, :, ib])  # (time,bins)
+            # ---------- Data ----------
+            t_dt = np.asarray(self._adcp.time.ensemble_datetimes)
+            t_num = mdates.date2num(t_dt).astype(float)
+            t0, t1 = float(t_num[0]), float(t_num[-1])
     
-        bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
-        z_rel = np.asarray(self._adcp.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
-        bt_range = np.asarray(self._adcp.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
-        invert_y = str(self._adcp.geometry.beam_facing).lower() == "down"
+            beam_data = ma.masked_invalid(self._adcp.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
+            if use_mean:
+                data_tb = ma.masked_invalid(ma.mean(beam_data, axis=2))  # (time,bins)
+            else:
+                data_tb = ma.masked_invalid(beam_data[:, :, ib])         # (time,bins)
     
-        # Color limits from this beam only
-        if vmin is None or vmax is None:
-            finite_vals = data_tb.compressed()
-            if finite_vals.size == 0:
-                raise ValueError("No finite data in selected field for this beam.")
-            if vmin is None:
-                vmin = float(np.nanmin(finite_vals))
-            if vmax is None:
-                vmax = float(np.nanmax(finite_vals))
+            bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
+            z_rel = np.asarray(self._adcp.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
+            bt_range = np.asarray(self._adcp.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
+            invert_y = str(self._adcp.geometry.beam_facing).lower() == "down"
     
-        units_map = {
-            "echo_intensity": "Counts",
-            "correlation_magnitude": "Counts",
-            "percent_good": "%",
-            "absolute_backscatter": "dB",
-            "absolute backscatter": "dB",
-            "alpha_s": "dB/km",
-            "alpha_w": "dB/km",
-            "signal_to_noise_ratio": "",
-            "suspended_solids_concentration": "mg/L",
-        }
+            # Color limits from selected data
+            if vmin is None or vmax is None:
+                finite_vals = data_tb.compressed()
+                if finite_vals.size == 0:
+                    raise ValueError("No finite data in selected field.")
+                if vmin is None:
+                    vmin = float(np.nanmin(finite_vals))
+                if vmax is None:
+                    vmax = float(np.nanmax(finite_vals))
     
-        def pretty(s: str) -> str:
-            return s.replace("_", " ").strip().capitalize()
+            units_map = {
+                "echo_intensity": "Counts",
+                "correlation_magnitude": "Counts",
+                "percent_good": "%",
+                "absolute_backscatter": "dB",
+                "absolute backscatter": "dB",
+                "alpha_s": "dB/km",
+                "alpha_w": "dB/km",
+                "signal_to_noise_ratio": "",
+                "suspended_solids_concentration": "mg/L",
+            }
     
-        # ---------- Y axis config ----------
-        ymode = (y_axis_mode or "depth").lower()
-        if ymode == "bin":
-            # Bin 0 at TOP: normal extent then invert axis
-            y_label = "Bin distance (m)"
-            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-            do_invert = True
-            bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
-        elif ymode == "depth":
-            # Depth positive downward; invert only for down-looking heads
-            y_label = "Depth (m)"
-            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-            do_invert = bool(invert_y)
-            bt_single = np.asarray(np.abs(bt_range[:, ib]), float)
-        else:  # "z"
-            y_label = "Mean z (m)"
-            z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
-            if not np.isfinite(z_mean).any():
-                z_mean = bin_dist_m
-            y0, y1 = float(np.nanmin(z_mean)), float(np.nanmax(z_mean))
-            do_invert = bool(invert_y)
-            # Project range to z for each time
-            bt_abs = np.asarray(np.abs(bt_range[:, ib]), float)
-            bt_single = np.full(bt_abs.shape, np.nan, float)
-            for it in range(len(t_num)):
-                zi = z_rel[it, :, ib]
-                if np.all(~np.isfinite(zi)):
-                    continue
-                bt_single[it] = np.interp(bt_abs[it], bin_dist_m, zi)
+            def pretty(s: str) -> str:
+                return s.replace("_", " ").strip().capitalize()
     
-        # ---------- Layout ----------
-        fig = plt.figure(figsize=(8, 4.5))
-        gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
-        ax = fig.add_subplot(gs[0, 0])
-        ax_cbar = fig.add_subplot(gs[0, 1])
+            # ---------- Y axis config ----------
+            ymode = (y_axis_mode or "depth").lower()
+            if ymode == "bin":
+                # Bin 0 at TOP: normal extent then invert axis
+                y_label = "Bin distance (m)"
+                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+                do_invert = True
+                bt_single = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
+            elif ymode == "depth":
+                # Depth positive downward; invert only for down-looking heads
+                y_label = "Depth (m)"
+                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+                do_invert = bool(invert_y)
+                bt_single = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
+            else:  # "z"
+                y_label = "Mean z (m)"
+                if use_mean:
+                    z_mean = np.nanmean(np.nanmean(z_rel, axis=2), axis=0)  # mean over beams then time
+                else:
+                    z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
+                if not np.isfinite(z_mean).any():
+                    z_mean = bin_dist_m
+                y0, y1 = float(np.nanmin(z_mean)), float(np.nanmax(z_mean))
+                do_invert = bool(invert_y)
+                # Project range to z for each time
+                bt_abs = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
+                bt_single = np.full(bt_abs.shape, np.nan, float)
+                for it in range(len(t_num)):
+                    if use_mean:
+                        zi = np.nanmean(z_rel[it, :, :], axis=1)  # per-time, mean across beams → len=bins
+                    else:
+                        zi = z_rel[it, :, ib]
+                    if np.all(~np.isfinite(zi)):
+                        continue
+                    bt_single[it] = np.interp(bt_abs[it], bin_dist_m, zi)
     
-        fig.suptitle(str(title) if title is not None else str(self._adcp.name), fontsize=9, fontweight="bold")
+            # ---------- Layout ----------
+            fig = plt.figure(figsize=(8, 4.5))
+            gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
+            ax = fig.add_subplot(gs[0, 0])
+            ax_cbar = fig.add_subplot(gs[0, 1])
     
-        # Time ticks
-        xticks = np.linspace(t0, t1, n_time_ticks)
+            fig.suptitle(str(title) if title is not None else str(self._adcp.name), fontsize=9, fontweight="bold")
     
-        # Image
-        im = ax.matshow(
-            data_tb.T,
-            origin="lower",
-            aspect="auto",
-            extent=[t0, t1, y0, y1],
-            vmin=vmin,
-            vmax=vmax,
-            cmap=cmap,
-        )
-  
-        # Invert only when requested
-        if do_invert:
-            ax.invert_yaxis()
+            # Time ticks
+            xticks = np.linspace(t0, t1, n_time_ticks)
     
-        # Bottom track line clipped to axis y-range
-        if np.isfinite(bt_single).any():
-            bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
-            ax.plot(t_num, bt_clipped, color="k", linewidth=1)
+            # Image
+            im = ax.matshow(
+                data_tb.T,
+                origin="lower",
+                aspect="auto",
+                extent=[t0, t1, y0, y1],
+                vmin=vmin,
+                vmax=vmax,
+                cmap=cmap,
+            )
     
-        # X axis formatting
-        ax.xaxis.set_ticks_position("bottom")
-        ax.xaxis.set_label_position("bottom")
-        ax.set_xticks(xticks)
+            # Invert only when requested
+            if do_invert:
+                ax.invert_yaxis()
     
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks) - 1) else dt.strftime("%H:%M:%S"))
-        ax.set_xticklabels(lbls)
-        ax.set_xlabel("Time", fontsize=8)
+            # Bottom track line clipped to axis y-range
+            if np.isfinite(bt_single).any():
+                bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
+                ax.plot(t_num, bt_clipped, color="k", linewidth=1)
     
-        # Y label and beam tag
-        ax.set_ylabel(y_label, fontsize=8)
-        ax.text(
-            0.01,
-            0.02,
-            f"Beam {ib + 1}",
-            transform=ax.transAxes,
-            ha="left",
-            va="bottom",
-            fontsize=7,
-            bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9),
-        )
+            # X axis formatting
+            ax.xaxis.set_ticks_position("bottom")
+            ax.xaxis.set_label_position("bottom")
+            ax.set_xticks(xticks)
     
-        # Top distance axis aligned to time ticks
-        dist = np.asarray(self._adcp.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
-        dist_ticks = dist[idx]
-        ax_top = ax.twiny()
-        ax_top.set_xlim(t0, t1)
-        ax_top.set_xticks(xticks)
-        ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
-        ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
-        ax_top.tick_params(axis="x", labelsize=8)
+            lbls = []
+            for i, x in enumerate(xticks):
+                dt = mdates.num2date(x)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks) - 1) else dt.strftime("%H:%M:%S"))
+            ax.set_xticklabels(lbls)
+            ax.set_xlabel("Time", fontsize=8)
     
-        # Colorbar
-        cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
-        cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
-        cbar.set_label(cblabel, fontsize=8)
-        cbar.ax.tick_params(labelsize=8)
+            # Y label and beam tag
+            ax.set_ylabel(y_label, fontsize=8)
+            beam_tag = ("Beam mean" if use_mean else f"Beam {ib + 1}")
+            ax.text(
+                0.01,
+                0.02,
+                beam_tag,
+                transform=ax.transAxes,
+                ha="left",
+                va="bottom",
+                fontsize=7,
+                bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9),
+            )
     
-        plt.tight_layout(rect=[0, 0, 1, 0.93])
-        plt.show()
-        return fig, (ax, ax_cbar)
+            # Top distance axis aligned to time ticks
+            dist = np.asarray(self._adcp.position.distance, dtype=float)
+            idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+            dist_ticks = dist[idx]
+            ax_top = ax.twiny()
+            ax_top.set_xlim(t0, t1)
+            ax_top.set_xticks(xticks)
+            ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
+            ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
+            ax_top.tick_params(axis="x", labelsize=8)
+    
+            # Colorbar
+            cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
+            cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
+            cbar.set_label(cblabel, fontsize=8)
+            cbar.ax.tick_params(labelsize=8)
+    
+            plt.tight_layout(rect=[0, 0, 1, 0.93])
+            plt.show()
+            return fig, (ax, ax_cbar)
+
+
+
+
+
+
 
     
     def four_beam_flood_plot(
@@ -2882,4 +2947,98 @@ class Plotting:
             plt.tight_layout(rect=[0, 0, 1, 0.93])
             return fig, (ax, ax_cbar)
 
+    def transect_velocities(self,
+                            bin_sel=15,
+                            every_n=1,
+                            scale=0.04,
+                            title=None,
+                            shared_cmap='viridis',
+                            shared_vmin=None,
+                            shared_vmax=None,
+                            line_width=2.5,
+                            line_alpha=0.9,
+                            hist_bins=20,
+                            figsize=(5, 5)):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.collections import LineCollection
+        from matplotlib.colors import Normalize
+    
+        cmap = plt.cm.get_cmap(shared_cmap) if isinstance(shared_cmap, str) else shared_cmap
+    
+        u,v,z,ev,spd,dirn = self._adcp.get_velocity_data(coord_sys = 'earth', mask = True)
+        
+        x = np.asarray(self._adcp.position.x_local_m).ravel()
+        y = np.asarray(self._adcp.position.y_local_m).ravel()
+    
+        if isinstance(bin_sel, (int, np.integer)):
+            bni = int(bin_sel) - 1
+            u_b = np.asarray(u[:, bni]).ravel()
+            v_b = np.asarray(v[:, bni]).ravel()
+        elif str(bin_sel).lower() in {"mean", "avg"}:
+            u_b = np.nanmean(u, axis=1).ravel()
+            v_b = np.nanmean(v, axis=1).ravel()
+        else:
+            raise ValueError("bin_sel must be 'mean' or 1..n_bins")
+    
+        n = min(x.size, y.size, u_b.size, v_b.size)
+        x, y, u_b, v_b = x[:n], y[:n], u_b[:n], v_b[:n]
+
+        X, Y, U, V = x, y, u_b, v_b
+        SPD = np.hypot(U, V)
+    
+        fig, ax = plt.subplots(figsize=figsize)
+        norm = Normalize(shared_vmin if shared_vmin is not None else np.nanmin(SPD),
+                         shared_vmax if shared_vmax is not None else np.nanmax(SPD))
+    
+        pts = np.column_stack([X, Y])
+        segs = np.stack([pts[:-1], pts[1:]], axis=1)
+        lc = LineCollection(segs, cmap=cmap, norm=norm, linewidths=line_width, alpha=line_alpha)
+        lc.set_array(SPD[:-1])
+        ax.add_collection(lc)
+    
+        ax.quiver(X, Y, U, V, SPD, cmap=cmap, norm=norm,
+                  angles='xy', scale_units='xy', scale=scale,
+                  width=0.002, headwidth=3, headlength=4, pivot='tail')
+    
+        cb = fig.colorbar(lc, ax=ax, pad=0.02, aspect=20, location='right')
+        cb.set_label('speed (m/s)')
+    
+        ax.set_aspect('equal', adjustable='datalim')
+        ax.set_xlabel('X (m)')
+        ax.set_ylabel('Y (m)')
+        ax.set_title(title or f"{getattr(self._adcp, 'name', 'ADCP')} — Feather plot, bin {bin_sel}")
+        ax.grid(True, alpha=0.3)
+    
+        xmin, xmax = np.nanmin(X), np.nanmax(X)
+        ymin, ymax = np.nanmin(Y), np.nanmax(Y)
+        wx, wy = 0.30 * (xmax - xmin), 0.30 * (ymax - ymin)
+    
+        counts = {
+            'bl': np.count_nonzero((X >= xmin) & (X <= xmin + wx) & (Y >= ymin) & (Y <= ymin + wy)),
+            'br': np.count_nonzero((X >= xmax - wx) & (X <= xmax) & (Y >= ymin) & (Y <= ymin + wy)),
+            'tl': np.count_nonzero((X >= xmin) & (X <= xmin + wx) & (Y >= ymax - wy) & (Y <= ymax)),
+            'tr': np.count_nonzero((X >= xmax - wx) & (X <= xmax) & (Y >= ymax - wy) & (Y <= ymax))
+        }
+        corner = min(counts, key=counts.get)
+    
+        rect = [0.0, 0.0, 0.40, 0.18]
+        corner_map = {
+            'bl': [0.05, 0.08, rect[2], rect[3]],
+            'br': [0.55, 0.08, rect[2], rect[3]],
+            'tl': [0.05, 0.68, rect[2], rect[3]],
+            'tr': [0.55, 0.68, rect[2], rect[3]]
+        }
+        axin = ax.inset_axes(corner_map[corner], transform=ax.transAxes)
+        axin.hist(SPD, bins=hist_bins, color='black', edgecolor='white', linewidth=0.3)
+        axin.set_xlabel('Speed (m/s)', fontsize=6, labelpad=2)
+        axin.tick_params(axis='y', left=False, right=False, labelleft=False)
+        axin.tick_params(axis='x', bottom=True, top=False, labelbottom=True, labelsize=5)
+        axin.spines['top'].set_visible(False)
+        axin.spines['right'].set_visible(False)
+        axin.spines['left'].set_visible(False)
+        axin.patch.set_alpha(0.0)
+    
+        plt.show()
+        return fig, ax
     
