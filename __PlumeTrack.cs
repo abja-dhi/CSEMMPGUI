@@ -104,10 +104,15 @@ namespace CSEMMPGUI_v1
                 if (result == DialogResult.Yes)
                 {
                     Save(); // Save the current project
+                    this.Close();
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel, do not exit
+                }
+                else if (result == DialogResult.No)
+                {
+                    this.Close(); // Exit without saving
                 }
             }
 
@@ -115,14 +120,14 @@ namespace CSEMMPGUI_v1
 
         private void menuAddSurvey_Click(object sender, EventArgs e)
         {
-            AddSurvey addSurvey = new();
+            Survey addSurvey = new Survey(null);
             addSurvey.ShowDialog();
             FillTree(); // Refresh the tree view after adding a survey
         }
 
         private void menuAddModel_Click(object sender, EventArgs e)
         {
-            AddModel addModel = new();
+            Model addModel = new Model(null);
             addModel.ShowDialog();
             FillTree(); // Refresh the tree view after adding a model
         }
@@ -179,11 +184,24 @@ namespace CSEMMPGUI_v1
                 string newPath = Path.Combine(projectDir, $"{txtName.Text.Trim()}.mtproj");
                 if (File.Exists(currentPath))
                 {
-                    File.Move(currentPath, newPath);
+                    DialogResult result = MessageBox.Show(
+                        text: $"The project file already exists at {currentPath}. Do you want to overwrite it?",
+                        caption: "Confirm Overwrite",
+                        buttons: MessageBoxButtons.YesNo,
+                        icon: MessageBoxIcon.Warning);
+                    if (result == DialogResult.No)
+                    {
+                        return; // User chose not to overwrite, do not save
+                    }
+                    else
+                    {
+                        File.Delete(currentPath);
+                    }
                 }
             }
             _ClassConfigurationManager.SetSetting("Name", txtName.Text.Trim());
             _ClassConfigurationManager.SaveConfig(saveMode);
+            FillTree(); // Refresh the tree view after saving
             isSaved = true; // Mark the project as saved after saving
             saveMode++;
         }
@@ -252,20 +270,24 @@ namespace CSEMMPGUI_v1
                         propertiesPage.ShowDialog();
                         break;
                     case "Survey":
-                        EditSurvey editSurvey = new EditSurvey(xmlNode);
+                        Survey editSurvey = new Survey(xmlNode);
                         editSurvey.ShowDialog();
                         break;
                     case "Model":
-                        EditModel editModel = new EditModel(xmlNode);
+                        Model editModel = new Model(xmlNode);
                         editModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
-                        EditVesselMountedADCP editVesselMountedADCP = new EditVesselMountedADCP(xmlNode);
+                        VesselMountedADCP editVesselMountedADCP = new VesselMountedADCP(null, xmlNode);
                         editVesselMountedADCP.ShowDialog();
                         break;
                     case "WaterSample":
-                        EditWaterSample editWaterSample = new EditWaterSample(xmlNode);
+                        WaterSample editWaterSample = new WaterSample(null, xmlNode);
                         editWaterSample.ShowDialog();
+                        break;
+                    case "OBSVerticalProfile":
+                        OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
+                        editOBSVerticalProfile.ShowDialog();
                         break;
                 }
             }
@@ -312,6 +334,13 @@ namespace CSEMMPGUI_v1
                             _ClassConfigurationManager.DeleteNode(type: "WaterSample", id: id);
                         }
                         break;
+                    case "OBSVerticalProfile":
+                        DialogResult resultOBSVerticalProfile = MessageBox.Show($"Are you sure you want to delete the OBS vertical profile: {name}?", "Delete OBS Vertical Profile", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultOBSVerticalProfile == DialogResult.Yes)
+                        {
+                            _ClassConfigurationManager.DeleteNode(type: "OBSVerticalProfile", id: id);
+                        }
+                        break;
                 }
             }
             isSaved = false; // Mark the project as unsaved after deletion
@@ -333,20 +362,24 @@ namespace CSEMMPGUI_v1
                         propertiesPage.ShowDialog();
                         break;
                     case "Survey":
-                        EditSurvey editSurvey = new EditSurvey(xmlNode);
+                        Survey editSurvey = new Survey(xmlNode);
                         editSurvey.ShowDialog();
                         break;
                     case "Model":
-                        EditModel editModel = new EditModel(xmlNode);
+                        Model editModel = new Model(xmlNode);
                         editModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
-                        EditVesselMountedADCP editVesselMountedADCP = new EditVesselMountedADCP(xmlNode);
+                        VesselMountedADCP editVesselMountedADCP = new VesselMountedADCP(null, xmlNode);
                         editVesselMountedADCP.ShowDialog();
                         break;
                     case "WaterSample":
-                        EditWaterSample editWaterSample = new EditWaterSample(xmlNode);
+                        WaterSample editWaterSample = new WaterSample(null, xmlNode);
                         editWaterSample.ShowDialog();
+                        break;
+                    case "OBSVerticalProfile":
+                        OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
+                        editOBSVerticalProfile.ShowDialog();
                         break;
                 }
             }
@@ -388,8 +421,19 @@ namespace CSEMMPGUI_v1
                         MessageBox.Show($"Opening water sample: {name}", "Open Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         // Implement water sample opening logic here
                         break;
+                    case "OBSVerticalProfile":
+                        MessageBox.Show($"Opening OBS vertical profile: {name}", "Open OBS Vertical Profile", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Implement OBS vertical profile opening logic here
+                        break;
                 }
             }
+        }
+
+        private void menuAddSSCModel_Click(object sender, EventArgs e)
+        {
+            AddSSCModel addSSCModel = new();
+            addSSCModel.ShowDialog();
+            FillTree(); // Refresh the tree view after adding a model
         }
     }
 }

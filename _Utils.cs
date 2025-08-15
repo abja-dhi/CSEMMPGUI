@@ -46,5 +46,18 @@ namespace CSEMMPGUI_v1
                 return columns;
             }
         }
+
+        public static string GetFullPath(string filePath)
+        {
+            if (Path.IsPathRooted(filePath))
+            {
+                return filePath;
+            }
+            else
+            {
+                string directory = _ClassConfigurationManager.GetSetting(settingName: "Directory");
+                return Path.Combine(directory, filePath);
+            }
+        }
     }
 }

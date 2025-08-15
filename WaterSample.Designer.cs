@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddWaterSample
+    partial class WaterSample
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddWaterSample));
             menu = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
@@ -199,18 +198,17 @@
             txtName.TabIndex = 4;
             txtName.TextChanged += txtName_TextChanged;
             // 
-            // AddWaterSample
+            // WaterSample
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
             Controls.Add(menu);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menu;
-            Name = "AddWaterSample";
+            Name = "WaterSample";
             Text = "WaterSample";
-            FormClosing += AddWaterSample_FormClosing;
+            FormClosing += WaterSample_FormClosing;
             menu.ResumeLayout(false);
             menu.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)gridData).EndInit();

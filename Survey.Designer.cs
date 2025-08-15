@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddSurvey
+    partial class Survey
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddSurvey));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Survey));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
@@ -188,6 +188,7 @@
             txtSurveyName.Name = "txtSurveyName";
             txtSurveyName.Size = new Size(542, 23);
             txtSurveyName.TabIndex = 1;
+            txtSurveyName.TextChanged += input_Changed;
             // 
             // lblSurveyName
             // 
@@ -238,30 +239,30 @@
             // 
             cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
             cmenuNode.Name = "cmenuNode";
-            cmenuNode.Size = new Size(181, 92);
+            cmenuNode.Size = new Size(108, 70);
             // 
             // itemOpen
             // 
             itemOpen.Name = "itemOpen";
-            itemOpen.Size = new Size(180, 22);
+            itemOpen.Size = new Size(107, 22);
             itemOpen.Text = "Open";
             itemOpen.Click += itemOpen_Click;
             // 
             // itemPlot
             // 
             itemPlot.Name = "itemPlot";
-            itemPlot.Size = new Size(180, 22);
+            itemPlot.Size = new Size(107, 22);
             itemPlot.Text = "Plot";
             itemPlot.Click += itemPlot_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
-            itemDelete.Size = new Size(180, 22);
+            itemDelete.Size = new Size(107, 22);
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
-            // AddSurvey
+            // Survey
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -271,9 +272,10 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "AddSurvey";
-            Text = "Add Survey";
-            Activated += AddSurvey_Activated;
+            Name = "Survey";
+            Text = "Survey";
+            Activated += Survey_Activated;
+            FormClosing += Survey_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             panel1.ResumeLayout(false);

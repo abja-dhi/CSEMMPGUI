@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class EditModel
+    partial class Model
     {
         /// <summary>
         /// Required designer variable.
@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditModel));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Model));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
+            menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             btnLoad = new Button();
@@ -54,22 +55,29 @@
             // 
             // menuFile
             // 
-            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
+            menuFile.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
             menuFile.Name = "menuFile";
             menuFile.Size = new Size(37, 20);
             menuFile.Text = "File";
             // 
+            // menuNew
+            // 
+            menuNew.Name = "menuNew";
+            menuNew.Size = new Size(107, 22);
+            menuNew.Text = "New...";
+            menuNew.Click += menuNew_Click;
+            // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(180, 22);
+            menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(180, 22);
+            menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -147,7 +155,7 @@
             txtModelName.TabIndex = 6;
             txtModelName.TextChanged += input_Changed;
             // 
-            // EditModel
+            // Model
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -156,9 +164,9 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "EditModel";
-            Text = "Edit Model";
-            FormClosing += EditModel_FormClosing;
+            Name = "Model";
+            Text = "Model";
+            FormClosing += Model_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableLayoutPanel1.ResumeLayout(false);
@@ -182,6 +190,7 @@
         private ToolStripMenuItem menuSave;
         private Label lblModelName;
         private TextBox txtModelName;
+        private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuExit;
     }
 }

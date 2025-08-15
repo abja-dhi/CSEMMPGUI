@@ -22,6 +22,7 @@ namespace CSEMMPGUI_v1
             _Globals.Config.AppendChild(xmlDeclaration);
             XmlElement root = _Globals.Config.CreateElement("Project");
             root.SetAttribute("type", "Project");
+            root.SetAttribute("nextid", "1");
             _Globals.Config.AppendChild(root);
 
             XmlElement settings = _Globals.Config.CreateElement("Settings");
@@ -149,26 +150,6 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        public static int NSurveys()
-        {
-            XmlNodeList? surveyNodes = _Globals.Config.DocumentElement?.SelectNodes("Survey");
-            if (surveyNodes == null)
-            {
-                return 0; // No surveys found
-            }
-            return surveyNodes.Count;
-        }
-
-        public static int NModels()
-        {
-            XmlNodeList? modelNodes = _Globals.Config.DocumentElement?.SelectNodes("Model");
-            if (modelNodes == null)
-            {
-                return 0; // No models found
-            }
-            return modelNodes.Count;
-        }
-
         public static int NObjects(string type)
         {
             XmlNodeList? objectNodes = _Globals.Config.DocumentElement?.SelectNodes(type);
@@ -196,6 +177,33 @@ namespace CSEMMPGUI_v1
             {
                 throw new InvalidOperationException($"Node of type '{type}' with id '{id}' not found.");
             }
+        }
+
+        public static int GetNextId()
+        {
+            return int.Parse(_Globals.Config.DocumentElement?.GetAttribute("nextid") ?? "1");
+        }
+
+        public static List<XmlElement> GetObjects(string type)
+        {
+            var result = new List<XmlElement>();
+            if (_Globals.Config.DocumentElement == null)
+            {
+                throw new InvalidOperationException("Configuration is not initialized.");
+            }
+            var objectNodes = _Globals.Config.DocumentElement.SelectNodes(type);
+            if (objectNodes == null)
+            {
+                return result; // No objects found
+            }
+            foreach (XmlNode node in objectNodes)
+            {
+                if (node is XmlElement element && element.GetAttribute("type") == type)
+                {
+                    result.Add(element);
+                }
+            }
+            return result;
         }
     }
 }

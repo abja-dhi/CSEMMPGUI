@@ -7,36 +7,61 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DHI.Generic.MikeZero;
-using DHI.Generic.MikeZero.DFS;
-using DHI.Generic.MikeZero.DFS.dfsu;
-using DHI.Generic.MikeZero.DFS.dfs123;
-using DHI.Generic.MikeZero.DFS.mesh;
 using System.Xml;
 
 namespace CSEMMPGUI_v1
 {
-    public partial class AddModel : Form
+    public partial class Model : Form
     {
+
         public bool isSaved;
-        public XmlElement modelElement;
+        public XmlElement? modelElement;
+        public int mode;
 
         private void InitializeModel()
         {
-            int NModels = _ClassConfigurationManager.NModels();
-            txtModelName.Text = "Model " + (NModels + 1).ToString();
-            isSaved = true;
+            txtModelName.Text = "New Model";
+            int id = _ClassConfigurationManager.GetNextId();
             modelElement = _Globals.Config.CreateElement("Model");
             modelElement.SetAttribute("name", txtModelName.Text);
             modelElement.SetAttribute("type", "Model");
-            modelElement.SetAttribute("id", (NModels + 1).ToString());
+            modelElement.SetAttribute("id", id.ToString());
             txtFilePath.Text = string.Empty;
+            isSaved = true;
+
         }
 
-        public AddModel()
+        private void PopulateModel()
+        {
+            if (modelElement == null)
+            {
+                MessageBox.Show(text: "Invalid model node provided.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                this.Close();
+                return;
+            }
+            txtModelName.Text = modelElement.GetAttribute("name");
+            XmlNode? pathNode = modelElement.SelectSingleNode("Path");
+            txtFilePath.Text = pathNode?.InnerText ?? string.Empty;
+            isSaved = true;
+        }
+
+        public Model(XmlNode? modelNode)
         {
             InitializeComponent();
-            InitializeModel();
+            if (modelNode == null)
+            {
+                InitializeModel();
+                mode = 0; // New model mode
+                this.Text = "Add Model";
+            }
+            else
+            {
+                modelElement = modelNode as XmlElement;
+                PopulateModel();
+                menuNew.Visible = false; // Hide New menu option if editing an existing model
+                mode = 1; // Edit model mode
+                this.Text = "Edit Model";
+            }
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -50,19 +75,20 @@ namespace CSEMMPGUI_v1
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    Save();
+                    SaveModel();
+                    InitializeModel();
+                    return;
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel
                 }
             }
-            InitializeModel();
         }
 
         private void menuSave_Click(object sender, EventArgs e)
         {
-            Save();
+            SaveModel();
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -76,14 +102,40 @@ namespace CSEMMPGUI_v1
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    Save();
+                    SaveModel();
+                    this.Close();
+                    return;
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel
                 }
             }
-            this.Close(); // Close the form
+        }
+
+        private void Model_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!isSaved)
+            {
+                DialogResult result = MessageBox.Show(
+                    text: "You have unsaved changes. Do you want to save before exiting?",
+                    caption: "Confirm Exit",
+                    buttons: MessageBoxButtons.YesNoCancel,
+                    icon: MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    SaveModel();
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    e.Cancel = true; // Cancel the closing event
+                }
+            }
+        }
+
+        private void input_Changed(object sender, EventArgs e)
+        {
+            isSaved = false; // Mark as unsaved changes
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -102,45 +154,7 @@ namespace CSEMMPGUI_v1
             isSaved = false; // Mark as unsaved changes
         }
 
-        private void AddModel_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (!isSaved)
-            {
-                DialogResult result = MessageBox.Show(
-                    text: "You have unsaved changes. Do you want to save before exiting?",
-                    caption: "Confirm Exit",
-                    buttons: MessageBoxButtons.YesNoCancel,
-                    icon: MessageBoxIcon.Warning);
-                if (result == DialogResult.Yes)
-                {
-                    Save();
-                }
-                else if (result == DialogResult.Cancel)
-                {
-                    e.Cancel = true; // Cancel the closing event
-                }
-            }
-        }
-
-        private void input_Changed(object sender, EventArgs e)
-        {
-            isSaved = false; // Mark as unsaved changes
-        }
-
-        private string GetFullPath(string filePath)
-        {
-            if (Path.IsPathRooted(filePath))
-            {
-                return filePath;
-            }
-            else
-            {
-                string directory = _ClassConfigurationManager.GetSetting(settingName: "Directory");
-                return Path.Combine(directory, filePath);
-            }
-        }
-
-        private void Save()
+        private void SaveModel()
         {
             if (String.IsNullOrEmpty(txtModelName.Text))
             {
@@ -152,22 +166,41 @@ namespace CSEMMPGUI_v1
                 MessageBox.Show(text: "File path cannot be empty.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 return;
             }
-            if (!File.Exists(GetFullPath(txtFilePath.Text.Trim())))
+            if (!File.Exists(_Utils.GetFullPath(txtFilePath.Text.Trim())))
             {
                 MessageBox.Show(text: "File does not exist at the specified path.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 return;
             }
-            modelElement.SetAttribute("name", txtModelName.Text);
+            if (mode == 0)
+                SAVE();
+            else
+                UPDATE();
+            isSaved = true;
+        }
+
+        private void SAVE()
+        {
+            modelElement?.SetAttribute("name", txtModelName.Text);
             XmlElement path = _Globals.Config.CreateElement("Path");
-            path.InnerText = GetFullPath(txtFilePath.Text.Trim());
-            modelElement.AppendChild(path);
+            path.InnerText = _Utils.GetFullPath(txtFilePath.Text.Trim());
+            modelElement?.AppendChild(path);
             var doc = _Globals.Config.DocumentElement;
             if (doc != null)
             {
                 doc.AppendChild(modelElement);
             }
             _ClassConfigurationManager.SaveConfig(saveMode: 1);
-            isSaved = true;
+            int id = _ClassConfigurationManager.GetNextId();
+            _Globals.Config.DocumentElement.SetAttribute("nextid", (id + 1).ToString());
         }
+        
+        private void UPDATE()
+        {
+            modelElement?.SetAttribute("name", txtModelName.Text);
+            XmlNode path = modelElement.SelectSingleNode("Path");
+            path.InnerText = _Utils.GetFullPath(txtFilePath.Text.Trim());
+            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+        }
+
     }
 }

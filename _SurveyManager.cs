@@ -12,18 +12,15 @@ namespace CSEMMPGUI_v1
         public string Name { get; set; } = string.Empty; // Initialize to avoid CS8618
         public XmlElement? survey; // Make 'survey' nullable to fix CS8618
 
-        public string GetDefaultName()
-        {
-            int nSurveys = _ClassConfigurationManager.NSurveys();
-            return $"Survey {nSurveys + 1}";
-        }
-        
         public void Initialize()
         {
             survey = _Globals.Config.CreateElement("Survey");
             survey.SetAttribute("type", "Survey");
-            survey.SetAttribute("name", GetDefaultName());
-            survey.SetAttribute("id", (_ClassConfigurationManager.NSurveys()+1).ToString());
+            survey.SetAttribute("name", "New Survey");
+            survey.SetAttribute("id", _ClassConfigurationManager.GetNextId().ToString());
+            int nextId = _ClassConfigurationManager.GetNextId();
+            _Globals.Config.DocumentElement?.SetAttribute("nextid", (nextId + 1).ToString());
+            _ClassConfigurationManager.SaveConfig(saveMode: 2);
         }
 
         public string GetAttribute(string attribute)
@@ -70,6 +67,8 @@ namespace CSEMMPGUI_v1
                 _Globals.Config.DocumentElement?.AppendChild(survey);
             }
             _ClassConfigurationManager.SaveConfig(saveMode: 2);
+            int nextId = _ClassConfigurationManager.GetNextId();
+            _Globals.Config.DocumentElement?.SetAttribute("nextid", (nextId+1).ToString());
         }
 
         public int NInstrument(string type)

@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class EditOBSVerticalProfile
+    partial class OBSVerticalProfile
     {
         /// <summary>
         /// Required designer variable.
@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditOBSVerticalProfile));
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
+            menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             tblMain = new TableLayoutPanel();
@@ -47,6 +47,8 @@
             lblNTU = new Label();
             comboDateTime = new ComboBox();
             comboNTU = new ComboBox();
+            lblNTU2SSCModel = new Label();
+            comboNTU2SSCModel = new ComboBox();
             tblMasking = new TableLayoutPanel();
             tblNTUMasking = new TableLayoutPanel();
             checkMaskingNTU = new CheckBox();
@@ -87,10 +89,17 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuSave, menuExit });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuSave, menuExit });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
+            // 
+            // menuNew
+            // 
+            menuNew.Name = "menuNew";
+            menuNew.Size = new Size(98, 22);
+            menuNew.Text = "New";
+            menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
@@ -205,6 +214,8 @@
             tblColumnInfo.Controls.Add(lblNTU, 0, 2);
             tblColumnInfo.Controls.Add(comboDateTime, 1, 0);
             tblColumnInfo.Controls.Add(comboNTU, 1, 2);
+            tblColumnInfo.Controls.Add(lblNTU2SSCModel, 0, 3);
+            tblColumnInfo.Controls.Add(comboNTU2SSCModel, 1, 3);
             tblColumnInfo.Dock = DockStyle.Fill;
             tblColumnInfo.Enabled = false;
             tblColumnInfo.Location = new Point(3, 62);
@@ -221,6 +232,7 @@
             // comboDepth
             // 
             comboDepth.Dock = DockStyle.Fill;
+            comboDepth.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDepth.FormattingEnabled = true;
             comboDepth.Location = new Point(240, 43);
             comboDepth.Name = "comboDepth";
@@ -264,6 +276,7 @@
             // comboDateTime
             // 
             comboDateTime.Dock = DockStyle.Fill;
+            comboDateTime.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDateTime.FormattingEnabled = true;
             comboDateTime.Location = new Point(240, 3);
             comboDateTime.Name = "comboDateTime";
@@ -274,12 +287,36 @@
             // comboNTU
             // 
             comboNTU.Dock = DockStyle.Fill;
+            comboNTU.DropDownStyle = ComboBoxStyle.DropDownList;
             comboNTU.FormattingEnabled = true;
             comboNTU.Location = new Point(240, 83);
             comboNTU.Name = "comboNTU";
             comboNTU.Size = new Size(231, 23);
             comboNTU.TabIndex = 8;
             comboNTU.SelectedIndexChanged += input_Changed;
+            // 
+            // lblNTU2SSCModel
+            // 
+            lblNTU2SSCModel.AutoSize = true;
+            lblNTU2SSCModel.Dock = DockStyle.Fill;
+            lblNTU2SSCModel.Enabled = false;
+            lblNTU2SSCModel.Location = new Point(3, 120);
+            lblNTU2SSCModel.Name = "lblNTU2SSCModel";
+            lblNTU2SSCModel.Size = new Size(231, 40);
+            lblNTU2SSCModel.TabIndex = 9;
+            lblNTU2SSCModel.Text = "NTU to SSC Model";
+            lblNTU2SSCModel.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // comboNTU2SSCModel
+            // 
+            comboNTU2SSCModel.Dock = DockStyle.Fill;
+            comboNTU2SSCModel.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboNTU2SSCModel.Enabled = false;
+            comboNTU2SSCModel.FormattingEnabled = true;
+            comboNTU2SSCModel.Location = new Point(240, 123);
+            comboNTU2SSCModel.Name = "comboNTU2SSCModel";
+            comboNTU2SSCModel.Size = new Size(231, 23);
+            comboNTU2SSCModel.TabIndex = 10;
             // 
             // tblMasking
             // 
@@ -331,12 +368,13 @@
             checkMaskingNTU.TabIndex = 0;
             checkMaskingNTU.Text = "NTU Masking";
             checkMaskingNTU.UseVisualStyleBackColor = true;
-            checkMaskingNTU.CheckedChanged += input_Changed;
+            checkMaskingNTU.CheckedChanged += checkMaskingNTU_CheckedChanged;
             // 
             // lblMaskingMinNTU
             // 
             lblMaskingMinNTU.AutoSize = true;
             lblMaskingMinNTU.Dock = DockStyle.Fill;
+            lblMaskingMinNTU.Enabled = false;
             lblMaskingMinNTU.Location = new Point(87, 0);
             lblMaskingMinNTU.Name = "lblMaskingMinNTU";
             lblMaskingMinNTU.Size = new Size(106, 40);
@@ -348,6 +386,7 @@
             // 
             lblMaskingMaxNTU.AutoSize = true;
             lblMaskingMaxNTU.Dock = DockStyle.Fill;
+            lblMaskingMaxNTU.Enabled = false;
             lblMaskingMaxNTU.Location = new Point(199, 0);
             lblMaskingMaxNTU.Name = "lblMaskingMaxNTU";
             lblMaskingMaxNTU.Size = new Size(106, 40);
@@ -358,6 +397,7 @@
             // txtMaskingMinNTU
             // 
             txtMaskingMinNTU.Dock = DockStyle.Fill;
+            txtMaskingMinNTU.Enabled = false;
             txtMaskingMinNTU.Location = new Point(87, 43);
             txtMaskingMinNTU.Name = "txtMaskingMinNTU";
             txtMaskingMinNTU.Size = new Size(106, 23);
@@ -367,6 +407,7 @@
             // txtMaskingMaxNTU
             // 
             txtMaskingMaxNTU.Dock = DockStyle.Fill;
+            txtMaskingMaxNTU.Enabled = false;
             txtMaskingMaxNTU.Location = new Point(199, 43);
             txtMaskingMaxNTU.Name = "txtMaskingMaxNTU";
             txtMaskingMaxNTU.Size = new Size(106, 23);
@@ -404,12 +445,13 @@
             checkMaskingDepth.TabIndex = 0;
             checkMaskingDepth.Text = "Depth Masking";
             checkMaskingDepth.UseVisualStyleBackColor = true;
-            checkMaskingDepth.CheckedChanged += input_Changed;
+            checkMaskingDepth.CheckedChanged += checkMaskingDepth_CheckedChanged;
             // 
             // lblMaskingMinDepth
             // 
             lblMaskingMinDepth.AutoSize = true;
             lblMaskingMinDepth.Dock = DockStyle.Fill;
+            lblMaskingMinDepth.Enabled = false;
             lblMaskingMinDepth.Location = new Point(87, 0);
             lblMaskingMinDepth.Name = "lblMaskingMinDepth";
             lblMaskingMinDepth.Size = new Size(106, 40);
@@ -421,6 +463,7 @@
             // 
             lblMaskingMaxDepth.AutoSize = true;
             lblMaskingMaxDepth.Dock = DockStyle.Fill;
+            lblMaskingMaxDepth.Enabled = false;
             lblMaskingMaxDepth.Location = new Point(199, 0);
             lblMaskingMaxDepth.Name = "lblMaskingMaxDepth";
             lblMaskingMaxDepth.Size = new Size(106, 40);
@@ -431,6 +474,7 @@
             // txtMaskingMinDepth
             // 
             txtMaskingMinDepth.Dock = DockStyle.Fill;
+            txtMaskingMinDepth.Enabled = false;
             txtMaskingMinDepth.Location = new Point(87, 43);
             txtMaskingMinDepth.Name = "txtMaskingMinDepth";
             txtMaskingMinDepth.Size = new Size(106, 23);
@@ -440,6 +484,7 @@
             // txtMaskingMaxDepth
             // 
             txtMaskingMaxDepth.Dock = DockStyle.Fill;
+            txtMaskingMaxDepth.Enabled = false;
             txtMaskingMaxDepth.Location = new Point(199, 43);
             txtMaskingMaxDepth.Name = "txtMaskingMaxDepth";
             txtMaskingMaxDepth.Size = new Size(106, 23);
@@ -477,12 +522,13 @@
             checkMaskingDateTime.TabIndex = 0;
             checkMaskingDateTime.Text = "DateTime Masking";
             checkMaskingDateTime.UseVisualStyleBackColor = true;
-            checkMaskingDateTime.CheckedChanged += input_Changed;
+            checkMaskingDateTime.CheckedChanged += checkMaskingDateTime_CheckedChanged;
             // 
             // lblMaskingStartDateTime
             // 
             lblMaskingStartDateTime.AutoSize = true;
             lblMaskingStartDateTime.Dock = DockStyle.Fill;
+            lblMaskingStartDateTime.Enabled = false;
             lblMaskingStartDateTime.Location = new Point(87, 0);
             lblMaskingStartDateTime.Name = "lblMaskingStartDateTime";
             lblMaskingStartDateTime.Size = new Size(106, 40);
@@ -494,6 +540,7 @@
             // 
             lblMaskingEndDateTime.AutoSize = true;
             lblMaskingEndDateTime.Dock = DockStyle.Fill;
+            lblMaskingEndDateTime.Enabled = false;
             lblMaskingEndDateTime.Location = new Point(199, 0);
             lblMaskingEndDateTime.Name = "lblMaskingEndDateTime";
             lblMaskingEndDateTime.Size = new Size(106, 40);
@@ -504,6 +551,7 @@
             // txtMaskingStartDateTime
             // 
             txtMaskingStartDateTime.Dock = DockStyle.Fill;
+            txtMaskingStartDateTime.Enabled = false;
             txtMaskingStartDateTime.Location = new Point(87, 43);
             txtMaskingStartDateTime.Name = "txtMaskingStartDateTime";
             txtMaskingStartDateTime.Size = new Size(106, 23);
@@ -513,24 +561,24 @@
             // txtMaskingEndDateTime
             // 
             txtMaskingEndDateTime.Dock = DockStyle.Fill;
+            txtMaskingEndDateTime.Enabled = false;
             txtMaskingEndDateTime.Location = new Point(199, 43);
             txtMaskingEndDateTime.Name = "txtMaskingEndDateTime";
             txtMaskingEndDateTime.Size = new Size(106, 23);
             txtMaskingEndDateTime.TabIndex = 4;
             txtMaskingEndDateTime.TextChanged += input_Changed;
             // 
-            // EditOBSVerticalProfile
+            // OBSVerticalProfile
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 289);
             Controls.Add(tblMain);
             Controls.Add(menuStrip1);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "EditOBSVerticalProfile";
-            Text = "Edit OBS Vertical Profile";
-            FormClosing += AddOBSVerticalProfile_FormClosing;
+            Name = "OBSVerticalProfile";
+            Text = "OBS Vertical Profile";
+            FormClosing += OBSVerticalProfile_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tblMain.ResumeLayout(false);
@@ -574,6 +622,7 @@
         private Label lblMaskingStartDateTime;
         private Label lblMaskingEndDateTime;
         private ComboBox comboDateTime;
+        private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuSave;
         private ToolStripMenuItem menuExit;
         private Label lblName;
@@ -588,5 +637,7 @@
         private TextBox txtMaskingMaxDepth;
         private TextBox txtMaskingStartDateTime;
         private TextBox txtMaskingEndDateTime;
+        private Label lblNTU2SSCModel;
+        private ComboBox comboNTU2SSCModel;
     }
 }
