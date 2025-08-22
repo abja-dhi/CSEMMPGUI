@@ -16,8 +16,10 @@ namespace CSEMMPGUI_v1
         public bool isSaved;
         public XmlElement ntu2sscElement;
         public XmlElement bks2sscElement;
+        public int mode;
+        public _ClassConfigurationManager _project = new();
         public bool _updatingChecks;
-
+        
         private void FillTrees()
         {
             treeNTU2SSC.Nodes.Clear();
@@ -62,9 +64,9 @@ namespace CSEMMPGUI_v1
             treeBKS2SSC.ExpandAll();
         }
 
-        private void InitializeModels()
+        private void InitializeSSC()
         {
-            int id = _ClassConfigurationManager.GetNextId();
+            int id = _project.GetNextId();
             txtModelName.Text = "New SSC Model";
             isSaved = true;
             ntu2sscElement = _Globals.Config.CreateElement("NTU2SSC");
@@ -82,13 +84,30 @@ namespace CSEMMPGUI_v1
             comboModels.SelectedIndex = 0;
         }
 
-        public AddSSCModel()
+        private void PopulateSSC(XmlElement? element)
+        {
+
+        }
+
+        public AddSSCModel(XmlNode? sscNode)
         {
             InitializeComponent();
-            InitializeModels();
+            if (sscNode == null)
+            {
+                InitializeSSC();
+                mode = 0; // New model mode
+                this.Text = "Add SSC Model";
+            }
+            else
+            {
+                XmlElement? element = sscNode as XmlElement;
+                PopulateSSC(element);
+                menuNew.Visible = false;
+                mode = 1; // Edit model mode
+                this.Text = "Edit SSC Model";
+            }
             treeNTU2SSC.CheckBoxes = true;
             treeBKS2SSC.CheckBoxes = true;
-
             treeNTU2SSC.AfterCheck += Tree_AfterCheck;
             treeBKS2SSC.AfterCheck += Tree_AfterCheck;
         }
@@ -190,7 +209,7 @@ namespace CSEMMPGUI_v1
                     return; // User chose to cancel
                 }
             }
-            InitializeModels();
+            InitializeSSC();
         }
 
         private void menuSave_Click(object sender, EventArgs e)
@@ -219,7 +238,7 @@ namespace CSEMMPGUI_v1
             this.Close(); // Close the form
         }
 
-        private void AddSSCModel_FormClosing(object sender, FormClosingEventArgs e)
+        private void SSCModel_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!isSaved)
             {
@@ -269,8 +288,8 @@ namespace CSEMMPGUI_v1
                     doc.AppendChild(bks2sscElement);
                 }
             }
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
-            int nextId = _ClassConfigurationManager.GetNextId();
+            _project.SaveConfig(saveMode: 1);
+            int nextId = _project.GetNextId();
             _Globals.Config.DocumentElement?.SetAttribute("nextId", (nextId+1).ToString());
             isSaved = true;
         }

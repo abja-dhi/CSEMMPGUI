@@ -15,13 +15,14 @@ namespace CSEMMPGUI_v1
 {
     public partial class WaterSample : Form
     {
-        
+
         public _SurveyManager? surveyManager;
         public XmlDocument? project;
-        public int id; 
+        public int id;
         XmlElement? waterSampleElement;
         public bool isSaved;
         int mode; // 0 = new, 1 = edit
+        _ClassConfigurationManager _project = new();
 
         private const string COL_SAMPLE = "colSampleName";
         private const string COL_DATETIME = "colDateTime";
@@ -54,14 +55,13 @@ namespace CSEMMPGUI_v1
                 "d MMM, yyyy HH:mm:ss"
             };
 
-
         private void InitializeWaterSample()
         {
             if (surveyManager.survey == null)
             {
                 throw new Exception("SurveyManager.survey is null. Cannot create instrument element.");
             }
-            id = _ClassConfigurationManager.GetNextId();
+            id = _project.GetNextId();
             txtName.Text = "New WaterSample";
             gridData.Rows.Clear();
             waterSampleElement = surveyManager.survey.OwnerDocument.CreateElement("WaterSample");
@@ -117,9 +117,13 @@ namespace CSEMMPGUI_v1
                 waterSampleElement = waterSampleNode as XmlElement;
                 PopulateWaterSample();
                 menuNew.Visible = false;
+                menuUtilities.Visible = false;
                 mode = 1;
                 this.Text = "Edit Water Sample";
             }
+
+            this.KeyPreview = true; // Enable form to capture key events
+            this.KeyDown += WaterSample_KeyDown; // Attach key down event handler
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -143,6 +147,14 @@ namespace CSEMMPGUI_v1
                 {
                     return; // User chose to cancel, do not create a new instrument
                 }
+                else if (result == DialogResult.No)
+                {
+                    InitializeWaterSample(); // Reinitialize the form for a new instrument
+                }
+            }
+            else
+            {
+                InitializeWaterSample(); // Reinitialize the form for a new instrument
             }
         }
 
@@ -175,6 +187,14 @@ namespace CSEMMPGUI_v1
                 {
                     return;
                 }
+                else if (result == DialogResult.No)
+                {
+                    this.Close();
+                }
+            }
+            else
+            {
+                this.Close(); // Close the form if no unsaved changes
             }
         }
 
@@ -208,6 +228,126 @@ namespace CSEMMPGUI_v1
         private void gridData_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             isSaved = false; // Mark as unsaved when any input changes
+        }
+
+        private void menuViSeaSample2CSV_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "ViSea Sample Data (*.txt;*.csv)|*.txt;*.csv";
+            ofd.Title = "Select ViSea Sample Data File";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                var input = new Dictionary<string, string>
+                {
+                    {"Task", "ViSeaSample2CSV" },
+                    {"Path", _Utils.GetFullPath(ofd.FileName) }
+                };
+                string xmlInput = _Tools.GenerateInput(input);
+                XmlDocument doc = _Tools.CallPython(xmlInput);
+                Dictionary<string, string> output = _Tools.ParseOutput(doc);
+                if (output.ContainsKey("Error"))
+                {
+                    MessageBox.Show(output["Error"], "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("CSV file created successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void menuImportCSV_Click(object sender, EventArgs e)
+        {
+            string[] columns = Array.Empty<string>();
+            string[] items = new string[] { "Sample", "DateTime", "Depth", "SSC", "Notes" };
+            bool[] status = new bool[] { true, true, true, true, false }; // Notes is optional
+            int[] selectedColumns = new int[items.Length];
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Water Sample Data (*.csv;*.txt)|*.csv;*.txt";
+            openFileDialog.Title = "Select a Water Sample Data";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
+                int nLines = File.ReadAllLines(filePath).Length;
+                UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
+                if (csvOptions.ShowDialog() == DialogResult.OK)
+                {
+                    int headerLines = csvOptions._headerLine;
+                    string delimiter = csvOptions._delimiter;
+                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLines);
+                    if (columns.Length > 0)
+                    {
+                        UtilsCSVColumnSelector columnSelector = new UtilsCSVColumnSelector(columns, items, status);
+                        
+                        if (columnSelector.ShowDialog() == DialogResult.OK)
+                        {
+                            string SelectedColumns = string.Join(",", columnSelector._selectedColumns);
+                            var input = new Dictionary<string, string>
+                            {
+                                {"Task", "ReadCSV" },
+                                {"Root", "WaterSample" },
+                                {"SubElement", "Sample" },
+                                {"Path", _Utils.GetFullPath(filePath) },
+                                {"Header", headerLines.ToString() },
+                                {"Sep", delimiter },
+                                {"Items", string.Join(",", items) },
+                                {"Columns", SelectedColumns }
+                            };
+                            string xmlInput = _Tools.GenerateInput(input);
+                            XmlDocument doc = _Tools.CallPython(xmlInput);
+                            Dictionary<string, string> output = _Tools.ParseOutput(doc);
+                            if (output.ContainsKey("Error"))
+                            {
+                                MessageBox.Show(output["Error"], "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            XmlDocument? csvData = new XmlDocument();
+                            csvData.LoadXml(output["Result"]);
+                            waterSampleElement.SetAttribute("type", "WaterSample");
+                            waterSampleElement.SetAttribute("name", Path.GetFileNameWithoutExtension(filePath));
+                            while (waterSampleElement.HasChildNodes && waterSampleElement.FirstChild != null)
+                            {
+                                waterSampleElement.RemoveChild(waterSampleElement.FirstChild);
+                            }
+                            foreach (XmlNode node in csvData.DocumentElement.ChildNodes)
+                            {
+                                if (node is XmlElement sampleElement && node.Name == "Sample")
+                                {
+                                    XmlElement newSample = surveyManager.survey.OwnerDocument.CreateElement("Sample");
+                                    newSample.SetAttribute("Sample", sampleElement.GetAttribute("Sample"));
+                                    newSample.SetAttribute("DateTime", sampleElement.GetAttribute("DateTime"));
+                                    newSample.SetAttribute("Depth", sampleElement.GetAttribute("Depth"));
+                                    //newSample.SetAttribute("X", sampleElement.GetAttribute("X"));
+                                    //newSample.SetAttribute("Y", sampleElement.GetAttribute("Y"));
+                                    newSample.SetAttribute("SSC", sampleElement.GetAttribute("SSC"));
+                                    newSample.SetAttribute("Notes", sampleElement.GetAttribute("Notes"));
+                                    waterSampleElement.AppendChild(newSample);
+                                }
+                            }
+                            PopulateWaterSample();
+                            isSaved = false; // Mark as unsaved after import
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No valid columns found in the CSV file.", "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    return; // User cancelled the CSV options dialog
+                }
+            }
+            else
+            {
+                return; // User cancelled the file dialog
+            }
         }
 
         private void NumericOnly_KeyPress(object? sender, KeyPressEventArgs e)
@@ -248,7 +388,7 @@ namespace CSEMMPGUI_v1
             //if (colName == COL_X || colName == COL_Y || colName == COL_DEPTH || colName == COL_SSC)
             if (colName == COL_DEPTH || colName == COL_SSC)
             {
-                    tb.KeyPress += NumericOnly_KeyPress;
+                tb.KeyPress += NumericOnly_KeyPress;
             }
         }
 
@@ -424,7 +564,7 @@ namespace CSEMMPGUI_v1
             }
             surveyManager.survey.AppendChild(waterSampleElement);
             surveyManager.SaveSurvey(name: surveyManager.GetAttribute(attribute: "name"));
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SaveConfig(saveMode: 1);
         }
 
         private void UPDATE()
@@ -457,7 +597,26 @@ namespace CSEMMPGUI_v1
                 sampleNode.SetAttribute("Notes", notes);
                 waterSampleElement.AppendChild(sampleNode);
             }
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SaveConfig(saveMode: 1);
         }
+
+        private void WaterSample_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            {
+                e.SuppressKeyPress = true; // Prevent default behavior
+                SaveWaterSample(); // Save the project
+            }
+            else if (e.Control && e.KeyCode == Keys.N) // Ctrl + N
+            {
+                if (mode == 0)
+                {
+                    e.SuppressKeyPress = true; // Prevent default behavior
+                    menuNew_Click(sender, e); // Create a new project
+                }
+            }
+        }
+
+        
     }
 }

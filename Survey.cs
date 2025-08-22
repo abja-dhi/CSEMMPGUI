@@ -17,6 +17,7 @@ namespace CSEMMPGUI_v1
         public bool isSaved;
         public _SurveyManager surveyManager;
         public int mode;
+        public _ClassConfigurationManager _project = new();
 
         private void AddChildNodes(XmlNode xmlNode, TreeNode treeNode)
         {
@@ -51,8 +52,6 @@ namespace CSEMMPGUI_v1
                 treeSurvey.ExpandAll(); // Expand all nodes for better visibility
             }
         }
-
-
 
         private void InitializeSurvey()
         {
@@ -89,6 +88,9 @@ namespace CSEMMPGUI_v1
                 mode = 1; // Edit survey mode
                 this.Text = "Edit Survey";
             }
+
+            this.KeyPreview = true; // Enable form to capture key events
+            this.KeyDown += Survey_KeyDown; // Attach key down event handler
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -102,7 +104,9 @@ namespace CSEMMPGUI_v1
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    surveyManager.SaveSurvey(name: txtSurveyName.Text);
+                    int status = Save();
+                    if (status == 0)
+                        return; // If saving failed, do not create a new survey
                     surveyManager.Initialize();
                     isSaved = true; // Mark as saved after saving
                 }
@@ -110,12 +114,22 @@ namespace CSEMMPGUI_v1
                 {
                     return; // User chose to cancel, do not create a new survey
                 }
+                else
+                {
+                    surveyManager.Initialize(); // Reset survey manager without saving
+                    isSaved = true; // Mark as saved after initializing
+                }
+            }
+            else
+            {
+                InitializeSurvey();
+                isSaved = true; // Mark as saved after initializing
             }
         }
 
         private void menuSave_Click(object sender, EventArgs e)
         {
-            surveyManager.SaveSurvey(name: txtSurveyName.Text);
+            int status = Save();
             FillTree();
             isSaved = true;
         }
@@ -131,13 +145,23 @@ namespace CSEMMPGUI_v1
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    surveyManager.SaveSurvey(name: txtSurveyName.Text);
+                    int status = Save();
+                    if (status == 0)
+                        return; // If saving failed, do not close the survey form
                     this.Close();
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel, do not create a new survey
                 }
+                else
+                {
+                    this.Close(); // Close the survey form without saving
+                }
+            }
+            else
+            {
+                this.Close(); // Close the survey form if there are no unsaved changes
             }
         }
 
@@ -152,7 +176,12 @@ namespace CSEMMPGUI_v1
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    surveyManager.SaveSurvey(name: txtSurveyName.Text);
+                    int status = Save();
+                    if (status == 0)
+                    {
+                        e.Cancel = true; // Cancel the closing event if saving failed
+                        return; // Do not close the form
+                    }
                     isSaved = true; // Mark as saved after saving
                 }
                 else if (result == DialogResult.Cancel)
@@ -317,27 +346,70 @@ namespace CSEMMPGUI_v1
                         DialogResult resultVesselMountedADCP = MessageBox.Show($"Are you sure you want to delete the vessel-mounted ADCP: {name}?", "Delete Vessel Mounted ADCP", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                         if (resultVesselMountedADCP == DialogResult.Yes)
                         {
-                            _ClassConfigurationManager.DeleteNode(type: "VesselMountedADCP", id: id);
+                            _project.DeleteNode(type: "VesselMountedADCP", id: id);
                         }
                         break;
                     case "WaterSample":
                         DialogResult resultWaterSample = MessageBox.Show($"Are you sure you want to delete the water sample: {name}?", "Delete Water Sample", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                         if (resultWaterSample == DialogResult.Yes)
                         {
-                            _ClassConfigurationManager.DeleteNode(type: "WaterSample", id: id);
+                            _project.DeleteNode(type: "WaterSample", id: id);
                         }
                         break;
                     case "OBSVerticalProfile":
                         DialogResult resultOBSVerticalProfile = MessageBox.Show($"Are you sure you want to delete the OBS vertical profile: {name}?", "Delete OBS Vertical Profile", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                         if (resultOBSVerticalProfile == DialogResult.Yes)
                         {
-                            _ClassConfigurationManager.DeleteNode(type: "OBSVerticalProfile", id: id);
+                            _project.DeleteNode(type: "OBSVerticalProfile", id: id);
                         }
                         break;
                 }
             }
             FillTree();
             isSaved = false; // Mark the project as unsaved after deletion
+        }
+
+        private int Save()
+        {
+            try
+            {
+                string name = txtSurveyName.Text.Trim();
+                double waterDensity = double.TryParse(txtDensity.Text, out double density) ? density : 1023.0; // Default to 1023.0 if parsing fails
+                double waterSalinity = double.TryParse(txtSalinity.Text, out double salinity) ? salinity : 32.0; // Default to 32.0 if parsing fails
+                double waterTemperature = double.TryParse(txtTemperature.Text, out double temperature) ? temperature : 10.0; // Default to 10.0 if parsing fails
+                double waterPH = double.TryParse(txtPH.Text, out double pH) ? pH : 8.1; // Default to 8.1 if parsing fails
+                double sedimentDiameter = double.TryParse(txtSedimentDiameter.Text, out double diameter) ? diameter : 2.5e-4; // Default to 2.5e-4 if parsing fails
+                double sedimentDensity = double.TryParse(txtSedimentDensity.Text, out double densitySediment) ? densitySediment : 2650.0; // Default to 2650.0 if parsing fails
+                surveyManager.SaveSurvey(name: name,
+                    waterDensity: waterDensity, waterSalinity: waterSalinity, waterTemperature: waterTemperature, waterPH: waterPH,
+                    sedimentDiameter: sedimentDiameter, sedimentDensity: sedimentDensity);
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving survey: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return 0; // Return 0 to indicate failure
+            }
+
+        }
+
+        private void Survey_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            {
+                e.SuppressKeyPress = true; // Prevent default behavior
+                surveyManager.SaveSurvey(name: txtSurveyName.Text);
+                FillTree();
+                isSaved = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.N) // Ctrl + N
+            {
+                if (mode == 0)
+                {
+                    e.SuppressKeyPress = true; // Prevent default behavior
+                    menuNew_Click(sender, e); // Create a new project
+                }
+            }
         }
     }
 }

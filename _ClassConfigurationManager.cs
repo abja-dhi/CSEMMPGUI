@@ -9,13 +9,11 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace CSEMMPGUI_v1
 {
-    public static class _ClassConfigurationManager
+    public class _ClassConfigurationManager
     {
-        public static bool hasChanged = false;
-        public static bool isSaved = false;
-        public static int saveCount;
+        public bool isSaved;
 
-        public static void InitializeProject(string name)
+        public void InitializeProject()
         {
             _Globals.Config.RemoveAll();
             XmlDeclaration xmlDeclaration = _Globals.Config.CreateXmlDeclaration("1.0", "UTF-8", null);
@@ -27,7 +25,7 @@ namespace CSEMMPGUI_v1
 
             XmlElement settings = _Globals.Config.CreateElement("Settings");
             XmlNode? nodeName = _Globals.Config.CreateElement("Name");
-            nodeName.InnerText = name;
+            nodeName.InnerText = string.Empty;
             settings.AppendChild(nodeName);
             XmlNode? nodeDirectory = _Globals.Config.CreateElement("Directory");
             nodeDirectory.InnerText = string.Empty;
@@ -38,17 +36,17 @@ namespace CSEMMPGUI_v1
             XmlNode? nodeDescription = _Globals.Config.CreateElement("Description");
             nodeDescription.InnerText = "";
             settings.AppendChild(nodeDescription);
-
             root.AppendChild(settings);
+            isSaved = false;
         }
 
-        public static string GetSetting(string settingName)
+        public string GetSetting(string settingName)
         {
             XmlNode? settingNode = _Globals.Config.DocumentElement?.SelectSingleNode($"Settings/{settingName}");
             return settingNode?.InnerText ?? string.Empty;
         }
 
-        public static void SetSetting(string settingName, string value)
+        public void SetSetting(string settingName, string value)
         {
             XmlNode? settingNode = _Globals.Config.DocumentElement?.SelectSingleNode($"Settings/{settingName}");
             if (settingNode == null)
@@ -59,7 +57,7 @@ namespace CSEMMPGUI_v1
             settingNode.InnerText = value;
         }
 
-        public static string? GetProjectPath()
+        public string? GetProjectPath()
         {
             string projectDir = GetSetting(settingName: "Directory");
             if (String.IsNullOrEmpty(projectDir))
@@ -81,56 +79,29 @@ namespace CSEMMPGUI_v1
                 else
                 {
                     MessageBox.Show(text: "Project directory is not set. Please set the project directory first.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-                    return null; // User cancelled the dialog
+                    return "0"; // User cancelled the dialog
                 }
             }
             string projectName = GetSetting(settingName: "Name");
             if (String.IsNullOrEmpty(projectName))
             {
-                MessageBox.Show(text: "Project name is not set. Please set the project name first.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 return null; // Project name is not set
             }
             return System.IO.Path.Combine(projectDir, $"{projectName}.mtproj");
         }
 
-        public static void SaveConfig(int saveMode)
+        public void SaveConfig(int saveMode)
         {
-            if (_Globals.Config.DocumentElement == null)
-            {
-                InitializeProject(name: "Project");
-            }
             string? path = GetProjectPath();
-            if (String.IsNullOrEmpty(path))
+            if (String.IsNullOrEmpty(path) || path == "0")
             {
-                MessageBox.Show(text: "Project path is not set. Please set the project directory first.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 return;
             }
-            if (File.Exists(path) && saveMode == 0)
-            {
-                DialogResult result = MessageBox.Show(
-                    text: "The project file already exists. Do you want to overwrite it?",
-                    caption: "Confirm Overwrite",
-                    buttons: MessageBoxButtons.YesNo,
-                    icon: MessageBoxIcon.Warning
-                );
-                if (result == DialogResult.No)
-                {
-                    return; // User chose not to overwrite
-                }
-                else
-                {
-                    _Globals.Config.Save(path);
-                    isSaved = true;
-                    hasChanged = false;
-                }
-            }
-            else
-            {
-                _Globals.Config.Save(path);
-            }
+            _Globals.Config.Save(path);
+            isSaved = true;
         }
 
-        public static void LoadConfig(string filePath)
+        public void LoadConfig(string filePath)
         {
             if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
             {
@@ -141,8 +112,6 @@ namespace CSEMMPGUI_v1
             {
                 _Globals.Config.Load(filePath);
                 isSaved = true;
-                hasChanged = false;
-                saveCount = 0;
             }
             catch (Exception ex)
             {
@@ -150,7 +119,7 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        public static int NObjects(string type)
+        public int NObjects(string type)
         {
             XmlNodeList? objectNodes = _Globals.Config.DocumentElement?.SelectNodes(type);
             if (objectNodes == null)
@@ -160,7 +129,7 @@ namespace CSEMMPGUI_v1
             return objectNodes.Count;
         }
 
-        public static void DeleteNode(string type, string id)
+        public void DeleteNode(string type, string id)
         {
             if (_Globals.Config.DocumentElement == null)
             {
@@ -171,7 +140,7 @@ namespace CSEMMPGUI_v1
             if (nodeToDelete != null && nodeToDelete.ParentNode != null)
             {
                 nodeToDelete.ParentNode.RemoveChild(nodeToDelete);
-                hasChanged = true;
+                
             }
             else
             {
@@ -179,12 +148,12 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        public static int GetNextId()
+        public int GetNextId()
         {
             return int.Parse(_Globals.Config.DocumentElement?.GetAttribute("nextid") ?? "1");
         }
 
-        public static List<XmlElement> GetObjects(string type)
+        public List<XmlElement> GetObjects(string type)
         {
             var result = new List<XmlElement>();
             if (_Globals.Config.DocumentElement == null)

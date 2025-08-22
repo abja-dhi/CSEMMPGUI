@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UtilsCSVImportOptions));
             tableLayoutPanel1 = new TableLayoutPanel();
             rbTab = new RadioButton();
-            rbOr = new RadioButton();
+            rbWhiteSpaces = new RadioButton();
             rbSemiColon = new RadioButton();
             lblSeparator = new Label();
             rbComma = new RadioButton();
@@ -55,7 +56,7 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.9425287F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 17.2413788F));
             tableLayoutPanel1.Controls.Add(rbTab, 4, 0);
-            tableLayoutPanel1.Controls.Add(rbOr, 3, 0);
+            tableLayoutPanel1.Controls.Add(rbWhiteSpaces, 3, 0);
             tableLayoutPanel1.Controls.Add(rbSemiColon, 2, 0);
             tableLayoutPanel1.Controls.Add(lblSeparator, 0, 0);
             tableLayoutPanel1.Controls.Add(rbComma, 1, 0);
@@ -84,16 +85,16 @@
             rbTab.Text = "Tab";
             rbTab.UseVisualStyleBackColor = true;
             // 
-            // rbOr
+            // rbWhiteSpaces
             // 
-            rbOr.AutoSize = true;
-            rbOr.Dock = DockStyle.Fill;
-            rbOr.Location = new Point(247, 3);
-            rbOr.Name = "rbOr";
-            rbOr.Size = new Size(63, 55);
-            rbOr.TabIndex = 3;
-            rbOr.Text = "|";
-            rbOr.UseVisualStyleBackColor = true;
+            rbWhiteSpaces.AutoSize = true;
+            rbWhiteSpaces.Dock = DockStyle.Fill;
+            rbWhiteSpaces.Location = new Point(247, 3);
+            rbWhiteSpaces.Name = "rbWhiteSpaces";
+            rbWhiteSpaces.Size = new Size(63, 55);
+            rbWhiteSpaces.TabIndex = 3;
+            rbWhiteSpaces.Text = "Spaces";
+            rbWhiteSpaces.UseVisualStyleBackColor = true;
             // 
             // rbSemiColon
             // 
@@ -208,9 +209,10 @@
             BackColor = Color.White;
             ClientSize = new Size(464, 123);
             Controls.Add(tableLayoutPanel1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "UtilsCSVImportOptions";
-            Text = "CSVImportOptions";
+            Text = "CSV Import Options";
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
@@ -224,7 +226,7 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Label lblSeparator;
         private RadioButton rbTab;
-        private RadioButton rbOr;
+        private RadioButton rbWhiteSpaces;
         private RadioButton rbSemiColon;
         private RadioButton rbComma;
         private TableLayoutPanel tableLayoutPanel2;

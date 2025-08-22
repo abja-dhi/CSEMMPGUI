@@ -28,15 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ViSea_Extern));
             SuspendLayout();
             // 
             // ViSea_Extern
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(800, 450);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "ViSea_Extern";
-            Text = "ViSea_Extern";
+            Text = "ViSea Extern.dat to CSV";
             ResumeLayout(false);
         }
 

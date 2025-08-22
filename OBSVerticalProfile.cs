@@ -24,6 +24,7 @@ namespace CSEMMPGUI_v1
         int mode; // 0 = new, 1 = edit
         int _headerLine;
         string _delimiter;
+        public _ClassConfigurationManager _project = new();
 
         private void InitializeOBS()
         {
@@ -31,7 +32,7 @@ namespace CSEMMPGUI_v1
             {
                 throw new Exception("SurveyManager.survey is null. Cannot create instrument element.");
             }
-            id = _ClassConfigurationManager.GetNextId();
+            id = _project.GetNextId();
             txtName.Text = "New OBS Vertical Profile";
             txtFilePath.Text = string.Empty;
             checkMaskingDateTime.Checked = false;
@@ -46,13 +47,13 @@ namespace CSEMMPGUI_v1
             comboDateTime.Items.Clear();
             comboDepth.Items.Clear();
             comboNTU.Items.Clear();
-            comboNTU2SSCModel.Items.Clear();
+            comboSSCModel.Items.Clear();
             comboDateTime.Text = string.Empty;
             comboDepth.Text = string.Empty;
             comboNTU.Text = string.Empty;
-            comboNTU2SSCModel.Text = string.Empty;
-            lblNTU2SSCModel.Enabled = false;
-            comboNTU2SSCModel.Enabled = false;
+            comboSSCModel.Text = string.Empty;
+            lblSSCModel.Enabled = false;
+            comboSSCModel.Enabled = false;
             tblColumnInfo.Enabled = false;
             tblMasking.Enabled = false;
             // Create the instrument element
@@ -89,34 +90,40 @@ namespace CSEMMPGUI_v1
             SelectComboItem(comboDateTime, fileInfoNode?.SelectSingleNode("DateTimeColumn")?.InnerText ?? "");
             SelectComboItem(comboDepth, fileInfoNode?.SelectSingleNode("DepthColumn")?.InnerText ?? "");
             SelectComboItem(comboNTU, fileInfoNode?.SelectSingleNode("NTUColumn")?.InnerText ?? "");
-            List<XmlElement> ntu2sscModels = _ClassConfigurationManager.GetObjects("NTU2SSC");
+            List<XmlElement> ntu2sscModels = _project.GetObjects("NTU2SSC");
             if (ntu2sscModels.Count > 0)
             {
-                comboNTU2SSCModel.Items.Clear();
+                comboSSCModel.Items.Clear();
                 foreach (XmlElement model in ntu2sscModels)
                 {
-                    comboNTU2SSCModel.Items.Add(model.GetAttribute("name"));
+                    comboSSCModel.Items.Add(new
+                    {
+                        Display = model.GetAttribute("name"),
+                        Tag = model.GetAttribute("id")
+                    });
                 }
+                comboSSCModel.DisplayMember = "Display";
                 string sscModelId = fileInfoNode?.SelectSingleNode("SSCModel")?.InnerText ?? string.Empty;
                 if (!string.IsNullOrEmpty(sscModelId))
                 {
-                    for (int i = 0; i < comboNTU2SSCModel.Items.Count; i++)
+                    for (int i = 0; i < comboSSCModel.Items.Count; i++)
                     {
-                        if (ntu2sscModels[i].GetAttribute("id") == sscModelId)
+                        string itemTag = ((dynamic)comboSSCModel.Items[i]).Tag;
+                        if (itemTag == sscModelId)
                         {
-                            comboNTU2SSCModel.SelectedIndex = i;
+                            comboSSCModel.SelectedIndex = i;
                             break;
                         }
                     }
                 }
-                comboNTU2SSCModel.Enabled = true; // Enable if models are available
-                lblNTU2SSCModel.Enabled = true; // Enable label if models are available
+                comboSSCModel.Enabled = true; // Enable if models are available
+                lblSSCModel.Enabled = true; // Enable label if models are available
             }
             else
             {
-                comboNTU2SSCModel.Items.Clear();
-                comboNTU2SSCModel.Enabled = false; // Disable if no models are available
-                lblNTU2SSCModel.Enabled = false; // Disable label if no models are available
+                comboSSCModel.Items.Clear();
+                comboSSCModel.Enabled = false; // Disable if no models are available
+                lblSSCModel.Enabled = false; // Disable label if no models are available
             }
 
             XmlNode maskingNode = obsElement.SelectSingleNode("Masking");
@@ -151,9 +158,14 @@ namespace CSEMMPGUI_v1
                 obsElement = obsNode as XmlElement;
                 PopulateOBS();
                 menuNew.Visible = false;
+                tblColumnInfo.Enabled = true;
+                tblMasking.Enabled = true;
                 mode = 1;
                 this.Text = "Edit OBS Vertical Profile";
             }
+
+            this.KeyPreview = true; // Enable form to capture key events
+            this.KeyDown += OBSVerticalProfile_KeyDown; // Attach key down event handler
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -178,6 +190,14 @@ namespace CSEMMPGUI_v1
                 {
                     return; // User chose to cancel, do not create a new instrument
                 }
+                else if (result == DialogResult.No)
+                {
+                    InitializeOBS(); // Reinitialize the form for a new instrument without saving
+                }
+            }
+            else
+            {
+                InitializeOBS(); // Reinitialize the form for a new instrument if there are no unsaved changes
             }
         }
 
@@ -210,6 +230,14 @@ namespace CSEMMPGUI_v1
                 {
                     return;
                 }
+                else if (result == DialogResult.No)
+                {
+                    this.Close(); // Close the form without saving
+                }
+            }
+            else
+            {
+                this.Close(); // Close the form if there are no unsaved changes
             }
         }
 
@@ -246,6 +274,7 @@ namespace CSEMMPGUI_v1
             combo.Items.AddRange(items);
             combo.SelectedIndex = index;
         }
+        
         private void btnLoadPath_Click(object sender, EventArgs e)
         {
             string[] columns = Array.Empty<string>();
@@ -277,25 +306,33 @@ namespace CSEMMPGUI_v1
             {
                 return; // User cancelled the file dialog
             }
-            List<XmlElement> ntu2sscModels = _ClassConfigurationManager.GetObjects(type: "NTU2SSC");
-            if (ntu2sscModels.Count == 0)
+            List<XmlElement> ntu2sscModels = _project.GetObjects(type: "NTU2SSC");
+            if (ntu2sscModels.Count > 0)
+            {
+                comboSSCModel.Items.Clear();
+                foreach (XmlElement model in ntu2sscModels)
+                {
+                    comboSSCModel.Items.Add(new
+                    {
+                        Display = model.GetAttribute("name"),
+                        Tag = model.GetAttribute("id")
+                    });
+                }
+                comboSSCModel.DisplayMember = "Display";
+                comboSSCModel.Enabled = true; // Enable if models are available
+                lblSSCModel.Enabled = true; // Enable label if models are available
+                comboSSCModel.SelectedIndex = 0; // Select the first model by default
+            }
+            else
             {
                 MessageBox.Show(
                     "No NTU to SSC models found. Please add one and update the setting later",
                     Text = "Warning",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-            }
-            else
-            {
-                string[] models = new string[ntu2sscModels.Count];
-                for (int i = 0; i < ntu2sscModels.Count; i++)
-                {
-                    models[i] = ntu2sscModels[i].GetAttribute("name");
-                }
-                updateCombo(comboNTU2SSCModel, models, 0);
-                lblNTU2SSCModel.Enabled = true;
-                comboNTU2SSCModel.Enabled = true;
+                comboSSCModel.Items.Clear();
+                comboSSCModel.Enabled = false; // Disable if no models are available
+                lblSSCModel.Enabled = false; // Disable label if no models are available
             }
             txtFilePath.Text = openFileDialog.FileName;
             tblColumnInfo.Enabled = true;
@@ -427,14 +464,15 @@ namespace CSEMMPGUI_v1
             ntuColumn.InnerText = comboNTU.Text.Trim() ?? string.Empty;
             fileInfo.AppendChild(ntuColumn);
             XmlElement ntu2sscModel = project.CreateElement("SSCModel");
-            List<XmlElement> ntu2sscModels = _ClassConfigurationManager.GetObjects(type: "NTU2SSC");
+            List<XmlElement> ntu2sscModels = _project.GetObjects(type: "NTU2SSC");
             if (ntu2sscModels.Count == 0)
             {
                 ntu2sscModel.InnerText = string.Empty;
             }
             else
             {
-                string selectedId = ntu2sscModels[comboNTU2SSCModel.SelectedIndex].GetAttribute("id");
+                var selectedItem = comboSSCModel.SelectedItem;
+                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : ntu2sscModels[0].GetAttribute("id");
                 ntu2sscModel.InnerText = selectedId;
             }
             fileInfo.AppendChild(ntu2sscModel);
@@ -471,7 +509,7 @@ namespace CSEMMPGUI_v1
             
             surveyManager.survey.AppendChild(obsElement);
             surveyManager.SaveSurvey(name: surveyManager.GetAttribute(attribute: "name"));
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SaveConfig(saveMode: 1);
         }
 
         private void UPDATE()
@@ -495,7 +533,9 @@ namespace CSEMMPGUI_v1
             XmlNode? ntuColumn = fileInfo?.SelectSingleNode("NTUColumn");
             ntuColumn.InnerText = comboNTU.SelectedItem?.ToString() ?? string.Empty;
             XmlNode? sscModelNode = fileInfo?.SelectSingleNode("SSCModel");
-            sscModelNode.InnerText = comboNTU2SSCModel.SelectedItem?.ToString() ?? string.Empty;
+            var selectedItem = comboSSCModel.SelectedItem;
+            string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : string.Empty;
+            sscModelNode.InnerText = selectedId;
             XmlElement? maskingNode = obsElement.SelectSingleNode("Masking") as XmlElement;
             XmlElement maskingDateTimeNode = maskingNode.SelectSingleNode("MaskDateTime") as XmlElement;
             maskingDateTimeNode.SetAttribute("Enabled", checkMaskingDateTime.Checked.ToString().ToLower());
@@ -515,7 +555,24 @@ namespace CSEMMPGUI_v1
             minNTUNode.InnerText = txtMaskingMinNTU.Text.Trim();
             XmlNode? maxNTUNode = maskingNTUNode.SelectSingleNode("Max");
             maxNTUNode.InnerText = txtMaskingMaxNTU.Text.Trim();
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SaveConfig(saveMode: 1);
+        }
+
+        private void OBSVerticalProfile_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            {
+                e.SuppressKeyPress = true; // Prevent default behavior
+                SaveOBS(); // Save the project
+            }
+            else if (e.Control && e.KeyCode == Keys.N) // Ctrl + N
+            {
+                if (mode == 0)
+                {
+                    e.SuppressKeyPress = true; // Prevent default behavior
+                    menuNew_Click(sender, e); // Create a new project
+                }
+            }
         }
     }
 }

@@ -42,9 +42,9 @@ namespace CSEMMPGUI_v1
             {
                 _delimiter = ";";
             }
-            else if (rbOr.Checked)
+            else if (rbWhiteSpaces.Checked)
             {
-                _delimiter = "|";
+                _delimiter = "WhiteSpaces";
             }
             else if (rbTab.Checked)
             {

@@ -9,10 +9,9 @@ using System.Xml;
 namespace CSEMMPGUI_v1
 {
 
-    
-
     public static class _Utils
     {
+        public static _ClassConfigurationManager _project;
         public static string[] ParseCSVAndReturnColumns(string filePath, string separator, int headerLine)
         {
             var inputs = new Dictionary<string, string>
@@ -55,7 +54,7 @@ namespace CSEMMPGUI_v1
             }
             else
             {
-                string directory = _ClassConfigurationManager.GetSetting(settingName: "Directory");
+                string directory = _project.GetSetting(settingName: "Directory");
                 return Path.Combine(directory, filePath);
             }
         }

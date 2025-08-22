@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OBSVerticalProfile));
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
@@ -47,8 +48,8 @@
             lblNTU = new Label();
             comboDateTime = new ComboBox();
             comboNTU = new ComboBox();
-            lblNTU2SSCModel = new Label();
-            comboNTU2SSCModel = new ComboBox();
+            lblSSCModel = new Label();
+            comboSSCModel = new ComboBox();
             tblMasking = new TableLayoutPanel();
             tblNTUMasking = new TableLayoutPanel();
             checkMaskingNTU = new CheckBox();
@@ -214,8 +215,8 @@
             tblColumnInfo.Controls.Add(lblNTU, 0, 2);
             tblColumnInfo.Controls.Add(comboDateTime, 1, 0);
             tblColumnInfo.Controls.Add(comboNTU, 1, 2);
-            tblColumnInfo.Controls.Add(lblNTU2SSCModel, 0, 3);
-            tblColumnInfo.Controls.Add(comboNTU2SSCModel, 1, 3);
+            tblColumnInfo.Controls.Add(lblSSCModel, 0, 3);
+            tblColumnInfo.Controls.Add(comboSSCModel, 1, 3);
             tblColumnInfo.Dock = DockStyle.Fill;
             tblColumnInfo.Enabled = false;
             tblColumnInfo.Location = new Point(3, 62);
@@ -295,28 +296,29 @@
             comboNTU.TabIndex = 8;
             comboNTU.SelectedIndexChanged += input_Changed;
             // 
-            // lblNTU2SSCModel
+            // lblSSCModel
             // 
-            lblNTU2SSCModel.AutoSize = true;
-            lblNTU2SSCModel.Dock = DockStyle.Fill;
-            lblNTU2SSCModel.Enabled = false;
-            lblNTU2SSCModel.Location = new Point(3, 120);
-            lblNTU2SSCModel.Name = "lblNTU2SSCModel";
-            lblNTU2SSCModel.Size = new Size(231, 40);
-            lblNTU2SSCModel.TabIndex = 9;
-            lblNTU2SSCModel.Text = "NTU to SSC Model";
-            lblNTU2SSCModel.TextAlign = ContentAlignment.MiddleLeft;
+            lblSSCModel.AutoSize = true;
+            lblSSCModel.Dock = DockStyle.Fill;
+            lblSSCModel.Enabled = false;
+            lblSSCModel.Location = new Point(3, 120);
+            lblSSCModel.Name = "lblSSCModel";
+            lblSSCModel.Size = new Size(231, 40);
+            lblSSCModel.TabIndex = 9;
+            lblSSCModel.Text = "NTU to SSC Model";
+            lblSSCModel.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // comboNTU2SSCModel
+            // comboSSCModel
             // 
-            comboNTU2SSCModel.Dock = DockStyle.Fill;
-            comboNTU2SSCModel.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboNTU2SSCModel.Enabled = false;
-            comboNTU2SSCModel.FormattingEnabled = true;
-            comboNTU2SSCModel.Location = new Point(240, 123);
-            comboNTU2SSCModel.Name = "comboNTU2SSCModel";
-            comboNTU2SSCModel.Size = new Size(231, 23);
-            comboNTU2SSCModel.TabIndex = 10;
+            comboSSCModel.Dock = DockStyle.Fill;
+            comboSSCModel.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSSCModel.Enabled = false;
+            comboSSCModel.FormattingEnabled = true;
+            comboSSCModel.Location = new Point(240, 123);
+            comboSSCModel.Name = "comboSSCModel";
+            comboSSCModel.Size = new Size(231, 23);
+            comboSSCModel.TabIndex = 10;
+            comboSSCModel.SelectedIndexChanged += input_Changed;
             // 
             // tblMasking
             // 
@@ -572,9 +574,11 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(800, 289);
             Controls.Add(tblMain);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "OBSVerticalProfile";
             Text = "OBS Vertical Profile";
@@ -637,7 +641,7 @@
         private TextBox txtMaskingMaxDepth;
         private TextBox txtMaskingStartDateTime;
         private TextBox txtMaskingEndDateTime;
-        private Label lblNTU2SSCModel;
-        private ComboBox comboNTU2SSCModel;
+        private Label lblSSCModel;
+        private ComboBox comboSSCModel;
     }
 }

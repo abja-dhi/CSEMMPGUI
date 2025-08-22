@@ -29,13 +29,15 @@
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WaterSample));
             menu = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
-            utilitiesToolStripMenuItem = new ToolStripMenuItem();
-            exportToCSVToolStripMenuItem = new ToolStripMenuItem();
+            menuUtilities = new ToolStripMenuItem();
+            menuViSeaSample2CSV = new ToolStripMenuItem();
+            menuImportCSV = new ToolStripMenuItem();
             gridData = new DataGridView();
             colSampleName = new DataGridViewTextBoxColumn();
             colDateTime = new DataGridViewTextBoxColumn();
@@ -54,7 +56,7 @@
             // 
             // menu
             // 
-            menu.Items.AddRange(new ToolStripItem[] { menuFile, utilitiesToolStripMenuItem });
+            menu.Items.AddRange(new ToolStripItem[] { menuFile, menuUtilities });
             menu.Location = new Point(0, 0);
             menu.Name = "menu";
             menu.Size = new Size(800, 24);
@@ -89,23 +91,32 @@
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
-            // utilitiesToolStripMenuItem
+            // menuUtilities
             // 
-            utilitiesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToCSVToolStripMenuItem });
-            utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
-            utilitiesToolStripMenuItem.Size = new Size(58, 20);
-            utilitiesToolStripMenuItem.Text = "Utilities";
+            menuUtilities.DropDownItems.AddRange(new ToolStripItem[] { menuViSeaSample2CSV, menuImportCSV });
+            menuUtilities.Name = "menuUtilities";
+            menuUtilities.Size = new Size(58, 20);
+            menuUtilities.Text = "Utilities";
             // 
-            // exportToCSVToolStripMenuItem
+            // menuViSeaSample2CSV
             // 
-            exportToCSVToolStripMenuItem.Name = "exportToCSVToolStripMenuItem";
-            exportToCSVToolStripMenuItem.Size = new Size(146, 22);
-            exportToCSVToolStripMenuItem.Text = "Export to CSV";
+            menuViSeaSample2CSV.Name = "menuViSeaSample2CSV";
+            menuViSeaSample2CSV.Size = new Size(182, 22);
+            menuViSeaSample2CSV.Text = "ViSea Sample to CSV";
+            menuViSeaSample2CSV.Click += menuViSeaSample2CSV_Click;
+            // 
+            // menuImportCSV
+            // 
+            menuImportCSV.Name = "menuImportCSV";
+            menuImportCSV.Size = new Size(182, 22);
+            menuImportCSV.Text = "Import from CSV";
+            menuImportCSV.Click += menuImportCSV_Click;
             // 
             // gridData
             // 
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             gridData.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            gridData.BackgroundColor = Color.White;
             gridData.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             gridData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             gridData.Columns.AddRange(new DataGridViewColumn[] { colSampleName, colDateTime, colX, colY, colDepth, colSSC, colNotes });
@@ -135,12 +146,14 @@
             // 
             colX.HeaderText = "X";
             colX.Name = "colX";
+            colX.Visible = false;
             colX.Width = 70;
             // 
             // colY
             // 
             colY.HeaderText = "Y";
             colY.Name = "colY";
+            colY.Visible = false;
             colY.Width = 70;
             // 
             // colDepth
@@ -202,12 +215,14 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
             Controls.Add(menu);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menu;
             Name = "WaterSample";
-            Text = "WaterSample";
+            Text = "Water Sample";
             FormClosing += WaterSample_FormClosing;
             menu.ResumeLayout(false);
             menu.PerformLayout();
@@ -226,6 +241,11 @@
         private DataGridView gridData;
         private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuExit;
+        private TableLayoutPanel tableMain;
+        private Label lblName;
+        private TextBox txtName;
+        private ToolStripMenuItem menuUtilities;
+        private ToolStripMenuItem menuImportCSV;
         private DataGridViewTextBoxColumn colSampleName;
         private DataGridViewTextBoxColumn colDateTime;
         private DataGridViewTextBoxColumn colX;
@@ -233,10 +253,6 @@
         private DataGridViewTextBoxColumn colDepth;
         private DataGridViewTextBoxColumn colSSC;
         private DataGridViewTextBoxColumn colNotes;
-        private TableLayoutPanel tableMain;
-        private Label lblName;
-        private TextBox txtName;
-        private ToolStripMenuItem utilitiesToolStripMenuItem;
-        private ToolStripMenuItem exportToCSVToolStripMenuItem;
+        private ToolStripMenuItem menuViSeaSample2CSV;
     }
 }

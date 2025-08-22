@@ -17,11 +17,12 @@ namespace CSEMMPGUI_v1
         public bool isSaved;
         public XmlElement? modelElement;
         public int mode;
+        public _ClassConfigurationManager _project = new();
 
         private void InitializeModel()
         {
             txtModelName.Text = "New Model";
-            int id = _ClassConfigurationManager.GetNextId();
+            int id = _project.GetNextId();
             modelElement = _Globals.Config.CreateElement("Model");
             modelElement.SetAttribute("name", txtModelName.Text);
             modelElement.SetAttribute("type", "Model");
@@ -62,6 +63,9 @@ namespace CSEMMPGUI_v1
                 mode = 1; // Edit model mode
                 this.Text = "Edit Model";
             }
+
+            this.KeyPreview = true; // Enable form to capture key events
+            this.KeyDown += Model_KeyDown; // Attach key down event handler
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -75,14 +79,25 @@ namespace CSEMMPGUI_v1
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    SaveModel();
-                    InitializeModel();
-                    return;
+                    int status = SaveModel();
+                    if (status == 1)
+                        InitializeModel();
+                    else
+                        return;
+                    
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel
                 }
+                else
+                {
+                    InitializeModel(); // User chose not to save, proceed with new model
+                }
+            }
+            else
+            {
+                InitializeModel();
             }
         }
 
@@ -102,14 +117,28 @@ namespace CSEMMPGUI_v1
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    SaveModel();
-                    this.Close();
-                    return;
+                    int status = SaveModel();
+                    if (status == 1)
+                    {
+                        this.Close();
+                        return;
+                    }
+                    else
+                        return;
+                    
                 }
                 else if (result == DialogResult.Cancel)
                 {
                     return; // User chose to cancel
                 }
+                else
+                {
+                    this.Close(); // User chose not to save, proceed with exit  
+                }
+            }
+            else
+            {
+                this.Close(); // Close the form if there are no unsaved changes
             }
         }
 
@@ -124,7 +153,9 @@ namespace CSEMMPGUI_v1
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
-                    SaveModel();
+                    int status = SaveModel();
+                    if (status == 0)
+                        e.Cancel = true; // Cancel the closing event if save failed
                 }
                 else if (result == DialogResult.Cancel)
                 {
@@ -145,7 +176,7 @@ namespace CSEMMPGUI_v1
                 Title = "Select Model DFSU File",
                 Filter = "DFSU (*.dfsu)|*.dfsu",
                 Multiselect = false,
-                InitialDirectory = _ClassConfigurationManager.GetSetting(settingName: "Directory"),
+                InitialDirectory = _project.GetSetting(settingName: "Directory"),
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -154,28 +185,29 @@ namespace CSEMMPGUI_v1
             isSaved = false; // Mark as unsaved changes
         }
 
-        private void SaveModel()
+        private int SaveModel()
         {
             if (String.IsNullOrEmpty(txtModelName.Text))
             {
                 MessageBox.Show(text: "Model name cannot be empty.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-                return;
+                return 0;
             }
             if (String.IsNullOrEmpty(txtFilePath.Text))
             {
                 MessageBox.Show(text: "File path cannot be empty.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-                return;
+                return 0;
             }
             if (!File.Exists(_Utils.GetFullPath(txtFilePath.Text.Trim())))
             {
                 MessageBox.Show(text: "File does not exist at the specified path.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-                return;
+                return 0;
             }
             if (mode == 0)
                 SAVE();
             else
                 UPDATE();
             isSaved = true;
+            return 1; // Return 1 to indicate success
         }
 
         private void SAVE()
@@ -189,8 +221,8 @@ namespace CSEMMPGUI_v1
             {
                 doc.AppendChild(modelElement);
             }
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
-            int id = _ClassConfigurationManager.GetNextId();
+            _project.SaveConfig(saveMode: 1);
+            int id = _project.GetNextId();
             _Globals.Config.DocumentElement.SetAttribute("nextid", (id + 1).ToString());
         }
         
@@ -199,8 +231,24 @@ namespace CSEMMPGUI_v1
             modelElement?.SetAttribute("name", txtModelName.Text);
             XmlNode path = modelElement.SelectSingleNode("Path");
             path.InnerText = _Utils.GetFullPath(txtFilePath.Text.Trim());
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SaveConfig(saveMode: 1);
         }
 
+        private void Model_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            {
+                e.SuppressKeyPress = true; // Prevent default behavior
+                SaveModel(); // Save the project
+            }
+            else if (e.Control && e.KeyCode == Keys.N) // Ctrl + N
+            {
+                if (mode == 0)
+                {
+                    e.SuppressKeyPress = true; // Prevent default behavior
+                    menuNew_Click(sender, e); // Create a new project
+                }
+            }
+        }
     }
 }

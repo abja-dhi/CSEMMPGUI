@@ -13,7 +13,13 @@
     <Compile Update="PlotModel.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="SSCModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Survey.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UtilsCSVColumnSelector.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="VesselMountedADCP.cs">
@@ -29,9 +35,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="__PlumeTrack.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UtilsNTU2SSC.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="PropertiesPage.cs">

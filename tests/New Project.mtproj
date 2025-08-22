@@ -1,15 +1,19 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Project type="Project" nextid="38">
+<Project type="Project" nextid="22">
   <Settings>
-    <Name>Project</Name>
+    <Name>New Project</Name>
     <Directory>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests</Directory>
-    <EPSG>43262</EPSG>
-    <Description>Description of the project</Description>
+    <EPSG>4326</EPSG>
+    <Description>
+    </Description>
   </Settings>
-  <Survey type="Survey" name="Survey 3" id="1">
-    <VesselMountedADCP id="2" type="VesselMountedADCP" name="ADCP 1">
+  <Survey type="Survey" name="Survey 1" id="1">
+    <Water Density="1023" Salinity="32" Temperature="0" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2651" />
+    <VesselMountedADCP id="3" type="VesselMountedADCP" name="New Vessel Mounted ADCP 1">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_002r.000</Path>
+        <SSCModel>21</SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -20,15 +24,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -41,12 +62,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -67,11 +92,16 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
     <VesselMountedADCP id="4" type="VesselMountedADCP" name="New Vessel Mounted ADCP 2">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_003r.000</Path>
+        <SSCModel>21</SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -82,15 +112,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -103,12 +150,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -129,11 +180,16 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="6" type="VesselMountedADCP" name="New Vessel Mounted ADCP 3">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="5" type="VesselMountedADCP" name="New Vessel Mounted ADCP 3">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_004r.000</Path>
+        <SSCModel>21</SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -144,15 +200,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -165,12 +238,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -191,11 +268,16 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="8" type="VesselMountedADCP" name="New Vessel Mounted ADCP 4">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="6" type="VesselMountedADCP" name="New Vessel Mounted ADCP 4">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_005r.000</Path>
+        <SSCModel>21</SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -206,15 +288,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -227,12 +326,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -253,11 +356,16 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="10" type="VesselMountedADCP" name="New Vessel Mounted ADCP 5">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="7" type="VesselMountedADCP" name="New Vessel Mounted ADCP 5">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_006r.000</Path>
+        <SSCModel>21</SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -268,15 +376,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -289,12 +414,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -315,11 +444,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="12" type="VesselMountedADCP" name="New Vessel Mounted ADCP 6">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="8" type="VesselMountedADCP" name="New Vessel Mounted ADCP 6">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_007r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -330,15 +465,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -351,12 +503,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -377,11 +533,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="14" type="VesselMountedADCP" name="New Vessel Mounted ADCP 7">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="9" type="VesselMountedADCP" name="New Vessel Mounted ADCP 7">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_008r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -392,15 +554,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -413,12 +592,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -439,11 +622,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="16" type="VesselMountedADCP" name="New Vessel Mounted ADCP 8">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="10" type="VesselMountedADCP" name="New Vessel Mounted ADCP 8">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_009r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -454,15 +643,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -475,12 +681,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -501,11 +711,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="18" type="VesselMountedADCP" name="New Vessel Mounted ADCP 9">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="11" type="VesselMountedADCP" name="New Vessel Mounted ADCP 9">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_010r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -516,15 +732,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -537,12 +770,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -563,11 +800,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="20" type="VesselMountedADCP" name="New Vessel Mounted ADCP 10">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="12" type="VesselMountedADCP" name="New Vessel Mounted ADCP 10">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_011r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -578,15 +821,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -599,12 +859,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -625,11 +889,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="22" type="VesselMountedADCP" name="New Vessel Mounted ADCP 11">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="13" type="VesselMountedADCP" name="New Vessel Mounted ADCP 11">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_012r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -640,15 +910,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -661,12 +948,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -687,11 +978,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="24" type="VesselMountedADCP" name="New Vessel Mounted ADCP 12">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="14" type="VesselMountedADCP" name="New Vessel Mounted ADCP 12">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_013r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -702,15 +999,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -723,12 +1037,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -749,11 +1067,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="26" type="VesselMountedADCP" name="New Vessel Mounted ADCP 13">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="15" type="VesselMountedADCP" name="New Vessel Mounted ADCP 13">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_014r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -764,15 +1088,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -785,12 +1126,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -811,11 +1156,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="28" type="VesselMountedADCP" name="New Vessel Mounted ADCP 14">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="16" type="VesselMountedADCP" name="New Vessel Mounted ADCP 14">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_015r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -826,15 +1177,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -847,12 +1215,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -873,11 +1245,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="30" type="VesselMountedADCP" name="New Vessel Mounted ADCP 15">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="17" type="VesselMountedADCP" name="New Vessel Mounted ADCP 15">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_016r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -888,15 +1266,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -909,12 +1304,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -935,11 +1334,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="32" type="VesselMountedADCP" name="New Vessel Mounted ADCP 16">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="18" type="VesselMountedADCP" name="New Vessel Mounted ADCP 16">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_017r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -950,15 +1355,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -971,12 +1393,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -997,11 +1423,17 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <VesselMountedADCP id="34" type="VesselMountedADCP" name="New Vessel Mounted ADCP 17">
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <VesselMountedADCP id="19" type="VesselMountedADCP" name="New Vessel Mounted ADCP 17">
       <Pd0>
         <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\RawDataPP\20241002_F3(E)_018r.000</Path>
+        <SSCModel>
+        </SSCModel>
         <Configuration>
           <MagneticDeclination>0.0</MagneticDeclination>
           <UTCOffset>0.0</UTCOffset>
@@ -1012,15 +1444,32 @@
             <Z>0.0</Z>
           </CRPOffset>
           <RSSICoefficients>
-            <Beam1 />
-            <Beam2 />
-            <Beam3 />
-            <Beam4 />
+            <Beam1>
+            </Beam1>
+            <Beam2>
+            </Beam2>
+            <Beam3>
+            </Beam3>
+            <Beam4>
+            </Beam4>
           </RSSICoefficients>
+          <TransectShift>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+            <T>0.0</T>
+          </TransectShift>
+          <C>-139.0</C>
+          <Pdbw>9</Pdbw>
+          <Er>39</Er>
         </Configuration>
         <Masking>
-          <FirstEnsemble>1</FirstEnsemble>
-          <LastEnsemble>100</LastEnsemble>
+          <FirstEnsemble Enabled="false">1</FirstEnsemble>
+          <LastEnsemble Enabled="false">9999</LastEnsemble>
+          <StartDatetime Enabled="false">
+          </StartDatetime>
+          <EndDatetime Enabled="false">
+          </EndDatetime>
           <MaskEchoIntensity Enabled="false">
             <Min>0</Min>
             <Max>255</Max>
@@ -1033,12 +1482,16 @@
             <Max>255</Max>
           </MaskCorrelationMagnitude>
           <MaskCurrentSpeed Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskCurrentSpeed>
           <MaskErrorVelocity Enabled="false">
-            <Min />
-            <Max />
+            <Min>
+            </Min>
+            <Max>
+            </Max>
           </MaskErrorVelocity>
         </Masking>
       </Pd0>
@@ -1059,45 +1512,29 @@
         <XColumn>Longitude</XColumn>
         <YColumn>Latitude</YColumn>
         <HeadingColumn>Course</HeadingColumn>
+        <Pitch>0.0</Pitch>
+        <Roll>0.0</Roll>
       </PositionData>
     </VesselMountedADCP>
-    <OBSVerticalProfile id="37" type="OBSVerticalProfile" name="New OBS Vertical Profile">
-      <FileInfo>
-        <Path>C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\20241002_F3(E)\Obs1.txt</Path>
-        <Columns>
-          <Column0>Date</Column0>
-          <Column1>Time</Column1>
-          <Column2>NTU</Column2>
-          <Column3>DEP m</Column3>
-          <Column4>
-          </Column4>
-        </Columns>
-        <DateTimeColumn>Date</DateTimeColumn>
-        <DepthColumn>Time</DepthColumn>
-        <NTUColumn>NTU</NTUColumn>
-        <SSCModel>
-        </SSCModel>
-      </FileInfo>
-      <Masking>
-        <MaskDateTime Enabled="false">
-          <Start>
-          </Start>
-          <End>
-          </End>
-        </MaskDateTime>
-        <MaskDepth Enabled="false">
-          <Min>
-          </Min>
-          <Max>
-          </Max>
-        </MaskDepth>
-        <MaskNTU Enabled="false">
-          <Min>
-          </Min>
-          <Max>
-          </Max>
-        </MaskNTU>
-      </Masking>
-    </OBSVerticalProfile>
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <WaterSample id="20" type="WaterSample" name="SAMPLEData">
+      <Sample Sample="1" DateTime="2024-10-02T12:41:53.0000000" Depth="10.6" SSC="0.0" Notes="47" />
+      <Sample Sample="2" DateTime="2024-10-02T12:42:41.0000000" Depth="6.5" SSC="0.0" Notes="74" />
+      <Sample Sample="3" DateTime="2024-10-02T12:57:06.0000000" Depth="11.2" SSC="0.0" Notes="99" />
+      <Sample Sample="4" DateTime="2024-10-02T12:57:47.0000000" Depth="7.9" SSC="0.0" Notes="122" />
+      <Sample Sample="5" DateTime="2024-10-02T12:58:42.0000000" Depth="7.1" SSC="0.0" Notes="153" />
+      <Sample Sample="6" DateTime="2024-10-02T12:59:07.0000000" Depth="5.3" SSC="0.0" Notes="167" />
+    </WaterSample>
+    <Water Density="1023" Salinity="32" Temperature="" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
+    <Water Density="1023" Salinity="32" Temperature="10" pH="8.1" />
+    <Sediment Diameter="0.00025" Density="2650" />
   </Survey>
+  <BKS2SSC name="BKS2SSC" type="BKS2SSC" id="21">
+    <Mode>Manual</Mode>
+    <Fit>Linear</Fit>
+    <A>3.5</A>
+    <B>0.049</B>
+  </BKS2SSC>
 </Project>

@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class AddSSCModel
+    partial class SSCModel
     {
         /// <summary>
         /// Required designer variable.
@@ -40,7 +40,7 @@
             tableModelMode = new TableLayoutPanel();
             rbManual = new RadioButton();
             rbAuto = new RadioButton();
-            comboModels = new ComboBox();
+            comboFits = new ComboBox();
             tableManual = new TableLayoutPanel();
             lblParamName = new Label();
             lblParamValue = new Label();
@@ -174,7 +174,7 @@
             tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34F));
             tableModelMode.Controls.Add(rbManual, 0, 0);
             tableModelMode.Controls.Add(rbAuto, 1, 0);
-            tableModelMode.Controls.Add(comboModels, 2, 0);
+            tableModelMode.Controls.Add(comboFits, 2, 0);
             tableModelMode.Dock = DockStyle.Fill;
             tableModelMode.Location = new Point(3, 45);
             tableModelMode.Name = "tableModelMode";
@@ -208,17 +208,17 @@
             rbAuto.Text = "Automatic";
             rbAuto.UseVisualStyleBackColor = true;
             // 
-            // comboModels
+            // comboFits
             // 
-            comboModels.Dock = DockStyle.Fill;
-            comboModels.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboModels.FormattingEnabled = true;
-            comboModels.Items.AddRange(new object[] { "Linear", "Log-Linear", "Exponential" });
-            comboModels.Location = new Point(395, 3);
-            comboModels.Name = "comboModels";
-            comboModels.Size = new Size(196, 23);
-            comboModels.TabIndex = 2;
-            comboModels.SelectedIndexChanged += input_Changed;
+            comboFits.Dock = DockStyle.Fill;
+            comboFits.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboFits.FormattingEnabled = true;
+            comboFits.Items.AddRange(new object[] { "Linear", "Log-Linear", "Exponential" });
+            comboFits.Location = new Point(395, 3);
+            comboFits.Name = "comboFits";
+            comboFits.Size = new Size(196, 23);
+            comboFits.TabIndex = 2;
+            comboFits.SelectedIndexChanged += input_Changed;
             // 
             // tableManual
             // 
@@ -306,6 +306,7 @@
             lblC.TabIndex = 4;
             lblC.Text = "C";
             lblC.TextAlign = ContentAlignment.MiddleLeft;
+            lblC.Visible = false;
             // 
             // txtA
             // 
@@ -332,6 +333,7 @@
             txtC.Name = "txtC";
             txtC.Size = new Size(191, 23);
             txtC.TabIndex = 7;
+            txtC.Visible = false;
             txtC.TextChanged += input_Changed;
             // 
             // tableModelName
@@ -444,21 +446,21 @@
         private RadioButton rbBKS2SSC;
         private RadioButton rbManual;
         private RadioButton rbAuto;
-        private ComboBox comboModels;
+        private ComboBox comboFits;
         private TableLayoutPanel tableManual;
         private Label lblParamName;
         private Label lblParamValue;
         private Label lblA;
         private Label lblB;
-        private Label lblC;
         private TextBox txtA;
         private TextBox txtB;
-        private TextBox txtC;
         private TreeView treeNTU2SSC;
         private TableLayoutPanel tableModelName;
         private Label lblModelName;
         private TextBox txtModelName;
         private TreeView treeBKS2SSC;
         private TableLayoutPanel tableTrees;
+        private Label lblC;
+        private TextBox txtC;
     }
 }

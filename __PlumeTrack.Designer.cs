@@ -260,7 +260,6 @@
             txtName.Size = new Size(525, 23);
             txtName.TabIndex = 1;
             txtName.Text = "New Project";
-            txtName.Leave += txtName_Leave;
             // 
             // tableLayoutPanel2
             // 
@@ -284,6 +283,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(884, 461);
             Controls.Add(tableLayoutPanel2);
             Controls.Add(menuStrip1);
