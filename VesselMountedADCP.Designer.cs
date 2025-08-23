@@ -200,21 +200,21 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(107, 22);
+            menuNew.Size = new Size(180, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(107, 22);
+            menuSave.Size = new Size(180, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(107, 22);
+            menuExit.Size = new Size(180, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
