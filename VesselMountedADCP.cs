@@ -205,6 +205,10 @@ namespace CSEMMPGUI_v1
             checkMaskingErrorVelocity.Checked = (maskErrorVelocityNode as XmlElement)?.GetAttribute("Enabled") == "true";
             txtMinErrorVelocity.Text = maskErrorVelocityNode?.SelectSingleNode("Min")?.InnerText ?? string.Empty;
             txtMaxErrorVelocity.Text = maskErrorVelocityNode?.SelectSingleNode("Max")?.InnerText ?? string.Empty;
+            XmlNode maskAbsNode = maskingNode?.SelectSingleNode("MaskAbsoluteBackscatter");
+            checkMaskingAbs.Checked = (maskAbsNode as XmlElement)?.GetAttribute("Enabled") == "true";
+            txtMinAbs.Text = maskAbsNode?.SelectSingleNode("Min")?.InnerText ?? string.Empty;
+            txtMaxAbs.Text = maskAbsNode?.SelectSingleNode("Max")?.InnerText ?? string.Empty;
             // Position related attributes
             XmlNode positionNode = adcpElement.SelectSingleNode("PositionData");
             txtPositionPath.Text = positionNode?.SelectSingleNode("Path")?.InnerText ?? string.Empty;
@@ -777,6 +781,25 @@ namespace CSEMMPGUI_v1
             isSaved = false; // Mark as unsaved changes
         }
 
+        private void checkMaskingAbs_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkMaskingAbs.Checked)
+            {
+                lblMinAbs.Enabled = true;
+                txtMinAbs.Enabled = true;
+                lblMaxAbs.Enabled = true;
+                txtMaxAbs.Enabled = true;
+            }
+            else
+            {
+                lblMinAbs.Enabled = false;
+                txtMinAbs.Enabled = false;
+                lblMaxAbs.Enabled = false;
+                txtMaxAbs.Enabled = false;
+            }
+            isSaved = false; // Mark as unsaved changes
+        }
+
         private int SaveADCP()
         {
             if (String.IsNullOrEmpty(txtName.Text.Trim()))
@@ -986,6 +1009,16 @@ namespace CSEMMPGUI_v1
             maskErrorVelocity.AppendChild(maskErrorVelocityMax);
             masking.AppendChild(maskErrorVelocity);
 
+            XmlElement maskAbs = project.CreateElement("MaskAbsoluteBackscatter");
+            maskAbs.SetAttribute("Enabled", checkMaskingAbs.Checked.ToString().ToLower());
+            XmlElement maskAbsMin = project.CreateElement("Min");
+            maskAbsMin.InnerText = txtMinAbs.Text.Trim();
+            maskAbs.AppendChild(maskAbsMin);
+            XmlElement maskAbsMax = project.CreateElement("Max");
+            maskAbsMax.InnerText = txtMaxAbs.Text.Trim();
+            maskAbs.AppendChild(maskAbsMax);
+            masking.AppendChild(maskAbs);
+
             pd0.AppendChild(masking);
 
             adcpElement.AppendChild(pd0);
@@ -1163,6 +1196,12 @@ namespace CSEMMPGUI_v1
             minErrorVelocityNode.InnerText = txtMinErrorVelocity.Text.Trim();
             XmlNode? maxErrorVelocityNode = maskErrorVelocityElement.SelectSingleNode("Max");
             maxErrorVelocityNode.InnerText = txtMaxErrorVelocity.Text.Trim();
+            XmlElement maskAbsElement = maskingElement.SelectSingleNode("MaskAbsoluteBackscatter") as XmlElement;
+            maskAbsElement.SetAttribute("Enabled", checkMaskingAbs.Checked.ToString().ToLower());
+            XmlNode? minAbsNode = maskAbsElement.SelectSingleNode("Min");
+            minAbsNode.InnerText = txtMinAbs.Text.Trim();
+            XmlNode? maxAbsNode = maskAbsElement.SelectSingleNode("Max");
+            maxAbsNode.InnerText = txtMaxAbs.Text.Trim();
             XmlElement positionElement = adcpElement.SelectSingleNode("PositionData") as XmlElement;
             XmlNode? positionPathNode = positionElement.SelectSingleNode("Path");
             positionPathNode.InnerText = txtPositionPath.Text.Trim();
@@ -1197,5 +1236,7 @@ namespace CSEMMPGUI_v1
                 }
             }
         }
+
+        
     }
 }

@@ -174,5 +174,19 @@ namespace CSEMMPGUI_v1
             }
             return result;
         }
+
+        public XmlElement? GetObject(string type, string id)
+        {
+            XmlDocument doc = _Globals.Config;
+            XmlElement? element = doc.SelectSingleNode($"//{type}[@id='{id}' and @type='{type}']") as XmlElement;
+            return element;
+        }
+
+        public XmlElement? GetParent(string type, string id)
+        {
+            XmlDocument doc = _Globals.Config;
+            XmlElement? element = doc.SelectSingleNode($"//{type}[@id='{id}' and @type='{type}']/..") as XmlElement;
+            return element?.ParentNode as XmlElement;
+        }
     }
 }

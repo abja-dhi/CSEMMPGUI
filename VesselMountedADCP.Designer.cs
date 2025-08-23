@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VesselMountedADCP));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
@@ -141,7 +142,7 @@
             checkLastEnsemble = new CheckBox();
             tableMaskingAbs = new TableLayoutPanel();
             checkMaskingAbs = new CheckBox();
-            lblAbsMin = new Label();
+            lblMinAbs = new Label();
             lblMaxAbs = new Label();
             txtMinAbs = new TextBox();
             txtMaxAbs = new TextBox();
@@ -153,6 +154,7 @@
             tableMode = new TableLayoutPanel();
             rbSingle = new RadioButton();
             rbBatch = new RadioButton();
+            toolTip = new ToolTip(components);
             menuStrip1.SuspendLayout();
             tableConfig.SuspendLayout();
             tableCRPOffsets.SuspendLayout();
@@ -354,6 +356,7 @@
             lblUTCOffset.TabIndex = 4;
             lblUTCOffset.Text = "UTC Offset (hour)";
             lblUTCOffset.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblUTCOffset, "Hours to shift ensemble datetimes to account for UTC offset");
             // 
             // lblMagneticDeclination
             // 
@@ -365,6 +368,7 @@
             lblMagneticDeclination.TabIndex = 2;
             lblMagneticDeclination.Text = "Magnetic Declination (deg From N)";
             lblMagneticDeclination.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblMagneticDeclination, "Degrees CCW to rotate velocity data to account for magnetic declination");
             // 
             // lblName
             // 
@@ -625,6 +629,7 @@
             lblTransectShift.TabIndex = 16;
             lblTransectShift.Text = "Transect Shift";
             lblTransectShift.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblTransectShift, "Shifting distance of entire ADCP transect for model calibration");
             // 
             // tableTransectShift
             // 
@@ -660,6 +665,7 @@
             lblTransectShiftX.TabIndex = 0;
             lblTransectShiftX.Text = "+X";
             lblTransectShiftX.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblTransectShiftX, "Shifting distance of entire ADCP transect for model calibration (X axis, meters)");
             // 
             // lblTransectShiftY
             // 
@@ -671,6 +677,7 @@
             lblTransectShiftY.TabIndex = 1;
             lblTransectShiftY.Text = "+Y";
             lblTransectShiftY.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblTransectShiftY, "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)");
             // 
             // lblTransectShiftZ
             // 
@@ -682,6 +689,7 @@
             lblTransectShiftZ.TabIndex = 2;
             lblTransectShiftZ.Text = "+Z";
             lblTransectShiftZ.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblTransectShiftZ, "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)");
             // 
             // lblTransectShiftT
             // 
@@ -693,6 +701,7 @@
             lblTransectShiftT.TabIndex = 3;
             lblTransectShiftT.Text = "Time (hr)";
             lblTransectShiftT.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblTransectShiftT, "Shifting time of entire ADCP transect for model calibration (time axis, hours)");
             // 
             // txtTransectShiftX
             // 
@@ -1268,6 +1277,7 @@
             checkMaskCorrelationMagnitude.TabIndex = 0;
             checkMaskCorrelationMagnitude.Text = "Mask Correlation Magnitude (-)";
             checkMaskCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(checkMaskCorrelationMagnitude, "Correlation magnitude from each beam, used as a data quality metric.");
             checkMaskCorrelationMagnitude.UseVisualStyleBackColor = true;
             checkMaskCorrelationMagnitude.CheckedChanged += checkMaskCorrelationMagnitude_CheckedChanged;
             // 
@@ -1421,6 +1431,7 @@
             checkMaskPercentGood.TabIndex = 0;
             checkMaskPercentGood.Text = "Mask Percent Good (%)";
             checkMaskPercentGood.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(checkMaskPercentGood, "Percentage of good data for each beam and cell, based on instrument quality control logic.");
             checkMaskPercentGood.UseVisualStyleBackColor = true;
             checkMaskPercentGood.CheckedChanged += checkMaskPercentGood_CheckedChanged;
             // 
@@ -1494,6 +1505,7 @@
             checkMaskEchoIntensity.TabIndex = 0;
             checkMaskEchoIntensity.Text = "Mask Echo Intensity (Counts)";
             checkMaskEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(checkMaskEchoIntensity, "Unitless ADC counts representing backscatter strength.");
             checkMaskEchoIntensity.UseVisualStyleBackColor = true;
             checkMaskEchoIntensity.CheckedChanged += checkMaskEchoIntensity_CheckedChanged;
             // 
@@ -1585,7 +1597,7 @@
             tableMaskingAbs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
             tableMaskingAbs.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
             tableMaskingAbs.Controls.Add(checkMaskingAbs, 0, 0);
-            tableMaskingAbs.Controls.Add(lblAbsMin, 1, 0);
+            tableMaskingAbs.Controls.Add(lblMinAbs, 1, 0);
             tableMaskingAbs.Controls.Add(lblMaxAbs, 2, 0);
             tableMaskingAbs.Controls.Add(txtMinAbs, 1, 1);
             tableMaskingAbs.Controls.Add(txtMaxAbs, 2, 1);
@@ -1611,23 +1623,26 @@
             checkMaskingAbs.Text = "Mask Absolute Backscatter (-)";
             checkMaskingAbs.TextAlign = ContentAlignment.MiddleCenter;
             checkMaskingAbs.UseVisualStyleBackColor = true;
+            checkMaskingAbs.CheckedChanged += checkMaskingAbs_CheckedChanged;
             // 
-            // lblAbsMin
+            // lblMinAbs
             // 
-            lblAbsMin.AutoSize = true;
-            lblAbsMin.Dock = DockStyle.Fill;
-            lblAbsMin.Font = new Font("Segoe UI", 8F);
-            lblAbsMin.Location = new Point(108, 0);
-            lblAbsMin.Name = "lblAbsMin";
-            lblAbsMin.Size = new Size(95, 30);
-            lblAbsMin.TabIndex = 1;
-            lblAbsMin.Text = "Minimum";
-            lblAbsMin.TextAlign = ContentAlignment.MiddleCenter;
+            lblMinAbs.AutoSize = true;
+            lblMinAbs.Dock = DockStyle.Fill;
+            lblMinAbs.Enabled = false;
+            lblMinAbs.Font = new Font("Segoe UI", 8F);
+            lblMinAbs.Location = new Point(108, 0);
+            lblMinAbs.Name = "lblMinAbs";
+            lblMinAbs.Size = new Size(95, 30);
+            lblMinAbs.TabIndex = 1;
+            lblMinAbs.Text = "Minimum";
+            lblMinAbs.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblMaxAbs
             // 
             lblMaxAbs.AutoSize = true;
             lblMaxAbs.Dock = DockStyle.Fill;
+            lblMaxAbs.Enabled = false;
             lblMaxAbs.Font = new Font("Segoe UI", 8F);
             lblMaxAbs.Location = new Point(209, 0);
             lblMaxAbs.Name = "lblMaxAbs";
@@ -1639,20 +1654,24 @@
             // txtMinAbs
             // 
             txtMinAbs.Dock = DockStyle.Fill;
+            txtMinAbs.Enabled = false;
             txtMinAbs.Font = new Font("Segoe UI", 8F);
             txtMinAbs.Location = new Point(108, 33);
             txtMinAbs.Name = "txtMinAbs";
             txtMinAbs.Size = new Size(95, 22);
             txtMinAbs.TabIndex = 3;
+            txtMinAbs.TextChanged += input_Changed;
             // 
             // txtMaxAbs
             // 
             txtMaxAbs.Dock = DockStyle.Fill;
+            txtMaxAbs.Enabled = false;
             txtMaxAbs.Font = new Font("Segoe UI", 8F);
             txtMaxAbs.Location = new Point(209, 33);
             txtMaxAbs.Name = "txtMaxAbs";
             txtMaxAbs.Size = new Size(97, 22);
             txtMaxAbs.TabIndex = 4;
+            txtMaxAbs.TextChanged += input_Changed;
             // 
             // tableLayoutPanel1
             // 
@@ -1925,7 +1944,7 @@
         private Label lblPdbw;
         private TableLayoutPanel tableMaskingAbs;
         private CheckBox checkMaskingAbs;
-        private Label lblAbsMin;
+        private Label lblMinAbs;
         private Label lblMaxAbs;
         private TextBox txtMinAbs;
         private TextBox txtMaxAbs;
@@ -1942,5 +1961,6 @@
         private ComboBox comboSSCModel;
         private TextBox txtPitch;
         private TextBox txtRoll;
+        private ToolTip toolTip;
     }
 }

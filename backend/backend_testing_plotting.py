@@ -41,7 +41,7 @@ for dirpath, _, filenames in os.walk(root):
 
 #%% Load a dataset
 
-i = 0 # indicator variable for dataset selection
+i = 4 # indicator variable for dataset selection
 
 water_properties =  {'density':1023,
                      'salinity': 32,
@@ -127,50 +127,49 @@ adcp = ADCPDataset(cfg, name = cfg['name'])
 
 report = adcp._pd0.instrument_summary()
 
-adcp.plot.platform_orientation()
+# adcp.plot.platform_orientation()
 
 
 
 
-adcp.plot.four_beam_flood_plot(field_name= "suspended_solids_concentration",
-                                y_axis_mode= "bin",          # 'bin' or 'depth'
-                                cmap='jet',                            
-                                vmin= None,
-                                vmax= None,
-                                n_time_ticks= 6,
-                                title= None, 
-                                mask = False)
+# adcp.plot.four_beam_flood_plot(field_name= "suspended_solids_concentration",
+#                                 y_axis_mode= "bin",          # 'bin' or 'depth'
+#                                 cmap='viridis',                            
+#                                 vmin= None,
+#                                 vmax= None,
+#                                 n_time_ticks= 6,
+#                                 title= "Test", 
+#                                 mask = True)
 
 
 
-
-adcp.plot.transect_velocities(bin_sel='mean',                 # int or "mean"
-                                every_n=1,                   # subsample step
-                                scale=0.005,                  # quiver scale (visual only), smaller = longer quiver lines
-                                title=None,
-                                cmap='jet',       
-                                vmin=None,            # colormap min
-                                vmax=None,            # colormap max
-                                line_width=2.5,              # centerline width
-                                line_alpha=0.9,              # centerline transparency
-                                hist_bins=20)                # bins for inset histogram
-    
-
+# adcp.plot.transect_velocities(bin_sel='mean',                 # int or "mean"
+#                                 every_n=1,                   # subsample step
+#                                 scale=0.005,                  # quiver scale (visual only), smaller = longer quiver lines
+#                                 title=None,
+#                                 cmap='jet',       
+#                                 vmin=None,            # colormap min
+#                                 vmax=None,            # colormap max
+#                                 line_width=2.5,              # centerline width
+#                                 line_alpha=0.9,              # centerline transparency
+#                                 hist_bins=20)                # bins for inset histogram
+# plt.show()
+# quit()
   
-adcp.plot.single_beam_flood_plot(beam='mean', # int or 'mean'
-                                field_name= "suspended_solids_concentration",
-                                y_axis_mode = "bin",          # "depth", "bin"
-                                cmap='jet',                  # str or Colormap; defaults to cmocean.thermal else "turbo"
-                                vmin=None,
-                                vmax=10,
-                                n_time_ticks= 6, # number of time axis ticks and labels 
-                                title= None, 
-                                mask = True)
+# adcp.plot.single_beam_flood_plot(beam='mean', # int or 'mean'
+#                                 field_name= "suspended_solids_concentration",
+#                                 y_axis_mode = "bin",          # "depth", "bin"
+#                                 cmap='jet',                  # str or Colormap; defaults to cmocean.thermal else "turbo"
+#                                 vmin=None,
+#                                 vmax=10,
+#                                 n_time_ticks= 6, # number of time axis ticks and labels 
+#                                 title= None, 
+#                                 mask = True)
 
 
 
 
-adcp.plot.beam_geometry_animation()
+# adcp.plot.beam_geometry_animation()
 
 
 adcp.plot.transect_animation(cmap= 'jet',
@@ -183,3 +182,4 @@ adcp.plot.transect_animation(cmap= 'jet',
                                     interval_ms= 10,
                                     save_gif = False,
                                     gif_name= None)
+plt.show()

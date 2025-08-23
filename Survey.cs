@@ -308,6 +308,7 @@ namespace CSEMMPGUI_v1
             {
                 string type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                 string name = xmlNode.Attributes?["name"]?.Value ?? xmlNode.Name;
+                string id = xmlNode.Attributes?["id"]?.Value ?? string.Empty;
 
                 switch (type)
                 {
@@ -316,8 +317,8 @@ namespace CSEMMPGUI_v1
                         // Implement survey opening logic here
                         break;
                     case "VesselMountedADCP":
-                        MessageBox.Show($"Plotting vessel-mounted ADCP: {name}", "Plot Vessel-Mounted ADCP", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        // Implement vessel-mounted ADCP opening logic here
+                        VesselMountedADCPPlot vesselMountedADCPPlot = new VesselMountedADCPPlot(id);
+                        vesselMountedADCPPlot.Show();
                         break;
                     case "WaterSample":
                         MessageBox.Show($"Plotting water sample: {name}", "Plot Water Sample", MessageBoxButtons.OK, MessageBoxIcon.Information);

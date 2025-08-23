@@ -40,18 +40,4 @@ namespace CSEMMPGUI_v1
             e.DrawFocusRectangle();
         }
     }
-
-    public class ColormapItem
-    {
-        public string Name { get; set; }
-        public Image Preview { get; set; }
-
-        public ColormapItem(string name, Image preview)
-        {
-            Name = name;
-            Preview = preview;
-        }
-
-        public override string ToString() => Name; // fallback if image can't load
-    }
 }
