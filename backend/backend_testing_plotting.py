@@ -1,4 +1,12 @@
+import pathlib
 
+root = pathlib.Path(r".")  # change this path
+total = 0
+for path in root.rglob('*.py'):
+    total += sum(1 for _ in open(path, 'r', encoding='utf-8'))
+print(total)
+
+#%%
 import sys
 import os
 
@@ -20,8 +28,8 @@ import matplotlib.pyplot as plt
 #%% get a bunch of examaple data 
 
 
-root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
-#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
+#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
+root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
 #root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241003_F3(F)'
 
 #Utils.extern_to_csv_batch(r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul')
@@ -41,7 +49,7 @@ for dirpath, _, filenames in os.walk(root):
 
 #%% Load a dataset
 
-i = 0 # indicator variable for dataset selection
+i = 6 # indicator variable for dataset selection
 
 water_properties =  {'density':1023,
                      'salinity': 32,
@@ -146,7 +154,7 @@ adcp.plot.four_beam_flood_plot(field_name= "suspended_solids_concentration",
 
 adcp.plot.transect_velocities(bin_sel='mean',                 # int or "mean"
                                 every_n=1,                   # subsample step
-                                scale=0.005,                  # quiver scale (visual only), smaller = longer quiver lines
+                                scale=0.02,                  # quiver scale (visual only), smaller = longer quiver lines
                                 title=None,
                                 cmap='jet',       
                                 vmin=None,            # colormap min
