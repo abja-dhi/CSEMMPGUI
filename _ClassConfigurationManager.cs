@@ -20,7 +20,6 @@ namespace CSEMMPGUI_v1
             _Globals.Config.AppendChild(xmlDeclaration);
             XmlElement root = _Globals.Config.CreateElement("Project");
             root.SetAttribute("type", "Project");
-            root.SetAttribute("nextid", "1");
             _Globals.Config.AppendChild(root);
 
             XmlElement settings = _Globals.Config.CreateElement("Settings");
@@ -150,7 +149,20 @@ namespace CSEMMPGUI_v1
 
         public int GetNextId()
         {
-            return int.Parse(_Globals.Config.DocumentElement?.GetAttribute("nextid") ?? "1");
+            var nodes = _Globals.Config.SelectNodes("//*[@id]");
+            int maxId = -1;
+
+            foreach (XmlNode node in nodes)
+            {
+                if (int.TryParse(node.Attributes["id"].Value, out int val))
+                {
+                    if (val > maxId)
+                        maxId = val;
+                }
+            }
+
+            return maxId + 1;
+
         }
 
         public List<XmlElement> GetObjects(string type)

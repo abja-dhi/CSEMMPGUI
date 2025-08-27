@@ -32,7 +32,6 @@ namespace CSEMMPGUI_v1
             {
                 throw new Exception("SurveyManager.survey is null. Cannot create instrument element.");
             }
-            id = _project.GetNextId();
             txtName.Text = "New OBS Vertical Profile";
             txtFilePath.Text = string.Empty;
             checkMaskingDateTime.Checked = false;
@@ -44,23 +43,21 @@ namespace CSEMMPGUI_v1
             txtMaskingMaxDepth.Text = string.Empty;
             txtMaskingMinNTU.Text = string.Empty;
             txtMaskingMaxNTU.Text = string.Empty;
-            comboDateTime.Items.Clear();
+            comboDate.Items.Clear();
+            comboTime.Items.Clear();
             comboDepth.Items.Clear();
             comboNTU.Items.Clear();
             comboSSCModel.Items.Clear();
-            comboDateTime.Text = string.Empty;
+            comboDate.Text = string.Empty;
+            comboTime.Text = string.Empty;
             comboDepth.Text = string.Empty;
             comboNTU.Text = string.Empty;
             comboSSCModel.Text = string.Empty;
             lblSSCModel.Enabled = false;
             comboSSCModel.Enabled = false;
-            tblColumnInfo.Enabled = false;
-            tblMasking.Enabled = false;
+            tableColumnInfo.Enabled = false;
+            tableMasking.Enabled = false;
             // Create the instrument element
-            obsElement = surveyManager.survey.OwnerDocument.CreateElement("OBSVerticalProfile");
-            obsElement.SetAttribute("id", id.ToString());
-            obsElement.SetAttribute("type", "OBSVerticalProfile");
-            obsElement.SetAttribute("name", "New OBS Vertical Profile");
             project = surveyManager.survey.OwnerDocument;
             isSaved = true;
         }
@@ -76,7 +73,8 @@ namespace CSEMMPGUI_v1
                 if (columnNode.NodeType == XmlNodeType.Element)
                 {
                     string columnName = columnNode.InnerText.Trim();
-                    comboDateTime.Items.Add(columnName);
+                    comboDate.Items.Add(columnName);
+                    comboTime.Items.Add(columnName);
                     comboDepth.Items.Add(columnName);
                     comboNTU.Items.Add(columnName);
                 }
@@ -87,14 +85,15 @@ namespace CSEMMPGUI_v1
                 if (index >= 0)
                     combo.SelectedIndex = index;
             }
-            SelectComboItem(comboDateTime, fileInfoNode?.SelectSingleNode("DateTimeColumn")?.InnerText ?? "");
+            SelectComboItem(comboDate, fileInfoNode?.SelectSingleNode("DateColumn")?.InnerText ?? "");
+            SelectComboItem(comboTime, fileInfoNode?.SelectSingleNode("TimeColumn")?.InnerText ?? "");
             SelectComboItem(comboDepth, fileInfoNode?.SelectSingleNode("DepthColumn")?.InnerText ?? "");
             SelectComboItem(comboNTU, fileInfoNode?.SelectSingleNode("NTUColumn")?.InnerText ?? "");
-            List<XmlElement> ntu2sscModels = _project.GetObjects("NTU2SSC");
-            if (ntu2sscModels.Count > 0)
+            List<XmlElement> sscModels = _project.GetObjects("SSCModel");
+            if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in ntu2sscModels)
+                foreach (XmlElement model in sscModels)
                 {
                     comboSSCModel.Items.Add(new
                     {
@@ -103,7 +102,7 @@ namespace CSEMMPGUI_v1
                     });
                 }
                 comboSSCModel.DisplayMember = "Display";
-                string sscModelId = fileInfoNode?.SelectSingleNode("SSCModel")?.InnerText ?? string.Empty;
+                string sscModelId = fileInfoNode?.SelectSingleNode("SSCModelID")?.InnerText ?? string.Empty;
                 if (!string.IsNullOrEmpty(sscModelId))
                 {
                     for (int i = 0; i < comboSSCModel.Items.Count; i++)
@@ -158,8 +157,8 @@ namespace CSEMMPGUI_v1
                 obsElement = obsNode as XmlElement;
                 PopulateOBS();
                 menuNew.Visible = false;
-                tblColumnInfo.Enabled = true;
-                tblMasking.Enabled = true;
+                tableColumnInfo.Enabled = true;
+                tableMasking.Enabled = true;
                 mode = 1;
                 this.Text = "Edit OBS Vertical Profile";
             }
@@ -291,7 +290,7 @@ namespace CSEMMPGUI_v1
                     _headerLine = csvOptions._headerLine;
                     _delimiter = csvOptions._delimiter;
                     columns = _Utils.ParseCSVAndReturnColumns(filePath, _delimiter, _headerLine);
-                    if (columns.Length < 3)
+                    if (columns.Length < 4)
                     {
                         MessageBox.Show("The selected CSV file does not contain enough columns for OBS Vertical Profile data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
@@ -306,11 +305,11 @@ namespace CSEMMPGUI_v1
             {
                 return; // User cancelled the file dialog
             }
-            List<XmlElement> ntu2sscModels = _project.GetObjects(type: "NTU2SSC");
-            if (ntu2sscModels.Count > 0)
+            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in ntu2sscModels)
+                foreach (XmlElement model in sscModels)
                 {
                     comboSSCModel.Items.Add(new
                     {
@@ -326,7 +325,7 @@ namespace CSEMMPGUI_v1
             else
             {
                 MessageBox.Show(
-                    "No NTU to SSC models found. Please add one and update the setting later",
+                    "No SSC model found. Please add one and update the setting later",
                     Text = "Warning",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
@@ -335,11 +334,12 @@ namespace CSEMMPGUI_v1
                 lblSSCModel.Enabled = false; // Disable label if no models are available
             }
             txtFilePath.Text = openFileDialog.FileName;
-            tblColumnInfo.Enabled = true;
-            updateCombo(comboDateTime, columns, 0);
-            updateCombo(comboDepth, columns, 1);
-            updateCombo(comboNTU, columns, 2);
-            tblMasking.Enabled = true;
+            tableColumnInfo.Enabled = true;
+            updateCombo(comboDate, columns, 0);
+            updateCombo(comboTime, columns, 1);
+            updateCombo(comboDepth, columns, 2);
+            updateCombo(comboNTU, columns, 3);
+            tableMasking.Enabled = true;
             isSaved = false; // Mark as unsaved after loading a new position file
         }
 
@@ -397,6 +397,7 @@ namespace CSEMMPGUI_v1
                 lblMaskingMaxNTU.Enabled = false;
                 txtMaskingMaxNTU.Enabled = false;
             }
+            isSaved = false; // Mark as unsaved when masking options change
         }
 
         private int SaveOBS()
@@ -416,14 +417,14 @@ namespace CSEMMPGUI_v1
                 MessageBox.Show("The specified file path does not exist. Please select a valid file.", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return 0; // Prevent saving if file does not exist
             }
-            if (comboDateTime.SelectedItem == null || comboDepth.SelectedItem == null || comboNTU.SelectedItem == null)
+            if (comboDate.SelectedItem == null || comboTime.SelectedItem == null || comboDepth.SelectedItem == null || comboNTU.SelectedItem == null)
             {
-                MessageBox.Show("Please select valid columns for DateTime, Depth, and NTU.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select valid columns for Date, Time, Depth, and NTU.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return 0; // Prevent saving if any column is not selected
             }
-            if (comboDateTime.SelectedIndex < 0 || comboDepth.SelectedIndex < 0 || comboNTU.SelectedIndex < 0)
+            if (comboDate.SelectedIndex < 0 || comboTime.SelectedIndex < 0 || comboDepth.SelectedIndex < 0 || comboNTU.SelectedIndex < 0)
             {
-                MessageBox.Show("Please select valid columns for DateTime, Depth, and NTU.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select valid columns for Date, Time, Depth, and NTU.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return 0; // Prevent saving if any column is not selected
             }
             if (mode == 0)
@@ -436,6 +437,10 @@ namespace CSEMMPGUI_v1
 
         private void SAVE()
         {
+            id = _project.GetNextId();
+            obsElement = surveyManager.survey.OwnerDocument.CreateElement("OBSVerticalProfile");
+            obsElement.SetAttribute("id", id.ToString());
+            obsElement.SetAttribute("type", "OBSVerticalProfile");
             obsElement.SetAttribute("name", txtName.Text.Trim());
             while (obsElement.HasChildNodes && obsElement.FirstChild != null)
             {
@@ -447,35 +452,44 @@ namespace CSEMMPGUI_v1
             filePath.InnerText = txtFilePath.Text.Trim();
             fileInfo.AppendChild(filePath);
             XmlElement fileColumns = project.CreateElement("Columns");
-            for (int i = 0; i < comboDateTime.Items.Count; i++)
+            for (int i = 0; i < comboDate.Items.Count; i++)
             {
                 XmlElement column = project.CreateElement($"Column{i}");
-                column.InnerText = comboDateTime.Items[i].ToString();
+                column.InnerText = comboDate.Items[i].ToString();
                 fileColumns.AppendChild(column);
             }
             fileInfo.AppendChild(fileColumns);
-            XmlElement dateTimeColumn = project.CreateElement("DateTimeColumn");
-            dateTimeColumn.InnerText = comboDateTime.Text.Trim() ?? string.Empty;
-            fileInfo.AppendChild(dateTimeColumn);
+            XmlElement xmlElement = project.CreateElement("Header");
+            xmlElement.InnerText = _headerLine.ToString();
+            fileInfo.AppendChild(xmlElement);
+            XmlElement delimiterElement = project.CreateElement("Sep");
+            delimiterElement.InnerText = _delimiter;
+            fileInfo.AppendChild(delimiterElement);
+            XmlElement dateColumn = project.CreateElement("DateColumn");
+            dateColumn.InnerText = comboDate.Text.Trim() ?? string.Empty;
+            fileInfo.AppendChild(dateColumn);
+            XmlElement timeColumn = project.CreateElement("TimeColumn");
+            timeColumn.InnerText = comboTime.Text.Trim() ?? string.Empty;
+            fileInfo.AppendChild(timeColumn);
             XmlElement depthColumn = project.CreateElement("DepthColumn");
             depthColumn.InnerText = comboDepth.Text.Trim() ?? string.Empty;
             fileInfo.AppendChild(depthColumn);
             XmlElement ntuColumn = project.CreateElement("NTUColumn");
             ntuColumn.InnerText = comboNTU.Text.Trim() ?? string.Empty;
             fileInfo.AppendChild(ntuColumn);
-            XmlElement ntu2sscModel = project.CreateElement("SSCModel");
-            List<XmlElement> ntu2sscModels = _project.GetObjects(type: "NTU2SSC");
-            if (ntu2sscModels.Count == 0)
+            XmlElement sscModel = project.CreateElement("SSCModelID");
+            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            if (sscModels.Count == 0)
             {
-                ntu2sscModel.InnerText = string.Empty;
+                sscModel.InnerText = string.Empty;
             }
             else
             {
                 var selectedItem = comboSSCModel.SelectedItem;
-                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : ntu2sscModels[0].GetAttribute("id");
-                ntu2sscModel.InnerText = selectedId;
+                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : sscModels[0].GetAttribute("id");
+                sscModel.InnerText = selectedId;
             }
-            fileInfo.AppendChild(ntu2sscModel);
+            fileInfo.AppendChild(sscModel);
             obsElement.AppendChild(fileInfo);
             XmlElement masking = project.CreateElement("Masking");
             XmlElement maskingDateTime = project.CreateElement("MaskDateTime");
@@ -520,19 +534,25 @@ namespace CSEMMPGUI_v1
             pathNode.InnerText = txtFilePath.Text.Trim();
             XmlElement? columnsElement = fileInfo?.SelectSingleNode("Columns") as XmlElement;
             columnsElement.RemoveAll(); // Clear existing columns
-            for (int i = 0; i < comboDateTime.Items.Count; i++)
+            for (int i = 0; i < comboDate.Items.Count; i++)
             {
                 XmlElement columnElement = obsElement.OwnerDocument.CreateElement($"Column{i}");
-                columnElement.InnerText = comboDateTime.Items[i].ToString();
+                columnElement.InnerText = comboDate.Items[i].ToString();
                 columnsElement.AppendChild(columnElement);
             }
-            XmlNode? dateTimeColumn = fileInfo?.SelectSingleNode("DateTimeColumn");
-            dateTimeColumn.InnerText = comboDateTime.SelectedItem?.ToString() ?? string.Empty;
+            XmlNode? headerNode = fileInfo?.SelectSingleNode("Header");
+            headerNode.InnerText = _headerLine.ToString();
+            XmlNode? sepNode = fileInfo?.SelectSingleNode("Sep");
+            sepNode.InnerText = _delimiter;
+            XmlNode? dateColumn = fileInfo?.SelectSingleNode("DateColumn");
+            dateColumn.InnerText = comboDate.SelectedItem?.ToString() ?? string.Empty;
+            XmlNode? timeColumn = fileInfo?.SelectSingleNode("TimeColumn");
+            timeColumn.InnerText = comboTime.SelectedItem?.ToString() ?? string.Empty;
             XmlNode? depthColumn = fileInfo?.SelectSingleNode("DepthColumn");
             depthColumn.InnerText = comboDepth.SelectedItem?.ToString() ?? string.Empty;
             XmlNode? ntuColumn = fileInfo?.SelectSingleNode("NTUColumn");
             ntuColumn.InnerText = comboNTU.SelectedItem?.ToString() ?? string.Empty;
-            XmlNode? sscModelNode = fileInfo?.SelectSingleNode("SSCModel");
+            XmlNode? sscModelNode = fileInfo?.SelectSingleNode("SSCModelID");
             var selectedItem = comboSSCModel.SelectedItem;
             string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : string.Empty;
             sscModelNode.InnerText = selectedId;

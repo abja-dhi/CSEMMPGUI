@@ -25,8 +25,6 @@ namespace CSEMMPGUI_v1
             survey.SetAttribute("type", "Survey");
             survey.SetAttribute("name", "New Survey");
             survey.SetAttribute("id", _project.GetNextId().ToString());
-            int nextId = _project.GetNextId();
-            _Globals.Config.DocumentElement?.SetAttribute("nextid", (nextId + 1).ToString());
             _project.SaveConfig(saveMode: 2);
         }
 
@@ -95,8 +93,7 @@ namespace CSEMMPGUI_v1
                 _Globals.Config.DocumentElement?.AppendChild(survey);
             }
             _project.SaveConfig(saveMode: 2);
-            int nextId = _project.GetNextId();
-            _Globals.Config.DocumentElement?.SetAttribute("nextid", (nextId+1).ToString());
+            
         }
 
         public int NInstrument(string type)

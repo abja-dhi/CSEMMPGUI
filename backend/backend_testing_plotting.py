@@ -6,11 +6,11 @@ import os
 # Add the project root (one level up from /tests/) to the module search path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import backend
-from backend.pd0 import Pd0Decoder
-from backend.adcp import ADCP as ADCPDataset
-from backend._adcp_position import ADCPPosition
-from backend.utils import Utils, CSVParser
-from backend.plotting import PlottingShell
+from pd0 import Pd0Decoder
+from adcp import ADCP as ADCPDataset
+from _adcp_position import ADCPPosition
+from utils import Utils, CSVParser
+from plotting import PlottingShell
 
 import matplotlib.pyplot as plt
 
@@ -119,8 +119,6 @@ cfg = {'filename':pd0_fpaths[i],
     }
  
 adcp = ADCPDataset(cfg, name = cfg['name'])
-#adcps.append(adcp)
- 
 
 
 #%% example plots

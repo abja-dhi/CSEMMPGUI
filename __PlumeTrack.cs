@@ -285,8 +285,7 @@ namespace CSEMMPGUI_v1
                         OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
                         editOBSVerticalProfile.ShowDialog();
                         break;
-                    case "NTU2SSC":
-                    case "BKS2SSC":
+                    case "SSCModel":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -329,8 +328,7 @@ namespace CSEMMPGUI_v1
                         OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
                         editOBSVerticalProfile.ShowDialog();
                         break;
-                    case "NTU2SSC":
-                    case "BKS2SSC":
+                    case "SSCModel":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -347,6 +345,7 @@ namespace CSEMMPGUI_v1
                 string type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                 string name = xmlNode.Attributes?["name"]?.Value ?? xmlNode.Name;
                 string id = xmlNode.Attributes?["id"]?.Value ?? string.Empty;
+                
 
                 switch (type)
                 {
@@ -358,8 +357,8 @@ namespace CSEMMPGUI_v1
                         // Implement survey opening logic here
                         break;
                     case "Model":
-                        PlotModel plotModel = new PlotModel(xmlNode);
-                        plotModel.ShowDialog();
+                        ModelPlot modelPlot = new ModelPlot(id);
+                        modelPlot.Show();
                         break;
                     case "VesselMountedADCP":
                         VesselMountedADCPPlot vesselMountedADCPPlot = new VesselMountedADCPPlot(id);
@@ -373,8 +372,7 @@ namespace CSEMMPGUI_v1
                         MessageBox.Show($"Plotting OBS vertical profile: {name}", "Open OBS Vertical Profile", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         // Implement OBS vertical profile opening logic here
                         break;
-                    case "NTU2SSC":
-                    case "BKS2SSC":
+                    case "SSCModel":
                         MessageBox.Show($"Plotting SSC model: {name}", "Open SSC Model", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                 }
@@ -427,18 +425,11 @@ namespace CSEMMPGUI_v1
                             _project.DeleteNode(type: "OBSVerticalProfile", id: id);
                         }
                         break;
-                    case "NTU2SSC":
-                        DialogResult resultSSCModel = MessageBox.Show($"Are you sure you want to delete the NTU to SSC model: {name}?", "Delete SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    case "SSCModel":
+                        DialogResult resultSSCModel = MessageBox.Show($"Are you sure you want to delete the SSC model: {name}?", "Delete SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                         if (resultSSCModel == DialogResult.Yes)
                         {
-                            _project.DeleteNode(type: "NTU2SSC", id: id);
-                        }
-                        break;
-                    case "BKS2SSC":
-                        DialogResult resultBKS2SSC = MessageBox.Show($"Are you sure you want to delete the BKS to SSC model: {name}?", "Delete SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (resultBKS2SSC == DialogResult.Yes)
-                        {
-                            _project.DeleteNode(type: "BKS2SSC", id: id);
+                            _project.DeleteNode(type: "SSCModel", id: id);
                         }
                         break;
                 }

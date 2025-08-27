@@ -18,7 +18,6 @@ namespace CSEMMPGUI_v1
         public bool isSaved;
         public XmlElement? sscElement;
         public int mode;
-        public string modelType;
         public _ClassConfigurationManager _project = new();
 
         public bool _updatingChecks;
@@ -100,8 +99,7 @@ namespace CSEMMPGUI_v1
 
         private void FillTrees()
         {
-            FillTree(treeNTU2SSC, "OBSVerticalProfile | WaterSample");
-            FillTree(treeBKS2SSC, "VesselMountedADCP | WaterSample");
+            FillTree(treeItems, "VesselMountedADCP | OBSVerticalProfile | WaterSample");
         }
 
         private void SetCheck(TreeView tree)
@@ -130,11 +128,7 @@ namespace CSEMMPGUI_v1
 
         private void SetChecks()
         {
-            if (modelType == "NTU2SSC")
-                SetCheck(treeNTU2SSC);
-            else
-                SetCheck(treeBKS2SSC);
-
+            SetCheck(treeItems);
         }
 
         private void InitializeSSCModel()
@@ -174,10 +168,8 @@ namespace CSEMMPGUI_v1
         public SSCModel(XmlNode? sscModelNode)
         {
             InitializeComponent();
-            treeNTU2SSC.CheckBoxes = true;
-            treeBKS2SSC.CheckBoxes = true;
-            treeNTU2SSC.AfterCheck += Tree_AfterCheck;
-            treeBKS2SSC.AfterCheck += Tree_AfterCheck;
+            treeItems.CheckBoxes = true;
+            treeItems.AfterCheck += Tree_AfterCheck;
             if (sscModelNode == null)
             {
                 InitializeSSCModel();
@@ -187,21 +179,8 @@ namespace CSEMMPGUI_v1
             else
             {
                 sscElement = sscModelNode as XmlElement;
-                modelType = sscElement?.GetAttribute("type");
                 PopulateSSCModel();
                 menuNew.Visible = false; // Hide New menu option if editing an existing SSC model
-                if (modelType == "NTU2SSC")
-                {
-                    rbNTU2SSC.Checked = true;
-                    rbBKS2SSC.Enabled = false;
-                    treeBKS2SSC.Enabled = false;
-                }
-                else
-                {
-                    rbNTU2SSC.Enabled = false;
-                    rbBKS2SSC.Checked = true;
-                    treeNTU2SSC.Enabled = false;
-                }
                 mode = 1; // Edit SSC model mode
                 this.Text = "Edit SSC Model";
             }
@@ -308,21 +287,6 @@ namespace CSEMMPGUI_v1
             isSaved = false; // Mark as unsaved changes
         }
 
-        private void rbNTU2SSC_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rbNTU2SSC.Checked)
-            {
-                treeNTU2SSC.Enabled = true;
-                treeBKS2SSC.Enabled = false;
-            }
-            else
-            {
-                treeNTU2SSC.Enabled = false;
-                treeBKS2SSC.Enabled = true;
-            }
-            isSaved = false; // Mark as unsaved changes
-        }
-
         private void rbManual_CheckedChanged(object sender, EventArgs e)
         {
             if (rbManual.Checked)
@@ -340,21 +304,12 @@ namespace CSEMMPGUI_v1
 
         private bool ValidateSelection()
         {
-            TreeView tree;
-            if (rbNTU2SSC.Checked)
-            {
-                tree = treeNTU2SSC;
-            }
-            else
-            {
-                tree = treeBKS2SSC;
-            }
             if (rbManual.Checked)
                 return true; // Manual mode, no selection needed
             else
             {
                 int counter = 0;
-                foreach (TreeNode surveyNode in tree.Nodes)
+                foreach (TreeNode surveyNode in treeItems.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
                     {
@@ -401,23 +356,13 @@ namespace CSEMMPGUI_v1
             return 1; // Return 1 to indicate success
         }
 
-        private void CreateSSCModel()
+        private void SAVE()
         {
-            if (rbNTU2SSC.Checked)
-            {
-                sscElement = _Globals.Config.CreateElement("NTU2SSC");
-                modelType = "NTU2SSC";
-                TreeView tree = treeNTU2SSC;
-            }
-            else
-            {
-                sscElement = _Globals.Config.CreateElement("BKS2SSC");
-                modelType = "BKS2SSC";
-                TreeView tree = treeBKS2SSC;
-            }
+            int id = _project.GetNextId();
+            sscElement = _Globals.Config.CreateElement("SSCModel");
             sscElement.SetAttribute("name", txtModelName.Text);
-            sscElement.SetAttribute("type", modelType);
-            sscElement.SetAttribute("id", _project.GetNextId().ToString());
+            sscElement.SetAttribute("type", "SSCModel");
+            sscElement.SetAttribute("id", id.ToString());
             XmlElement modeElement = _Globals.Config.CreateElement("Mode");
             modeElement.InnerText = rbManual.Checked ? "Manual" : "Auto";
             sscElement.AppendChild(modeElement);
@@ -435,7 +380,7 @@ namespace CSEMMPGUI_v1
             }
             else
             {
-                foreach (TreeNode surveyNode in treeNTU2SSC.Nodes)
+                foreach (TreeNode surveyNode in treeItems.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
                     {
@@ -443,25 +388,23 @@ namespace CSEMMPGUI_v1
                         if (instrumentNode.Checked && element != null)
                         {
                             XmlElement instrumentElement = _Globals.Config.CreateElement("Instrument");
-                            instrumentElement.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentID = _Globals.Config.CreateElement("ID");
+                            instrumentID.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentType = _Globals.Config.CreateElement("Type");
+                            instrumentType.InnerText = element.GetAttribute("type");
+                            instrumentElement.AppendChild(instrumentID);
+                            instrumentElement.AppendChild(instrumentType);
                             sscElement.AppendChild(instrumentElement);
                         }
                     }
                 }
             }
-        }
-
-        private void SAVE()
-        {
-            CreateSSCModel();
             var doc = _Globals.Config.DocumentElement;
             if (doc != null)
             {
                 doc.AppendChild(sscElement);
             }
             _project.SaveConfig(saveMode: 1);
-            int id = _project.GetNextId();
-            _Globals.Config.DocumentElement.SetAttribute("nextid", (id + 1).ToString());
         }
 
         private void UPDATE()
@@ -495,8 +438,7 @@ namespace CSEMMPGUI_v1
             }
             else
             {
-                TreeView tree = rbNTU2SSC.Checked ? treeNTU2SSC : treeBKS2SSC;
-                foreach (TreeNode surveyNode in tree.Nodes)
+                foreach (TreeNode surveyNode in treeItems.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
                     {
@@ -504,7 +446,12 @@ namespace CSEMMPGUI_v1
                         if (instrumentNode.Checked && element != null)
                         {
                             XmlElement instrumentElement = _Globals.Config.CreateElement("Instrument");
-                            instrumentElement.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentID = _Globals.Config.CreateElement("ID");
+                            instrumentID.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentType = _Globals.Config.CreateElement("Type");
+                            instrumentType.InnerText = element.GetAttribute("type");
+                            instrumentElement.AppendChild(instrumentID);
+                            instrumentElement.AppendChild(instrumentType);
                             sscElement.AppendChild(instrumentElement);
                         }
                     }

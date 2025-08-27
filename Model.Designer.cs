@@ -106,7 +106,6 @@
             // txtFilePath
             // 
             txtFilePath.Dock = DockStyle.Fill;
-            txtFilePath.Enabled = false;
             txtFilePath.Location = new Point(103, 33);
             txtFilePath.Name = "txtFilePath";
             txtFilePath.Size = new Size(594, 23);

@@ -13,8 +13,8 @@ from datetime import datetime
 import matplotlib as mpl
 import cycler
 
-from .utils import CSVParser
-from .utils_dfsu import DfsuUtils
+from utils import CSVParser
+from utils_dfsu import DfsuUtils
 
 
 class PlottingShell:

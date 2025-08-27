@@ -6,8 +6,8 @@ from matplotlib.axes import Axes
 import matplotlib.dates as mdates
 import numpy as np
 
-from .utils import Utils, Constants, XYZ
-from .plotting import PlottingShell
+from utils import Utils, Constants, XYZ
+from plotting import PlottingShell
 
 
 from typing import Dict, Any

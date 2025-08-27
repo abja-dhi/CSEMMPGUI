@@ -34,49 +34,51 @@
             menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
-            tblMain = new TableLayoutPanel();
-            tblFileInfo = new TableLayoutPanel();
+            tableMain = new TableLayoutPanel();
+            tableFileInfo = new TableLayoutPanel();
             lblFilePath = new Label();
             lblName = new Label();
             txtName = new TextBox();
             txtFilePath = new TextBox();
             btnLoadPath = new Button();
-            tblColumnInfo = new TableLayoutPanel();
+            tableColumnInfo = new TableLayoutPanel();
             comboDepth = new ComboBox();
-            lblDateTime = new Label();
+            lblDate = new Label();
             lblDepth = new Label();
             lblNTU = new Label();
-            comboDateTime = new ComboBox();
+            comboDate = new ComboBox();
             comboNTU = new ComboBox();
             lblSSCModel = new Label();
             comboSSCModel = new ComboBox();
-            tblMasking = new TableLayoutPanel();
-            tblNTUMasking = new TableLayoutPanel();
+            lblTime = new Label();
+            comboTime = new ComboBox();
+            tableMasking = new TableLayoutPanel();
+            tableNTUMasking = new TableLayoutPanel();
             checkMaskingNTU = new CheckBox();
             lblMaskingMinNTU = new Label();
             lblMaskingMaxNTU = new Label();
             txtMaskingMinNTU = new TextBox();
             txtMaskingMaxNTU = new TextBox();
-            tblDepthMasking = new TableLayoutPanel();
+            tableDepthMasking = new TableLayoutPanel();
             checkMaskingDepth = new CheckBox();
             lblMaskingMinDepth = new Label();
             lblMaskingMaxDepth = new Label();
             txtMaskingMinDepth = new TextBox();
             txtMaskingMaxDepth = new TextBox();
-            tblDateTimeMasking = new TableLayoutPanel();
+            tableDateTimeMasking = new TableLayoutPanel();
             checkMaskingDateTime = new CheckBox();
             lblMaskingStartDateTime = new Label();
             lblMaskingEndDateTime = new Label();
             txtMaskingStartDateTime = new TextBox();
             txtMaskingEndDateTime = new TextBox();
             menuStrip1.SuspendLayout();
-            tblMain.SuspendLayout();
-            tblFileInfo.SuspendLayout();
-            tblColumnInfo.SuspendLayout();
-            tblMasking.SuspendLayout();
-            tblNTUMasking.SuspendLayout();
-            tblDepthMasking.SuspendLayout();
-            tblDateTimeMasking.SuspendLayout();
+            tableMain.SuspendLayout();
+            tableFileInfo.SuspendLayout();
+            tableColumnInfo.SuspendLayout();
+            tableMasking.SuspendLayout();
+            tableNTUMasking.SuspendLayout();
+            tableDepthMasking.SuspendLayout();
+            tableDateTimeMasking.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -116,50 +118,52 @@
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
-            // tblMain
+            // tableMain
             // 
-            tblMain.ColumnCount = 2;
-            tblMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
-            tblMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
-            tblMain.Controls.Add(tblFileInfo, 0, 0);
-            tblMain.Controls.Add(tblColumnInfo, 0, 1);
-            tblMain.Controls.Add(tblMasking, 1, 0);
-            tblMain.Dock = DockStyle.Fill;
-            tblMain.Location = new Point(0, 24);
-            tblMain.Name = "tblMain";
-            tblMain.RowCount = 2;
-            tblMain.RowStyles.Add(new RowStyle(SizeType.Percent, 22.384428F));
-            tblMain.RowStyles.Add(new RowStyle(SizeType.Percent, 77.61557F));
-            tblMain.Size = new Size(800, 265);
-            tblMain.TabIndex = 1;
+            tableMain.ColumnCount = 2;
+            tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+            tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            tableMain.Controls.Add(tableFileInfo, 0, 0);
+            tableMain.Controls.Add(tableColumnInfo, 0, 1);
+            tableMain.Controls.Add(tableMasking, 1, 0);
+            tableMain.Dock = DockStyle.Fill;
+            tableMain.Location = new Point(0, 24);
+            tableMain.Name = "tableMain";
+            tableMain.RowCount = 3;
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Absolute, 160F));
+            tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMain.Size = new Size(800, 336);
+            tableMain.TabIndex = 1;
             // 
-            // tblFileInfo
+            // tableFileInfo
             // 
-            tblFileInfo.ColumnCount = 3;
-            tblFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
-            tblFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
-            tblFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
-            tblFileInfo.Controls.Add(lblFilePath, 0, 1);
-            tblFileInfo.Controls.Add(lblName, 0, 0);
-            tblFileInfo.Controls.Add(txtName, 1, 0);
-            tblFileInfo.Controls.Add(txtFilePath, 1, 1);
-            tblFileInfo.Controls.Add(btnLoadPath, 2, 1);
-            tblFileInfo.Dock = DockStyle.Fill;
-            tblFileInfo.Location = new Point(3, 3);
-            tblFileInfo.Name = "tblFileInfo";
-            tblFileInfo.RowCount = 2;
-            tblFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblFileInfo.Size = new Size(474, 53);
-            tblFileInfo.TabIndex = 0;
+            tableFileInfo.ColumnCount = 3;
+            tableFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            tableFileInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
+            tableFileInfo.Controls.Add(lblFilePath, 0, 1);
+            tableFileInfo.Controls.Add(lblName, 0, 0);
+            tableFileInfo.Controls.Add(txtName, 1, 0);
+            tableFileInfo.Controls.Add(txtFilePath, 1, 1);
+            tableFileInfo.Controls.Add(btnLoadPath, 2, 1);
+            tableFileInfo.Dock = DockStyle.Fill;
+            tableFileInfo.Location = new Point(3, 3);
+            tableFileInfo.Name = "tableFileInfo";
+            tableFileInfo.RowCount = 3;
+            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
+            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableFileInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableFileInfo.Size = new Size(474, 54);
+            tableFileInfo.TabIndex = 0;
             // 
             // lblFilePath
             // 
             lblFilePath.AutoSize = true;
             lblFilePath.Dock = DockStyle.Fill;
-            lblFilePath.Location = new Point(3, 26);
+            lblFilePath.Location = new Point(3, 24);
             lblFilePath.Name = "lblFilePath";
-            lblFilePath.Size = new Size(65, 27);
+            lblFilePath.Size = new Size(65, 30);
             lblFilePath.TabIndex = 0;
             lblFilePath.Text = "Data File";
             lblFilePath.TextAlign = ContentAlignment.MiddleLeft;
@@ -170,7 +174,7 @@
             lblName.Dock = DockStyle.Fill;
             lblName.Location = new Point(3, 0);
             lblName.Name = "lblName";
-            lblName.Size = new Size(65, 26);
+            lblName.Size = new Size(65, 24);
             lblName.TabIndex = 1;
             lblName.Text = "Name";
             lblName.TextAlign = ContentAlignment.MiddleLeft;
@@ -187,7 +191,7 @@
             // txtFilePath
             // 
             txtFilePath.Dock = DockStyle.Fill;
-            txtFilePath.Location = new Point(74, 29);
+            txtFilePath.Location = new Point(74, 27);
             txtFilePath.Name = "txtFilePath";
             txtFilePath.Size = new Size(325, 23);
             txtFilePath.TabIndex = 3;
@@ -196,69 +200,72 @@
             // btnLoadPath
             // 
             btnLoadPath.Dock = DockStyle.Fill;
-            btnLoadPath.Location = new Point(405, 29);
+            btnLoadPath.Location = new Point(405, 27);
             btnLoadPath.Name = "btnLoadPath";
-            btnLoadPath.Size = new Size(66, 21);
+            btnLoadPath.Size = new Size(66, 24);
             btnLoadPath.TabIndex = 4;
             btnLoadPath.Text = "...";
             btnLoadPath.UseVisualStyleBackColor = true;
             btnLoadPath.Click += btnLoadPath_Click;
             // 
-            // tblColumnInfo
+            // tableColumnInfo
             // 
-            tblColumnInfo.ColumnCount = 2;
-            tblColumnInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tblColumnInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tblColumnInfo.Controls.Add(comboDepth, 1, 1);
-            tblColumnInfo.Controls.Add(lblDateTime, 0, 0);
-            tblColumnInfo.Controls.Add(lblDepth, 0, 1);
-            tblColumnInfo.Controls.Add(lblNTU, 0, 2);
-            tblColumnInfo.Controls.Add(comboDateTime, 1, 0);
-            tblColumnInfo.Controls.Add(comboNTU, 1, 2);
-            tblColumnInfo.Controls.Add(lblSSCModel, 0, 3);
-            tblColumnInfo.Controls.Add(comboSSCModel, 1, 3);
-            tblColumnInfo.Dock = DockStyle.Fill;
-            tblColumnInfo.Enabled = false;
-            tblColumnInfo.Location = new Point(3, 62);
-            tblColumnInfo.Name = "tblColumnInfo";
-            tblColumnInfo.RowCount = 5;
-            tblColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tblColumnInfo.Size = new Size(474, 200);
-            tblColumnInfo.TabIndex = 1;
+            tableColumnInfo.ColumnCount = 2;
+            tableColumnInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableColumnInfo.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableColumnInfo.Controls.Add(comboDepth, 1, 2);
+            tableColumnInfo.Controls.Add(lblDate, 0, 0);
+            tableColumnInfo.Controls.Add(lblDepth, 0, 2);
+            tableColumnInfo.Controls.Add(lblNTU, 0, 3);
+            tableColumnInfo.Controls.Add(comboDate, 1, 0);
+            tableColumnInfo.Controls.Add(comboNTU, 1, 3);
+            tableColumnInfo.Controls.Add(lblSSCModel, 0, 4);
+            tableColumnInfo.Controls.Add(comboSSCModel, 1, 4);
+            tableColumnInfo.Controls.Add(lblTime, 0, 1);
+            tableColumnInfo.Controls.Add(comboTime, 1, 1);
+            tableColumnInfo.Dock = DockStyle.Fill;
+            tableColumnInfo.Enabled = false;
+            tableColumnInfo.Location = new Point(3, 63);
+            tableColumnInfo.Name = "tableColumnInfo";
+            tableColumnInfo.RowCount = 6;
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableColumnInfo.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableColumnInfo.Size = new Size(474, 154);
+            tableColumnInfo.TabIndex = 1;
             // 
             // comboDepth
             // 
             comboDepth.Dock = DockStyle.Fill;
             comboDepth.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDepth.FormattingEnabled = true;
-            comboDepth.Location = new Point(240, 43);
+            comboDepth.Location = new Point(240, 63);
             comboDepth.Name = "comboDepth";
             comboDepth.Size = new Size(231, 23);
             comboDepth.TabIndex = 7;
             comboDepth.SelectedIndexChanged += input_Changed;
             // 
-            // lblDateTime
+            // lblDate
             // 
-            lblDateTime.AutoSize = true;
-            lblDateTime.Dock = DockStyle.Fill;
-            lblDateTime.Location = new Point(3, 0);
-            lblDateTime.Name = "lblDateTime";
-            lblDateTime.Size = new Size(231, 40);
-            lblDateTime.TabIndex = 0;
-            lblDateTime.Text = "DateTime";
-            lblDateTime.TextAlign = ContentAlignment.MiddleLeft;
+            lblDate.AutoSize = true;
+            lblDate.Dock = DockStyle.Fill;
+            lblDate.Location = new Point(3, 0);
+            lblDate.Name = "lblDate";
+            lblDate.Size = new Size(231, 30);
+            lblDate.TabIndex = 0;
+            lblDate.Text = "Date";
+            lblDate.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lblDepth
             // 
             lblDepth.AutoSize = true;
             lblDepth.Dock = DockStyle.Fill;
-            lblDepth.Location = new Point(3, 40);
+            lblDepth.Location = new Point(3, 60);
             lblDepth.Name = "lblDepth";
-            lblDepth.Size = new Size(231, 40);
+            lblDepth.Size = new Size(231, 30);
             lblDepth.TabIndex = 1;
             lblDepth.Text = "Depth";
             lblDepth.TextAlign = ContentAlignment.MiddleLeft;
@@ -267,30 +274,30 @@
             // 
             lblNTU.AutoSize = true;
             lblNTU.Dock = DockStyle.Fill;
-            lblNTU.Location = new Point(3, 80);
+            lblNTU.Location = new Point(3, 90);
             lblNTU.Name = "lblNTU";
-            lblNTU.Size = new Size(231, 40);
+            lblNTU.Size = new Size(231, 30);
             lblNTU.TabIndex = 2;
             lblNTU.Text = "NTU";
             lblNTU.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // comboDateTime
+            // comboDate
             // 
-            comboDateTime.Dock = DockStyle.Fill;
-            comboDateTime.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDateTime.FormattingEnabled = true;
-            comboDateTime.Location = new Point(240, 3);
-            comboDateTime.Name = "comboDateTime";
-            comboDateTime.Size = new Size(231, 23);
-            comboDateTime.TabIndex = 6;
-            comboDateTime.SelectedIndexChanged += input_Changed;
+            comboDate.Dock = DockStyle.Fill;
+            comboDate.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDate.FormattingEnabled = true;
+            comboDate.Location = new Point(240, 3);
+            comboDate.Name = "comboDate";
+            comboDate.Size = new Size(231, 23);
+            comboDate.TabIndex = 6;
+            comboDate.SelectedIndexChanged += input_Changed;
             // 
             // comboNTU
             // 
             comboNTU.Dock = DockStyle.Fill;
             comboNTU.DropDownStyle = ComboBoxStyle.DropDownList;
             comboNTU.FormattingEnabled = true;
-            comboNTU.Location = new Point(240, 83);
+            comboNTU.Location = new Point(240, 93);
             comboNTU.Name = "comboNTU";
             comboNTU.Size = new Size(231, 23);
             comboNTU.TabIndex = 8;
@@ -303,7 +310,7 @@
             lblSSCModel.Enabled = false;
             lblSSCModel.Location = new Point(3, 120);
             lblSSCModel.Name = "lblSSCModel";
-            lblSSCModel.Size = new Size(231, 40);
+            lblSSCModel.Size = new Size(231, 30);
             lblSSCModel.TabIndex = 9;
             lblSSCModel.Text = "NTU to SSC Model";
             lblSSCModel.TextAlign = ContentAlignment.MiddleLeft;
@@ -320,44 +327,68 @@
             comboSSCModel.TabIndex = 10;
             comboSSCModel.SelectedIndexChanged += input_Changed;
             // 
-            // tblMasking
+            // lblTime
             // 
-            tblMasking.ColumnCount = 1;
-            tblMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tblMasking.Controls.Add(tblNTUMasking, 0, 2);
-            tblMasking.Controls.Add(tblDepthMasking, 0, 1);
-            tblMasking.Controls.Add(tblDateTimeMasking, 0, 0);
-            tblMasking.Dock = DockStyle.Fill;
-            tblMasking.Enabled = false;
-            tblMasking.Location = new Point(483, 3);
-            tblMasking.Name = "tblMasking";
-            tblMasking.RowCount = 3;
-            tblMain.SetRowSpan(tblMasking, 2);
-            tblMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-            tblMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-            tblMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 33.34F));
-            tblMasking.Size = new Size(314, 259);
-            tblMasking.TabIndex = 2;
+            lblTime.AutoSize = true;
+            lblTime.Dock = DockStyle.Fill;
+            lblTime.Location = new Point(3, 30);
+            lblTime.Name = "lblTime";
+            lblTime.Size = new Size(231, 30);
+            lblTime.TabIndex = 11;
+            lblTime.Text = "Time";
+            lblTime.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // tblNTUMasking
+            // comboTime
             // 
-            tblNTUMasking.ColumnCount = 3;
-            tblNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.272728F));
-            tblNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblNTUMasking.Controls.Add(checkMaskingNTU, 0, 0);
-            tblNTUMasking.Controls.Add(lblMaskingMinNTU, 1, 0);
-            tblNTUMasking.Controls.Add(lblMaskingMaxNTU, 2, 0);
-            tblNTUMasking.Controls.Add(txtMaskingMinNTU, 1, 1);
-            tblNTUMasking.Controls.Add(txtMaskingMaxNTU, 2, 1);
-            tblNTUMasking.Dock = DockStyle.Fill;
-            tblNTUMasking.Location = new Point(3, 175);
-            tblNTUMasking.Name = "tblNTUMasking";
-            tblNTUMasking.RowCount = 2;
-            tblNTUMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblNTUMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblNTUMasking.Size = new Size(308, 81);
-            tblNTUMasking.TabIndex = 2;
+            comboTime.Dock = DockStyle.Fill;
+            comboTime.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboTime.FormattingEnabled = true;
+            comboTime.Location = new Point(240, 33);
+            comboTime.Name = "comboTime";
+            comboTime.Size = new Size(231, 23);
+            comboTime.TabIndex = 12;
+            comboTime.SelectedIndexChanged += input_Changed;
+            // 
+            // tableMasking
+            // 
+            tableMasking.ColumnCount = 1;
+            tableMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableMasking.Controls.Add(tableNTUMasking, 0, 2);
+            tableMasking.Controls.Add(tableDepthMasking, 0, 1);
+            tableMasking.Controls.Add(tableDateTimeMasking, 0, 0);
+            tableMasking.Dock = DockStyle.Fill;
+            tableMasking.Enabled = false;
+            tableMasking.Location = new Point(483, 3);
+            tableMasking.Name = "tableMasking";
+            tableMasking.RowCount = 4;
+            tableMain.SetRowSpan(tableMasking, 2);
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMasking.Size = new Size(314, 214);
+            tableMasking.TabIndex = 2;
+            // 
+            // tableNTUMasking
+            // 
+            tableNTUMasking.ColumnCount = 3;
+            tableNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.27273F));
+            tableNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableNTUMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableNTUMasking.Controls.Add(checkMaskingNTU, 0, 0);
+            tableNTUMasking.Controls.Add(lblMaskingMinNTU, 1, 0);
+            tableNTUMasking.Controls.Add(lblMaskingMaxNTU, 2, 0);
+            tableNTUMasking.Controls.Add(txtMaskingMinNTU, 1, 1);
+            tableNTUMasking.Controls.Add(txtMaskingMaxNTU, 2, 1);
+            tableNTUMasking.Dock = DockStyle.Fill;
+            tableNTUMasking.Location = new Point(3, 143);
+            tableNTUMasking.Name = "tableNTUMasking";
+            tableNTUMasking.RowCount = 3;
+            tableNTUMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableNTUMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableNTUMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableNTUMasking.Size = new Size(308, 64);
+            tableNTUMasking.TabIndex = 2;
             // 
             // checkMaskingNTU
             // 
@@ -365,8 +396,8 @@
             checkMaskingNTU.Dock = DockStyle.Fill;
             checkMaskingNTU.Location = new Point(3, 3);
             checkMaskingNTU.Name = "checkMaskingNTU";
-            tblNTUMasking.SetRowSpan(checkMaskingNTU, 2);
-            checkMaskingNTU.Size = new Size(78, 75);
+            tableNTUMasking.SetRowSpan(checkMaskingNTU, 2);
+            checkMaskingNTU.Size = new Size(78, 54);
             checkMaskingNTU.TabIndex = 0;
             checkMaskingNTU.Text = "NTU Masking";
             checkMaskingNTU.UseVisualStyleBackColor = true;
@@ -379,7 +410,7 @@
             lblMaskingMinNTU.Enabled = false;
             lblMaskingMinNTU.Location = new Point(87, 0);
             lblMaskingMinNTU.Name = "lblMaskingMinNTU";
-            lblMaskingMinNTU.Size = new Size(106, 40);
+            lblMaskingMinNTU.Size = new Size(106, 30);
             lblMaskingMinNTU.TabIndex = 1;
             lblMaskingMinNTU.Text = "Minimum";
             lblMaskingMinNTU.TextAlign = ContentAlignment.MiddleCenter;
@@ -391,7 +422,7 @@
             lblMaskingMaxNTU.Enabled = false;
             lblMaskingMaxNTU.Location = new Point(199, 0);
             lblMaskingMaxNTU.Name = "lblMaskingMaxNTU";
-            lblMaskingMaxNTU.Size = new Size(106, 40);
+            lblMaskingMaxNTU.Size = new Size(106, 30);
             lblMaskingMaxNTU.TabIndex = 2;
             lblMaskingMaxNTU.Text = "Maximum";
             lblMaskingMaxNTU.TextAlign = ContentAlignment.MiddleCenter;
@@ -400,7 +431,7 @@
             // 
             txtMaskingMinNTU.Dock = DockStyle.Fill;
             txtMaskingMinNTU.Enabled = false;
-            txtMaskingMinNTU.Location = new Point(87, 43);
+            txtMaskingMinNTU.Location = new Point(87, 33);
             txtMaskingMinNTU.Name = "txtMaskingMinNTU";
             txtMaskingMinNTU.Size = new Size(106, 23);
             txtMaskingMinNTU.TabIndex = 3;
@@ -410,31 +441,32 @@
             // 
             txtMaskingMaxNTU.Dock = DockStyle.Fill;
             txtMaskingMaxNTU.Enabled = false;
-            txtMaskingMaxNTU.Location = new Point(199, 43);
+            txtMaskingMaxNTU.Location = new Point(199, 33);
             txtMaskingMaxNTU.Name = "txtMaskingMaxNTU";
             txtMaskingMaxNTU.Size = new Size(106, 23);
             txtMaskingMaxNTU.TabIndex = 4;
             txtMaskingMaxNTU.TextChanged += input_Changed;
             // 
-            // tblDepthMasking
+            // tableDepthMasking
             // 
-            tblDepthMasking.ColumnCount = 3;
-            tblDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.272728F));
-            tblDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblDepthMasking.Controls.Add(checkMaskingDepth, 0, 0);
-            tblDepthMasking.Controls.Add(lblMaskingMinDepth, 1, 0);
-            tblDepthMasking.Controls.Add(lblMaskingMaxDepth, 2, 0);
-            tblDepthMasking.Controls.Add(txtMaskingMinDepth, 1, 1);
-            tblDepthMasking.Controls.Add(txtMaskingMaxDepth, 2, 1);
-            tblDepthMasking.Dock = DockStyle.Fill;
-            tblDepthMasking.Location = new Point(3, 89);
-            tblDepthMasking.Name = "tblDepthMasking";
-            tblDepthMasking.RowCount = 2;
-            tblDepthMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblDepthMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblDepthMasking.Size = new Size(308, 80);
-            tblDepthMasking.TabIndex = 1;
+            tableDepthMasking.ColumnCount = 3;
+            tableDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.27273F));
+            tableDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableDepthMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableDepthMasking.Controls.Add(checkMaskingDepth, 0, 0);
+            tableDepthMasking.Controls.Add(lblMaskingMinDepth, 1, 0);
+            tableDepthMasking.Controls.Add(lblMaskingMaxDepth, 2, 0);
+            tableDepthMasking.Controls.Add(txtMaskingMinDepth, 1, 1);
+            tableDepthMasking.Controls.Add(txtMaskingMaxDepth, 2, 1);
+            tableDepthMasking.Dock = DockStyle.Fill;
+            tableDepthMasking.Location = new Point(3, 73);
+            tableDepthMasking.Name = "tableDepthMasking";
+            tableDepthMasking.RowCount = 3;
+            tableDepthMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableDepthMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableDepthMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableDepthMasking.Size = new Size(308, 64);
+            tableDepthMasking.TabIndex = 1;
             // 
             // checkMaskingDepth
             // 
@@ -442,8 +474,8 @@
             checkMaskingDepth.Dock = DockStyle.Fill;
             checkMaskingDepth.Location = new Point(3, 3);
             checkMaskingDepth.Name = "checkMaskingDepth";
-            tblDepthMasking.SetRowSpan(checkMaskingDepth, 2);
-            checkMaskingDepth.Size = new Size(78, 74);
+            tableDepthMasking.SetRowSpan(checkMaskingDepth, 2);
+            checkMaskingDepth.Size = new Size(78, 54);
             checkMaskingDepth.TabIndex = 0;
             checkMaskingDepth.Text = "Depth Masking";
             checkMaskingDepth.UseVisualStyleBackColor = true;
@@ -456,7 +488,7 @@
             lblMaskingMinDepth.Enabled = false;
             lblMaskingMinDepth.Location = new Point(87, 0);
             lblMaskingMinDepth.Name = "lblMaskingMinDepth";
-            lblMaskingMinDepth.Size = new Size(106, 40);
+            lblMaskingMinDepth.Size = new Size(106, 30);
             lblMaskingMinDepth.TabIndex = 1;
             lblMaskingMinDepth.Text = "Minimum";
             lblMaskingMinDepth.TextAlign = ContentAlignment.MiddleCenter;
@@ -468,7 +500,7 @@
             lblMaskingMaxDepth.Enabled = false;
             lblMaskingMaxDepth.Location = new Point(199, 0);
             lblMaskingMaxDepth.Name = "lblMaskingMaxDepth";
-            lblMaskingMaxDepth.Size = new Size(106, 40);
+            lblMaskingMaxDepth.Size = new Size(106, 30);
             lblMaskingMaxDepth.TabIndex = 2;
             lblMaskingMaxDepth.Text = "Maximum";
             lblMaskingMaxDepth.TextAlign = ContentAlignment.MiddleCenter;
@@ -477,7 +509,7 @@
             // 
             txtMaskingMinDepth.Dock = DockStyle.Fill;
             txtMaskingMinDepth.Enabled = false;
-            txtMaskingMinDepth.Location = new Point(87, 43);
+            txtMaskingMinDepth.Location = new Point(87, 33);
             txtMaskingMinDepth.Name = "txtMaskingMinDepth";
             txtMaskingMinDepth.Size = new Size(106, 23);
             txtMaskingMinDepth.TabIndex = 3;
@@ -487,31 +519,32 @@
             // 
             txtMaskingMaxDepth.Dock = DockStyle.Fill;
             txtMaskingMaxDepth.Enabled = false;
-            txtMaskingMaxDepth.Location = new Point(199, 43);
+            txtMaskingMaxDepth.Location = new Point(199, 33);
             txtMaskingMaxDepth.Name = "txtMaskingMaxDepth";
             txtMaskingMaxDepth.Size = new Size(106, 23);
             txtMaskingMaxDepth.TabIndex = 4;
             txtMaskingMaxDepth.TextChanged += input_Changed;
             // 
-            // tblDateTimeMasking
+            // tableDateTimeMasking
             // 
-            tblDateTimeMasking.ColumnCount = 3;
-            tblDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.27273F));
-            tblDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
-            tblDateTimeMasking.Controls.Add(checkMaskingDateTime, 0, 0);
-            tblDateTimeMasking.Controls.Add(lblMaskingStartDateTime, 1, 0);
-            tblDateTimeMasking.Controls.Add(lblMaskingEndDateTime, 2, 0);
-            tblDateTimeMasking.Controls.Add(txtMaskingStartDateTime, 1, 1);
-            tblDateTimeMasking.Controls.Add(txtMaskingEndDateTime, 2, 1);
-            tblDateTimeMasking.Dock = DockStyle.Fill;
-            tblDateTimeMasking.Location = new Point(3, 3);
-            tblDateTimeMasking.Name = "tblDateTimeMasking";
-            tblDateTimeMasking.RowCount = 2;
-            tblDateTimeMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblDateTimeMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tblDateTimeMasking.Size = new Size(308, 80);
-            tblDateTimeMasking.TabIndex = 0;
+            tableDateTimeMasking.ColumnCount = 3;
+            tableDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27.27273F));
+            tableDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableDateTimeMasking.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.363636F));
+            tableDateTimeMasking.Controls.Add(checkMaskingDateTime, 0, 0);
+            tableDateTimeMasking.Controls.Add(lblMaskingStartDateTime, 1, 0);
+            tableDateTimeMasking.Controls.Add(lblMaskingEndDateTime, 2, 0);
+            tableDateTimeMasking.Controls.Add(txtMaskingStartDateTime, 1, 1);
+            tableDateTimeMasking.Controls.Add(txtMaskingEndDateTime, 2, 1);
+            tableDateTimeMasking.Dock = DockStyle.Fill;
+            tableDateTimeMasking.Location = new Point(3, 3);
+            tableDateTimeMasking.Name = "tableDateTimeMasking";
+            tableDateTimeMasking.RowCount = 3;
+            tableDateTimeMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableDateTimeMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableDateTimeMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableDateTimeMasking.Size = new Size(308, 64);
+            tableDateTimeMasking.TabIndex = 0;
             // 
             // checkMaskingDateTime
             // 
@@ -519,8 +552,8 @@
             checkMaskingDateTime.Dock = DockStyle.Fill;
             checkMaskingDateTime.Location = new Point(3, 3);
             checkMaskingDateTime.Name = "checkMaskingDateTime";
-            tblDateTimeMasking.SetRowSpan(checkMaskingDateTime, 2);
-            checkMaskingDateTime.Size = new Size(78, 74);
+            tableDateTimeMasking.SetRowSpan(checkMaskingDateTime, 2);
+            checkMaskingDateTime.Size = new Size(78, 54);
             checkMaskingDateTime.TabIndex = 0;
             checkMaskingDateTime.Text = "DateTime Masking";
             checkMaskingDateTime.UseVisualStyleBackColor = true;
@@ -533,7 +566,7 @@
             lblMaskingStartDateTime.Enabled = false;
             lblMaskingStartDateTime.Location = new Point(87, 0);
             lblMaskingStartDateTime.Name = "lblMaskingStartDateTime";
-            lblMaskingStartDateTime.Size = new Size(106, 40);
+            lblMaskingStartDateTime.Size = new Size(106, 30);
             lblMaskingStartDateTime.TabIndex = 1;
             lblMaskingStartDateTime.Text = "Start";
             lblMaskingStartDateTime.TextAlign = ContentAlignment.MiddleCenter;
@@ -545,7 +578,7 @@
             lblMaskingEndDateTime.Enabled = false;
             lblMaskingEndDateTime.Location = new Point(199, 0);
             lblMaskingEndDateTime.Name = "lblMaskingEndDateTime";
-            lblMaskingEndDateTime.Size = new Size(106, 40);
+            lblMaskingEndDateTime.Size = new Size(106, 30);
             lblMaskingEndDateTime.TabIndex = 2;
             lblMaskingEndDateTime.Text = "End";
             lblMaskingEndDateTime.TextAlign = ContentAlignment.MiddleCenter;
@@ -554,7 +587,7 @@
             // 
             txtMaskingStartDateTime.Dock = DockStyle.Fill;
             txtMaskingStartDateTime.Enabled = false;
-            txtMaskingStartDateTime.Location = new Point(87, 43);
+            txtMaskingStartDateTime.Location = new Point(87, 33);
             txtMaskingStartDateTime.Name = "txtMaskingStartDateTime";
             txtMaskingStartDateTime.Size = new Size(106, 23);
             txtMaskingStartDateTime.TabIndex = 3;
@@ -564,7 +597,7 @@
             // 
             txtMaskingEndDateTime.Dock = DockStyle.Fill;
             txtMaskingEndDateTime.Enabled = false;
-            txtMaskingEndDateTime.Location = new Point(199, 43);
+            txtMaskingEndDateTime.Location = new Point(199, 33);
             txtMaskingEndDateTime.Name = "txtMaskingEndDateTime";
             txtMaskingEndDateTime.Size = new Size(106, 23);
             txtMaskingEndDateTime.TabIndex = 4;
@@ -575,8 +608,8 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(800, 289);
-            Controls.Add(tblMain);
+            ClientSize = new Size(800, 360);
+            Controls.Add(tableMain);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
@@ -585,18 +618,18 @@
             FormClosing += OBSVerticalProfile_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
-            tblMain.ResumeLayout(false);
-            tblFileInfo.ResumeLayout(false);
-            tblFileInfo.PerformLayout();
-            tblColumnInfo.ResumeLayout(false);
-            tblColumnInfo.PerformLayout();
-            tblMasking.ResumeLayout(false);
-            tblNTUMasking.ResumeLayout(false);
-            tblNTUMasking.PerformLayout();
-            tblDepthMasking.ResumeLayout(false);
-            tblDepthMasking.PerformLayout();
-            tblDateTimeMasking.ResumeLayout(false);
-            tblDateTimeMasking.PerformLayout();
+            tableMain.ResumeLayout(false);
+            tableFileInfo.ResumeLayout(false);
+            tableFileInfo.PerformLayout();
+            tableColumnInfo.ResumeLayout(false);
+            tableColumnInfo.PerformLayout();
+            tableMasking.ResumeLayout(false);
+            tableNTUMasking.ResumeLayout(false);
+            tableNTUMasking.PerformLayout();
+            tableDepthMasking.ResumeLayout(false);
+            tableDepthMasking.PerformLayout();
+            tableDateTimeMasking.ResumeLayout(false);
+            tableDateTimeMasking.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -605,27 +638,27 @@
 
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
-        private TableLayoutPanel tblMain;
-        private TableLayoutPanel tblFileInfo;
+        private TableLayoutPanel tableMain;
+        private TableLayoutPanel tableFileInfo;
         private Label lblFilePath;
-        private TableLayoutPanel tblColumnInfo;
-        private Label lblDateTime;
+        private TableLayoutPanel tableColumnInfo;
+        private Label lblDate;
         private Label lblDepth;
         private Label lblNTU;
-        private TableLayoutPanel tblMasking;
-        private TableLayoutPanel tblNTUMasking;
+        private TableLayoutPanel tableMasking;
+        private TableLayoutPanel tableNTUMasking;
         private CheckBox checkMaskingNTU;
         private Label lblMaskingMinNTU;
         private Label lblMaskingMaxNTU;
-        private TableLayoutPanel tblDepthMasking;
+        private TableLayoutPanel tableDepthMasking;
         private CheckBox checkMaskingDepth;
         private Label lblMaskingMinDepth;
         private Label lblMaskingMaxDepth;
-        private TableLayoutPanel tblDateTimeMasking;
+        private TableLayoutPanel tableDateTimeMasking;
         private CheckBox checkMaskingDateTime;
         private Label lblMaskingStartDateTime;
         private Label lblMaskingEndDateTime;
-        private ComboBox comboDateTime;
+        private ComboBox comboDate;
         private ToolStripMenuItem menuNew;
         private ToolStripMenuItem menuSave;
         private ToolStripMenuItem menuExit;
@@ -643,5 +676,7 @@
         private TextBox txtMaskingEndDateTime;
         private Label lblSSCModel;
         private ComboBox comboSSCModel;
+        private Label lblTime;
+        private ComboBox comboTime;
     }
 }

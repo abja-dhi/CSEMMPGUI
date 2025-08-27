@@ -48,7 +48,7 @@ namespace CSEMMPGUI_v1
             }
             else if (rbTab.Checked)
             {
-                _delimiter = "\t";
+                _delimiter = "Tab";
             }
             else if (rbCustom.Checked)
             {

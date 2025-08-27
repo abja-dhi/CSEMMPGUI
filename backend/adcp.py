@@ -12,10 +12,10 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from .utils import Utils, Constants, XYZ
-from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
-from ._adcp_position import ADCPPosition
-from .plotting import PlottingShell
+from utils import Utils, Constants, XYZ
+from pd0 import Pd0Decoder, FixedLeader, VariableLeader
+from _adcp_position import ADCPPosition
+from plotting import PlottingShell
 from pyproj import CRS, Transformer
 import cmocean.cm as cmo
 
@@ -939,7 +939,6 @@ class ADCP():
             iqr = q3 - q1
             lo = q1 - k * iqr
             hi = q3 + k * iqr
-            print(lo,hi)
             ev_mask = (ev < lo) | (ev > hi) | (np.abs(ev)>err_vel_max)
             
         else: # mask based on input value

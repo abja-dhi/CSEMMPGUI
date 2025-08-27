@@ -8,15 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using DHI.Generic.MikeZero;
+using DHI.Generic.MikeZero.DFS;
+using DHI.Generic.MikeZero.DFS.dfs123;
+using DHI.Generic.MikeZero.DFS.dfsu;
+using DHI.Generic.MikeZero.DFS.mesh;
 
 namespace CSEMMPGUI_v1
 {
-    public partial class VesselMountedADCPPlot : Form
+    public partial class ModelPlot : Form
     {
-        public XmlElement? adcp;
-        public XmlElement? survey;
-        public string? id;
-        public string? type;
+        public XmlElement? model;
         public _ClassConfigurationManager _project = new();
 
         public static Label? lblTitle;
@@ -59,8 +61,7 @@ namespace CSEMMPGUI_v1
         public static Label? lblBeamSelection;
         public static NumericUpDown? numericNBeams;
 
-
-        private void PropPlatformOrientation()
+        private void PropMeshPlot()
         {
             tableProp.Controls.Clear();
 
@@ -71,129 +72,6 @@ namespace CSEMMPGUI_v1
 
             tableProp.Controls.Add(lblTitle, 0, 0);
             tableProp.Controls.Add(txtTitle, 1, 0);
-        }
-
-        private void PropFourBeamFloodPlot()
-        {
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 8;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblFieldName, 0, 0);
-            tableProp.Controls.Add(lblyAxisMode, 0, 1);
-            tableProp.Controls.Add(lblcmap, 0, 2);
-            tableProp.Controls.Add(lblvmin, 0, 3);
-            tableProp.Controls.Add(lblvmax, 0, 4);
-            tableProp.Controls.Add(lblTitle, 0, 5);
-            tableProp.Controls.Add(lblMask, 0, 6);
-            tableProp.Controls.Add(comboFieldName, 1, 0);
-            tableProp.Controls.Add(comboyAxisMode, 1, 1);
-            tableProp.Controls.Add(combocmap, 1, 2);
-            tableProp.Controls.Add(txtvmin, 1, 3);
-            tableProp.Controls.Add(txtvmax, 1, 4);
-            tableProp.Controls.Add(txtTitle, 1, 5);
-            tableProp.Controls.Add(comboMask, 1, 6);
-        }
-
-        private void PropSingleBeamFloodPlot()
-        {
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 9;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblBeamSelection, 0, 0);
-            tableProp.Controls.Add(lblFieldName, 0, 1);
-            tableProp.Controls.Add(lblyAxisMode, 0, 2);
-            tableProp.Controls.Add(lblcmap, 0, 3);
-            tableProp.Controls.Add(lblvmin, 0, 4);
-            tableProp.Controls.Add(lblvmax, 0, 5);
-            tableProp.Controls.Add(lblTitle, 0, 6);
-            tableProp.Controls.Add(lblMask, 0, 7);
-            tableProp.Controls.Add(numericNBeams, 1, 0);
-            tableProp.Controls.Add(comboFieldName, 1, 1);
-            tableProp.Controls.Add(comboyAxisMode, 1, 2);
-            tableProp.Controls.Add(combocmap, 1, 3);
-            tableProp.Controls.Add(txtvmin, 1, 4);
-            tableProp.Controls.Add(txtvmax, 1, 5);
-            tableProp.Controls.Add(txtTitle, 1, 6);
-            tableProp.Controls.Add(comboMask, 1, 7);
-            tableProp.Controls.Add(checkUseMean, 2, 0);
-        }
-
-        private void PlotTransectVelocities()
-        {
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 10;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblBinSelection, 0, 0);
-            tableProp.Controls.Add(lblScale, 0, 1);
-            tableProp.Controls.Add(lblcmap, 0, 2);
-            tableProp.Controls.Add(lblvmin, 0, 3);
-            tableProp.Controls.Add(lblvmax, 0, 4);
-            tableProp.Controls.Add(lblTitle, 0, 5);
-            tableProp.Controls.Add(lblLineWidth, 0, 6);
-            tableProp.Controls.Add(lblLineAlpha, 0, 7);
-            tableProp.Controls.Add(lblHistBins, 0, 8);
-            tableProp.Controls.Add(numericNBins, 1, 0);
-            tableProp.Controls.Add(txtScale, 1, 1);
-            tableProp.Controls.Add(combocmap, 1, 2);
-            tableProp.Controls.Add(txtvmin, 1, 3);
-            tableProp.Controls.Add(txtvmax, 1, 4);
-            tableProp.Controls.Add(txtTitle, 1, 5);
-            tableProp.Controls.Add(txtLineWidth, 1, 6);
-            tableProp.Controls.Add(txtLineAlpha, 1, 7);
-            tableProp.Controls.Add(numericHistBins, 1, 8);
-            tableProp.Controls.Add(checkUseMean, 2, 0);
-        }
-
-        private void PlotTransectAnimation()
-        {
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 4;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblcmap, 0, 0);
-            tableProp.Controls.Add(lblvmin, 0, 1);
-            tableProp.Controls.Add(lblvmax, 0, 2);
-            tableProp.Controls.Add(combocmap, 1, 0);
-            tableProp.Controls.Add(txtvmin, 1, 1);
-            tableProp.Controls.Add(txtvmax, 1, 2);
         }
 
         private void InitializeWidgets()
@@ -496,127 +374,131 @@ namespace CSEMMPGUI_v1
             numericNBeams.Enabled = false;
         }
 
-        public VesselMountedADCPPlot(string? _id)
+        public ModelPlot(string? id)
         {
             InitializeComponent();
             InitializeWidgets();
             comboPlotType.SelectedIndex = 0;
-            id = _id;
-            type = "VesselMountedADCP";
-            adcp = _project.GetObject(type: "VesselMountedADCP", id: id);
-            XmlElement? pd0 = adcp?.SelectSingleNode("Pd0") as XmlElement;
-            XmlElement? sscModelID = pd0?.SelectSingleNode("SSCModelID") as XmlElement;
-            
-            if (sscModelID == null || string.IsNullOrEmpty(sscModelID.InnerText))
+            model = _project.GetObject(type: "Model", id: id);
+            string path = model?.SelectSingleNode("Path")?.InnerText;
+            if (!File.Exists(path))
             {
-                comboFieldName.Items.Remove("SSC");
+                MessageBox.Show(text: $"The specified model file does not exist: {path}", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                this.Close(); // Close the form if the file does not exist
             }
-
+            IDfsuFile dfsu = DfsuFile.Open(path);
+            int nItems = dfsu.ItemInfo.Count;
+            for (int i = 0; i < nItems; i++)
+            {
+                comboModelItem.Items.Add(dfsu.ItemInfo[i].Name);
+            }
+            comboModelItem.SelectedIndex = 0;
         }
 
         private void btnPlot_Click(object sender, EventArgs e)
         {
+            string path = model?.SelectSingleNode("Path")?.InnerText;
             Dictionary<string, string> inputs = null;
-            //string test = _Globals.Config.OuterXml.ToString();
-            //Debugger debugger = new Debugger(test);
-            //debugger.ShowDialog();
+            if (comboPlotType.SelectedItem.ToString() == "Mesh Plot")
+            {
+                inputs = new Dictionary<string, string>
+                {
+                    { "Task", "PlotModelMesh" },
+                    { "EPSG", _project.GetSetting("EPSG") },
+                    { "Path", path },
+                    { "Title", txtTitle.Text },
 
-            if (comboPlotType.SelectedItem.ToString() == "Platform Orientation")
-            {
-                //string title = txtTitle.Text ?? "";
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotPlatformOrientation" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                    { "Title", txtTitle.Text },    
                 };
             }
-            else if (comboPlotType.SelectedItem.ToString() == "Four Beam Flood Plot")
-            {
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotFourBeamFlood" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                    { "FieldName", comboFieldName.SelectedItem.ToString()},
-                    { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
-                    { "Colormap", combocmap.SelectedItem.ToString()},
-                    { "vmin", txtvmin.Text},
-                    { "vmax", txtvmax.Text},
-                    { "Title", txtTitle.Text},
-                    { "Mask", comboMask.SelectedItem.ToString()}
-                };
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Single Beam Flood Plot")
-            {
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotSingleBeamFlood" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                    { "BeamSelection", numericNBeams.Value.ToString()},
-                    { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
-                    { "FieldName", comboFieldName.SelectedItem.ToString()},
-                    { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
-                    { "Colormap", combocmap.SelectedItem.ToString()},
-                    { "vmin", txtvmin.Text},
-                    { "vmax", txtvmax.Text},
-                    { "Title", txtTitle.Text},
-                    { "Mask", comboMask.SelectedItem.ToString()}
-                };
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
-            {
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotTransectVelocities" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                    { "BinSelection", numericNBins.Value.ToString()},
-                    { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
-                    { "VectorScale", txtScale.Text},
-                    { "Colormap", combocmap.SelectedItem.ToString()},
-                    { "vmin", txtvmin.Text},
-                    { "vmax", txtvmax.Text},
-                    { "Title", txtTitle.Text},
-                    { "LineWidth", txtLineWidth.Text},
-                    { "LineAlpha", txtLineAlpha.Text},
-                    { "HistBins", numericHistBins.Value.ToString()}
-                };
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
-            {
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotBeamGeometryAnimation" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                };
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
-            {
-                inputs = new Dictionary<string, string>
-                {
-                    { "Task", "PlotTransectAnimation" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "InstrumentID", id },
-                    { "Type", type },
-                    { "Colormap", combocmap.SelectedItem.ToString()},
-                    { "vmin", txtvmin.Text},
-                    { "vmax", txtvmax.Text}
-                };
-            }
-            else
-            {
-                return;
-            }
-            
+            //else if (comboPlotType.SelectedItem.ToString() == "Four Beam Flood Plot")
+            //{
+            //    inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "PlotFourBeamFlood" },
+            //        { "EPSG", _project.GetSetting("EPSG") },
+            //        { "Water", waterProp.OuterXml.ToString() },
+            //        { "Sediment", sedimentProp.OuterXml.ToString() },
+            //        { "Instrument", adcp.OuterXml.ToString() },
+            //        { "FieldName", comboFieldName.SelectedItem.ToString()},
+            //        { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
+            //        { "Colormap", combocmap.SelectedItem.ToString()},
+            //        { "vmin", txtvmin.Text},
+            //        { "vmax", txtvmax.Text},
+            //        { "Title", txtTitle.Text},
+            //        { "Mask", comboMask.SelectedItem.ToString()}
+            //    };
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Single Beam Flood Plot")
+            //{
+            //    inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "PlotSingleBeamFlood" },
+            //        { "EPSG", _project.GetSetting("EPSG") },
+            //        { "Water", waterProp.OuterXml.ToString() },
+            //        { "Sediment", sedimentProp.OuterXml.ToString() },
+            //        { "Instrument", adcp.OuterXml.ToString() },
+            //        { "BeamSelection", numericNBeams.Value.ToString()},
+            //        { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
+            //        { "FieldName", comboFieldName.SelectedItem.ToString()},
+            //        { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
+            //        { "Colormap", combocmap.SelectedItem.ToString()},
+            //        { "vmin", txtvmin.Text},
+            //        { "vmax", txtvmax.Text},
+            //        { "Title", txtTitle.Text},
+            //        { "Mask", comboMask.SelectedItem.ToString()}
+            //    };
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
+            //{
+            //    inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "PlotTransectVelocities" },
+            //        { "EPSG", _project.GetSetting("EPSG") },
+            //        { "Water", waterProp.OuterXml.ToString() },
+            //        { "Sediment", sedimentProp.OuterXml.ToString() },
+            //        { "Instrument", adcp.OuterXml.ToString() },
+            //        { "BinSelection", numericNBins.Value.ToString()},
+            //        { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
+            //        { "VectorScale", txtScale.Text},
+            //        { "Colormap", combocmap.SelectedItem.ToString()},
+            //        { "vmin", txtvmin.Text},
+            //        { "vmax", txtvmax.Text},
+            //        { "Title", txtTitle.Text},
+            //        { "LineWidth", txtLineWidth.Text},
+            //        { "LineAlpha", txtLineAlpha.Text},
+            //        { "HistBins", numericHistBins.Value.ToString()}
+            //    };
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
+            //{
+            //    inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "PlotBeamGeometryAnimation" },
+            //        { "EPSG", _project.GetSetting("EPSG") },
+            //        { "Water", waterProp.OuterXml.ToString() },
+            //        { "Sediment", sedimentProp.OuterXml.ToString() },
+            //        { "Instrument", adcp.OuterXml.ToString() }
+            //    };
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
+            //{
+            //    inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "PlotTransectAnimation" },
+            //        { "EPSG", _project.GetSetting("EPSG") },
+            //        { "Water", waterProp.OuterXml.ToString() },
+            //        { "Sediment", sedimentProp.OuterXml.ToString() },
+            //        { "Instrument", adcp.OuterXml.ToString() },
+            //        { "Colormap", combocmap.SelectedItem.ToString()},
+            //        { "vmin", txtvmin.Text},
+            //        { "vmax", txtvmax.Text}
+            //    };
+            //}
+            //else
+            //{
+            //    return;
+            //}
+
             string xmlInput = _Tools.GenerateInput(inputs);
             XmlDocument result = _Tools.CallPython(xmlInput);
             Dictionary<string, string> outputs = _Tools.ParseOutput(result);
@@ -629,30 +511,30 @@ namespace CSEMMPGUI_v1
 
         private void comboPlotType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboPlotType.SelectedItem.ToString() == "Platform Orientation")
+            if (comboPlotType.SelectedItem.ToString() == "Mesh Plot")
             {
-                PropPlatformOrientation();
+                PropMeshPlot();
             }
-            else if (comboPlotType.SelectedItem.ToString() == "Four Beam Flood Plot")
-            {
-                PropFourBeamFloodPlot();
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Single Beam Flood Plot")
-            {
-                PropSingleBeamFloodPlot();
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
-            {
-                PlotTransectVelocities();
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
-            {
-                tableProp.Controls.Clear();
-            }
-            else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
-            {
-                PlotTransectAnimation();
-            }
+            //else if (comboPlotType.SelectedItem.ToString() == "Four Beam Flood Plot")
+            //{
+            //    PropFourBeamFloodPlot();
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Single Beam Flood Plot")
+            //{
+            //    PropSingleBeamFloodPlot();
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
+            //{
+            //    PlotTransectVelocities();
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
+            //{
+            //    tableProp.Controls.Clear();
+            //}
+            //else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
+            //{
+            //    PlotTransectAnimation();
+            //}
         }
 
         private void CheckUseMean_CheckedChanged(object? sender, EventArgs e)

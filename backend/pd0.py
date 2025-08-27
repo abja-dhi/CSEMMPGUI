@@ -11,8 +11,8 @@ from typing import List, Dict, Any, Tuple, Literal, Union
 import numpy as np
 
 
-from ._pd0_fields import Pd0Formats, FieldDef
-from .utils import Utils, Constants
+from _pd0_fields import Pd0Formats, FieldDef
+from utils import Utils, Constants
 
 @dataclass
 class _DataCodeID:

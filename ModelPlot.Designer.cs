@@ -1,6 +1,6 @@
 ﻿namespace CSEMMPGUI_v1
 {
-    partial class VesselMountedADCPPlot
+    partial class ModelPlot
     {
         /// <summary>
         /// Required designer variable.
@@ -28,15 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VesselMountedADCPPlot));
             tableMain = new TableLayoutPanel();
-            lblPlotType = new Label();
-            comboPlotType = new ComboBox();
             boxProperties = new GroupBox();
             tableProp = new TableLayoutPanel();
             tablePlotButton = new TableLayoutPanel();
             btnPlot = new Button();
             tableInitialSetup = new TableLayoutPanel();
+            comboPlotType = new ComboBox();
+            lblPlotType = new Label();
+            lblModelItem = new Label();
+            comboModelItem = new ComboBox();
             tableMain.SuspendLayout();
             boxProperties.SuspendLayout();
             tablePlotButton.SuspendLayout();
@@ -60,29 +61,6 @@
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableMain.Size = new Size(800, 450);
             tableMain.TabIndex = 0;
-            // 
-            // lblPlotType
-            // 
-            lblPlotType.AutoSize = true;
-            lblPlotType.Dock = DockStyle.Fill;
-            lblPlotType.Location = new Point(3, 0);
-            lblPlotType.Name = "lblPlotType";
-            lblPlotType.Size = new Size(232, 34);
-            lblPlotType.TabIndex = 0;
-            lblPlotType.Text = "Plot Type";
-            lblPlotType.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboPlotType
-            // 
-            comboPlotType.Dock = DockStyle.Fill;
-            comboPlotType.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboPlotType.FormattingEnabled = true;
-            comboPlotType.Items.AddRange(new object[] { "Platform Orientation", "Four Beam Flood Plot", "Single Beam Flood Plot", "Plot Transect Velocities", "Beam Geometry Animation", "Transect Animation" });
-            comboPlotType.Location = new Point(241, 3);
-            comboPlotType.Name = "comboPlotType";
-            comboPlotType.Size = new Size(550, 23);
-            comboPlotType.TabIndex = 1;
-            comboPlotType.SelectedIndexChanged += comboPlotType_SelectedIndexChanged;
             // 
             // boxProperties
             // 
@@ -138,12 +116,16 @@
             // 
             // tableInitialSetup
             // 
-            tableInitialSetup.ColumnCount = 2;
+            tableInitialSetup.ColumnCount = 4;
             tableMain.SetColumnSpan(tableInitialSetup, 3);
             tableInitialSetup.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
-            tableInitialSetup.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            tableInitialSetup.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableInitialSetup.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableInitialSetup.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
             tableInitialSetup.Controls.Add(comboPlotType, 1, 0);
             tableInitialSetup.Controls.Add(lblPlotType, 0, 0);
+            tableInitialSetup.Controls.Add(lblModelItem, 2, 0);
+            tableInitialSetup.Controls.Add(comboModelItem, 3, 0);
             tableInitialSetup.Dock = DockStyle.Fill;
             tableInitialSetup.Location = new Point(3, 3);
             tableInitialSetup.Name = "tableInitialSetup";
@@ -152,14 +134,57 @@
             tableInitialSetup.Size = new Size(794, 34);
             tableInitialSetup.TabIndex = 5;
             // 
-            // VesselMountedADCPPlot
+            // comboPlotType
+            // 
+            comboPlotType.Dock = DockStyle.Fill;
+            comboPlotType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboPlotType.FormattingEnabled = true;
+            comboPlotType.Items.AddRange(new object[] { "Mesh Plot", "Model Results" });
+            comboPlotType.Location = new Point(241, 3);
+            comboPlotType.Name = "comboPlotType";
+            comboPlotType.Size = new Size(192, 23);
+            comboPlotType.TabIndex = 1;
+            comboPlotType.SelectedIndexChanged += comboPlotType_SelectedIndexChanged;
+            // 
+            // lblPlotType
+            // 
+            lblPlotType.AutoSize = true;
+            lblPlotType.Dock = DockStyle.Fill;
+            lblPlotType.Location = new Point(3, 0);
+            lblPlotType.Name = "lblPlotType";
+            lblPlotType.Size = new Size(232, 34);
+            lblPlotType.TabIndex = 0;
+            lblPlotType.Text = "Plot Type";
+            lblPlotType.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lblModelItem
+            // 
+            lblModelItem.AutoSize = true;
+            lblModelItem.Dock = DockStyle.Fill;
+            lblModelItem.Location = new Point(439, 0);
+            lblModelItem.Name = "lblModelItem";
+            lblModelItem.Size = new Size(152, 34);
+            lblModelItem.TabIndex = 2;
+            lblModelItem.Text = "Item";
+            lblModelItem.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // comboModelItem
+            // 
+            comboModelItem.Dock = DockStyle.Fill;
+            comboModelItem.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboModelItem.FormattingEnabled = true;
+            comboModelItem.Location = new Point(597, 3);
+            comboModelItem.Name = "comboModelItem";
+            comboModelItem.Size = new Size(194, 23);
+            comboModelItem.TabIndex = 3;
+            // 
+            // ModelPlot
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
-            Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "VesselMountedADCPPlot";
+            Name = "ModelPlot";
             Text = "Plot Vessel Mounted ADCP";
             tableMain.ResumeLayout(false);
             boxProperties.ResumeLayout(false);
@@ -179,5 +204,7 @@
         private TableLayoutPanel tableProp;
         private TableLayoutPanel tablePlotButton;
         private TableLayoutPanel tableInitialSetup;
+        private Label lblModelItem;
+        private ComboBox comboModelItem;
     }
 }

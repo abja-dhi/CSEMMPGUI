@@ -24,6 +24,8 @@ namespace CSEMMPGUI_v1
         XmlElement? adcpElement;
         public bool isSaved;
         public int mode;
+        int _headerLine;
+        string _delimiter;
         public _ClassConfigurationManager _project = new();
 
         private void InitializeADCP()
@@ -117,11 +119,11 @@ namespace CSEMMPGUI_v1
             // Pd0 related attributes
             XmlNode pd0Node = adcpElement.SelectSingleNode("Pd0");
             txtPD0Path.Text = pd0Node?.SelectSingleNode("Path")?.InnerText ?? string.Empty;
-            List<XmlElement> bks2sscModels = _project.GetObjects("BKS2SSC");
-            if (bks2sscModels.Count > 0)
+            List<XmlElement> sscModels = _project.GetObjects("SSCModel");
+            if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in bks2sscModels)
+                foreach (XmlElement model in sscModels)
                 {
                     comboSSCModel.Items.Add(new
                     {
@@ -130,7 +132,7 @@ namespace CSEMMPGUI_v1
                     });
                 }
                 comboSSCModel.DisplayMember = "Display";
-                string sscModelId = pd0Node?.SelectSingleNode("SSCModel")?.InnerText ?? string.Empty;
+                string sscModelId = pd0Node?.SelectSingleNode("SSCModelID")?.InnerText ?? string.Empty;
                 if (!string.IsNullOrEmpty(sscModelId))
                 {
                     for (int i = 0; i < comboSSCModel.Items.Count; i++)
@@ -241,6 +243,8 @@ namespace CSEMMPGUI_v1
             SelectComboItem(comboX, positionNode?.SelectSingleNode("XColumn")?.InnerText ?? "");
             SelectComboItem(comboY, positionNode?.SelectSingleNode("YColumn")?.InnerText ?? "");
             SelectComboItem(comboHeading, positionNode?.SelectSingleNode("HeadingColumn")?.InnerText ?? "");
+            _headerLine = int.TryParse(positionNode?.SelectSingleNode("Header")?.InnerText, out int headerLine) ? headerLine : 1;
+            _delimiter = positionNode?.SelectSingleNode("Sep")?.InnerText ?? ",";
             // Enable controls based on loaded data
             boxConfiguration.Enabled = !string.IsNullOrEmpty(txtPD0Path.Text);
             boxMasking.Enabled = !string.IsNullOrEmpty(txtPD0Path.Text);
@@ -494,6 +498,7 @@ namespace CSEMMPGUI_v1
                     string[] columns = Array.Empty<string>();
                     fbd.Description = "Select folder containing .000 and .csv files";
                     fbd.SelectedPath = _project.GetSetting("Directory");
+                    fbd.InitialDirectory = _project.GetSetting("Directory");
 
                     if (fbd.ShowDialog() == DialogResult.OK)
                     {
@@ -523,9 +528,9 @@ namespace CSEMMPGUI_v1
                             UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
                             if (csvOptions.ShowDialog() == DialogResult.OK)
                             {
-                                int headerLines = csvOptions._headerLine;
-                                string delimiter = csvOptions._delimiter;
-                                columns = _Utils.ParseCSVAndReturnColumns(firstPositionFile, delimiter, headerLines);
+                                _headerLine = csvOptions._headerLine;
+                                _delimiter = csvOptions._delimiter;
+                                columns = _Utils.ParseCSVAndReturnColumns(firstPositionFile, _delimiter, _headerLine);
                                 if (columns.Length < 4)
                                 {
                                     MessageBox.Show("The selected CSV file does not contain enough columns for position data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -573,9 +578,9 @@ namespace CSEMMPGUI_v1
                 UtilsCSVImportOptions csvOptions = new UtilsCSVImportOptions(nLines);
                 if (csvOptions.ShowDialog() == DialogResult.OK)
                 {
-                    int headerLines = csvOptions._headerLine;
-                    string delimiter = csvOptions._delimiter;
-                    columns = _Utils.ParseCSVAndReturnColumns(filePath, delimiter, headerLines);
+                    _headerLine = csvOptions._headerLine;
+                    _delimiter = csvOptions._delimiter;
+                    columns = _Utils.ParseCSVAndReturnColumns(filePath, _delimiter, _headerLine);
                     if (columns.Length < 4)
                     {
                         MessageBox.Show("The selected CSV file does not contain enough columns for position data.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -597,11 +602,11 @@ namespace CSEMMPGUI_v1
             updateCombo(comboX, columns, 1);
             updateCombo(comboY, columns, 2);
             updateCombo(comboHeading, columns, 3);
-            List<XmlElement> bks2sscModels = _project.GetObjects(type: "BKS2SSC");
-            if (bks2sscModels.Count > 0)
+            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in bks2sscModels)
+                foreach (XmlElement model in sscModels)
                 {
                     comboSSCModel.Items.Add(new
                     {
@@ -617,7 +622,7 @@ namespace CSEMMPGUI_v1
             else
             {
                 MessageBox.Show(
-                    "No Backscatter to SSC models found. Please add one and update the setting later",
+                    "No SSC model found. Please add one and update the setting later",
                     Text = "Warning",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
@@ -866,19 +871,19 @@ namespace CSEMMPGUI_v1
             XmlElement pd0Path = project.CreateElement("Path");
             pd0Path.InnerText = pd0FilePath;
             pd0.AppendChild(pd0Path);
-            XmlElement bks2sscModel = project.CreateElement("SSCModel");
-            List<XmlElement> bks2sscModels = _project.GetObjects(type: "BKS2SSC");
-            if (bks2sscModels.Count == 0)
+            XmlElement sscModel = project.CreateElement("SSCModelID");
+            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            if (sscModels.Count == 0)
             {
-                bks2sscModel.InnerText = string.Empty;
+                sscModel.InnerText = string.Empty;
             }
             else
             {
                 var selectedItem = comboSSCModel.SelectedItem;
-                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : bks2sscModels[0].GetAttribute("id");
-                bks2sscModel.InnerText = selectedId;
+                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : sscModels[0].GetAttribute("id");
+                sscModel.InnerText = selectedId;
             }
-            pd0.AppendChild(bks2sscModel);
+            pd0.AppendChild(sscModel);
             XmlElement configuration = project.CreateElement("Configuration");
             XmlElement magneticDeclination = project.CreateElement("MagneticDeclination");
             magneticDeclination.InnerText = txtMagneticDeclination.Text.Trim();
@@ -1038,6 +1043,13 @@ namespace CSEMMPGUI_v1
                 positionColumns.AppendChild(column);
             }
             position.AppendChild(positionColumns);
+            
+            XmlElement header = project.CreateElement("Header");
+            header.InnerText = _headerLine.ToString();
+            position.AppendChild(header);
+            XmlElement delimiter = project.CreateElement("Sep");
+            delimiter.InnerText = _delimiter;
+            position.AppendChild(delimiter);
 
             XmlElement dateTimeColumn = project.CreateElement("DateTimeColumn");
             dateTimeColumn.InnerText = comboDateTime.Text.Trim() ?? string.Empty;
@@ -1113,7 +1125,7 @@ namespace CSEMMPGUI_v1
             XmlElement pd0Element = adcpElement.SelectSingleNode("Pd0") as XmlElement;
             XmlNode? pathNode = pd0Element?.SelectSingleNode("Path");
             pathNode.InnerText = txtPD0Path.Text.Trim();
-            XmlNode? sscModelNode = pd0Element?.SelectSingleNode("SSCModel");
+            XmlNode? sscModelNode = pd0Element?.SelectSingleNode("SSCModelID");
             var selectedItem = comboSSCModel.SelectedItem;
             string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : string.Empty;
             sscModelNode.InnerText = selectedId;
@@ -1205,6 +1217,10 @@ namespace CSEMMPGUI_v1
             XmlElement positionElement = adcpElement.SelectSingleNode("PositionData") as XmlElement;
             XmlNode? positionPathNode = positionElement.SelectSingleNode("Path");
             positionPathNode.InnerText = txtPositionPath.Text.Trim();
+            XmlNode? headerNode = positionElement.SelectSingleNode("Header");
+            headerNode.InnerText = _headerLine.ToString();
+            XmlNode? sepNode = positionElement.SelectSingleNode("Sep");
+            sepNode.InnerText = _delimiter;
             XmlNode? dateTimeColumnNode = positionElement.SelectSingleNode("DateTimeColumn");
             dateTimeColumnNode.InnerText = comboDateTime.Text.Trim();
             XmlNode? xColumnNode = positionElement.SelectSingleNode("XColumn");

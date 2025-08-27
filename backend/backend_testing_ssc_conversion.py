@@ -1,327 +1,327 @@
 
-import sys
-import os
+# import sys
+# import os
 
 
-# Add the project root (one level up from /tests/) to the module search path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import backend
-from backend.pd0 import Pd0Decoder
-from backend.adcp import ADCP as DatasetADCP
-from backend._adcp_position import ADCPPosition
-from backend.utils import Utils, CSVParser
-from backend.plotting import PlottingShell
+# # Add the project root (one level up from /tests/) to the module search path
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# import backend
+# from backend.pd0 import Pd0Decoder
+# from backend.adcp import ADCP as DatasetADCP
+# from backend._adcp_position import ADCPPosition
+# from backend.utils import Utils, CSVParser
+# from backend.plotting import PlottingShell
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
+# root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
 
-pd0_fpaths = []
-pos_fpaths = []
+# pd0_fpaths = []
+# pos_fpaths = []
 
-for dirpath, _, filenames in os.walk(root):
-    if 'RawDataRT' not in dirpath:
-        continue
-    for fname in filenames:
-        fpath = os.path.join(dirpath, fname)
-        if fname.endswith('r.000'):
-            pd0_fpaths.append(fpath)
-        elif fname.endswith('extern.csv'):
-            pos_fpaths.append(fpath)
+# for dirpath, _, filenames in os.walk(root):
+#     if 'RawDataRT' not in dirpath:
+#         continue
+#     for fname in filenames:
+#         fpath = os.path.join(dirpath, fname)
+#         if fname.endswith('r.000'):
+#             pd0_fpaths.append(fpath)
+#         elif fname.endswith('extern.csv'):
+#             pos_fpaths.append(fpath)
             
 
 
 
 
-#%%
+# #%%
 
-pd0 = Pd0Decoder(pd0_fpaths[0], cfg = {})
+# pd0 = Pd0Decoder(pd0_fpaths[0], cfg = {})
 
-#vl = pd0._get_variable_leader()[0].to_dict()
-
-
+# #vl = pd0._get_variable_leader()[0].to_dict()
 
 
-#%% init position datasets
-pos_cfgs = []
-position_datasets = []
-for i,fpath in enumerate(pos_fpaths):
-    print(i)
-    cfg = {'filename':fpath,
-           'epsg':'4326',
-           'X_mode': 'Variable',
-           'Y_mode': 'Variable',
-           'Depth_mode': 'Constant',
-           'Pitch_mode': 'Constant',
-           'Roll_mode':'Cosntant',
-           'Heading_mode': 'Variable',
-           'DateTime_mode': 'Variable',
-           'X_value': 'Longitude',
-           'Y_value': 'Latitude',
-           'Depth_value': 0,
-           'Pitch_value': 0,
-           'Roll_value': 0,
-           'Heading_value': 'Course',
-           'DateTime_value': 'DateTime',
-           }
-    pos_cfgs.append(cfg)
-    #position_datasets.append(ADCPPosition(cfg))
-
-#%%
-
-water_properties =  {'density':1023,
-                     'salinity': 32,
-                     'temperature':None,
-                     'pH': 8.1}
-
-sediment_properties = {'particle_diameter':2.5e-4,
-                       'particle_density':2650}
 
 
-abs_params = {'C': -139.0,
-              'P_dbw': 9,
-              'E_r': 39,
-              'rssi_beam1': 0.41,
-              'rssi_beam2': 0.41,
-              'rssi_beam3': 0.41,
-              'rssi_beam4': 0.41,}
+# #%% init position datasets
+# pos_cfgs = []
+# position_datasets = []
+# for i,fpath in enumerate(pos_fpaths):
+#     print(i)
+#     cfg = {'filename':fpath,
+#            'epsg':'4326',
+#            'X_mode': 'Variable',
+#            'Y_mode': 'Variable',
+#            'Depth_mode': 'Constant',
+#            'Pitch_mode': 'Constant',
+#            'Roll_mode':'Cosntant',
+#            'Heading_mode': 'Variable',
+#            'DateTime_mode': 'Variable',
+#            'X_value': 'Longitude',
+#            'Y_value': 'Latitude',
+#            'Depth_value': 0,
+#            'Pitch_value': 0,
+#            'Roll_value': 0,
+#            'Heading_value': 'Course',
+#            'DateTime_value': 'DateTime',
+#            }
+#     pos_cfgs.append(cfg)
+#     #position_datasets.append(ADCPPosition(cfg))
 
-ssc_params = {'A': 3.5, 'B':.049}
-cfgs = []
-position_datasets = []
-adcps = []
-for i,fpath in enumerate(pd0_fpaths):
-    print(i)
-    name = fpath.split(os.sep)[-1].split('.000')[0]
-    cfg = {'filename':fpath,
-           'name':name,
-           'pos_cfg':pos_cfgs[i],
-           'pg_min' : 50,
-           'vel_min' : -2.0,
-           'vel_max' : 2.0,
-           'echo_min' : 0,
-           'echo_max' : 255,
-           'cormag_min' : 0,
-           'cormag_max' : 255,
-           'abs_min' : -100,
-           'abs_max': 0,
-           'err_vel_max' : 0.5,
-           'start_datetime' : None,
-           'end_datetime' : None,
-           'first_good_ensemble' : None,
-           'last_good_ensemble' : None,
-           'magnetic_declination' : 0,
-           'utc_offset' : None,
-           'crp_rotation_angle' : 0,
-           'crp_offset_x' : 0.0,
-           'crp_offset_y' : 0.0,
-           'crp_offset_z' : 0.0,
-           'transect_shift_x': 0.0,
-           'transect_shift_y': 0.0,
-           'transect_shift_z': 0.0,
-           'transect_shift_t': 0.0,
-           'water_properties': water_properties,
-           'sediment_properties':sediment_properties,
-           'abs_params': abs_params,
-           'ssc_params': ssc_params
-           }
+# #%%
+
+# water_properties =  {'density':1023,
+#                      'salinity': 32,
+#                      'temperature':None,
+#                      'pH': 8.1}
+
+# sediment_properties = {'particle_diameter':2.5e-4,
+#                        'particle_density':2650}
+
+
+# abs_params = {'C': -139.0,
+#               'P_dbw': 9,
+#               'E_r': 39,
+#               'rssi_beam1': 0.41,
+#               'rssi_beam2': 0.41,
+#               'rssi_beam3': 0.41,
+#               'rssi_beam4': 0.41,}
+
+# ssc_params = {'A': 3.5, 'B':.049}
+# cfgs = []
+# position_datasets = []
+# adcps = []
+# for i,fpath in enumerate(pd0_fpaths):
+#     print(i)
+#     name = fpath.split(os.sep)[-1].split('.000')[0]
+#     cfg = {'filename':fpath,
+#            'name':name,
+#            'pos_cfg':pos_cfgs[i],
+#            'pg_min' : 50,
+#            'vel_min' : -2.0,
+#            'vel_max' : 2.0,
+#            'echo_min' : 0,
+#            'echo_max' : 255,
+#            'cormag_min' : 0,
+#            'cormag_max' : 255,
+#            'abs_min' : -100,
+#            'abs_max': 0,
+#            'err_vel_max' : 0.5,
+#            'start_datetime' : None,
+#            'end_datetime' : None,
+#            'first_good_ensemble' : None,
+#            'last_good_ensemble' : None,
+#            'magnetic_declination' : 0,
+#            'utc_offset' : None,
+#            'crp_rotation_angle' : 0,
+#            'crp_offset_x' : 0.0,
+#            'crp_offset_y' : 0.0,
+#            'crp_offset_z' : 0.0,
+#            'transect_shift_x': 0.0,
+#            'transect_shift_y': 0.0,
+#            'transect_shift_z': 0.0,
+#            'transect_shift_t': 0.0,
+#            'water_properties': water_properties,
+#            'sediment_properties':sediment_properties,
+#            'abs_params': abs_params,
+#            'ssc_params': ssc_params
+#            }
     
-    adcp = DatasetADCP(cfg, name = name)
-    adcps.append(adcp)
-    break
-    if i==3:
-        break
+#     adcp = DatasetADCP(cfg, name = name)
+#     adcps.append(adcp)
+#     break
+#     if i==3:
+#         break
 
 
-#%%
-import numpy as np 
-fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
-a = adcp.get_beam_data('absolute_backscatter', mask = True)
-ax.imshow(a[:,:,0].T)
-ax.set_aspect('auto', adjustable = 'box')
+# #%%
+# import numpy as np 
+# fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+# a = adcp.get_beam_data('absolute_backscatter', mask = True)
+# ax.imshow(a[:,:,0].T)
+# ax.set_aspect('auto', adjustable = 'box')
 
-fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
-m = adcp.masking.beam_data_mask
-ax.imshow(m[:,:,0].T)
-ax.set_aspect('auto', adjustable = 'box')
+# fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+# m = adcp.masking.beam_data_mask
+# ax.imshow(m[:,:,0].T)
+# ax.set_aspect('auto', adjustable = 'box')
 
-## To-Do
-## SSC
-## plotting
-## beam plots, 
-## beam geometry verification 
-## correction for ADCP instrument pitch roll if beam 3 not forward. 
-## bottom track velocity correction 
-
-
-
-#%% generic testing for ADCP functions
-import numpy as np
-
-nc = adcp.geometry.n_bins
-ne = adcp.time.n_ensembles
+# ## To-Do
+# ## SSC
+# ## plotting
+# ## beam plots, 
+# ## beam geometry verification 
+# ## correction for ADCP instrument pitch roll if beam 3 not forward. 
+# ## bottom track velocity correction 
 
 
-# define constant parameters
-E_r = adcp.abs_params.E_r
-WB = adcp.abs_params.WB
-C = adcp.abs_params.C
-k_c = adcp.abs_params.rssi
-alpha_w = adcp.abs_params.alpha_w # water attenuation coefficient 
-P_dbw = adcp.abs_params.P_dbw
+
+# #%% generic testing for ADCP functions
+# import numpy as np
+
+# nc = adcp.geometry.n_bins
+# ne = adcp.time.n_ensembles
 
 
-bin_distances = adcp.geometry.bin_midpoint_distances
-pulse_lengths = adcp.abs_params.tx_pulse_length
-bin_depths = abs(adcp.geometry.geographic_beam_midpoint_positions.z)
-instrument_freq = adcp.abs_params.frequency*1000 # in hz
-
-temperature = adcp.water_properties.temperature
-pressure = adcp.aux_sensor_data.pressure
-salinity = adcp.water_properties.salinity
-water_density = adcp.water_properties.density
-
-particle_density = adcp.sediment_properties.particle_density
-particle_diameter = adcp.sediment_properties.particle_diameter
-
-pressure = np.outer(pressure, np.ones(nc))
-salinity = salinity * np.ones((ne, nc))
-water_density = water_density * np.ones((ne, nc))
-
-pulse_lengths = np.outer(pulse_lengths, np.ones(nc))
-bin_distances = np.outer(bin_distances, np.ones(ne)).T
-
-print(f"temp shape: {temperature.shape}")
-print(f"pressure shape: {pressure.shape}")
-print(f"salinity shape: {salinity.shape}")
-print(f"water_density shape: {water_density.shape}")
-print(f"pulse_lengths shape: {pulse_lengths.shape}")
-print(f"bin_distances shape: {bin_distances.shape}")
+# # define constant parameters
+# E_r = adcp.abs_params.E_r
+# WB = adcp.abs_params.WB
+# C = adcp.abs_params.C
+# k_c = adcp.abs_params.rssi
+# alpha_w = adcp.abs_params.alpha_w # water attenuation coefficient 
+# P_dbw = adcp.abs_params.P_dbw
 
 
-print(f"""\
-Means:
-------
-E_r: {E_r}
-WB: {WB}
-C: {C}
-k_c (mean over beams): {np.mean(list(k_c.values())):.4f}
-alpha_w (mean): {np.mean(alpha_w):.6f}
-P_dbw: {P_dbw}
-instrument_freq: {instrument_freq} Hz
-pulse_lengths (mean): {np.mean(pulse_lengths):.4f} m
-bin_distances (mean): {np.mean(bin_distances):.4f} m
-bin_depths (mean): {np.mean(bin_depths):.4f} m
-temperature (mean): {np.mean(temperature):.4f} °C
-pressure (mean): {np.mean(pressure):.4f} dbar
-salinity (mean): {np.mean(salinity):.4f} PSU
-water_density (mean): {np.mean(water_density):.4f} kg/m³
-particle_density: {particle_density} kg/m³
-particle_diameter: {particle_diameter} m
-""")
+# bin_distances = adcp.geometry.bin_midpoint_distances
+# pulse_lengths = adcp.abs_params.tx_pulse_length
+# bin_depths = abs(adcp.geometry.geographic_beam_midpoint_positions.z)
+# instrument_freq = adcp.abs_params.frequency*1000 # in hz
 
-echo = adcp.beam_data.echo_intensity
-# ABS = np.zeros_like(Echo, dtype=float)
-# SSC = np.zeros_like(Echo, dtype=float)
-# alpha_s = np.zeros_like(Echo, dtype=float)
+# temperature = adcp.water_properties.temperature
+# pressure = adcp.aux_sensor_data.pressure
+# salinity = adcp.water_properties.salinity
+# water_density = adcp.water_properties.density
 
-#%%
-alpha_s = np.zeros(echo.shape, dtype=float)
+# particle_density = adcp.sediment_properties.particle_density
+# particle_diameter = adcp.sediment_properties.particle_diameter
 
-for bm in range(adcp.geometry.n_beams):
+# pressure = np.outer(pressure, np.ones(nc))
+# salinity = salinity * np.ones((ne, nc))
+# water_density = water_density * np.ones((ne, nc))
+
+# pulse_lengths = np.outer(pulse_lengths, np.ones(nc))
+# bin_distances = np.outer(bin_distances, np.ones(ne)).T
+
+# print(f"temp shape: {temperature.shape}")
+# print(f"pressure shape: {pressure.shape}")
+# print(f"salinity shape: {salinity.shape}")
+# print(f"water_density shape: {water_density.shape}")
+# print(f"pulse_lengths shape: {pulse_lengths.shape}")
+# print(f"bin_distances shape: {bin_distances.shape}")
+
+
+# print(f"""\
+# Means:
+# ------
+# E_r: {E_r}
+# WB: {WB}
+# C: {C}
+# k_c (mean over beams): {np.mean(list(k_c.values())):.4f}
+# alpha_w (mean): {np.mean(alpha_w):.6f}
+# P_dbw: {P_dbw}
+# instrument_freq: {instrument_freq} Hz
+# pulse_lengths (mean): {np.mean(pulse_lengths):.4f} m
+# bin_distances (mean): {np.mean(bin_distances):.4f} m
+# bin_depths (mean): {np.mean(bin_depths):.4f} m
+# temperature (mean): {np.mean(temperature):.4f} °C
+# pressure (mean): {np.mean(pressure):.4f} dbar
+# salinity (mean): {np.mean(salinity):.4f} PSU
+# water_density (mean): {np.mean(water_density):.4f} kg/m³
+# particle_density: {particle_density} kg/m³
+# particle_diameter: {particle_diameter} m
+# """)
+
+# echo = adcp.beam_data.echo_intensity
+# # ABS = np.zeros_like(Echo, dtype=float)
+# # SSC = np.zeros_like(Echo, dtype=float)
+# # alpha_s = np.zeros_like(Echo, dtype=float)
+
+# #%%
+# alpha_s = np.zeros(echo.shape, dtype=float)
+
+# for bm in range(adcp.geometry.n_beams):
     
-    echo_beam = adcp.get_beam_data(field_name='echo_intensity', mask=False)[:, :, bm]
-    abs_beam = adcp.get_beam_data(field_name='absolute_backscatter', mask=False)[:, :, bm]
+#     echo_beam = adcp.get_beam_data(field_name='echo_intensity', mask=False)[:, :, bm]
+#     abs_beam = adcp.get_beam_data(field_name='absolute_backscatter', mask=False)[:, :, bm]
 
-    ssc_beam = adcp._backscatter_to_ssc(abs_beam)
+#     ssc_beam = adcp._backscatter_to_ssc(abs_beam)
 
-    # --------- Iteratively update bin 0 ---------
-    n_iter = 0
-    max_iter = 100
-    stop = False
-    bn = 0
-    while not stop and n_iter < max_iter:
+#     # --------- Iteratively update bin 0 ---------
+#     n_iter = 0
+#     max_iter = 100
+#     stop = False
+#     bn = 0
+#     while not stop and n_iter < max_iter:
 
-        alpha_s_bm_bn = adcp._sediment_absorption_coeff(
-            ps=particle_density,
-            pw=water_density[:, bn],
-            z=pressure[:, bn],
-            d=particle_diameter,
-            SSC=ssc_beam[:, bn],             # ✅ vector
-            T=temperature[:, bn],
-            S=salinity[:, bn],
-            f=instrument_freq
-        )
+#         alpha_s_bm_bn = adcp._sediment_absorption_coeff(
+#             ps=particle_density,
+#             pw=water_density[:, bn],
+#             z=pressure[:, bn],
+#             d=particle_diameter,
+#             SSC=ssc_beam[:, bn],             # ✅ vector
+#             T=temperature[:, bn],
+#             S=salinity[:, bn],
+#             f=instrument_freq
+#         )
 
-        sv, _ = adcp._counts_to_absolute_backscatter(
-            E=echo_beam[:, bn],
-            E_r=E_r,
-            k_c=k_c[bm + 1],
-            alpha=alpha_w[:, bn] + alpha_s_bm_bn,
-            C=C,
-            R=bin_distances[:, bn],
-            Tx_T=temperature[:, bn],
-            Tx_PL=pulse_lengths[:, bn],
-            P_dbw=P_dbw
-        )
+#         sv, _ = adcp._counts_to_absolute_backscatter(
+#             E=echo_beam[:, bn],
+#             E_r=E_r,
+#             k_c=k_c[bm + 1],
+#             alpha=alpha_w[:, bn] + alpha_s_bm_bn,
+#             C=C,
+#             R=bin_distances[:, bn],
+#             Tx_T=temperature[:, bn],
+#             Tx_PL=pulse_lengths[:, bn],
+#             P_dbw=P_dbw
+#         )
 
-        stop = np.allclose(abs_beam[:, bn], sv, rtol=1e-5, atol=1e-8)
-        abs_beam[:, bn] = sv
-        ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
-        n_iter += 1
+#         stop = np.allclose(abs_beam[:, bn], sv, rtol=1e-5, atol=1e-8)
+#         abs_beam[:, bn] = sv
+#         ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
+#         n_iter += 1
 
-    alpha_s[:, bn, bm] = alpha_s_bm_bn
+#     alpha_s[:, bn, bm] = alpha_s_bm_bn
 
-    # --------- Propagate to deeper bins ---------
-    for bn in range(1, adcp.geometry.n_bins - 1):
+#     # --------- Propagate to deeper bins ---------
+#     for bn in range(1, adcp.geometry.n_bins - 1):
 
-        # ✅ Vector of ensemble-wise mean SSC from above bins
-        ssc_beam_column = np.nanmean(ssc_beam[:, :bn], axis=1)
+#         # ✅ Vector of ensemble-wise mean SSC from above bins
+#         ssc_beam_column = np.nanmean(ssc_beam[:, :bn], axis=1)
 
-        print(f'beam = {bm} | bin = {bn} | ssc mean = {np.nanmean(ssc_beam_column):.3f} mg/L')
+#         print(f'beam = {bm} | bin = {bn} | ssc mean = {np.nanmean(ssc_beam_column):.3f} mg/L')
 
-        alpha_s_bm_bn = adcp._sediment_absorption_coeff(
-            ps=particle_density,
-            pw=water_density[:, bn],
-            z=pressure[:, bn],
-            d=particle_diameter,
-            SSC=ssc_beam_column,              # ✅ vector
-            T=temperature[:, bn],
-            S=salinity[:, bn],
-            f=instrument_freq
-        )
+#         alpha_s_bm_bn = adcp._sediment_absorption_coeff(
+#             ps=particle_density,
+#             pw=water_density[:, bn],
+#             z=pressure[:, bn],
+#             d=particle_diameter,
+#             SSC=ssc_beam_column,              # ✅ vector
+#             T=temperature[:, bn],
+#             S=salinity[:, bn],
+#             f=instrument_freq
+#         )
 
-        sv, _ = adcp._counts_to_absolute_backscatter(
-            E=echo_beam[:, bn],
-            E_r=E_r,
-            k_c=k_c[bm + 1],
-            alpha=alpha_w[:, bn] + alpha_s_bm_bn,
-            C=C,
-            R=bin_distances[:, bn],
-            Tx_T=temperature[:, bn],
-            Tx_PL=pulse_lengths[:, bn],
-            P_dbw=P_dbw
-        )
+#         sv, _ = adcp._counts_to_absolute_backscatter(
+#             E=echo_beam[:, bn],
+#             E_r=E_r,
+#             k_c=k_c[bm + 1],
+#             alpha=alpha_w[:, bn] + alpha_s_bm_bn,
+#             C=C,
+#             R=bin_distances[:, bn],
+#             Tx_T=temperature[:, bn],
+#             Tx_PL=pulse_lengths[:, bn],
+#             P_dbw=P_dbw
+#         )
 
-        abs_beam[:, bn] = sv
-        ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
-        alpha_s[:, bn, bm] = alpha_s_bm_bn
+#         abs_beam[:, bn] = sv
+#         ssc_beam[:, bn] = adcp._backscatter_to_ssc(sv)
+#         alpha_s[:, bn, bm] = alpha_s_bm_bn
 
 
-fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
-a = ssc_beam
-ax.imshow(a.T, vmax = 10)
-ax.set_aspect('auto', adjustable = 'box')   
+# fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+# a = ssc_beam
+# ax.imshow(a.T, vmax = 10)
+# ax.set_aspect('auto', adjustable = 'box')   
 
-fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
-a = ssc_beam_init
-ax.imshow(a.T, vmax = 10)
-ax.set_aspect('auto', adjustable = 'box')  
+# fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+# a = ssc_beam_init
+# ax.imshow(a.T, vmax = 10)
+# ax.set_aspect('auto', adjustable = 'box')  
 
-fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
-a = alpha_s[:,:,-1]
-ax.imshow(a.T)
-ax.set_aspect('auto', adjustable = 'box') 
+# fig, ax = PlottingShell.subplots(figheight = 3, figwidth = 6)
+# a = alpha_s[:,:,-1]
+# ax.imshow(a.T)
+# ax.set_aspect('auto', adjustable = 'box') 
 
 
 

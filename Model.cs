@@ -22,14 +22,8 @@ namespace CSEMMPGUI_v1
         private void InitializeModel()
         {
             txtModelName.Text = "New Model";
-            int id = _project.GetNextId();
-            modelElement = _Globals.Config.CreateElement("Model");
-            modelElement.SetAttribute("name", txtModelName.Text);
-            modelElement.SetAttribute("type", "Model");
-            modelElement.SetAttribute("id", id.ToString());
             txtFilePath.Text = string.Empty;
             isSaved = true;
-
         }
 
         private void PopulateModel()
@@ -212,6 +206,11 @@ namespace CSEMMPGUI_v1
 
         private void SAVE()
         {
+            int id = _project.GetNextId();
+            modelElement = _Globals.Config.CreateElement("Model");
+            modelElement.SetAttribute("name", txtModelName.Text);
+            modelElement.SetAttribute("type", "Model");
+            modelElement.SetAttribute("id", id.ToString());
             modelElement?.SetAttribute("name", txtModelName.Text);
             XmlElement path = _Globals.Config.CreateElement("Path");
             path.InnerText = _Utils.GetFullPath(txtFilePath.Text.Trim());
@@ -222,8 +221,6 @@ namespace CSEMMPGUI_v1
                 doc.AppendChild(modelElement);
             }
             _project.SaveConfig(saveMode: 1);
-            int id = _project.GetNextId();
-            _Globals.Config.DocumentElement.SetAttribute("nextid", (id + 1).ToString());
         }
         
         private void UPDATE()

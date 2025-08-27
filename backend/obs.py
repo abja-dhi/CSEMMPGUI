@@ -4,64 +4,61 @@ from numpy.typing import NDArray
 from dataclasses import dataclass, field
 from datetime import datetime
 import numpy as np
+from dateutil import parser
+
+from utils import Constants
 
 class OBS():
     def __init__(self, cfg: str) -> None:
-        self._cfg = ET.fromstring(cfg)
-        self.id = self._cfg.attrib['id']
-        self.name = self._cfg.attrib.get('name', '')
-        filinfo = self._cfg.find("FileInfo")
-        self._fname = filinfo.find("Path").text
-        self._header = int(filinfo.find("HeaderLine").text)
-        self._sep = filinfo.find("Delimiter").text
-        self._date_col = filinfo.find("DateTimeColumn").text
-        self._depth_col = filinfo.find("DepthColumn").text
-        self._ntu_col = filinfo.find("NTUColumn").text
-        masking = self._cfg.find("Masking")
-        maskDateTime = masking.find("MaskDateTime")
-        enabled = maskDateTime.attrib.get("enabled", "false").lower() == "true"
-        dateTimeStart = maskDateTime.find("Start").text if enabled else datetime.min
-        dateTimeEnd = maskDateTime.find("End").text if enabled else datetime.max
-        maskDepth = masking.find("MaskDepth")
-        enabled = maskDepth.attrib.get("enabled", "false").lower() == "true"
-        depthMin = float(maskDepth.find("Min").text) if enabled else -np.inf
-        depthMax = float(maskDepth.find("Max").text) if enabled else np.inf
-        maskNTU = masking.find("MaskNTU")
-        enabled = maskNTU.attrib.get("enabled", "false").lower() == "true"
-        ntuMin = float(maskNTU.find("Min").text) if enabled else -np.inf
-        ntuMax = float(maskNTU.find("Max").text) if enabled else np.inf
-
-        df = pd.read_csv(self._fname, header=self._header, sep=self._sep)
+        self._cfg = cfg
+        self.name = self._cfg.get('name', "MyOBS")
+        self.filename = self._cfg.get('filename', None)
+        header = self._cfg.get('header', 0)
+        sep = self._cfg.get('sep', ',')
+        if sep == "Tab":
+            sep = "\t"
+        elif sep == "WhiteSpaces":
+            sep = "\s+"
+        df = pd.read_csv(self.filename, header=header, sep=sep, skiprows=header-1)
         
+        date_col = self._cfg.get('date_col', 'Date')
+        time_col = self._cfg.get('time_col', 'Time')
+        depth_col = self._cfg.get('depth_col', 'Depth')
+        ntu_col = self._cfg.get('ntu_col', 'NTU')
+        df["DateTime"] = pd.to_datetime(df[date_col] + ' ' + df[time_col], errors='coerce')
+        df.drop(columns=[date_col, time_col], inplace=True)
+
         @dataclass
-        class Data:
+        class OBSData:
             datetime: NDArray[np.datetime64] = field(metadata={"desc": "Datetime values"})
             depth: NDArray[np.float64] = field(metadata={"desc": "Depth values"})
             ntu: NDArray[np.float64] = field(metadata={"desc": "NTU values"})
 
-        self.data = Data(
-            datetime=df[self._date_col].to_numpy(dtype=datetime),
-            depth=df[self._depth_col].to_numpy(dtype=np.float64),
-            ntu=df[self._ntu_col].to_numpy(dtype=np.float64)
+        self.data = OBSData(
+            datetime=df["DateTime"].to_numpy(dtype=np.datetime64),
+            depth=df[depth_col].to_numpy(dtype=np.float64),
+            ntu=df[ntu_col].to_numpy(dtype=np.float64)
         )
-
+        
+        
         @dataclass
         class MaskParams:
-            dateTimeStart: datetime = field(metadata={"desc": "Start datetime for masking"})
-            dateTimeEnd: datetime = field(metadata={"desc": "End datetime for masking"})
+            start_datetime: datetime = field(metadata={"desc": "Start datetime for masking"})
+            end_datetime: datetime = field(metadata={"desc": "End datetime for masking"})
             depthMin: float = field(metadata={"desc": "Minimum depth for masking"})
             depthMax: float = field(metadata={"desc": "Maximum depth for masking"})
             ntuMin: float = field(metadata={"desc": "Minimum NTU for masking"})
             ntuMax: float = field(metadata={"desc": "Maximum NTU for masking"})
-            OBSMask=None
+            OBSMask: NDArray = field(metadata={"desc": "Mask for OBS data"})
 
         self.masking = MaskParams(
-            start_datetime=pd.to_datetime(dateTimeStart),
-            end_datetime=pd.to_datetime(dateTimeEnd),
-            depthMin=depthMin,
-            depthMax=depthMax,
-            ntuMin=ntuMin,
-            ntuMax=ntuMax
+            start_datetime=np.datetime64(parser.parse(self._cfg.get('start_datetime', Constants._FAR_PAST_DATETIME))),
+            end_datetime=np.datetime64(parser.parse(self._cfg.get('end_datetime', Constants._FAR_FUTURE_DATETIME))),
+            depthMin=self._cfg.get('depthMin', Constants._LOW_NUMBER),
+            depthMax=self._cfg.get('depthMax', Constants._HIGH_NUMBER),
+            ntuMin=self._cfg.get('ntuMin', Constants._LOW_NUMBER),
+            ntuMax=self._cfg.get('ntuMax', Constants._HIGH_NUMBER),
+            OBSMask=None
         )
 
         self.generate_OBSMask()
