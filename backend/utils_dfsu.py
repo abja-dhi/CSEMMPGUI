@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.tri import Triangulation
 import warnings
 
-from .utils import Utils, Constants
+from utils import Utils, Constants
 
 class DfsuUtils:
     def __init__(self, fname: str) -> None:

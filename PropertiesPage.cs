@@ -14,12 +14,24 @@ namespace CSEMMPGUI_v1
     public partial class PropertiesPage : Form
     {
         public bool isSaved;
+        public _ClassConfigurationManager _project = new();
+
+        private void PopulateFields()
+        {
+            txtProjectDir.Text = _project.GetSetting(settingName: "Directory");
+            txtProjectEPSG.Text = _project.GetSetting(settingName: "EPSG");
+            txtProjectDescription.Text = _project.GetSetting(settingName: "Description");
+            isSaved = true; // Initially, fields are populated and considered saved
+        }
 
         public PropertiesPage()
         {
             InitializeComponent();
             PopulateFields();
             isSaved = true; // Initially, fields are populated and considered saved
+
+            this.KeyPreview = true; // Enable form to capture key events
+            this.KeyDown += Properties_KeyDown; // Attach key down event handler
         }
 
         private void menuSave_Click(object sender, EventArgs e)
@@ -55,7 +67,7 @@ namespace CSEMMPGUI_v1
                 Description = "Select Project Directory",
                 ShowNewFolderButton = true,
                 SelectedPath = txtProjectDir.Text.Trim(),
-                InitialDirectory = _ClassConfigurationManager.GetSetting(settingName: "Directory")
+                InitialDirectory =  _project.GetSetting(settingName: "Directory")
             };
             if (fbd.ShowDialog() == DialogResult.OK)
             {
@@ -93,21 +105,20 @@ namespace CSEMMPGUI_v1
 
         private void Save()
         {
-            _ClassConfigurationManager.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
-            _ClassConfigurationManager.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
-            _ClassConfigurationManager.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
-            _ClassConfigurationManager.SaveConfig(saveMode: 1);
+            _project.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
+            _project.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
+            _project.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
+            _project.SaveConfig(saveMode: 1);
             isSaved = true;
         }
 
-        private void PopulateFields()
+        private void Properties_KeyDown(object sender, KeyEventArgs e)
         {
-            txtProjectDir.Text = _ClassConfigurationManager.GetSetting(settingName: "Directory");
-            txtProjectEPSG.Text = _ClassConfigurationManager.GetSetting(settingName: "EPSG");
-            txtProjectDescription.Text = _ClassConfigurationManager.GetSetting(settingName: "Description");
-            isSaved = true; // Initially, fields are populated and considered saved
+            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            {
+                e.SuppressKeyPress = true; // Prevent default behavior
+                Save(); // Save the project
+            }
         }
-
-        
     }
 }

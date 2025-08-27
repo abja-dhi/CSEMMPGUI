@@ -12,6 +12,22 @@ namespace CSEMMPGUI_v1
 {
     public static class _Tools
     {
+        public static string GenerateInput(Dictionary<string, string> inputs)
+        {
+            var sb = new StringBuilder();
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = true }))
+            {
+                writer.WriteStartElement("Input");
+                foreach (var input in inputs)
+                {
+                    writer.WriteElementString(input.Key, input.Value);
+                }
+                writer.WriteEndElement();
+            }
+            return sb.ToString();
+        }
+
+
         public static void InitPython()
         {
             string pythonDll = _Globals.PythonDllPath;
@@ -39,21 +55,7 @@ namespace CSEMMPGUI_v1
             
         }
 
-        public static string GenerateInput(Dictionary<string, string> inputs)
-        {
-            var sb = new StringBuilder();
-            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = true }))
-            {
-                writer.WriteStartElement("Input");
-                foreach (var input in inputs)
-                {
-                    writer.WriteElementString(input.Key, input.Value);
-                }
-                writer.WriteEndElement();
-            }
-            return sb.ToString();
-        }
-
+        
         public static Dictionary<string, string> ParseOutput(XmlDocument doc)
         {
             var outputs = new Dictionary<string, string>();

@@ -1,61 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Compile Update="EditOBSVerticalProfile.cs">
+    <Compile Update="Debugger.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="EditSurvey.cs">
+    <Compile Update="Model.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="EditVesselMountedADCP.cs">
+    <Compile Update="ModelPlot.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="EditWaterSample.cs">
+    <Compile Update="OBSVerticalProfile.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="PlotModel.cs">
+    <Compile Update="SSCModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Survey.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UtilsCSVColumnSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="VesselMountedADCP.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="VesselMountedADCPPlot.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="WaterSample.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="_AboutUs.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="AddModel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="AddSurvey.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="UtilsCSVImportOptions.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="EditModel.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="__PlumeTrack.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="UtilsNTU2SSC.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="AddOBSVerticalProfile.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="PropertiesPage.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="AddSeabedLanderADCP.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="AddVesselMountedADCP.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="VesselMountedADCPPrintConfig.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UtilsViSea Extern.dat to CSV.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="AddWaterSample.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

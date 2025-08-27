@@ -55,17 +55,17 @@
             label1.Text = "EMMP Support Tool\r\nDeveloped by:\r\nAndy Banks (anba@dhigroup.com)\r\nAbbas Jazaeri (abja@dhigroup.com)\r\n\r\nDHI Water and Environment Inc.";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // AboutUs
+            // _AboutUs
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.ControlLight;
+            BackColor = Color.FromArgb(red: 249, green: 240, blue: 230);
             ClientSize = new Size(344, 327);
             Controls.Add(label1);
             Controls.Add(pictureBox1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
-            Name = "AboutUs";
+            Name = "_AboutUs";
             Text = "About Us";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);

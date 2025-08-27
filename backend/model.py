@@ -51,10 +51,29 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
 class Plotting:
-    
-
     def __init__(self, model: Model) -> None:
         self.model = model
+
+
+    def contourf(self, item_number: int, ax: Axes=None, cmap: str=None, cbar_label: str=None) -> Axes:
+        """
+        Plot a filled contour map from the model data.
+        Parameters
+        ----------
+        item_number : int
+            Item number to extract from the model data.
+        ax : Axes, optional
+            Matplotlib Axes object to plot on. If None, a new figure and axes will be created.
+        cmap : str, optional
+            Colormap to use for the plot. Defaults to 'turbo'.
+        cbar_label : str, optional
+            Label for the colorbar. If None, the item name will be used.
+        Returns
+        -------
+        Axes
+            The Axes object with the plot.
+        """
+        pass
 
     def transect(self, x: np.ndarray, y: np.ndarray, t: np.ndarray, item_number: int, ax: Axes=None, cmap: str=None, cbar_label: str=None) -> Axes:
         """

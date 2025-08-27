@@ -40,6 +40,7 @@
             menuAddLayer = new ToolStripMenuItem();
             menuAddSurvey = new ToolStripMenuItem();
             menuAddModel = new ToolStripMenuItem();
+            menuAddSSCModel = new ToolStripMenuItem();
             menuUtilities = new ToolStripMenuItem();
             processPositionFileToolStripMenuItem = new ToolStripMenuItem();
             sSCModelsToolStripMenuItem = new ToolStripMenuItem();
@@ -55,12 +56,12 @@
             itemPlot = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
-            tableLayoutPanel1 = new TableLayoutPanel();
             lblName = new Label();
             txtName = new TextBox();
+            tableLayoutPanel2 = new TableLayoutPanel();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
-            tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -116,7 +117,7 @@
             // 
             // menuAddLayer
             // 
-            menuAddLayer.DropDownItems.AddRange(new ToolStripItem[] { menuAddSurvey, menuAddModel });
+            menuAddLayer.DropDownItems.AddRange(new ToolStripItem[] { menuAddSurvey, menuAddModel, menuAddSSCModel });
             menuAddLayer.Name = "menuAddLayer";
             menuAddLayer.Size = new Size(72, 20);
             menuAddLayer.Text = "Add Layer";
@@ -124,16 +125,23 @@
             // menuAddSurvey
             // 
             menuAddSurvey.Name = "menuAddSurvey";
-            menuAddSurvey.Size = new Size(134, 22);
+            menuAddSurvey.Size = new Size(163, 22);
             menuAddSurvey.Text = "Add Survey";
             menuAddSurvey.Click += menuAddSurvey_Click;
             // 
             // menuAddModel
             // 
             menuAddModel.Name = "menuAddModel";
-            menuAddModel.Size = new Size(134, 22);
-            menuAddModel.Text = "Add Model";
+            menuAddModel.Size = new Size(163, 22);
+            menuAddModel.Text = "Add MIKE Model";
             menuAddModel.Click += menuAddModel_Click;
+            // 
+            // menuAddSSCModel
+            // 
+            menuAddSSCModel.Name = "menuAddSSCModel";
+            menuAddSSCModel.Size = new Size(163, 22);
+            menuAddSSCModel.Text = "Add SSC Model";
+            menuAddSSCModel.Click += menuAddSSCModel_Click;
             // 
             // menuUtilities
             // 
@@ -197,10 +205,11 @@
             // treeProject
             // 
             treeProject.ContextMenuStrip = cmenuNode;
-            treeProject.Dock = DockStyle.Left;
-            treeProject.Location = new Point(0, 24);
+            treeProject.Dock = DockStyle.Fill;
+            treeProject.Location = new Point(3, 3);
             treeProject.Name = "treeProject";
-            treeProject.Size = new Size(200, 437);
+            tableLayoutPanel2.SetRowSpan(treeProject, 2);
+            treeProject.Size = new Size(259, 431);
             treeProject.TabIndex = 1;
             treeProject.NodeMouseClick += treeProject_NodeMouseClick;
             treeProject.NodeMouseDoubleClick += treeProject_NodeMouseDoubleClick;
@@ -209,52 +218,36 @@
             // 
             cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
             cmenuNode.Name = "contextMenuStrip1";
-            cmenuNode.Size = new Size(181, 92);
+            cmenuNode.Size = new Size(108, 70);
             // 
             // itemOpen
             // 
             itemOpen.Name = "itemOpen";
-            itemOpen.Size = new Size(180, 22);
+            itemOpen.Size = new Size(107, 22);
             itemOpen.Text = "Open";
             itemOpen.Click += itemOpen_Click;
             // 
             // itemPlot
             // 
             itemPlot.Name = "itemPlot";
-            itemPlot.Size = new Size(180, 22);
+            itemPlot.Size = new Size(107, 22);
             itemPlot.Text = "Plot";
             itemPlot.Click += itemPlot_Click;
             // 
             // itemDelete
             // 
             itemDelete.Name = "itemDelete";
-            itemDelete.Size = new Size(180, 22);
+            itemDelete.Size = new Size(107, 22);
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
-            // 
-            // tableLayoutPanel1
-            // 
-            tableLayoutPanel1.ColumnCount = 2;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666666F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 83.3333359F));
-            tableLayoutPanel1.Controls.Add(lblName, 0, 0);
-            tableLayoutPanel1.Controls.Add(txtName, 1, 0);
-            tableLayoutPanel1.Dock = DockStyle.Top;
-            tableLayoutPanel1.Location = new Point(200, 24);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 1;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(684, 29);
-            tableLayoutPanel1.TabIndex = 2;
             // 
             // lblName
             // 
             lblName.AutoSize = true;
             lblName.Dock = DockStyle.Fill;
-            lblName.Location = new Point(3, 0);
+            lblName.Location = new Point(268, 0);
             lblName.Name = "lblName";
-            lblName.Size = new Size(108, 29);
+            lblName.Size = new Size(82, 30);
             lblName.TabIndex = 0;
             lblName.Text = "Project Name";
             lblName.TextAlign = ContentAlignment.MiddleLeft;
@@ -262,20 +255,37 @@
             // txtName
             // 
             txtName.Dock = DockStyle.Fill;
-            txtName.Location = new Point(117, 3);
+            txtName.Location = new Point(356, 3);
             txtName.Name = "txtName";
-            txtName.Size = new Size(564, 23);
+            txtName.Size = new Size(525, 23);
             txtName.TabIndex = 1;
             txtName.Text = "New Project";
-            txtName.Leave += txtName_Leave;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.ColumnCount = 3;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+            tableLayoutPanel2.Controls.Add(txtName, 2, 0);
+            tableLayoutPanel2.Controls.Add(lblName, 1, 0);
+            tableLayoutPanel2.Controls.Add(treeProject, 0, 0);
+            tableLayoutPanel2.Dock = DockStyle.Fill;
+            tableLayoutPanel2.Location = new Point(0, 24);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 2;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.Size = new Size(884, 437);
+            tableLayoutPanel2.TabIndex = 3;
             // 
             // __PlumeTrack
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(884, 461);
-            Controls.Add(tableLayoutPanel1);
-            Controls.Add(treeProject);
+            Controls.Add(tableLayoutPanel2);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
@@ -286,8 +296,8 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             cmenuNode.ResumeLayout(false);
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -318,9 +328,10 @@
         private ToolStripMenuItem sSCModelsToolStripMenuItem;
         private ToolStripMenuItem nTUSSCToolStripMenuItem;
         private ToolStripMenuItem backscatterSSCToolStripMenuItem;
-        private TableLayoutPanel tableLayoutPanel1;
         private Label lblName;
         private TextBox txtName;
         private ToolStripMenuItem itemPlot;
+        private ToolStripMenuItem menuAddSSCModel;
+        private TableLayoutPanel tableLayoutPanel2;
     }
 }

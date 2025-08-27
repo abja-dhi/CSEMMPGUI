@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertiesPage));
             txtProjectEPSG = new TextBox();
             lblProjectEPSG = new Label();
             lblProjectDir = new Label();
@@ -155,14 +156,14 @@
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(180, 22);
+            menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(180, 22);
+            menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -170,9 +171,11 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(513, 313);
             Controls.Add(tableOrganizer);
             Controls.Add(menuMain);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuMain;
             Name = "PropertiesPage";
             Text = "Project Properties";
