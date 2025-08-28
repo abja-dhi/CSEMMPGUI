@@ -1946,26 +1946,7 @@ class ADCP():
 
 
 class Plotting:
-    # _CMAPS = {
-    #     "percent_good": plt.cm.binary,
-    #     "echo_intensity": plt.cm.turbo,
-    #     "filtered_echo_intensity": plt.cm.turbo,
-    #     "correlation_magnitude": plt.cm.nipy_spectral,
-    #     "absolute_backscatter": plt.cm.turbo,
-    #     "ntu": plt.cm.turbo,
-    #     "ssc": plt.cm.turbo,
-    #     "signal_to_noise_ratio": plt.cm.bone_r,
-    # }
-    
-    
-    # _CBAR_LABELS = {
-    #     "u": "Eastward Velocity (m/s)",
-    #     "v": "Northward Velocity (m/s)",
-    #     "w": "Upward Velocity (m/s)",
-    #     "CS": "Current Speed (m/s)",
-    #     "error_velocity": "Error Velocity (m/s)",
-    # }
-    
+
     def __init__(self, adcp: ADCP) -> None:
         self._adcp = adcp
 

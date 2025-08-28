@@ -287,7 +287,7 @@ class XMLUtils:
 
         return cfg
 
-    def CreateOBSDict(self, project: ET.Element, instrument_id: str):
+    def CreateOBSDict(self, project: ET.Element, instrument_id: str, add_ssc =True):
         instrument = self.find_element(project, instrument_id, "OBSVerticalProfile")
         parent_map = {child: parent for parent in project.iter() for child in parent}
         if instrument is not None:
@@ -295,6 +295,18 @@ class XMLUtils:
             if parent is not None and parent.tag == "Survey":
                 water = parent.find("Water")
                 sediment = parent.find("Sediment")
+                
+        obs =  instrument.find("FileInfo")       
+        sscmodelid = obs.find("SSCModelID").text       
+        if add_ssc:
+            sscmodel = self.find_element(project, sscmodelid, 'SSCModel')
+            if sscmodel is not None:
+                ssc_params = self.ParseSSCModel(project, sscmodel)
+            else:
+                ssc_params = {'A': None, 'B': None}
+        else:
+            ssc_params = {'A': None, 'B': None}
+            
         settings = project.find("Settings")
         epsg = settings.find("EPSG").text if settings is not None and settings.find("EPSG") is not None else "4326"
         name = instrument.attrib.get("name", "OBSProfile")
@@ -344,11 +356,89 @@ class XMLUtils:
             'depthMin': maskDepthMin,
             'depthMax': maskDepthMax,
             'ntuMin': maskNTUMin,
-            'ntuMax': maskNTUMax
+            'ntuMax': maskNTUMax,
+            'ssc_params':ssc_params
         }
 
         return cfg
     
+    def CreateWaterSampleDict(self, project: ET.Element, instrument_id: str) -> dict:
+        """Single WaterSample cfg dict with tolerant tag lookup."""
+        instrument = self.find_element(project, instrument_id, "WaterSample")
+        if instrument is None:
+            raise ValueError(f"WaterSample id={instrument_id} not found")
+    
+        fileinfo = instrument.find("FileInfo") or instrument
+    
+        def first_text(elem: ET.Element, tags: list[str], default):
+            for t in tags:
+                v = elem.find(t)
+                if v is not None and v.text and v.text.strip():
+                    return v.text
+            return default
+    
+        filename = first_text(fileinfo, ["Path", "File", "Filename"], "")
+        header = int(first_text(fileinfo, ["Header"], 0))
+        sep = first_text(fileinfo, ["Sep", "Delimiter"], ",")
+        # columns, try several common names
+        datetime_col = first_text(fileinfo, ["DateTimeColumn", "DatetimeColumn"], None)
+        date_col = first_text(fileinfo, ["DateColumn"], None)
+        time_col = first_text(fileinfo, ["TimeColumn"], None)
+        depth_col = first_text(fileinfo, ["DepthColumn", "ZColumn"], None)
+        ssc_col = first_text(fileinfo, ["SSCColumn", "TSSColumn", "ConcentrationColumn"], "SSC")
+    
+        # optional masking
+        masking = instrument.find("Masking")
+        if masking is not None:
+            maskDateTime = masking.find("MaskDateTime")
+            if maskDateTime is not None and maskDateTime.attrib.get("Enabled") == "true":
+                start_datetime = self.get_value(maskDateTime, "Start", Constants._FAR_PAST_DATETIME)
+                end_datetime = self.get_value(maskDateTime, "End", Constants._FAR_FUTURE_DATETIME)
+            else:
+                start_datetime = Constants._FAR_PAST_DATETIME
+                end_datetime = Constants._FAR_FUTURE_DATETIME
+    
+            maskDepth = masking.find("MaskDepth")
+            if maskDepth is not None and maskDepth.attrib.get("Enabled") == "true":
+                depth_min = float(self.get_value(maskDepth, "Min", Constants._LOW_NUMBER))
+                depth_max = float(self.get_value(maskDepth, "Max", Constants._HIGH_NUMBER))
+            else:
+                depth_min = Constants._LOW_NUMBER
+                depth_max = Constants._HIGH_NUMBER
+    
+            maskSSC = masking.find("MaskSSC") or masking.find("MaskConcentration")
+            if maskSSC is not None and maskSSC.attrib.get("Enabled") == "true":
+                ssc_min = float(self.get_value(maskSSC, "Min", Constants._LOW_NUMBER))
+                ssc_max = float(self.get_value(maskSSC, "Max", Constants._HIGH_NUMBER))
+            else:
+                ssc_min = Constants._LOW_NUMBER
+                ssc_max = Constants._HIGH_NUMBER
+        else:
+            start_datetime = Constants._FAR_PAST_DATETIME
+            end_datetime = Constants._FAR_FUTURE_DATETIME
+            depth_min = Constants._LOW_NUMBER
+            depth_max = Constants._HIGH_NUMBER
+            ssc_min = Constants._LOW_NUMBER
+            ssc_max = Constants._HIGH_NUMBER
+    
+        cfg = {
+            "filename": filename,
+            "header": header,
+            "sep": sep,
+            "datetime_col": datetime_col,
+            "date_col": date_col,
+            "time_col": time_col,
+            "depth_col": depth_col,
+            "ssc_col": ssc_col,
+            "start_datetime": start_datetime,
+            "end_datetime": end_datetime,
+            "depthMin": depth_min,
+            "depthMax": depth_max,
+            "sscMin": ssc_min,
+            "sscMax": ssc_max,
+
+        }
+        return cfg    
     
     def CreateADCPDicts(self, adcp_elements: list[ET.Element], add_ssc: bool = True) -> list[dict]:
         """
@@ -376,6 +466,25 @@ class XMLUtils:
             cfgs.append(self.CreateADCPDict(self.project, inst_id, add_ssc=add_ssc))
         return cfgs
         
+    def CreateOBSDicts(self, obs_elements: list[ET.Element], add_ssc = True) -> list[dict]:
+        """Batch: build OBS cfg dicts from OBS elements."""
+        cfgs: list[dict] = []
+        for inst in obs_elements:
+            inst_id = inst.attrib.get("id")
+            if inst_id:
+                cfgs.append(self.CreateOBSDict(self.project, inst_id, add_ssc = add_ssc))
+        return cfgs
+    
+
+
+    def CreateWaterSampleDicts(self, ws_elements: list[ET.Element]) -> list[dict]:
+        """Batch: build WaterSample cfg dicts from WaterSample elements."""
+        cfgs: list[dict] = []
+        for inst in ws_elements:
+            inst_id = inst.attrib.get("id")
+            if inst_id:
+                cfgs.append(self.CreateWaterSampleDict(self.project, inst_id))
+        return cfgs
 
     def get_value(self, element: ET.Element, tag: str, default):
         found = element.find(tag)
@@ -420,10 +529,29 @@ class XMLUtils:
     def find_adcps(self) -> list[ET.Element]:
         """All elements with type='VesselMountedADCP'."""
         return self.find_elements(type_name="VesselMountedADCP")
-
-    def create_adcp_cfgs(self) ->list:
-        adcp_xmls = self.find_adcps()
+    
+    def find_obss(self) -> list[ET.Element]:
+        """All elements with type='OBSVerticalProfile'."""
+        return self.find_elements(type_name="OBSVerticalProfile")
+    
+    def find_watersamples(self) -> list[ET.Element]:
+        """All elements with type='WaterSample'."""
+        return self.find_elements(type_name="WaterSample")
+    
+    def get_adcp_cfgs(self) ->list:
         adcp_cfgs = self.CreateADCPDicts(adcp_elements = self.find_adcps(), add_ssc = True)
+        return adcp_cfgs
+    
+    def get_obs_cfgs(self) ->list:
+        obs_cfgs = self.CreateOBSDicts(obs_elements = self.find_obss())
+        return obs_cfgs
+        
+    def get_ws_cfgs(self) ->list:
+        ws_cfgs = self.CreateWaterSampleDicts(ws_elements = self.find_watersamples())
+        return ws_cfgs    
+    
+
+
 
 
 
@@ -431,12 +559,13 @@ class XMLUtils:
 
 #%%
 
-xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/New Project.mtproj'
-project = XMLUtils(xml_path)
+# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
+# project = XMLUtils(xml_path)
 
-adcps = project.create_adcp_cfgs()
-
-
+# adcp_cfgs = project.get_adcp_cfgs()
+# obs_cfgs = project.get_obs_cfgs()
+# ws_cfgs = project.get_ws_cfgs()
+# adcp = ADCPDataset(adcp_cfgs[0],name = '1')
 
 #tree = ET.parse(source=xml_path)
 
