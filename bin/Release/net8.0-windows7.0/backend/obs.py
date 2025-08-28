@@ -40,6 +40,16 @@ class OBS():
             ntu=df[ntu_col].to_numpy(dtype=np.float64)
         )
         
+        @dataclass
+        class SSCParams:
+            A: float = field(metadata={"desc": "Parameter A in SSC = A * 10^(B * ABS)"})
+            B: float = field(metadata={"desc": "Parameter B in SSC = A * 10^(B * ABS)"})
+        
+        ssc_params = self._cfg.get('ssc_params', {})
+        self.ssc_params = SSCParams(
+            A = ssc_params.get('A', 0.0),
+            B = ssc_params.get('B', 0.0)
+        )
         
         @dataclass
         class MaskParams:
