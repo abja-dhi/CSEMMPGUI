@@ -527,6 +527,8 @@ def find_element(root: ET.Element, id: str, _type: str) -> ET.Element:
             return el
     return None
 
+
+
 if __name__ == "__main__":
     tree = ET.parse(source=r"C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\New Project.mtproj")
     project = tree.getroot()
