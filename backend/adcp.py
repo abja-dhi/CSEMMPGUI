@@ -2206,6 +2206,8 @@ class Plotting:
             if gif_name is None:
                 gif_name = f"{adcp.name} transect animation.gif"
             ani.save(gif_name, dpi=120, fps=1000/interval_ms)
+        
+        plt.show()
         return ani
 
 
