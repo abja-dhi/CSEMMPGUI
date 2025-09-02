@@ -147,12 +147,14 @@ class CoordTransform:
        
 
 class Pd0Decoder:
-    def __init__(self, filepath: str | Path, cfg: Dict[str, Any]) -> None:
+    def __init__(self, filepath: str | Path, cfg: Dict[str, Any], scan: bool | bool = False) -> None:
         """
         Initialize the Pd0Decoder with the path to the binary PD0 file.
 
         Parameters:
             file_path (str): Path to the binary PD0 file.
+            cfg (dict) : dictionary of pd0 config params 
+            scan (bool) : if True, only fixed leaders are read and report generated. 
         """
         self.filepath = Utils._validate_file_path(filepath, Constants._PD0_SUFFIX)
         self.cfg = cfg
@@ -862,5 +864,7 @@ class Pd0Decoder:
     
         # with open(out_path, "w", encoding="utf-8") as f:
         #     f.write(report)
-    
-        return report
+        if return_dict:
+            return out
+        else:
+            return report
