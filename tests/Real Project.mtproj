@@ -1649,13 +1649,13 @@
           </Column4>
         </Columns>
         <Header>0</Header>
-        <Sep>Tab</Sep>
+        <Sep>
+        </Sep>
         <DateColumn>Date</DateColumn>
         <TimeColumn>Time</TimeColumn>
         <DepthColumn>DEP m</DepthColumn>
         <NTUColumn>NTU</NTUColumn>
-        <SSCModelID>
-        </SSCModelID>
+        <SSCModelID>22</SSCModelID>
       </FileInfo>
       <Masking>
         <MaskDateTime Enabled="false">

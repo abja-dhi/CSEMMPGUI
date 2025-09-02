@@ -28,13 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SSCModel));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
             tableMain = new TableLayoutPanel();
+            tableModelType = new TableLayoutPanel();
+            rbNTU2SSC = new RadioButton();
+            rbBKS2SSC = new RadioButton();
             tableModelMode = new TableLayoutPanel();
             rbManual = new RadioButton();
             rbAuto = new RadioButton();
@@ -52,9 +54,11 @@
             lblModelName = new Label();
             txtModelName = new TextBox();
             tableTrees = new TableLayoutPanel();
-            treeItems = new TreeView();
+            treeNTU2SSC = new TreeView();
+            treeBKS2SSC = new TreeView();
             menuStrip1.SuspendLayout();
             tableMain.SuspendLayout();
+            tableModelType.SuspendLayout();
             tableModelMode.SuspendLayout();
             tableManual.SuspendLayout();
             tableModelName.SuspendLayout();
@@ -105,9 +109,10 @@
             tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             tableMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableMain.Controls.Add(tableModelType, 0, 0);
             tableMain.Controls.Add(tableModelMode, 0, 1);
             tableMain.Controls.Add(tableManual, 0, 2);
-            tableMain.Controls.Add(tableModelName, 0, 0);
+            tableMain.Controls.Add(tableModelName, 2, 0);
             tableMain.Controls.Add(tableTrees, 2, 2);
             tableMain.Dock = DockStyle.Fill;
             tableMain.Location = new Point(0, 24);
@@ -118,6 +123,47 @@
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 80F));
             tableMain.Size = new Size(800, 426);
             tableMain.TabIndex = 1;
+            // 
+            // tableModelType
+            // 
+            tableModelType.ColumnCount = 2;
+            tableMain.SetColumnSpan(tableModelType, 2);
+            tableModelType.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableModelType.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableModelType.Controls.Add(rbNTU2SSC, 0, 0);
+            tableModelType.Controls.Add(rbBKS2SSC, 1, 0);
+            tableModelType.Dock = DockStyle.Fill;
+            tableModelType.Location = new Point(3, 3);
+            tableModelType.Name = "tableModelType";
+            tableModelType.RowCount = 1;
+            tableModelType.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableModelType.Size = new Size(394, 36);
+            tableModelType.TabIndex = 0;
+            // 
+            // rbNTU2SSC
+            // 
+            rbNTU2SSC.AutoSize = true;
+            rbNTU2SSC.Checked = true;
+            rbNTU2SSC.Dock = DockStyle.Fill;
+            rbNTU2SSC.Location = new Point(3, 3);
+            rbNTU2SSC.Name = "rbNTU2SSC";
+            rbNTU2SSC.Size = new Size(191, 30);
+            rbNTU2SSC.TabIndex = 0;
+            rbNTU2SSC.TabStop = true;
+            rbNTU2SSC.Text = "NTU to SSC";
+            rbNTU2SSC.UseVisualStyleBackColor = true;
+            rbNTU2SSC.CheckedChanged += rbNTU2SSC_CheckedChanged;
+            // 
+            // rbBKS2SSC
+            // 
+            rbBKS2SSC.AutoSize = true;
+            rbBKS2SSC.Dock = DockStyle.Fill;
+            rbBKS2SSC.Location = new Point(200, 3);
+            rbBKS2SSC.Name = "rbBKS2SSC";
+            rbBKS2SSC.Size = new Size(191, 30);
+            rbBKS2SSC.TabIndex = 1;
+            rbBKS2SSC.Text = "Backscatter to SSC";
+            rbBKS2SSC.UseVisualStyleBackColor = true;
             // 
             // tableModelMode
             // 
@@ -299,7 +345,7 @@
             tableModelName.Controls.Add(lblModelName, 0, 0);
             tableModelName.Controls.Add(txtModelName, 1, 0);
             tableModelName.Dock = DockStyle.Fill;
-            tableModelName.Location = new Point(3, 3);
+            tableModelName.Location = new Point(403, 3);
             tableModelName.Name = "tableModelName";
             tableModelName.RowCount = 1;
             tableModelName.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -332,7 +378,8 @@
             tableMain.SetColumnSpan(tableTrees, 2);
             tableTrees.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableTrees.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableTrees.Controls.Add(treeItems, 0, 0);
+            tableTrees.Controls.Add(treeNTU2SSC, 0, 0);
+            tableTrees.Controls.Add(treeBKS2SSC, 1, 0);
             tableTrees.Dock = DockStyle.Fill;
             tableTrees.Location = new Point(403, 87);
             tableTrees.Name = "tableTrees";
@@ -341,14 +388,22 @@
             tableTrees.Size = new Size(394, 336);
             tableTrees.TabIndex = 6;
             // 
-            // treeItems
+            // treeNTU2SSC
             // 
-            tableTrees.SetColumnSpan(treeItems, 2);
-            treeItems.Dock = DockStyle.Fill;
-            treeItems.Location = new Point(3, 3);
-            treeItems.Name = "treeItems";
-            treeItems.Size = new Size(388, 330);
-            treeItems.TabIndex = 3;
+            treeNTU2SSC.Dock = DockStyle.Fill;
+            treeNTU2SSC.Location = new Point(3, 3);
+            treeNTU2SSC.Name = "treeNTU2SSC";
+            treeNTU2SSC.Size = new Size(191, 330);
+            treeNTU2SSC.TabIndex = 3;
+            // 
+            // treeBKS2SSC
+            // 
+            treeBKS2SSC.Dock = DockStyle.Fill;
+            treeBKS2SSC.Enabled = false;
+            treeBKS2SSC.Location = new Point(200, 3);
+            treeBKS2SSC.Name = "treeBKS2SSC";
+            treeBKS2SSC.Size = new Size(191, 330);
+            treeBKS2SSC.TabIndex = 5;
             // 
             // SSCModel
             // 
@@ -357,7 +412,6 @@
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
             Controls.Add(menuStrip1);
-            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "SSCModel";
             Text = "SSC Model";
@@ -365,6 +419,8 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             tableMain.ResumeLayout(false);
+            tableModelType.ResumeLayout(false);
+            tableModelType.PerformLayout();
             tableModelMode.ResumeLayout(false);
             tableModelMode.PerformLayout();
             tableManual.ResumeLayout(false);
@@ -384,7 +440,10 @@
         private ToolStripMenuItem menuSave;
         private ToolStripMenuItem menuExit;
         private TableLayoutPanel tableMain;
+        private TableLayoutPanel tableModelType;
+        private RadioButton rbNTU2SSC;
         private TableLayoutPanel tableModelMode;
+        private RadioButton rbBKS2SSC;
         private RadioButton rbManual;
         private RadioButton rbAuto;
         private ComboBox comboFits;
@@ -395,10 +454,11 @@
         private Label lblB;
         private TextBox txtA;
         private TextBox txtB;
-        private TreeView treeItems;
+        private TreeView treeNTU2SSC;
         private TableLayoutPanel tableModelName;
         private Label lblModelName;
         private TextBox txtModelName;
+        private TreeView treeBKS2SSC;
         private TableLayoutPanel tableTrees;
         private Label lblC;
         private TextBox txtC;
