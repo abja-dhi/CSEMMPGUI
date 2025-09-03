@@ -8,11 +8,12 @@ import numpy as np
 from utils import Constants
 
 class WaterSample():
-    def __init__(self, cfg: str) -> None:
+    # read in the water sample xml file as the corresponding XML element
+    def __init__(self, cfg: ET) -> None:
         self.root = cfg
 
         self.name = self.root.attrib.get('name', "MyWaterSample")
-
+        self.position = None
         rows = []
         for sample in self.root.findall("Sample"):
             rows.append(sample.attrib)

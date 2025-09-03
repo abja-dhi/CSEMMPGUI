@@ -130,15 +130,12 @@ class XMLUtils:
         elements = self._find_under(s, "OBSVerticalProfile")
         return self.CreateOBSDicts(elements, add_ssc=add_ssc)
 
-    def get_survey_ws_cfgs(self, survey_key) -> list[dict]:
+    def get_survey_ws_elems(self, survey_key) -> list[dict]:
         s = self._resolve_survey(survey_key)
         if s is None:
             return []
         elements = self._find_under(s, "WaterSample")
-        return self.CreateWaterSampleDicts(elements)
-        if s is None:
-            return []
-        return list(s.iter()) if deep else list(s)
+        return elements
 
     # ----------------------
     # SSC Model
@@ -643,24 +640,23 @@ class XMLUtils:
 
 #%%
 
-# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
-# project = XMLUtils(xml_path)
+xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
+project = XMLUtils(xml_path)
 
-# adcp_cfgs = project.get_adcp_cfgs()
-# obs_cfgs = project.get_obs_cfgs()
-# ws_cfgs = project.get_ws_cfgs()
+
+
+
 # adcp = ADCPDataset(adcp_cfgs[0],name = '1')
 
-#tree = ET.parse(source=xml_path)
+# tree = ET.parse(source=xml_path)
 
 
 
 
-# adcp_cfgs = project.get_survey_adcp_cfgs("Survey 1")
-# obs_cfgs = project.get_survey_obs_cfgs("Survey 1")
-# ws_cfgs  = project.get_survey_ws_cfgs("Survey 1")
+adcp_cfgs = project.get_survey_adcp_cfgs("Survey 1")
+obs_cfgs = project.get_survey_obs_cfgs("Survey 1")
+ws_elems  = project.get_survey_ws_elems("Survey 2")
 
 
-
-
+ws = WaterSampleDataset(ws_elems[0])
 

@@ -7,6 +7,7 @@ import numpy as np
 from dateutil import parser
 from plotting import PlottingShell
 from utils import Constants
+import matplotlib.pyplot as plt
 
 class OBS():
     def __init__(self, cfg: str) -> None:
@@ -25,8 +26,10 @@ class OBS():
         time_col = self._cfg.get('time_col', 'Time')
         depth_col = self._cfg.get('depth_col', 'Depth')
         ntu_col = self._cfg.get('ntu_col', 'NTU')
-        df["DateTime"] = pd.to_datetime(df[date_col] + ' ' + df[time_col], errors='coerce')
+        df["DateTime"] = pd.to_datetime(df[date_col] + " " + df[time_col], errors="coerce")
         df.drop(columns=[date_col, time_col], inplace=True)
+        
+        self.position = None # to be added externally as needed
         self.plot = Plotting(self)
         
         def get_valid(cfg, key, default):
@@ -196,5 +199,7 @@ class Plotting:
         ax.set_xlabel(xlabel)
         ax.set_ylabel("Depth (m)")
         ax.set_title(f"{getattr(self._obs,'name','OBS')} Depth Profile")
+        
+        plt.show()
         return fig, ax
     

@@ -213,7 +213,7 @@ class ADCP():
             relative_beam_origin: NDArray[np.float64] = field (metadata = {"desc": "Relative XYZ position of the beams with respect to CRP"})
             relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
             geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
-                    
+            HAB_beam_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from seabed to bin centers (m)"})        
                 
         
         #vh_list = self._pd0._get_variable_leader()  
@@ -234,6 +234,7 @@ class ADCP():
             relative_beam_origin = None,
             relative_beam_midpoint_positions=None,
             geographic_beam_midpoint_positions=None,
+            HAB_beam_midpoint_distances = None,
         )
 
         self.geometry.bin_midpoint_distances=self._get_bin_midpoints()
@@ -242,7 +243,7 @@ class ADCP():
         self.geometry.relative_beam_midpoint_positions = relative_bmp
         self.geometry.geographic_beam_midpoint_positions = geographic_bmp
         self.geometry.relative_beam_origin  = relative_org  
-            
+        
         
         # Beam data (unmasked)
         @dataclass
@@ -273,9 +274,11 @@ class ADCP():
             correlation_magnitude: np.ndarray = field(metadata={"desc": "Bottom-track correlation magnitude for each beam (counts)"})
             percent_good: np.ndarray = field(metadata={"desc": "Bottom-track percent-good per beam (0–100%)"})
             range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters)"})
+            adjusted_range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters), adjusted for beam angle and platform orientation"})
+            seabed_points: np.ndarray = field(metadata={"desc": "Geographic location of all bottom track range measurements"})
             velocity: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), in raw coordinate frame (set by EX_command)"})
-            # velocity_ship: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (F,B,Z,ev) in ship coordinate frame"})
-            # velocity_earth: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (E,N,U,ev) in earth coordinate frame"})
+            velocity_ship: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (F,B,Z,ev) in ship coordinate frame"})
+            velocity_earth: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (E,N,U,ev) in earth coordinate frame"})
             ref_layer_velocity: np.ndarray = field(metadata={"desc": "Reference layer velocity for each beam (m/s)"})
             ref_correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude in reference layer (counts)"})
             ref_echo_intensity: np.ndarray = field(metadata={"desc": "Echo intensity in reference layer (counts)"})
@@ -302,6 +305,8 @@ class ADCP():
 
         bt_list = self._pd0.get_bottom_track()
         
+        
+        
         if bt_list:
             self._bt_mode_active = True
             self.bottom_track = ADCPBottomTrack(
@@ -309,7 +314,11 @@ class ADCP():
                 correlation_magnitude = np.array([[getattr(bt_list[e], f"beam{b}_bt_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 percent_good = np.array([[getattr(bt_list[e], f"beam{b}_bt_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 range_to_seabed = np.array([[getattr(bt_list[e], f"beam{b}_bt_range") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+                adjusted_range_to_seabed =None,
+                seabed_points = None,
                 velocity = np.array([[getattr(bt_list[e], f"beam{b}_bt_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
+                velocity_ship = None,
+                velocity_earth = None,
                 ref_layer_velocity = np.array([[getattr(bt_list[e], f"beam_{b}_ref_layer_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
                 ref_correlation_magnitude = np.array([[getattr(bt_list[e], f"bm{b}_ref_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 ref_echo_intensity = np.array([[getattr(bt_list[e], f"bm{b}_ref_int") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
@@ -333,9 +342,17 @@ class ADCP():
             
             self.bottom_track.velocity_ship = self._get_bt_velocity(target_frame = 'ship')
             self.bottom_track.velocity_earth = self._get_bt_velocity(target_frame = 'earth')
+            
+            adjusted_depth, seabed_points = self._calculate_bottom_track_geometry()
+            
+            self.bottom_track.adjusted_range_to_seabed = adjusted_depth
+            self.bottom_track.seabed_points = seabed_points
+            self.geometry.HAB_beam_midpoint_distances = self._calculate_height_above_bed()
         else: 
             self._bt_mode_active = False
             
+       
+        
         
         
         # @dataclass
@@ -839,6 +856,98 @@ class ADCP():
         
         return data
     
+    def get_beam_series(self,
+                        field_name: str,
+                        mode: str,
+                        target,
+                        beam="mean",
+                        agg="mean"):
+        """
+        Aggregate a time series across selected bins and beams at a fixed band.
+    
+        Parameters
+        ----------
+        field_name : str
+            Beam field name passed to get_beam_data(...).
+        mode : {'bin', 'range', 'hab'}
+            'bin'   -> by bin index (1-based) or (min, max) inclusive.
+            'range' -> by along-beam midpoint distance [m] or (min, max).
+            'hab'   -> by height-above-bed [m] or (min, max).
+        target : int | float | tuple
+            Selection value or inclusive range.
+        beam : {'mean', int, list[int]}, optional
+            Beam selection; 1-based indices. 'mean' selects all beams.
+        agg : {'mean', float}, optional
+            'mean' or percentile in [0, 100].
+    
+        Returns
+        -------
+        np.ndarray
+            Array of shape (n_ensembles,) with aggregated values.
+        """
+        import numpy as np
+    
+        data = self.get_beam_data(field_name, mask=True)  # (ne, nb, nm)
+        ne, nb, nm = data.shape
+    
+        # Beam mask
+        if isinstance(beam, str) and beam.lower() in {"mean", "avg"}:
+            beam_mask = np.ones(nm, dtype=bool)
+        else:
+            sel = [beam] if isinstance(beam, (int, np.integer)) else list(beam)
+            idx = [int(b) - 1 for b in sel if 1 <= int(b) <= nm]
+            beam_mask = np.zeros(nm, dtype=bool)
+            beam_mask[idx] = True
+        beam_mask3 = beam_mask[None, None, :]  # (1, 1, nm)
+    
+        def _to_range(val, is_bin=False):
+            if isinstance(val, (tuple, list, np.ndarray)) and len(val) == 2:
+                a, b = val
+                return (int(a), int(b)) if is_bin else (float(a), float(b))
+            return ((int(val), int(val)) if is_bin else (float(val), float(val)))
+    
+        mode = mode.lower().strip()
+    
+        if mode == "bin":
+            bmin, bmax = _to_range(target, is_bin=True)
+            bmin = max(1, bmin)
+            bmax = min(nb, bmax)
+            bins = np.arange(1, nb + 1)
+            bin_mask = (bins >= bmin) & (bins <= bmax)          # (nb,)
+            sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
+            sel_beam = np.broadcast_to(beam_mask3, (ne, nb, nm))
+            sel_mask = sel_bins & sel_beam
+    
+        elif mode == "range":
+            r_bins = np.asarray(self.geometry.bin_midpoint_distances, float)    # (nb,)
+            rmin, rmax = _to_range(target, is_bin=False)
+            bin_mask = (r_bins >= rmin) & (r_bins <= rmax)       # (nb,)
+            sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
+            sel_beam = np.broadcast_to(beam_mask3, (ne, nb, nm))
+            sel_mask = sel_bins & sel_beam
+    
+        elif mode == "hab":
+            hab = self.geometry.HAB_beam_midpoint_distances         # (ne, nb, nm)
+            hmin, hmax = _to_range(target, is_bin=False)
+            sel_mask = (hab >= hmin) & (hab <= hmax)
+            sel_mask &= np.broadcast_to(beam_mask3, sel_mask.shape)
+    
+        else:
+            raise ValueError("mode must be one of {'bin', 'range', 'hab'}")
+    
+        vals = np.where(sel_mask, data, np.nan)  # (ne, nb, nm)
+    
+        if isinstance(agg, str) and agg.lower() == "mean":
+            out = np.nanmean(vals, axis=(1, 2))
+        else:
+            q = float(agg)
+            out = np.nanpercentile(vals, q, axis=(1, 2), method="nearest")
+    
+        empty = ~np.any(np.isfinite(vals), axis=(1, 2))
+        out[empty] = np.nan
+        return out
+
+    
     def get_velocity_data(self,
                           coord_sys: str = "earth",
                           mask: bool = True,):
@@ -1113,6 +1222,7 @@ class ADCP():
             delta = timedelta(hours=float(self.corrections.utc_offset)) + \
                     timedelta(hours=float(self.corrections.transect_shift_t))
             datetimes = [dt + delta for dt in datetimes]
+        
         return np.array(datetimes)
     
     
@@ -1407,6 +1517,50 @@ class ADCP():
         # Earth → ship not implemented
         raise ValueError(f"Transformation from native '{frame}' to '{target_frame}' not supported for BT.")
 
+    def _calculate_height_above_bed(self, clamp_zero: bool = True):
+        """
+        HAB per ensemble/bin/beam using self.bottom_track.adjusted_range_to_seabed.
+        Returns array with shape (n_ensembles, n_bins, n_beams).
+        """
+        import numpy as np
+    
+        ne = int(self.time.n_ensembles)
+        nb = int(self.geometry.n_bins)
+        nm = int(self.geometry.n_beams)
+    
+        if str(self.geometry.beam_facing).lower() != "down":
+            return np.full((ne, nb, nm), np.nan)
+    
+        bt = getattr(self, "bottom_track", None)
+        if bt is None or not hasattr(bt, "adjusted_range_to_seabed"):
+            return np.full((ne, nb, nm), np.nan)
+    
+        # Bin midpoints: rel_xyz.z is transducer->bin in earth z. Positive up => make positive down.
+        _, rel_xyz, _ = self._calculate_beam_geometry()      # rel_xyz.z: (ne, nb, nm)
+        dz_vert = -np.asarray(rel_xyz.z, float)              # positive down
+    
+        # Adjusted BT depth: shape must be (n_beams, n_ensembles)
+        adj = np.asarray(bt.adjusted_range_to_seabed, float)
+        if adj.shape == (ne, nm):
+            adj = adj.T
+        if adj.shape != (nm, ne):
+            return np.full((ne, nb, nm), np.nan)
+    
+        # Broadcast BT depth to all bins
+        adj_full = np.broadcast_to(adj.T[:, None, :], (ne, nb, nm))
+    
+        # HAB = bottom depth - bin vertical depth
+        hab = adj_full - dz_vert
+    
+        # Mask invalids using broadcasted shapes
+        invalid = ~np.isfinite(adj_full) | ~np.isfinite(dz_vert)
+        hab[invalid] = np.nan
+    
+        if clamp_zero:
+            hab[hab < 0] =np.nan
+    
+        return hab
+
 
  
     
@@ -1498,6 +1652,135 @@ class ADCP():
             geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
     
             return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+
+    def _calculate_bottom_track_geometry(self):
+        """
+        Tilt-corrected vertical bottom-track depth per beam×ensemble.
+    
+        Parameters
+        ----------
+        return_points : bool
+            If True, also return seabed hit points XYZ(time, beam).
+        save_adjusted : bool
+            If True, write self.bottom_track.adjusted_range_to_seabed.
+    
+        Returns
+        -------
+        adjusted_range_to_seabed : (n_beams, n_ensembles) float
+        seabed_points : XYZ or None
+        """
+        import numpy as np
+        from pyproj import CRS
+    
+        n_beams = int(self.geometry.n_beams)
+        n_ens   = int(self.time.n_ensembles)
+    
+        # Preconditions
+        bt = getattr(self, "bottom_track", None)
+        if bt is None or not hasattr(bt, "range_to_seabed"):
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        if str(self.geometry.beam_facing).lower() != "down":
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        # Slant TRDI ranges (beam, ens) – may arrive in other shapes; coerce
+        R_bt = np.asarray(bt.range_to_seabed, float)
+        if R_bt.ndim == 1:
+            R_bt = R_bt[:, None] if R_bt.size == n_beams else R_bt[None, :]
+        if R_bt.shape == (n_ens, n_beams):
+            R_bt = R_bt.T
+        if R_bt.shape != (n_beams, n_ens):
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        # CRP rotation and beam bases (instrument frame)
+        crp_theta = float(self.geometry.crp_rotation_angle)
+        dr = float(self.geometry.beam_dr)
+        R_crp = Utils.gen_rot_z(crp_theta)
+        bases = np.array([[ dr, -dr,  0,   0],
+                          [  0,   0,  dr, -dr],
+                          [  0,   0,   0,   0]], float)[:, :n_beams]
+        rel_orig = R_crp @ bases
+        off_vec = np.array([self.geometry.crp_offset_x,
+                            self.geometry.crp_offset_y,
+                            self.geometry.crp_offset_z], float)
+    
+        # Beam unit vectors in instrument frame (down-looking => -Z)
+        beam_angle = float(self.geometry.beam_angle)
+        out_sign = -1.0
+        u_beam_inst = np.zeros((n_beams, 3), float)
+        for b in range(n_beams):
+            if b in (0, 1):
+                Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
+            else:
+                Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
+            v = Rb @ np.array([0.0, 0.0, out_sign])
+            nrm = np.linalg.norm(v)
+            u_beam_inst[b] = v / nrm if nrm > 0 else v
+    
+        # Position arrays for optional hit points
+        def ens_array(val):
+            return np.full(n_ens, float(val)) if isinstance(val, (int, float)) else np.asarray(val, float)
+    
+        xx   = ens_array(self.position.x)
+        yy   = ens_array(self.position.y)
+        xloc = ens_array(self.position.x_local_m)
+        yloc = ens_array(self.position.y_local_m)
+        zz   = ens_array(self.position.z)
+    
+        use_local = CRS.from_user_input(self.position.epsg).is_geographic
+    
+        # Outputs
+        adjusted = np.full((n_beams, n_ens), np.nan, float)
+        seabed_points = None
+
+        gx = np.full((n_ens, n_beams), np.nan, float)
+        gy = np.full((n_ens, n_beams), np.nan, float)
+        gz = np.full((n_ens, n_beams), np.nan, float)
+    
+        # Per-ensemble attitude
+        for e in range(n_ens):
+            heading = self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e]
+            pitch   = self.position.pitch  if isinstance(self.position.pitch,  float) else self.position.pitch[e]
+            roll    = self.position.roll   if isinstance(self.position.roll,   float) else self.position.roll[e]
+            yaw = -(heading + crp_theta)
+    
+            R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
+    
+            # Beam bases in earth frame
+            base_e = R_att @ (rel_orig + off_vec[:, None])
+    
+            xb = xloc[e] if use_local else xx[e]
+            yb = yloc[e] if use_local else yy[e]
+            zb = zz[e]
+    
+            for b in range(n_beams):
+                r = R_bt[b, e]
+                if not np.isfinite(r):
+                    continue
+    
+                u = R_att @ u_beam_inst[b]
+                nrm = np.linalg.norm(u)
+                if nrm == 0 or not np.isfinite(nrm):
+                    continue
+                u /= nrm
+    
+                vz = abs(float(u[2]))            # cosine with vertical
+                adjusted[b, e] = r * vz          # vertical depth from transducer
+    
+                
+                gx[e, b] = xb + base_e[0, b] + u[0] * r
+                gy[e, b] = yb + base_e[1, b] + u[1] * r
+                gz[e, b] = zb + base_e[2, b] + u[2] * r
+    
+
+    
+
+        seabed_points = XYZ(x=gx, y=gy, z=gz)
+    
+        return adjusted, seabed_points
 
 
 
@@ -2207,8 +2490,8 @@ class Plotting:
                 gif_name = f"{adcp.name} transect animation.gif"
             ani.save(gif_name, dpi=120, fps=1000/interval_ms)
         
-        plt.show()
-        return ani
+        #plt.show()
+        return fig,ani
 
 
  
@@ -2380,10 +2663,9 @@ class Plotting:
                 gif_path = f"{adcp.name} beam geometry animation.gif"
             ani.save(gif_path, writer=PillowWriter(fps=max(1, 1000 // interval)))
 
-        if show:
-            plt.show()
 
-        return ani, ax
+
+        return fig,ani
             
     def single_beam_flood_plot(
             self,

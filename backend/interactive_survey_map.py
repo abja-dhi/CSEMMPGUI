@@ -11,7 +11,7 @@ root = pathlib.Path(r".")  # change this path
 total = 0
 for path in root.rglob('*.py'):
     total += sum(1 for _ in open(path, 'r', encoding='utf-8'))
-print(total)
+
 
 #%%
 import sys
@@ -44,21 +44,21 @@ from utils_xml import XMLUtils
 
 #%% read in a project XML file 
 
-# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
-# project = XMLUtils(xml_path)
-# survey_name = 'Survey 1'
+xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
+project = XMLUtils(xml_path)
+survey_name = 'Survey 1'
 
 
-# adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
-# obs_cfgs = project.get_survey_obs_cfgs(survey_name)
-# ws_elems  = project.get_survey_ws_elems("Survey 2")
+adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
+obs_cfgs = project.get_survey_obs_cfgs(survey_name)
+ws_elems  = project.get_survey_ws_elems("Survey 2")
 
 
-# # load ADCP data
-# adcps = []
-# for cfg in adcp_cfgs:
-#     adcp = ADCPDataset(cfg, name = cfg['name'])
-#     adcps.append(adcp)
+# load ADCP data
+adcps = []
+for cfg in adcp_cfgs:
+    adcp = ADCPDataset(cfg, name = cfg['name'])
+    adcps.append(adcp)
     
 # # load OBS data 
 # obss = []
@@ -122,7 +122,6 @@ from utils_xml import XMLUtils
 
 # 
 
-#%%
 # -*- coding: utf-8 -*-
 """
 ADCP transect map with OBS overlay, selection, and context menus.
@@ -480,15 +479,18 @@ class ADCPMapCanvas(FigureCanvas):
 
     def show_obs_menu(self, j, global_pos=None):
         menu = QMenu()
-        a_profile = menu.addAction("Depth Profile")
+        a_profile = menu.addAction("Show depth_profile")
 
         chosen = menu.exec_(global_pos) if global_pos is not None else menu.exec_()
         if not chosen:
             return
         obs = self.obss[j]
         if chosen == a_profile and hasattr(getattr(obs, 'plot', None), 'depth_profile'):
-            obs.plot.depth_profile()
-     
+            try:
+                obs.plot.depth_profile()
+            except Exception as e:
+                self.show_text_popup("OBS plot error", str(e))
+                
 
     # ----- Helpers -----
     def find_closest_transect(self, x, y, tol):
@@ -552,16 +554,45 @@ class ADCPMapCanvas(FigureCanvas):
 class ADCPMainWindow(QMainWindow):
     def __init__(self, xml_path, survey_name):
         super().__init__()
+        self.xml_path = xml_path
+        self.survey_name = survey_name
 
-        project = XMLUtils(xml_path)
-        adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
-        obs_cfgs  = project.get_survey_obs_cfgs(survey_name)
+        # bare UI first so the window paints before loading
+        self.setWindowTitle("ADCP Transect Viewer")
+        self.canvas = ADCPMapCanvas([], [])  # populate after deferred load
+        self.hover_label = QLabel("Hover index: None")
 
+        tabs = QTabWidget(); map_tab = QWidget(); layout = QVBoxLayout(map_tab)
+        layout.addWidget(self.canvas, stretch=1); layout.addWidget(self.hover_label, stretch=0)
+        tabs.addTab(map_tab, "Map"); self.setCentralWidget(tabs)
+
+        navtb = NavigationToolbar(self.canvas, self)
+        self.addToolBar(Qt.TopToolBarArea, navtb)
+
+        menubar = QMenuBar(self); options_menu = menubar.addMenu("Options")
+        transect_menu = QMenu("Transect", self); options_menu.addMenu(transect_menu)
+        act_colormap = QAction("Colormap...", self); act_colormap.triggered.connect(self.choose_colormap)
+        act_vmin     = QAction("Set vmin...", self);  act_vmin.triggered.connect(self.set_vmin)
+        act_vmax     = QAction("Set vmax...", self);  act_vmax.triggered.connect(self.set_vmax)
+        transect_menu.addActions([act_colormap, act_vmin, act_vmax])
+        self.shapefile_menu = QMenu("Shapefiles", self); options_menu.addMenu(self.shapefile_menu)
+        self.setMenuBar(menubar); self.refresh_shapefile_menu()
+
+        # defer heavy loading until the window is visible
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(0, self._deferred_load)
+
+    # ---- deferred loader ----
+    def _deferred_load(self):
+        # project discovery
+        project = XMLUtils(self.xml_path)
+        adcp_cfgs = project.get_survey_adcp_cfgs(self.survey_name)
+        obs_cfgs  = project.get_survey_obs_cfgs(self.survey_name)
+
+        # progress dialog now shows because window is already painted
         progress = QProgressDialog("Loading ADCP transects...", "Cancel", 0, len(adcp_cfgs), self)
         progress.setWindowTitle("Loading"); progress.setWindowModality(Qt.WindowModal)
-        progress.setMinimumDuration(0)
-        progress.show()
-        QApplication.processEvents()
+        progress.setMinimumDuration(0); progress.show(); QApplication.processEvents()
 
         adcps = []
         for i, cfg in enumerate(adcp_cfgs):
@@ -601,28 +632,11 @@ class ADCPMainWindow(QMainWindow):
                         pass
                     break
 
-        self.setWindowTitle("ADCP Transect Viewer")
-        self.canvas = ADCPMapCanvas(adcps, obss)
-        self.hover_label = QLabel("Hover index: None")
+        # populate canvas and refresh
+        self.canvas.adcps = adcps
+        self.canvas.obss  = obss
+        self.canvas.plot_transects()
         self.canvas.hover_callback = self.update_hover_label
-
-        tabs = QTabWidget(); map_tab = QWidget(); layout = QVBoxLayout(map_tab)
-        layout.addWidget(self.canvas, stretch=1); layout.addWidget(self.hover_label, stretch=0)
-        tabs.addTab(map_tab, "Map"); self.setCentralWidget(tabs)
-
-        navtb = NavigationToolbar(self.canvas, self)
-        self.addToolBar(Qt.TopToolBarArea, navtb)
-
-        menubar = QMenuBar(self); options_menu = menubar.addMenu("Options")
-
-        transect_menu = QMenu("Transect", self); options_menu.addMenu(transect_menu)
-        act_colormap = QAction("Colormap...", self); act_colormap.triggered.connect(self.choose_colormap)
-        act_vmin     = QAction("Set vmin...", self);  act_vmin.triggered.connect(self.set_vmin)
-        act_vmax     = QAction("Set vmax...", self);  act_vmax.triggered.connect(self.set_vmax)
-        transect_menu.addActions([act_colormap, act_vmin, act_vmax])
-
-        self.shapefile_menu = QMenu("Shapefiles", self); options_menu.addMenu(self.shapefile_menu)
-        self.setMenuBar(menubar); self.refresh_shapefile_menu()
 
     # ---- dynamic shapefile menu ----
     def refresh_shapefile_menu(self):
@@ -661,8 +675,7 @@ class ADCPMainWindow(QMainWindow):
         path, _ = QFileDialog.getOpenFileName(self, "Open shapefile", "", "Shapefiles (*.shp)")
         if path:
             self.canvas.add_vector_layer(path)
-            self.refresh_shapefile_menu()
-            self.canvas.plot_transects()
+            self.refresh_shapefile_menu(); self.canvas.plot_transects()
 
     def toggle_layer_visibility(self, idx, vis):
         if 0 <= idx < len(self.canvas.vector_layers):
@@ -765,3 +778,5 @@ if __name__ == '__main__':
     window = ADCPMainWindow(xml_path, survey_name)
     window.show()
     sys.exit(app.exec_())
+
+
