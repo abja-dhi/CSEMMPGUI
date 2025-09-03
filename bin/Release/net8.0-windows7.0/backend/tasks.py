@@ -245,7 +245,7 @@ def PlotModelMesh(epsg, filename, title):
     except Exception as e:
         return {"Error": str(e)}
 
-def ParseSSCModel(project: ET.Element, sscmodel: ET.Element, _type: str) -> dict:
+def BKS2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
     ssc_params = {}
     mode = sscmodel.find("Mode").text
     if mode == "Manual":
@@ -257,8 +257,6 @@ def ParseSSCModel(project: ET.Element, sscmodel: ET.Element, _type: str) -> dict
     elif mode == "Auto":
         adcps = []
         adcpIDs = []
-        obss = []
-        obsIDs = []
         watersamples = []
         watersampleIDs = []
         for inst in sscmodel.findall("Instrument"):
@@ -268,7 +266,76 @@ def ParseSSCModel(project: ET.Element, sscmodel: ET.Element, _type: str) -> dict
                 cfg = CreateADCPDict(project, inst_id, add_ssc=False)
                 adcps.append(ADCPDataset(cfg, name=cfg['name']))
                 adcpIDs.append(inst_id)
-            elif inst_type == "OBSVerticalProfile":
+            elif inst_type == "WaterSample":
+                watersamples.append(WaterSampleDataset(find_element(project, inst_id, "WaterSample")))
+                watersampleIDs.append(inst_id)
+        if len(watersamples) == 0:
+            return {"Error": "No water samples found for SSC calibration"}
+        if len(adcps) == 0:
+            return {"Error": "No ADCP data found for SSC calibration"}
+        df_adcp = combine_adcps(adcps, adcpIDs)
+        df_adcp["depth"] = -df_adcp["depth"]  # Convert to positive down
+        df_adcp = df_adcp.sort_values("datetime")
+        df_water = combine_watersamples(watersamples, watersampleIDs)
+
+        col_name = "bks"
+        df_water_inst, df_water, df_data = nearest_merge_depth_first(df_water, df_adcp, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance="2min", depth_tolerance=2)
+        ssc = np.log10(df_data["ssc"].to_numpy())
+        if len(df_water_inst) == 0:
+            return {"Error": "No valid water samples found for SSC calibration"}
+        vals = df_data[col_name].to_numpy()
+        
+        X = vals.reshape(-1, 1)
+        Y = ssc.reshape(-1, 1)
+        dt = (df_water_inst["datetime"] - df_water["datetime"]).dt.total_seconds().abs()
+        reg = LinearRegression(fit_intercept=True).fit(X, Y, sample_weight=1/(dt+1))  # add 1 to avoid division by zero
+        B = reg.coef_[0]
+        if isinstance(B, list) or isinstance(B, np.ndarray):
+            B = B[0]
+        A = reg.intercept_
+        if isinstance(A, list) or isinstance(A, np.ndarray):
+            A = A[0]
+        ssc_params['A'] = A
+        ssc_params['B'] = B
+        ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
+        ssc_params['R2'] = reg.score(X, Y)
+        ssc_params["AbsoluteBackscatter"] = vals
+        ssc_params["SSC"] = ssc
+        pairs = (
+        df_water_inst[["id_src", "type_src", "id_tgt", "type_tgt"]]
+            .drop_duplicates()
+            .to_dict(orient="records")
+        )
+
+        # Format nicely: {"WaterSample": 26, "VesselMountedADCP": 13}
+        typed_pairs = []
+        for p in pairs:
+            typed_pairs.append({
+                p["type_src"]: p["id_src"],
+                p["type_tgt"]: p["id_tgt"]
+            })
+
+        ssc_params["Pairs"] = str(typed_pairs)
+        return ssc_params
+
+def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
+    ssc_params = {}
+    mode = sscmodel.find("Mode").text
+    if mode == "Manual":
+        A = float(sscmodel.find("A").text)
+        B = float(sscmodel.find("B").text)
+        ssc_params['A'] = A
+        ssc_params['B'] = B
+        return ssc_params
+    elif mode == "Auto":
+        obss = []
+        obsIDs = []
+        watersamples = []
+        watersampleIDs = []
+        for inst in sscmodel.findall("Instrument"):
+            inst_id = inst.find("ID").text
+            inst_type = inst.find("Type").text
+            if inst_type == "OBSVerticalProfile":
                 cfg = CreateOBSDict(project, inst_id)
                 obss.append(OBSDataset(cfg))
                 obsIDs.append(inst_id)
@@ -277,45 +344,51 @@ def ParseSSCModel(project: ET.Element, sscmodel: ET.Element, _type: str) -> dict
                 watersampleIDs.append(inst_id)
         if len(watersamples) == 0:
             return {"Error": "No water samples found for SSC calibration"}
-        if len(adcps) == 0 and _type == "VesselMountedADCP":
-            return {"Error": "No ADCP data found for SSC calibration"}
-        if len(obss) == 0 and _type == "OBSVerticalProfile":
+        if len(obss) == 0:
             return {"Error": "No OBS data found for SSC calibration"}
-        df_adcp = combine_adcps(adcps, adcpIDs)
-        df_adcp["depth"] = -df_adcp["depth"]  # Convert to positive down
-        df_adcp = df_adcp.sort_values("datetime")
         df_obs = combine_obs(obss, obsIDs)
         df_water = combine_watersamples(watersamples, watersampleIDs)
 
-        if _type == "VesselMountedADCP":
-            col_name = "bks"
-            df_water_inst, df_water = nearest_merge_depth_first(df_water, df_adcp, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance="2min", depth_tolerance=2)
-            ssc = np.log10(df_water["ssc"].to_numpy())
-            intercept = True
-        elif _type == "OBSVerticalProfile":
-            col_name = "ntu"
-            df_water_inst, df_water = nearest_merge_depth_first(df_water, df_obs, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance="2min", depth_tolerance=2)
-            ssc = df_water["ssc"].to_numpy()
-            intercept = False
+        col_name = "ntu"
+        df_water_inst, df_water, df_data = nearest_merge_depth_first(df_water, df_obs, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance=None, depth_tolerance=None)
+        ssc = df_data["ssc"].to_numpy()
         if len(df_water_inst) == 0:
             return {"Error": "No valid water samples found for SSC calibration"}
-        vals = df_water_inst[col_name].to_numpy()
+        vals = df_data[col_name].to_numpy()
         
         X = vals.reshape(-1, 1)
         Y = ssc.reshape(-1, 1)
         dt = (df_water_inst["datetime"] - df_water["datetime"]).dt.total_seconds().abs()
-        reg = LinearRegression(fit_intercept=intercept).fit(X, Y, sample_weight=1/(dt+1))  # add 1 to avoid division by zero
+        reg = LinearRegression(fit_intercept=False).fit(X, Y, sample_weight=1/(dt+1))  # add 1 to avoid division by zero
         B = reg.coef_[0]
+        if isinstance(B, list) or isinstance(B, np.ndarray):
+            B = B[0]
         A = reg.intercept_
+        if isinstance(A, list) or isinstance(A, np.ndarray):
+            A = A[0]
         ssc_params['A'] = A
         ssc_params['B'] = B
         ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
         ssc_params['R2'] = reg.score(X, Y)
-        mapper = {'bks': "Absolute Backscatter", "ntu": "NTU"}
-        ssc_params[mapper[col_name]] = vals
+        ssc_params["NTU"] = vals
         ssc_params["SSC"] = ssc
+        pairs = (
+        df_water_inst[["id_src", "type_src", "id_tgt", "type_tgt"]]
+            .drop_duplicates()
+            .to_dict(orient="records")
+        )
+
+        # Format nicely: {"WaterSample": 26, "VesselMountedADCP": 13}
+        typed_pairs = []
+        for p in pairs:
+            typed_pairs.append({
+                p["type_src"]: p["id_src"],
+                p["type_tgt"]: p["id_tgt"]
+            })
+
+        ssc_params["Pairs"] = str(typed_pairs)
         return ssc_params
-    
+   
 def CreateADCPDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
     instrument = find_element(project, instrument_id, "VesselMountedADCP")
     parent_map = {child: parent for parent in project.iter() for child in parent}
@@ -478,11 +551,11 @@ def CreateADCPDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
               'rssi_beam4': rssi_beam4}
 
     if add_ssc:
-        sscmodel = find_element(project, sscmodelid, 'SSCModel')
+        sscmodel = find_element(project, sscmodelid, 'BKS2SSC')
         if sscmodel is not None:
-            ssc_params = ParseSSCModel(project, sscmodel, _type="VesselMountedADCP")
-            if 'Error' in ssc_params.keys():
-                return ssc_params
+            A = float(get_value(sscmodel, "A", 3.5))
+            B = float(get_value(sscmodel, "B", 0.049))
+            ssc_params = {'A': A, 'B': B}
         else:
             ssc_params = {'A': 3.5, 'B':.049}
     else:
@@ -545,11 +618,11 @@ def CreateOBSDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
     ntu_col = fileinfo.find("NTUColumn").text
     sscmodelid = fileinfo.find("SSCModelID").text
     if add_ssc:
-        sscmodel = find_element(project, sscmodelid, 'SSCModel')
+        sscmodel = find_element(project, sscmodelid, 'NTU2SSC')
         if sscmodel is not None:
-            ssc_params = ParseSSCModel(project, sscmodel, _type="OBSVerticalProfile")
-            if 'Error' in ssc_params.keys():
-                return ssc_params
+            A = float(get_value(sscmodel, "A", 3.5))
+            B = float(get_value(sscmodel, "B", 0.049))
+            ssc_params = {'A': A, 'B': B}
         else:
             ssc_params = {'A': 3.5, 'B':.049}
     else:
@@ -717,7 +790,11 @@ def nearest_merge_depth_first(
         merged = merged[merged["time_diff"] <= tol]
 
     if merged.empty:
-        return pd.DataFrame(columns=[on_time, on_depth, col_name])
+        return (
+            pd.DataFrame(columns=[on_time, on_depth, col_name]),
+            pd.DataFrame(columns=source.columns),
+            pd.DataFrame(columns=[col_name, "ssc"])
+        )
 
     # Sort by depth first, then time
     merged = merged.sort_values(["depth_diff", "time_diff"])
@@ -726,7 +803,7 @@ def nearest_merge_depth_first(
     nearest = (
         merged.groupby([f"{on_time}_src", f"{on_depth}_src"]).first().reset_index()
     )
-
+    
     out = nearest[[f"{on_time}_tgt", f"{on_depth}_tgt", col_name, "id_tgt", "type_tgt", "id_src", "type_src"]].rename(
         columns={f"{on_time}_tgt": on_time, f"{on_depth}_tgt": on_depth}
     )
@@ -739,4 +816,11 @@ def nearest_merge_depth_first(
         how="inner"
     ).drop(columns=[f"{on_time}_src", f"{on_depth}_src"])
 
-    return out, matched_src
+    # Third output: pair col_name (e.g. bks) with ssc
+    pairs = pd.DataFrame({
+        col_name: out[col_name].to_numpy(),
+        "ssc": matched_src["ssc"].to_numpy()
+    })
+
+    return out, matched_src, pairs
+

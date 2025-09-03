@@ -6,9 +6,11 @@ using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace CSEMMPGUI_v1
 {
@@ -403,17 +405,18 @@ namespace CSEMMPGUI_v1
 
         private void CreateSSCModel()
         {
+            TreeView tree;
             if (rbNTU2SSC.Checked)
             {
                 sscElement = _Globals.Config.CreateElement("NTU2SSC");
                 modelType = "NTU2SSC";
-                TreeView tree = treeNTU2SSC;
+                tree = treeNTU2SSC;
             }
             else
             {
                 sscElement = _Globals.Config.CreateElement("BKS2SSC");
                 modelType = "BKS2SSC";
-                TreeView tree = treeBKS2SSC;
+                tree = treeBKS2SSC;
             }
             sscElement.SetAttribute("name", txtModelName.Text);
             sscElement.SetAttribute("type", modelType);
@@ -435,7 +438,7 @@ namespace CSEMMPGUI_v1
             }
             else
             {
-                foreach (TreeNode surveyNode in treeNTU2SSC.Nodes)
+                foreach (TreeNode surveyNode in tree.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
                     {
@@ -443,11 +446,62 @@ namespace CSEMMPGUI_v1
                         if (instrumentNode.Checked && element != null)
                         {
                             XmlElement instrumentElement = _Globals.Config.CreateElement("Instrument");
-                            instrumentElement.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentID = _Globals.Config.CreateElement("ID");
+                            instrumentID.InnerText = element.GetAttribute("id");
+                            instrumentElement.AppendChild(instrumentID);
+                            XmlElement instrumentType = _Globals.Config.CreateElement("Type");
+                            instrumentType.InnerText = element.GetAttribute("type");
+                            instrumentElement.AppendChild(instrumentType);
                             sscElement.AppendChild(instrumentElement);
                         }
                     }
                 }
+                MessageBox.Show(sscElement.OuterXml.ToString());
+                Dictionary<string, string> inputs = null;
+                inputs = new Dictionary<string, string>
+                {
+                    { "Task", modelType },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                    { "SSCModel", sscElement.OuterXml.ToString() },
+                };
+                string xmlInput = _Tools.GenerateInput(inputs);
+                XmlDocument result = _Tools.CallPython(xmlInput);
+                Dictionary<string, string> outputs = _Tools.ParseOutput(result);
+                if (outputs.ContainsKey("Error"))
+                {
+                    MessageBox.Show(outputs["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                XmlElement aElement = _Globals.Config.CreateElement("A");
+                aElement.InnerText = outputs["A"];
+                sscElement.AppendChild(aElement);
+                XmlElement bElement = _Globals.Config.CreateElement("B");
+                bElement.InnerText = outputs["B"];
+                sscElement.AppendChild(bElement);
+                XmlElement rmseElement = _Globals.Config.CreateElement("RMSE");
+                rmseElement.InnerText = outputs["RMSE"];
+                sscElement.AppendChild(rmseElement);
+                XmlElement r2Element = _Globals.Config.CreateElement("R2");
+                r2Element.InnerText = outputs["R2"];
+                sscElement.AppendChild(r2Element);
+                XmlElement root = _Globals.Config.CreateElement("Pairs");
+                var matches = Regex.Matches(outputs["Pairs"], @"\{([^}]+)\}");
+                foreach (Match match in matches)
+                {
+                    XmlElement pair = _Globals.Config.CreateElement("Pair");
+                    pair.InnerText = match.Groups[1].Value;
+                    var kvs = Regex.Matches(match.Value, @"'([^']+)'\s*:\s*'([^']+)'");
+                    foreach (Match kv in kvs)
+                    {
+                        string key = kv.Groups[1].Value;
+                        string value = kv.Groups[2].Value;
+                        XmlElement kvElement = _Globals.Config.CreateElement(key);
+                        kvElement.InnerText = value;
+                        pair.AppendChild(kvElement);
+                    }
+                    root.AppendChild(pair);
+                }
+                sscElement.AppendChild(root);
             }
         }
 
@@ -466,6 +520,17 @@ namespace CSEMMPGUI_v1
 
         private void UPDATE()
         {
+            TreeView tree;
+            if (rbNTU2SSC.Checked)
+            {
+                modelType = "NTU2SSC";
+                tree = treeNTU2SSC;
+            }
+            else
+            {
+                modelType = "BKS2SSC";
+                tree = treeBKS2SSC;
+            }
             sscElement.SetAttribute("name", txtModelName.Text);
             XmlNode? modeNode = sscElement.SelectSingleNode("Mode");
             modeNode.InnerText = rbManual.Checked ? "Manual" : "Auto";
@@ -495,7 +560,6 @@ namespace CSEMMPGUI_v1
             }
             else
             {
-                TreeView tree = rbNTU2SSC.Checked ? treeNTU2SSC : treeBKS2SSC;
                 foreach (TreeNode surveyNode in tree.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
@@ -509,6 +573,53 @@ namespace CSEMMPGUI_v1
                         }
                     }
                 }
+                
+                Dictionary<string, string> inputs = null;
+                
+                inputs = new Dictionary<string, string>
+                {
+                    { "Task", modelType },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                    { "SSCModel", sscElement.OuterXml.ToString() },
+                };
+                string xmlInput = _Tools.GenerateInput(inputs);
+                XmlDocument result = _Tools.CallPython(xmlInput);
+                Dictionary<string, string> outputs = _Tools.ParseOutput(result);
+                if (outputs.ContainsKey("Error"))
+                {
+                    MessageBox.Show(outputs["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                XmlElement aElement = _Globals.Config.CreateElement("A");
+                aElement.InnerText = outputs["A"];
+                sscElement.AppendChild(aElement);
+                XmlElement bElement = _Globals.Config.CreateElement("B");
+                bElement.InnerText = outputs["B"];
+                sscElement.AppendChild(bElement);
+                XmlElement rmseElement = _Globals.Config.CreateElement("RMSE");
+                rmseElement.InnerText = outputs["RMSE"];
+                sscElement.AppendChild(rmseElement);
+                XmlElement r2Element = _Globals.Config.CreateElement("R2");
+                r2Element.InnerText = outputs["R2"];
+                sscElement.AppendChild(r2Element);
+                XmlElement root = _Globals.Config.CreateElement("Pairs");
+                var matches = Regex.Matches(outputs["Pairs"], @"\{([^}]+)\}");
+                foreach (Match match in matches)
+                {
+                    XmlElement pair = _Globals.Config.CreateElement("Pair");
+                    pair.InnerText = match.Groups[1].Value;
+                    var kvs = Regex.Matches(match.Value, @"'([^']+)'\s*:\s*'([^']+)'");
+                    foreach (Match kv in kvs)
+                    {
+                        string key = kv.Groups[1].Value;
+                        string value = kv.Groups[2].Value;
+                        XmlElement kvElement = _Globals.Config.CreateElement(key);
+                        kvElement.InnerText = value;
+                        pair.AppendChild(kvElement);
+                    }
+                    root.AppendChild(pair);
+                }
+                sscElement.AppendChild(root);
             }
             _project.SaveConfig(saveMode: 1);
         }

@@ -109,7 +109,10 @@ namespace CSEMMPGUI_v1
                 {
                     int status = SaveProject(); // Save the project
                     if (status == 1)
+                    {
                         InitializeProject(); // Initialize a new project if save was successful
+                        _Globals.isSaved = false;
+                    }
                     else
                         return;
                 }
@@ -120,11 +123,13 @@ namespace CSEMMPGUI_v1
                 else if (result == DialogResult.No)
                 {
                     InitializeProject(); // Initialize a new project without saving
+                    _Globals.isSaved = false;
                 }
             }
             else
             {
                 InitializeProject(); // Initialize a new project if no unsaved changes
+                _Globals.isSaved = false;
             }
 
         }

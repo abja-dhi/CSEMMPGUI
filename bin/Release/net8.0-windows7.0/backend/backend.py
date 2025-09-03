@@ -7,7 +7,10 @@ def Call(XML):
     root = ET.fromstring(XML)
     task_type = root.find("Task").text
 
-    if task_type == "LoadPd0":
+    if task_type == "HelloBackend":
+        results = {"Status": "Hi there"}
+
+    elif task_type == "LoadPd0":
         filepath = root.find("Path").text
         results = LoadPd0(filepath)
         
@@ -42,6 +45,16 @@ def Call(XML):
         items = root.find("Items").text.split(",")
         columns = [int(c) for c in root.find("Columns").text.split(",")]
         results = ReadCSV(Root, SubElement, filepath, header, sep, items, columns)
+
+    elif task_type == "NTU2SSC":
+        project = ET.fromstring(root.find("Project").text)
+        sscmodel = ET.fromstring(root.find("SSCModel").text)
+        results = NTU2SSCModel(project, sscmodel)
+
+    elif task_type == "BKS2SSC":
+        project = ET.fromstring(root.find("Project").text)
+        sscmodel = ET.fromstring(root.find("SSCModel").text)
+        results = BKS2SSCModel(project, sscmodel)
 
     elif task_type == "PlotPlatformOrientation":
         project = ET.fromstring(root.find("Project").text)
