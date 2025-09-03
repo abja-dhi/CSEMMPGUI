@@ -44,21 +44,21 @@ from utils_xml import XMLUtils
 
 #%% read in a project XML file 
 
-xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
-project = XMLUtils(xml_path)
-survey_name = 'Survey 1'
+# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
+# project = XMLUtils(xml_path)
+# survey_name = 'Survey 1'
 
 
-adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
-obs_cfgs = project.get_survey_obs_cfgs(survey_name)
-ws_elems  = project.get_survey_ws_elems("Survey 2")
+# adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
+# obs_cfgs = project.get_survey_obs_cfgs(survey_name)
+# ws_elems  = project.get_survey_ws_elems("Survey 2")
 
 
-# load ADCP data
-adcps = []
-for cfg in adcp_cfgs:
-    adcp = ADCPDataset(cfg, name = cfg['name'])
-    adcps.append(adcp)
+# # load ADCP data
+# adcps = []
+# for cfg in adcp_cfgs:
+#     adcp = ADCPDataset(cfg, name = cfg['name'])
+#     adcps.append(adcp)
     
 # # load OBS data 
 # obss = []
