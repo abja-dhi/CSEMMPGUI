@@ -778,5 +778,7 @@ if __name__ == '__main__':
     window = ADCPMainWindow(xml_path, survey_name)
     window.show()
     sys.exit(app.exec_())
+    
+    
 
 
