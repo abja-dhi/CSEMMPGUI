@@ -50,18 +50,19 @@
             menuExamples = new ToolStripMenuItem();
             menuDocumentation = new ToolStripMenuItem();
             menuAboutUs = new ToolStripMenuItem();
-            treeProject = new TreeView();
             cmenuNode = new ContextMenuStrip(components);
             itemOpen = new ToolStripMenuItem();
             itemPlot = new ToolStripMenuItem();
             itemDelete = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
-            lblName = new Label();
-            txtName = new TextBox();
-            tableLayoutPanel2 = new TableLayoutPanel();
+            splitter = new SplitContainer();
+            treeProject = new TreeView();
+            menuSaveAs = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
-            tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitter).BeginInit();
+            splitter.Panel1.SuspendLayout();
+            splitter.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -75,7 +76,7 @@
             // 
             // menuProject
             // 
-            menuProject.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuProperties, menuExit });
+            menuProject.DropDownItems.AddRange(new ToolStripItem[] { menuNew, menuOpen, menuSave, menuSaveAs, menuProperties, menuExit });
             menuProject.Name = "menuProject";
             menuProject.Size = new Size(56, 20);
             menuProject.Text = "Project";
@@ -83,35 +84,35 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(127, 22);
+            menuNew.Size = new Size(180, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
             menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(127, 22);
+            menuOpen.Size = new Size(180, 22);
             menuOpen.Text = "Open...";
             menuOpen.Click += menuOpen_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(127, 22);
+            menuSave.Size = new Size(180, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuProperties
             // 
             menuProperties.Name = "menuProperties";
-            menuProperties.Size = new Size(127, 22);
+            menuProperties.Size = new Size(180, 22);
             menuProperties.Text = "Properties";
             menuProperties.Click += menuProperties_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(127, 22);
+            menuExit.Size = new Size(180, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -202,18 +203,6 @@
             menuAboutUs.Text = "About us";
             menuAboutUs.Click += menuAboutUs_Click;
             // 
-            // treeProject
-            // 
-            treeProject.ContextMenuStrip = cmenuNode;
-            treeProject.Dock = DockStyle.Fill;
-            treeProject.Location = new Point(3, 3);
-            treeProject.Name = "treeProject";
-            tableLayoutPanel2.SetRowSpan(treeProject, 2);
-            treeProject.Size = new Size(259, 431);
-            treeProject.TabIndex = 1;
-            treeProject.NodeMouseClick += treeProject_NodeMouseClick;
-            treeProject.NodeMouseDoubleClick += treeProject_NodeMouseDoubleClick;
-            // 
             // cmenuNode
             // 
             cmenuNode.Items.AddRange(new ToolStripItem[] { itemOpen, itemPlot, itemDelete });
@@ -241,43 +230,33 @@
             itemDelete.Text = "Delete";
             itemDelete.Click += itemDelete_Click;
             // 
-            // lblName
+            // splitter
             // 
-            lblName.AutoSize = true;
-            lblName.Dock = DockStyle.Fill;
-            lblName.Location = new Point(268, 0);
-            lblName.Name = "lblName";
-            lblName.Size = new Size(82, 30);
-            lblName.TabIndex = 0;
-            lblName.Text = "Project Name";
-            lblName.TextAlign = ContentAlignment.MiddleLeft;
+            splitter.Dock = DockStyle.Fill;
+            splitter.Location = new Point(0, 24);
+            splitter.Name = "splitter";
             // 
-            // txtName
+            // splitter.Panel1
             // 
-            txtName.Dock = DockStyle.Fill;
-            txtName.Location = new Point(356, 3);
-            txtName.Name = "txtName";
-            txtName.Size = new Size(525, 23);
-            txtName.TabIndex = 1;
-            txtName.Text = "New Project";
+            splitter.Panel1.Controls.Add(treeProject);
+            splitter.Size = new Size(884, 437);
+            splitter.SplitterDistance = 294;
+            splitter.TabIndex = 1;
             // 
-            // tableLayoutPanel2
+            // treeProject
             // 
-            tableLayoutPanel2.ColumnCount = 3;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
-            tableLayoutPanel2.Controls.Add(txtName, 2, 0);
-            tableLayoutPanel2.Controls.Add(lblName, 1, 0);
-            tableLayoutPanel2.Controls.Add(treeProject, 0, 0);
-            tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(0, 24);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 2;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Size = new Size(884, 437);
-            tableLayoutPanel2.TabIndex = 3;
+            treeProject.Dock = DockStyle.Fill;
+            treeProject.Location = new Point(0, 0);
+            treeProject.Name = "treeProject";
+            treeProject.Size = new Size(294, 437);
+            treeProject.TabIndex = 0;
+            // 
+            // menuSaveAs
+            // 
+            menuSaveAs.Name = "menuSaveAs";
+            menuSaveAs.Size = new Size(180, 22);
+            menuSaveAs.Text = "Save As...";
+            menuSaveAs.Click += menuSaveAs_Click;
             // 
             // __PlumeTrack
             // 
@@ -285,7 +264,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(884, 461);
-            Controls.Add(tableLayoutPanel2);
+            Controls.Add(splitter);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
@@ -296,8 +275,9 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             cmenuNode.ResumeLayout(false);
-            tableLayoutPanel2.ResumeLayout(false);
-            tableLayoutPanel2.PerformLayout();
+            splitter.Panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitter).EndInit();
+            splitter.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -318,7 +298,6 @@
         private ToolStripMenuItem menuAddLayer;
         private ToolStripMenuItem menuAddSurvey;
         private ToolStripMenuItem menuAddModel;
-        private TreeView treeProject;
         private ContextMenuStrip cmenuNode;
         private ToolStripMenuItem itemOpen;
         private ToolStripMenuItem itemDelete;
@@ -328,10 +307,10 @@
         private ToolStripMenuItem sSCModelsToolStripMenuItem;
         private ToolStripMenuItem nTUSSCToolStripMenuItem;
         private ToolStripMenuItem backscatterSSCToolStripMenuItem;
-        private Label lblName;
-        private TextBox txtName;
         private ToolStripMenuItem itemPlot;
         private ToolStripMenuItem menuAddSSCModel;
-        private TableLayoutPanel tableLayoutPanel2;
+        private SplitContainer splitter;
+        private TreeView treeProject;
+        private ToolStripMenuItem menuSaveAs;
     }
 }

@@ -24,10 +24,12 @@ namespace CSEMMPGUI_v1
 
             XmlElement settings = _Globals.Config.CreateElement("Settings");
             XmlNode? nodeName = _Globals.Config.CreateElement("Name");
-            nodeName.InnerText = string.Empty;
+            nodeName.InnerText = "Untitiled-Project";
             settings.AppendChild(nodeName);
             XmlNode? nodeDirectory = _Globals.Config.CreateElement("Directory");
-            nodeDirectory.InnerText = string.Empty;
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string projectDir = System.IO.Path.Combine(appData, "PlumeTrack");
+            nodeDirectory.InnerText = projectDir;
             settings.AppendChild(nodeDirectory);
             XmlNode? nodeEPSG = _Globals.Config.CreateElement("EPSG");
             nodeEPSG.InnerText = "4326"; // Default EPSG code
@@ -59,33 +61,7 @@ namespace CSEMMPGUI_v1
         public string? GetProjectPath()
         {
             string projectDir = GetSetting(settingName: "Directory");
-            if (String.IsNullOrEmpty(projectDir))
-            {
-                var fbd = new CommonOpenFileDialog
-                {
-                    IsFolderPicker = true,
-                    Title = "Select Project Directory",
-                    NavigateToShortcut = true,
-                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    EnsurePathExists = true,
-                };
-                
-                if (fbd.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    SetSetting(settingName: "Directory", value: fbd.FileName);
-                    projectDir = fbd.FileName;
-                }
-                else
-                {
-                    MessageBox.Show(text: "Project directory is not set. Please set the project directory first.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
-                    return "0"; // User cancelled the dialog
-                }
-            }
             string projectName = GetSetting(settingName: "Name");
-            if (String.IsNullOrEmpty(projectName))
-            {
-                return null; // Project name is not set
-            }
             return System.IO.Path.Combine(projectDir, $"{projectName}.mtproj");
         }
 

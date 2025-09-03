@@ -10,8 +10,12 @@
         "dependencies": {
           "CsvHelper": "33.1.0",
           "DHI.MikeCore": "23.0.3",
+          "Microsoft.Web.WebView2": "1.0.3405.78",
           "WindowsAPICodePack-Shell": "1.1.1",
-          "pythonnet": "3.0.5"
+          "pythonnet": "3.0.5",
+          "Microsoft.Web.WebView2.Core": "1.0.3405.78",
+          "Microsoft.Web.WebView2.WinForms": "1.0.3405.78",
+          "Microsoft.Web.WebView2.Wpf": "1.0.3405.78"
         },
         "runtime": {
           "CSEMMPGUI_v1.dll": {}
@@ -244,6 +248,25 @@
       "Microsoft.CSharp/4.7.0": {},
       "Microsoft.NETCore.Platforms/1.1.0": {},
       "Microsoft.NETCore.Targets/1.1.0": {},
+      "Microsoft.Web.WebView2/1.0.3405.78": {
+        "runtimeTargets": {
+          "runtimes/win-arm64/native/WebView2Loader.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "1.0.3405.78"
+          },
+          "runtimes/win-x64/native/WebView2Loader.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "1.0.3405.78"
+          },
+          "runtimes/win-x86/native/WebView2Loader.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "1.0.3405.78"
+          }
+        }
+      },
       "Microsoft.Win32.Primitives/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -950,6 +973,30 @@
             "fileVersion": "1.1.0.0"
           }
         }
+      },
+      "Microsoft.Web.WebView2.Core/1.0.3405.78": {
+        "runtime": {
+          "Microsoft.Web.WebView2.Core.dll": {
+            "assemblyVersion": "1.0.3405.78",
+            "fileVersion": "1.0.3405.78"
+          }
+        }
+      },
+      "Microsoft.Web.WebView2.WinForms/1.0.3405.78": {
+        "runtime": {
+          "Microsoft.Web.WebView2.WinForms.dll": {
+            "assemblyVersion": "1.0.3405.78",
+            "fileVersion": "1.0.3405.78"
+          }
+        }
+      },
+      "Microsoft.Web.WebView2.Wpf/1.0.3405.78": {
+        "runtime": {
+          "Microsoft.Web.WebView2.Wpf.dll": {
+            "assemblyVersion": "1.0.3405.78",
+            "fileVersion": "1.0.3405.78"
+          }
+        }
       }
     }
   },
@@ -1070,6 +1117,13 @@
       "sha512": "sha512-aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg==",
       "path": "microsoft.netcore.targets/1.1.0",
       "hashPath": "microsoft.netcore.targets.1.1.0.nupkg.sha512"
+    },
+    "Microsoft.Web.WebView2/1.0.3405.78": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ceiIKuPHnzOf5CUv9nGpIBx0CWCCMWcBdv05QuonmUnpPtm6XDyAh6osgvin7MTpVD5O0+NbS5ts/WU9sgXgvA==",
+      "path": "microsoft.web.webview2/1.0.3405.78",
+      "hashPath": "microsoft.web.webview2.1.0.3405.78.nupkg.sha512"
     },
     "Microsoft.Win32.Primitives/4.3.0": {
       "type": "package",
@@ -1602,6 +1656,21 @@
       "sha512": "sha512-CPFamhL3jPo8O6+ErGsLS4LK3DWP5ncxqhbzpPnYkIW9rjatunUij35iTjprbr9mlYR/5Pbguw21MwSmTOKR4g==",
       "path": "windowsapicodepack-shell/1.1.1",
       "hashPath": "windowsapicodepack-shell.1.1.1.nupkg.sha512"
+    },
+    "Microsoft.Web.WebView2.Core/1.0.3405.78": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Web.WebView2.WinForms/1.0.3405.78": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Web.WebView2.Wpf/1.0.3405.78": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
