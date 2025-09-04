@@ -18,7 +18,6 @@ namespace CSEMMPGUI_v1
 
         private void PopulateFields()
         {
-            txtProjectDir.Text = _project.GetSetting(settingName: "Directory");
             txtProjectEPSG.Text = _project.GetSetting(settingName: "EPSG");
             txtProjectDescription.Text = _project.GetSetting(settingName: "Description");
             isSaved = true; // Initially, fields are populated and considered saved
@@ -60,22 +59,6 @@ namespace CSEMMPGUI_v1
             this.Close(); // Close the properties page
         }
 
-        private void btnProjectDir_Click(object sender, EventArgs e)
-        {
-            using var fbd = new FolderBrowserDialog
-            {
-                Description = "Select Project Directory",
-                ShowNewFolderButton = true,
-                SelectedPath = txtProjectDir.Text.Trim(),
-                InitialDirectory =  _project.GetSetting(settingName: "Directory")
-            };
-            if (fbd.ShowDialog() == DialogResult.OK)
-            {
-                txtProjectDir.Text = fbd.SelectedPath;
-                isSaved = false; // Mark as unsaved when directory changes
-            }
-        }
-
         private void inputChanged(object sender, EventArgs e)
         {
             isSaved = false; // Mark as unsaved when any input changes
@@ -105,7 +88,6 @@ namespace CSEMMPGUI_v1
 
         private void Save()
         {
-            _project.SetSetting(settingName: "Directory", txtProjectDir.Text.Trim());
             _project.SetSetting(settingName: "EPSG", txtProjectEPSG.Text.Trim());
             _project.SetSetting(settingName: "Description", txtProjectDescription.Text.Trim());
             _project.SaveConfig(saveMode: 1);

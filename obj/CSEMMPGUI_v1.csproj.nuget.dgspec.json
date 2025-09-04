@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[23.0.3, )"
             },
+            "Microsoft.Web.WebView2": {
+              "target": "Package",
+              "version": "[1.0.3405.78, )"
+            },
             "WindowsAPICodePack-Shell": {
               "target": "Package",
               "version": "[1.1.1, )"

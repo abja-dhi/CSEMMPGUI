@@ -1,7 +1,9 @@
 using DHI.Mike1D.ResultDataAccess;
+using DHI.Mike1D.ResultDataAccess.Epanet;
 using Microsoft.VisualBasic;
-using System.Xml;
 using Python.Runtime;
+using System.Xml;
+using Microsoft.Web.WebView2.WinForms;
 
 
 namespace CSEMMPGUI_v1
@@ -35,10 +37,6 @@ namespace CSEMMPGUI_v1
             treeProject.Nodes.Clear();
             XmlNode? root = _Globals.Config.DocumentElement;
             string name = _project.GetSetting(settingName: "Name");
-            if (string.IsNullOrEmpty(name))
-            {
-                name = txtName.Text.Trim(); // Default name if not set
-            }
             TreeNode rootNode = new TreeNode(name);
             rootNode.Tag = root;
             treeProject.Nodes.Add(rootNode);
@@ -48,28 +46,62 @@ namespace CSEMMPGUI_v1
 
         private void InitializeProject()
         {
-            txtName.Text = "New Project";
             _project.InitializeProject();
             isSaved = true;
             FillTree(); // Populate the tree view with project structure
         }
 
-        public __PlumeTrack()
+        public __PlumeTrack(string[] args)
         {
             InitializeComponent();
-            InitializeProject();
-
+            if (args.Length > 0)
+            {
+                string projectFilePath = args[0];
+                if (File.Exists(projectFilePath) && Path.GetExtension(projectFilePath).Equals(".mtproj", StringComparison.OrdinalIgnoreCase))
+                {
+                    _project.LoadConfig(projectFilePath);
+                    isSaved = true; // Mark the project as saved after loading
+                    FillTree(); // Populate the tree view with the loaded project structure
+                }
+                else
+                {
+                    MessageBox.Show("The specified project file does not exist or is not a valid .mtproj file. A new project will be created.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    InitializeProject();
+                }
+            }
+            else
+                InitializeProject();
+            //Dictionary<string, string> inputs = null;
+            //inputs = new Dictionary<string, string>
+            //    {
+            //        { "Task", "HelloBackend" },
+            //    };
+            //string xmlInput = _Tools.GenerateInput(inputs);
+            //XmlDocument result = _Tools.CallPython(xmlInput);
+            //Dictionary<string, string> outputs = _Tools.ParseOutput(result);
+            //MessageBox.Show(outputs["Status"], "Backend Response", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.KeyPreview = true; // Enable form to capture key events
             this.KeyDown += __PlumeTrack_KeyDown; // Attach key down event handler
+
+            WebView2 webView = new WebView2();
+            webView.Dock = DockStyle.Fill;
+            splitter.Panel2.Controls.Add(webView);
+
+            this.Load += async (s, e) =>
+            {
+                await webView.EnsureCoreWebView2Async();
+                webView.Source = new Uri(@"C:\Users\abja\Downloads\test_w_shapefile 1.html");
+            };
+
         }
 
         private void menuNew_Click(object sender, EventArgs e)
         {
-            if (!isSaved) // If project has changed
+            if (!_Globals.isSaved || !isSaved) // If project has changed
             {
                 // Show a message box to ask the user if they want to save changes
                 DialogResult result = MessageBox.Show(
-                "The current project has unsaved changes. Do you want to save them before creating a new project?",
+                "Do you want to save the current project before creating a new project?",
                 "Unsaved Changes",
                 MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Warning);
@@ -77,7 +109,10 @@ namespace CSEMMPGUI_v1
                 {
                     int status = SaveProject(); // Save the project
                     if (status == 1)
+                    {
                         InitializeProject(); // Initialize a new project if save was successful
+                        _Globals.isSaved = false;
+                    }
                     else
                         return;
                 }
@@ -88,18 +123,20 @@ namespace CSEMMPGUI_v1
                 else if (result == DialogResult.No)
                 {
                     InitializeProject(); // Initialize a new project without saving
+                    _Globals.isSaved = false;
                 }
             }
             else
             {
                 InitializeProject(); // Initialize a new project if no unsaved changes
+                _Globals.isSaved = false;
             }
 
         }
 
         private void menuOpen_Click(object sender, EventArgs e)
         {
-            if (!isSaved) // If project has changed
+            if (!_Globals.isSaved || !isSaved) // If project has changed
             {
                 // Show a message box to ask the user if they want to save changes
                 DialogResult result = MessageBox.Show(
@@ -128,7 +165,6 @@ namespace CSEMMPGUI_v1
             {
                 string filePath = ofd.FileName;
                 _project.LoadConfig(filePath);
-                txtName.Text = _project.GetSetting(settingName: "Name") ?? "New Project";
                 isSaved = true; // Mark the project as saved after loading
                 FillTree(); // Repopulate the tree view with the loaded project structure
             }
@@ -136,6 +172,12 @@ namespace CSEMMPGUI_v1
 
         private void menuSave_Click(object sender, EventArgs e)
         {
+            SaveProject();
+        }
+
+        private void menuSaveAs_Click(object sender, EventArgs e)
+        {
+            _Globals.isSaved = false; // Force Save As dialog
             SaveProject();
         }
 
@@ -147,7 +189,7 @@ namespace CSEMMPGUI_v1
 
         private void menuExit_Click(object sender, EventArgs e)
         {
-            if (!isSaved)
+            if (!_Globals.isSaved || !isSaved)
             {
                 DialogResult result = MessageBox.Show(
                 text: "Do you want to save the current project before exiting?",
@@ -178,7 +220,7 @@ namespace CSEMMPGUI_v1
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!isSaved)
+            if (!_Globals.isSaved || !isSaved)
             {
                 DialogResult result = MessageBox.Show(
                 text: "Do you want to save the current project before exiting?",
@@ -285,7 +327,8 @@ namespace CSEMMPGUI_v1
                         OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
                         editOBSVerticalProfile.ShowDialog();
                         break;
-                    case "SSCModel":
+                    case "NTU2SSC":
+                    case "BKS2SSC":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -328,7 +371,8 @@ namespace CSEMMPGUI_v1
                         OBSVerticalProfile editOBSVerticalProfile = new OBSVerticalProfile(null, xmlNode);
                         editOBSVerticalProfile.ShowDialog();
                         break;
-                    case "SSCModel":
+                    case "NTU2SSC":
+                    case "BKS2SSC":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -345,7 +389,7 @@ namespace CSEMMPGUI_v1
                 string type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                 string name = xmlNode.Attributes?["name"]?.Value ?? xmlNode.Name;
                 string id = xmlNode.Attributes?["id"]?.Value ?? string.Empty;
-                
+
 
                 switch (type)
                 {
@@ -372,7 +416,8 @@ namespace CSEMMPGUI_v1
                         MessageBox.Show($"Plotting OBS vertical profile: {name}", "Open OBS Vertical Profile", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         // Implement OBS vertical profile opening logic here
                         break;
-                    case "SSCModel":
+                    case "NTU2SSC":
+                    case "BKS2SSC":
                         MessageBox.Show($"Plotting SSC model: {name}", "Open SSC Model", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
                 }
@@ -425,11 +470,18 @@ namespace CSEMMPGUI_v1
                             _project.DeleteNode(type: "OBSVerticalProfile", id: id);
                         }
                         break;
-                    case "SSCModel":
-                        DialogResult resultSSCModel = MessageBox.Show($"Are you sure you want to delete the SSC model: {name}?", "Delete SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (resultSSCModel == DialogResult.Yes)
+                    case "NTU2SSC":
+                        DialogResult resultNTU2SSCModel = MessageBox.Show($"Are you sure you want to delete the NTU to SSC model: {name}?", "Delete NTU to SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultNTU2SSCModel == DialogResult.Yes)
                         {
-                            _project.DeleteNode(type: "SSCModel", id: id);
+                            _project.DeleteNode(type: "NTU2SSC", id: id);
+                        }
+                        break;
+                    case "BKS2SSC":
+                        DialogResult resultBKS2SSCModel = MessageBox.Show($"Are you sure you want to delete the Absolute Backscatter to SSC model: {name}?", "Delete Absolute Backscatter to SSC Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultBKS2SSCModel == DialogResult.Yes)
+                        {
+                            _project.DeleteNode(type: "BKS2SSC", id: id);
                         }
                         break;
                 }
@@ -440,85 +492,51 @@ namespace CSEMMPGUI_v1
 
         private int SaveProject()
         {
-            string oldtName = _project.GetSetting(settingName: "Name");
-            string oldPath = _project.GetProjectPath();
-            string currentName = txtName.Text.Trim();
-            if (string.IsNullOrEmpty(txtName.Text.Trim()))
+            //string oldtName = _project.GetSetting(settingName: "Name");
+            //string oldPath = _project.GetProjectPath();
+            //string currentName = txtName.Text.Trim();
+            //if (string.IsNullOrEmpty(txtName.Text.Trim()))
+            //{
+            //    MessageBox.Show("Project name cannot be empty. Please enter a valid project name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return 0; // Indicate failure
+            //}
+            //_project.SetSetting(settingName: "Name", value: currentName);
+            //string projectPath = _project.GetProjectPath();
+            if (!_Globals.isSaved)
             {
-                MessageBox.Show("Project name cannot be empty. Please enter a valid project name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 0; // Indicate failure
-            }
-            _project.SetSetting(settingName: "Name", value: currentName);
-            string projectPath = _project.GetProjectPath();
-            if (projectPath == "0")
-            {
-                MessageBox.Show("Project directory is not set. Please set the project directory first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return 0;
-            }
-            if (!_project.isSaved)
-            {
-                if (File.Exists(projectPath))
+                string directory = _project.GetSetting(settingName: "Directory");
+                if (directory == Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
+                    directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                SaveFileDialog sfd = new SaveFileDialog
                 {
-                    DialogResult result = MessageBox.Show(
-                        text: "Project already exists. Do you want to overwrite it?",
-                        caption: "Overwrite Project",
-                        buttons: MessageBoxButtons.YesNo,
-                        icon: MessageBoxIcon.Warning);
-                    if (result == DialogResult.No)
-                    {
-                        return 0; // User chose not to overwrite
-                    }
+                    Filter = "MT Project Files (*.mtproj)|*.mtproj",
+                    Title = "Save Project",
+                    InitialDirectory = directory,
+                    FileName = _project.GetSetting(settingName: "Name") + ".mtproj",
+                    OverwritePrompt = true
+                };
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sfd.FileName);
+                    string selectedDirectory = Path.GetDirectoryName(sfd.FileName);
+                    _project.SetSetting(settingName: "Name", value: fileNameWithoutExtension);
+                    _project.SetSetting(settingName: "Directory", value: selectedDirectory);
+                    _project.SaveConfig(saveMode: 1); // Save the project configuration with the new name and directory
+                    _Globals.isSaved = true;
+                    return 1;
                 }
-                try
+                else if (sfd.ShowDialog() == DialogResult.Cancel)
                 {
-                    _project.SaveConfig(saveMode: 1); // Save the project configuration
-                    isSaved = true; // Mark the project as saved
-                    FillTree(); // Refresh the tree view after saving
-                    return 1; // Indicate success
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error saving project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return 0; // Indicate failure
+                    return 0; // Indicate cancellation
                 }
             }
             else
             {
-                if (oldtName != currentName)
-                {
-                    if (File.Exists(oldPath))
-                    {
-                        File.Delete(oldPath); // Delete the old project file if it exists
-                    }
-                    try
-                    {
-                        _project.SaveConfig(saveMode: 1); // Save the project configuration with the new name
-                        isSaved = true; // Mark the project as saved
-                        FillTree(); // Refresh the tree view after saving
-                        return 1; // Indicate success
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error saving project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return 0; // Indicate failure
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        _project.SaveConfig(saveMode: 0); // Save the project configuration without changing the name
-                        isSaved = true; // Mark the project as saved
-                        FillTree(); // Refresh the tree view after saving
-                        return 1; // Indicate success
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error saving project: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return 0; // Indicate failure
-                    }
-                }
+                _project.SaveConfig(saveMode: 1); // Save the project configuration
+                isSaved = true;
+                return 1; // Indicate success    
             }
+            return 1;
         }
 
         private void __PlumeTrack_KeyDown(object sender, KeyEventArgs e)
@@ -539,5 +557,7 @@ namespace CSEMMPGUI_v1
                 menuOpen_Click(sender, e); // Open an existing project
             }
         }
+
+        
     }
 }

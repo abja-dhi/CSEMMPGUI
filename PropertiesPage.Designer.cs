@@ -31,9 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertiesPage));
             txtProjectEPSG = new TextBox();
             lblProjectEPSG = new Label();
-            lblProjectDir = new Label();
-            txtProjectDir = new TextBox();
-            btnProjectDir = new Button();
             txtProjectDescription = new TextBox();
             lblProjectDescription = new Label();
             tableOrganizer = new TableLayoutPanel();
@@ -48,9 +45,9 @@
             // txtProjectEPSG
             // 
             txtProjectEPSG.Dock = DockStyle.Fill;
-            txtProjectEPSG.Location = new Point(105, 31);
+            txtProjectEPSG.Location = new Point(156, 3);
             txtProjectEPSG.Name = "txtProjectEPSG";
-            txtProjectEPSG.Size = new Size(327, 23);
+            txtProjectEPSG.Size = new Size(354, 23);
             txtProjectEPSG.TabIndex = 3;
             txtProjectEPSG.TextChanged += inputChanged;
             // 
@@ -58,49 +55,19 @@
             // 
             lblProjectEPSG.AutoSize = true;
             lblProjectEPSG.Dock = DockStyle.Fill;
-            lblProjectEPSG.Location = new Point(3, 28);
+            lblProjectEPSG.Location = new Point(3, 0);
             lblProjectEPSG.Name = "lblProjectEPSG";
-            lblProjectEPSG.Size = new Size(96, 28);
+            lblProjectEPSG.Size = new Size(147, 30);
             lblProjectEPSG.TabIndex = 1;
             lblProjectEPSG.Text = "EPSG";
-            // 
-            // lblProjectDir
-            // 
-            lblProjectDir.AutoSize = true;
-            lblProjectDir.Dock = DockStyle.Fill;
-            lblProjectDir.Location = new Point(3, 0);
-            lblProjectDir.Name = "lblProjectDir";
-            lblProjectDir.Size = new Size(96, 28);
-            lblProjectDir.TabIndex = 2;
-            lblProjectDir.Text = "Project Directory";
-            // 
-            // txtProjectDir
-            // 
-            txtProjectDir.Dock = DockStyle.Fill;
-            txtProjectDir.Location = new Point(105, 3);
-            txtProjectDir.Name = "txtProjectDir";
-            txtProjectDir.Size = new Size(327, 23);
-            txtProjectDir.TabIndex = 1;
-            txtProjectDir.TextChanged += inputChanged;
-            // 
-            // btnProjectDir
-            // 
-            btnProjectDir.Dock = DockStyle.Fill;
-            btnProjectDir.Location = new Point(438, 3);
-            btnProjectDir.Name = "btnProjectDir";
-            btnProjectDir.Size = new Size(72, 22);
-            btnProjectDir.TabIndex = 2;
-            btnProjectDir.Text = "...";
-            btnProjectDir.UseVisualStyleBackColor = true;
-            btnProjectDir.Click += btnProjectDir_Click;
             // 
             // txtProjectDescription
             // 
             txtProjectDescription.Dock = DockStyle.Fill;
-            txtProjectDescription.Location = new Point(105, 59);
+            txtProjectDescription.Location = new Point(156, 33);
             txtProjectDescription.Multiline = true;
             txtProjectDescription.Name = "txtProjectDescription";
-            txtProjectDescription.Size = new Size(327, 227);
+            txtProjectDescription.Size = new Size(354, 253);
             txtProjectDescription.TabIndex = 4;
             txtProjectDescription.TextChanged += inputChanged;
             // 
@@ -108,32 +75,28 @@
             // 
             lblProjectDescription.AutoSize = true;
             lblProjectDescription.Dock = DockStyle.Fill;
-            lblProjectDescription.Location = new Point(3, 56);
+            lblProjectDescription.Location = new Point(3, 30);
             lblProjectDescription.Name = "lblProjectDescription";
-            lblProjectDescription.Size = new Size(96, 233);
+            lblProjectDescription.Size = new Size(147, 259);
             lblProjectDescription.TabIndex = 7;
             lblProjectDescription.Text = "Project Description";
             // 
             // tableOrganizer
             // 
-            tableOrganizer.ColumnCount = 3;
-            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65F));
-            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 15F));
-            tableOrganizer.Controls.Add(lblProjectDir, 0, 0);
-            tableOrganizer.Controls.Add(txtProjectDescription, 1, 2);
-            tableOrganizer.Controls.Add(txtProjectDir, 1, 0);
-            tableOrganizer.Controls.Add(lblProjectDescription, 0, 2);
-            tableOrganizer.Controls.Add(btnProjectDir, 2, 0);
-            tableOrganizer.Controls.Add(txtProjectEPSG, 1, 1);
-            tableOrganizer.Controls.Add(lblProjectEPSG, 0, 1);
+            tableOrganizer.ColumnCount = 2;
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30F));
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 70F));
+            tableOrganizer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableOrganizer.Controls.Add(txtProjectDescription, 1, 1);
+            tableOrganizer.Controls.Add(lblProjectDescription, 0, 1);
+            tableOrganizer.Controls.Add(txtProjectEPSG, 1, 0);
+            tableOrganizer.Controls.Add(lblProjectEPSG, 0, 0);
             tableOrganizer.Dock = DockStyle.Fill;
             tableOrganizer.Location = new Point(0, 24);
             tableOrganizer.Name = "tableOrganizer";
-            tableOrganizer.RowCount = 3;
-            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
-            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
-            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 80F));
+            tableOrganizer.RowCount = 2;
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableOrganizer.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableOrganizer.Size = new Size(513, 289);
             tableOrganizer.TabIndex = 9;
             // 
@@ -192,9 +155,6 @@
 
         private TextBox txtProjectEPSG;
         private Label lblProjectEPSG;
-        private Label lblProjectDir;
-        private TextBox txtProjectDir;
-        private Button btnProjectDir;
         private TextBox txtProjectDescription;
         private Label lblProjectDescription;
         private TableLayoutPanel tableOrganizer;
