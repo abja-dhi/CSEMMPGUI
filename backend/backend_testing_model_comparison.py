@@ -26,10 +26,18 @@ from adcp import ADCP as ADCPDataset
 from plotting import PlottingShell
 # # %% load from project file
 
-xml_path = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj"
-survey_name = "Survey 1"
-model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
+# xml_path = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj"
+# survey_name = "Survey 1"
+
+
+
+#model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
+model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
 mt_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
+
+
+
+
 
 # project = XMLUtils(xml_path)
 # adcp_cfgs = project.get_survey_adcp_cfgs(survey_name)
@@ -50,8 +58,10 @@ mt_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
 
 
 #root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
-root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
-#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241003_F3(F)'
+# root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
+
+#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\2024_survey_data\10. Oct\20241002_F3(E)'
+root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\F3\2024\10. Oct\20241002_F3(E)'
 
 #Utils.extern_to_csv_batch(r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul')
 
@@ -91,66 +101,80 @@ abs_params = {'C': -139.0,
 
 ssc_params = {'A': 3.5, 'B':.049}
 
-
-pos_cfg = {'filename':pos_fpaths[i],
-       'epsg':'4326',
-       'X_mode': 'Variable',
-       'Y_mode': 'Variable',
-       'Depth_mode': 'Constant',
-       'Pitch_mode': 'Constant',
-       'Roll_mode':'Cosntant',
-       'Heading_mode': 'Variable',
-       'DateTime_mode': 'Variable',
-       'X_value': 'Longitude',
-       'Y_value': 'Latitude',
-       'Depth_value': 0,
-       'Pitch_value': 0,
-       'Roll_value': 0,
-       'Heading_value': 'Course',
-       'DateTime_value': 'DateTime',
-       }
-
-
-cfg = {'filename':pd0_fpaths[i],
-    'name':fpath.split(os.sep)[-1].split('.000')[0],
-    'pg_min' : 90,
-    'vel_min' : -2.0,
-    'vel_max' : 2.0,
-    'echo_min' : 0,
-    'echo_max' : 255,
-    'cormag_min' : None,
-    'cormag_max' : 255,
-    'abs_min' : -100,
-    'abs_max': 0,
-    'err_vel_max' : 'auto',
-    'velocity_average_window_len': 3,
-    'start_datetime' : None,
-    'end_datetime' : None,
-    'first_good_ensemble' : None,
-    'last_good_ensemble' : None,
-    'magnetic_declination' : 0,
-    'utc_offset' : None,
-    'beam_dr': 0.1,
-    'bt_bin_offset': 1,
-    'crp_rotation_angle' : 0,
-    'crp_offset_x' : 0,
-    'crp_offset_y' : -3,
-    'crp_offset_z' : 0,
-    'transect_shift_x': 0.0,
-    'transect_shift_y': 0.0,
-    'transect_shift_z': 0.0,
-    'transect_shift_t': 0.0,
-    'pos_cfg':pos_cfg,
-    'water_properties': water_properties,
-    'sediment_properties':sediment_properties,
-    'abs_params': abs_params,
-    'ssc_params': ssc_params,
-    }
- 
-adcp = ADCPDataset(cfg, name = cfg['name'])
-#adcps.append(adcp)
+adcps = []
+for i in range(len(pos_fpaths)):
+    pos_cfg = {'filename':pos_fpaths[i],
+           'epsg':'4326',
+           'X_mode': 'Variable',
+           'Y_mode': 'Variable',
+           'Depth_mode': 'Constant',
+           'Pitch_mode': 'Constant',
+           'Roll_mode':'Cosntant',
+           'Heading_mode': 'Variable',
+           'DateTime_mode': 'Variable',
+           'X_value': 'Longitude',
+           'Y_value': 'Latitude',
+           'Depth_value': 0,
+           'Pitch_value': 0,
+           'Roll_value': 0,
+           'Heading_value': 'Course',
+           'DateTime_value': 'DateTime',
+           }
+    
+    
+    cfg = {'filename':pd0_fpaths[i],
+        'name':fpath.split(os.sep)[-1].split('.000')[0],
+        'pg_min' : 90,
+        'vel_min' : -2.0,
+        'vel_max' : 2.0,
+        'echo_min' : 0,
+        'echo_max' : 255,
+        'cormag_min' : None,
+        'cormag_max' : 255,
+        'abs_min' : -100,
+        'abs_max': 0,
+        'err_vel_max' : 'auto',
+        'velocity_average_window_len': 3,
+        'start_datetime' : None,
+        'end_datetime' : None,
+        'first_good_ensemble' : None,
+        'last_good_ensemble' : None,
+        'magnetic_declination' : 0,
+        'utc_offset' : None,
+        'beam_dr': 0.1,
+        'bt_bin_offset': 1,
+        'crp_rotation_angle' : 0,
+        'crp_offset_x' : 0,
+        'crp_offset_y' : -3,
+        'crp_offset_z' : 0,
+        'transect_shift_x': 0.0,
+        'transect_shift_y': 0.0,
+        'transect_shift_z': 0.0,
+        'transect_shift_t': 0.0,
+        'pos_cfg':pos_cfg,
+        'water_properties': water_properties,
+        'sediment_properties':sediment_properties,
+        'abs_params': abs_params,
+        'ssc_params': ssc_params,
+        }
+     
+    adcp = ADCPDataset(cfg, name = cfg['name'])
+    adcps.append(adcp)
+    
+    break 
 #%%
+model_item_num =1
+t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
+xq = np.asarray(adcp.position.x)
+yq = np.asarray(adcp.position.y)
 
+Xq, Yq = mt_model._to_mesh_xy(xq, yq, adcp.position.epsg)
+
+vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num, input_crs = adcp.position.epsg)
+
+
+#%%
+fdas
 #%%
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -243,7 +267,7 @@ def timeseries_MT_comparison(
         # Model (kg/m^3 -> mg/L)
         t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
         xq = np.asarray(adcp.position.x); yq = np.asarray(adcp.position.y)
-        vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num)
+        vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num, input_crs = adcp.position.epsg)
         y_model = np.asarray(vals[0], float) * 1000.0
 
         # Align
@@ -399,12 +423,12 @@ def timeseries_MT_comparison(
 #     smooth_obs=True, smooth_window=9
 # )
 
-# # HAB, beam average, smoothed
-# timeseries_MT_comparison(
-#     adcps, mt_model, model_item_num=1,
-#     y_agg_mode="hab", target=2.0, beam="mean",
-#     smooth_obs=True, smooth_window=5
-# )
+# HAB, beam average, smoothed
+timeseries_MT_comparison(
+    adcps, mt_model, model_item_num=1,
+    y_agg_mode="hab", target=2.0, beam="mean",
+    smooth_obs=True, smooth_window=5
+)
 
 # # HAB, single beam, no smoothing
 # timeseries_MT_comparison(
@@ -1379,12 +1403,13 @@ def animate_bbox_timeseries(
 
 
 #%%
+
 bbox = (103.95, 104.09, 1.30, 1.42)
 
 out = mt_model.rasterize_bbox_timeseries(
     item_number=1,
     bbox=bbox,
-    pixel_size_m=10.0,
+    pixel_size_m=100.0,
     k=8, p=2.0,
     times=mt_model.model_times,
     pad=0.0,

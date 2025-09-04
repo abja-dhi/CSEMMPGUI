@@ -116,7 +116,8 @@ class TransectViewer3D:
         adcp_entries: List[Tuple[str, Dict[str, Any]]] = []
         for svy in surveys:
             for acfg in project.get_survey_adcp_cfgs(svy):
-                adcp_entries.append((svy, acfg))
+                if acfg:
+                    adcp_entries.append((svy, acfg))
 
         self.adcps: List[ADCPDataset] = []
         self.survey_by_name: Dict[str, str] = {}
