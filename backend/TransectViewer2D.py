@@ -565,7 +565,7 @@ if __name__ == "__main__":
         "shp": [
             {
                 "path": r"C:/Users/anba/Downloads/v20250509/v20250509/RD7550_CEx_SG_v20250509.shp",
-                "type": "line", "color": "limegreen", "width": 0.5,
+                "type": "line", "color": "limegreen", "width": 1,
                 "label": "Channel", "label_fontsize": 11, "label_color": "#cccccc",
             },
             {
@@ -577,7 +577,8 @@ if __name__ == "__main__":
         ],
         "cmap": "jet",
         "field_name": "absolute_backscatter",
-        "vmin": None, "vmax": None,
+        "vmin": None,
+        "vmax": -60,
         "pad_deg": 0.03,
         "grid_lines": 10,
         "grid_opacity": 0.35,
@@ -590,11 +591,11 @@ if __name__ == "__main__":
         "axis_label_fontsize": 12,
         "axis_label_color": "#cccccc",
         "hover_fontsize": 9,
-        "transect_line_width": 3.0,
+        "transect_line_width": 3.5,
         "vertical_agg": {
-        "method": "mean"  # or "bin"/"range/hab", plus target/beam/agg as needed
-        "target": 5, # targed bin,range or hab, can be tuple of ranges (low, high)
-        "beam": "mean", # beam 1-4 or "mean
+        "method": "mean",  # or "bin"
+        "target": 5, # targed bin
+        "beam": 'mean', # beam 1-4 or "mean
             
         },
         "out": r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\adcp_transects_2d.html",
