@@ -1,0 +1,363 @@
+code,name,type
+2309,WGS 84 / TM 116 SE,Projected CRS
+2310,WGS 84 / TM 132 SE,Projected CRS
+2311,WGS 84 / TM 6 NE,Projected CRS
+3031,WGS 84 / Antarctic Polar Stereographic,Projected CRS
+3032,WGS 84 / Australian Antarctic Polar Stereographic,Projected CRS
+3033,WGS 84 / Australian Antarctic Lambert,Projected CRS
+3204,WGS 84 / SCAR IMW SP19-20,Projected CRS
+3205,WGS 84 / SCAR IMW SP21-22,Projected CRS
+3206,WGS 84 / SCAR IMW SP23-24,Projected CRS
+3207,WGS 84 / SCAR IMW SQ01-02,Projected CRS
+3208,WGS 84 / SCAR IMW SQ19-20,Projected CRS
+3209,WGS 84 / SCAR IMW SQ21-22,Projected CRS
+3210,WGS 84 / SCAR IMW SQ37-38,Projected CRS
+3211,WGS 84 / SCAR IMW SQ39-40,Projected CRS
+3212,WGS 84 / SCAR IMW SQ41-42,Projected CRS
+3213,WGS 84 / SCAR IMW SQ43-44,Projected CRS
+3214,WGS 84 / SCAR IMW SQ45-46,Projected CRS
+3215,WGS 84 / SCAR IMW SQ47-48,Projected CRS
+3216,WGS 84 / SCAR IMW SQ49-50,Projected CRS
+3217,WGS 84 / SCAR IMW SQ51-52,Projected CRS
+3218,WGS 84 / SCAR IMW SQ53-54,Projected CRS
+3219,WGS 84 / SCAR IMW SQ55-56,Projected CRS
+3220,WGS 84 / SCAR IMW SQ57-58,Projected CRS
+3221,WGS 84 / SCAR IMW SR13-14,Projected CRS
+3222,WGS 84 / SCAR IMW SR15-16,Projected CRS
+3223,WGS 84 / SCAR IMW SR17-18,Projected CRS
+3224,WGS 84 / SCAR IMW SR19-20,Projected CRS
+3225,WGS 84 / SCAR IMW SR27-28,Projected CRS
+3226,WGS 84 / SCAR IMW SR29-30,Projected CRS
+3227,WGS 84 / SCAR IMW SR31-32,Projected CRS
+3228,WGS 84 / SCAR IMW SR33-34,Projected CRS
+3229,WGS 84 / SCAR IMW SR35-36,Projected CRS
+3230,WGS 84 / SCAR IMW SR37-38,Projected CRS
+3231,WGS 84 / SCAR IMW SR39-40,Projected CRS
+3232,WGS 84 / SCAR IMW SR41-42,Projected CRS
+3233,WGS 84 / SCAR IMW SR43-44,Projected CRS
+3234,WGS 84 / SCAR IMW SR45-46,Projected CRS
+3235,WGS 84 / SCAR IMW SR47-48,Projected CRS
+3236,WGS 84 / SCAR IMW SR49-50,Projected CRS
+3237,WGS 84 / SCAR IMW SR51-52,Projected CRS
+3238,WGS 84 / SCAR IMW SR53-54,Projected CRS
+3239,WGS 84 / SCAR IMW SR55-56,Projected CRS
+3240,WGS 84 / SCAR IMW SR57-58,Projected CRS
+3241,WGS 84 / SCAR IMW SR59-60,Projected CRS
+3242,WGS 84 / SCAR IMW SS04-06,Projected CRS
+3243,WGS 84 / SCAR IMW SS07-09,Projected CRS
+3244,WGS 84 / SCAR IMW SS10-12,Projected CRS
+3245,WGS 84 / SCAR IMW SS13-15,Projected CRS
+3246,WGS 84 / SCAR IMW SS16-18,Projected CRS
+3247,WGS 84 / SCAR IMW SS19-21,Projected CRS
+3248,WGS 84 / SCAR IMW SS25-27,Projected CRS
+3249,WGS 84 / SCAR IMW SS28-30,Projected CRS
+3250,WGS 84 / SCAR IMW SS31-33,Projected CRS
+3251,WGS 84 / SCAR IMW SS34-36,Projected CRS
+3252,WGS 84 / SCAR IMW SS37-39,Projected CRS
+3253,WGS 84 / SCAR IMW SS40-42,Projected CRS
+3254,WGS 84 / SCAR IMW SS43-45,Projected CRS
+3255,WGS 84 / SCAR IMW SS46-48,Projected CRS
+3256,WGS 84 / SCAR IMW SS49-51,Projected CRS
+3257,WGS 84 / SCAR IMW SS52-54,Projected CRS
+3258,WGS 84 / SCAR IMW SS55-57,Projected CRS
+3259,WGS 84 / SCAR IMW SS58-60,Projected CRS
+3260,WGS 84 / SCAR IMW ST01-04,Projected CRS
+3261,WGS 84 / SCAR IMW ST05-08,Projected CRS
+3262,WGS 84 / SCAR IMW ST09-12,Projected CRS
+3263,WGS 84 / SCAR IMW ST13-16,Projected CRS
+3264,WGS 84 / SCAR IMW ST17-20,Projected CRS
+3265,WGS 84 / SCAR IMW ST21-24,Projected CRS
+3266,WGS 84 / SCAR IMW ST25-28,Projected CRS
+3267,WGS 84 / SCAR IMW ST29-32,Projected CRS
+3268,WGS 84 / SCAR IMW ST33-36,Projected CRS
+3269,WGS 84 / SCAR IMW ST37-40,Projected CRS
+3270,WGS 84 / SCAR IMW ST41-44,Projected CRS
+3271,WGS 84 / SCAR IMW ST45-48,Projected CRS
+3272,WGS 84 / SCAR IMW ST49-52,Projected CRS
+3273,WGS 84 / SCAR IMW ST53-56,Projected CRS
+3274,WGS 84 / SCAR IMW ST57-60,Projected CRS
+3275,WGS 84 / SCAR IMW SU01-05,Projected CRS
+3276,WGS 84 / SCAR IMW SU06-10,Projected CRS
+3277,WGS 84 / SCAR IMW SU11-15,Projected CRS
+3278,WGS 84 / SCAR IMW SU16-20,Projected CRS
+3279,WGS 84 / SCAR IMW SU21-25,Projected CRS
+3280,WGS 84 / SCAR IMW SU26-30,Projected CRS
+3281,WGS 84 / SCAR IMW SU31-35,Projected CRS
+3282,WGS 84 / SCAR IMW SU36-40,Projected CRS
+3283,WGS 84 / SCAR IMW SU41-45,Projected CRS
+3284,WGS 84 / SCAR IMW SU46-50,Projected CRS
+3285,WGS 84 / SCAR IMW SU51-55,Projected CRS
+3286,WGS 84 / SCAR IMW SU56-60,Projected CRS
+3287,WGS 84 / SCAR IMW SV01-10,Projected CRS
+3288,WGS 84 / SCAR IMW SV11-20,Projected CRS
+3289,WGS 84 / SCAR IMW SV21-30,Projected CRS
+3290,WGS 84 / SCAR IMW SV31-40,Projected CRS
+3291,WGS 84 / SCAR IMW SV41-50,Projected CRS
+3292,WGS 84 / SCAR IMW SV51-60,Projected CRS
+3293,WGS 84 / SCAR IMW SW01-60,Projected CRS
+3294,WGS 84 / USGS Transantarctic Mountains,Projected CRS
+3395,WGS 84 / World Mercator,Projected CRS
+3413,WGS 84 / NSIDC Sea Ice Polar Stereographic North,Projected CRS
+3571,WGS 84 / North Pole LAEA Bering Sea,Projected CRS
+3572,WGS 84 / North Pole LAEA Alaska,Projected CRS
+3573,WGS 84 / North Pole LAEA Canada,Projected CRS
+3574,WGS 84 / North Pole LAEA Atlantic,Projected CRS
+3575,WGS 84 / North Pole LAEA Europe,Projected CRS
+3576,WGS 84 / North Pole LAEA Russia,Projected CRS
+3762,WGS 84 / South Georgia Lambert,Projected CRS
+3832,WGS 84 / PDC Mercator,Projected CRS
+3857,WGS 84 / Pseudo-Mercator,Projected CRS
+3976,WGS 84 / NSIDC Sea Ice Polar Stereographic South,Projected CRS
+3994,WGS 84 / Mercator 41,Projected CRS
+3995,WGS 84 / Arctic Polar Stereographic,Projected CRS
+3996,WGS 84 / IBCAO Polar Stereographic,Projected CRS
+3997,WGS 84 / Dubai Local TM,Projected CRS
+4037,WGS 84 / TMzn35N,Projected CRS
+4038,WGS 84 / TMzn36N,Projected CRS
+4087,WGS 84 / World Equidistant Cylindrical,Projected CRS
+4462,WGS 84 / Australian Centre for Remote Sensing Lambert,Projected CRS
+4826,WGS 84 / Cape Verde National,Projected CRS
+5041,"WGS 84 / UPS North (E,N)",Projected CRS
+5042,"WGS 84 / UPS South (E,N)",Projected CRS
+5223,WGS 84 / Gabon TM,Projected CRS
+5523,WGS 84 / Gabon TM 2011,Projected CRS
+5842,WGS 84 / TM 12 SE,Projected CRS
+5921,WGS 84 / EPSG Arctic Regional zone A1,Projected CRS
+5922,WGS 84 / EPSG Arctic Regional zone A2,Projected CRS
+5923,WGS 84 / EPSG Arctic Regional zone A3,Projected CRS
+5924,WGS 84 / EPSG Arctic Regional zone A4,Projected CRS
+5925,WGS 84 / EPSG Arctic Regional zone A5,Projected CRS
+5926,WGS 84 / EPSG Arctic Regional zone B1,Projected CRS
+5927,WGS 84 / EPSG Arctic Regional zone B2,Projected CRS
+5928,WGS 84 / EPSG Arctic Regional zone B3,Projected CRS
+5929,WGS 84 / EPSG Arctic Regional zone B4,Projected CRS
+5930,WGS 84 / EPSG Arctic Regional zone B5,Projected CRS
+5931,WGS 84 / EPSG Arctic Regional zone C1,Projected CRS
+5932,WGS 84 / EPSG Arctic Regional zone C2,Projected CRS
+5933,WGS 84 / EPSG Arctic Regional zone C3,Projected CRS
+5934,WGS 84 / EPSG Arctic Regional zone C4,Projected CRS
+5935,WGS 84 / EPSG Arctic Regional zone C5,Projected CRS
+5936,WGS 84 / EPSG Alaska Polar Stereographic,Projected CRS
+5937,WGS 84 / EPSG Canada Polar Stereographic,Projected CRS
+5938,WGS 84 / EPSG Greenland Polar Stereographic,Projected CRS
+5939,WGS 84 / EPSG Norway Polar Stereographic,Projected CRS
+5940,WGS 84 / EPSG Russia Polar Stereographic,Projected CRS
+6075,WGS 84 / EPSG Arctic zone 2-24,Projected CRS
+6076,WGS 84 / EPSG Arctic zone 2-26,Projected CRS
+6077,WGS 84 / EPSG Arctic zone 3-13,Projected CRS
+6078,WGS 84 / EPSG Arctic zone 3-15,Projected CRS
+6079,WGS 84 / EPSG Arctic zone 3-17,Projected CRS
+6080,WGS 84 / EPSG Arctic zone 3-19,Projected CRS
+6081,WGS 84 / EPSG Arctic zone 4-30,Projected CRS
+6082,WGS 84 / EPSG Arctic zone 4-32,Projected CRS
+6083,WGS 84 / EPSG Arctic zone 4-34,Projected CRS
+6084,WGS 84 / EPSG Arctic zone 4-36,Projected CRS
+6085,WGS 84 / EPSG Arctic zone 4-38,Projected CRS
+6086,WGS 84 / EPSG Arctic zone 4-40,Projected CRS
+6087,WGS 84 / EPSG Arctic zone 5-15,Projected CRS
+6088,WGS 84 / EPSG Arctic zone 5-17,Projected CRS
+6089,WGS 84 / EPSG Arctic zone 5-19,Projected CRS
+6090,WGS 84 / EPSG Arctic zone 5-21,Projected CRS
+6091,WGS 84 / EPSG Arctic zone 5-23,Projected CRS
+6092,WGS 84 / EPSG Arctic zone 5-25,Projected CRS
+6093,WGS 84 / EPSG Arctic zone 5-27,Projected CRS
+6115,WGS 84 / EPSG Arctic zone 1-27,Projected CRS
+6116,WGS 84 / EPSG Arctic zone 1-29,Projected CRS
+6117,WGS 84 / EPSG Arctic zone 1-31,Projected CRS
+6118,WGS 84 / EPSG Arctic zone 1-21,Projected CRS
+6119,WGS 84 / EPSG Arctic zone 2-28,Projected CRS
+6120,WGS 84 / EPSG Arctic zone 2-10,Projected CRS
+6121,WGS 84 / EPSG Arctic zone 2-12,Projected CRS
+6122,WGS 84 / EPSG Arctic zone 3-21,Projected CRS
+6123,WGS 84 / EPSG Arctic zone 3-23,Projected CRS
+6124,WGS 84 / EPSG Arctic zone 4-12,Projected CRS
+6703,WGS 84 / TM 60 SW,Projected CRS
+6720,WGS 84 / CIG92,Projected CRS
+6722,WGS 84 / CKIG92,Projected CRS
+6931,WGS 84 / NSIDC EASE-Grid 2.0 North,Projected CRS
+6932,WGS 84 / NSIDC EASE-Grid 2.0 South,Projected CRS
+6933,WGS 84 / NSIDC EASE-Grid 2.0 Global,Projected CRS
+7755,WGS 84 / India NSF LCC,Projected CRS
+7756,WGS 84 / Andhra Pradesh,Projected CRS
+7757,WGS 84 / Arunachal Pradesh,Projected CRS
+7758,WGS 84 / Assam,Projected CRS
+7759,WGS 84 / Bihar,Projected CRS
+7760,WGS 84 / Delhi,Projected CRS
+7761,WGS 84 / Gujarat,Projected CRS
+7762,WGS 84 / Haryana,Projected CRS
+7763,WGS 84 / Himachal Pradesh,Projected CRS
+7764,WGS 84 / Jammu and Kashmir,Projected CRS
+7765,WGS 84 / Jharkhand,Projected CRS
+7766,WGS 84 / Madhya Pradesh,Projected CRS
+7767,WGS 84 / Maharashtra,Projected CRS
+7768,WGS 84 / Manipur,Projected CRS
+7769,WGS 84 / Meghalaya,Projected CRS
+7770,WGS 84 / Nagaland,Projected CRS
+7771,WGS 84 / India Northeast,Projected CRS
+7772,WGS 84 / Orissa,Projected CRS
+7773,WGS 84 / Punjab,Projected CRS
+7774,WGS 84 / Rajasthan,Projected CRS
+7775,WGS 84 / Uttar Pradesh,Projected CRS
+7776,WGS 84 / Uttaranchal,Projected CRS
+7777,WGS 84 / Andaman and Nicobar,Projected CRS
+7778,WGS 84 / Chhattisgarh,Projected CRS
+7779,WGS 84 / Goa,Projected CRS
+7780,WGS 84 / Karnataka,Projected CRS
+7781,WGS 84 / Kerala,Projected CRS
+7782,WGS 84 / Lakshadweep,Projected CRS
+7783,WGS 84 / Mizoram,Projected CRS
+7784,WGS 84 / Sikkim,Projected CRS
+7785,WGS 84 / Tamil Nadu,Projected CRS
+7786,WGS 84 / Tripura,Projected CRS
+7787,WGS 84 / West Bengal,Projected CRS
+8035,WGS 84 / TM Zone 20N (ftUS),Projected CRS
+8036,WGS 84 / TM Zone 21N (ftUS),Projected CRS
+8857,WGS 84 / Equal Earth Greenwich,Projected CRS
+8858,WGS 84 / Equal Earth Americas,Projected CRS
+8859,WGS 84 / Equal Earth Asia-Pacific,Projected CRS
+9191,WGS 84 / NIWA Albers,Projected CRS
+9354,WGS 84 / IBCSO Polar Stereographic,Projected CRS
+9680,WGS 84 / TM 90 NE,Projected CRS
+10592,WGS 84 / GLANCE Africa,Projected CRS
+10594,WGS 84 / GLANCE Asia,Projected CRS
+10596,WGS 84 / GLANCE Europe,Projected CRS
+10598,WGS 84 / GLANCE North America,Projected CRS
+10601,WGS 84 / GLANCE Oceania,Projected CRS
+10603,WGS 84 / GLANCE South America,Projected CRS
+10820,WGS 84 / Agriculture Canada Albers,Projected CRS
+27701,WGS 84 / Equi7 Africa,Projected CRS
+27702,WGS 84 / Equi7 Antarctica,Projected CRS
+27703,WGS 84 / Equi7 Asia,Projected CRS
+27704,WGS 84 / Equi7 Europe,Projected CRS
+27705,WGS 84 / Equi7 North America,Projected CRS
+27706,WGS 84 / Equi7 Oceania,Projected CRS
+27707,WGS 84 / Equi7 South America,Projected CRS
+32600,WGS 84 / UTM grid system (northern hemisphere),Projected CRS
+32601,WGS 84 / UTM zone 1N,Projected CRS
+32602,WGS 84 / UTM zone 2N,Projected CRS
+32603,WGS 84 / UTM zone 3N,Projected CRS
+32604,WGS 84 / UTM zone 4N,Projected CRS
+32605,WGS 84 / UTM zone 5N,Projected CRS
+32606,WGS 84 / UTM zone 6N,Projected CRS
+32607,WGS 84 / UTM zone 7N,Projected CRS
+32608,WGS 84 / UTM zone 8N,Projected CRS
+32609,WGS 84 / UTM zone 9N,Projected CRS
+32610,WGS 84 / UTM zone 10N,Projected CRS
+32611,WGS 84 / UTM zone 11N,Projected CRS
+32612,WGS 84 / UTM zone 12N,Projected CRS
+32613,WGS 84 / UTM zone 13N,Projected CRS
+32614,WGS 84 / UTM zone 14N,Projected CRS
+32615,WGS 84 / UTM zone 15N,Projected CRS
+32616,WGS 84 / UTM zone 16N,Projected CRS
+32617,WGS 84 / UTM zone 17N,Projected CRS
+32618,WGS 84 / UTM zone 18N,Projected CRS
+32619,WGS 84 / UTM zone 19N,Projected CRS
+32620,WGS 84 / UTM zone 20N,Projected CRS
+32621,WGS 84 / UTM zone 21N,Projected CRS
+32622,WGS 84 / UTM zone 22N,Projected CRS
+32623,WGS 84 / UTM zone 23N,Projected CRS
+32624,WGS 84 / UTM zone 24N,Projected CRS
+32625,WGS 84 / UTM zone 25N,Projected CRS
+32626,WGS 84 / UTM zone 26N,Projected CRS
+32627,WGS 84 / UTM zone 27N,Projected CRS
+32628,WGS 84 / UTM zone 28N,Projected CRS
+32629,WGS 84 / UTM zone 29N,Projected CRS
+32630,WGS 84 / UTM zone 30N,Projected CRS
+32631,WGS 84 / UTM zone 31N,Projected CRS
+32632,WGS 84 / UTM zone 32N,Projected CRS
+32633,WGS 84 / UTM zone 33N,Projected CRS
+32634,WGS 84 / UTM zone 34N,Projected CRS
+32635,WGS 84 / UTM zone 35N,Projected CRS
+32636,WGS 84 / UTM zone 36N,Projected CRS
+32637,WGS 84 / UTM zone 37N,Projected CRS
+32638,WGS 84 / UTM zone 38N,Projected CRS
+32639,WGS 84 / UTM zone 39N,Projected CRS
+32640,WGS 84 / UTM zone 40N,Projected CRS
+32641,WGS 84 / UTM zone 41N,Projected CRS
+32642,WGS 84 / UTM zone 42N,Projected CRS
+32643,WGS 84 / UTM zone 43N,Projected CRS
+32644,WGS 84 / UTM zone 44N,Projected CRS
+32645,WGS 84 / UTM zone 45N,Projected CRS
+32646,WGS 84 / UTM zone 46N,Projected CRS
+32647,WGS 84 / UTM zone 47N,Projected CRS
+32648,WGS 84 / UTM zone 48N,Projected CRS
+32649,WGS 84 / UTM zone 49N,Projected CRS
+32650,WGS 84 / UTM zone 50N,Projected CRS
+32651,WGS 84 / UTM zone 51N,Projected CRS
+32652,WGS 84 / UTM zone 52N,Projected CRS
+32653,WGS 84 / UTM zone 53N,Projected CRS
+32654,WGS 84 / UTM zone 54N,Projected CRS
+32655,WGS 84 / UTM zone 55N,Projected CRS
+32656,WGS 84 / UTM zone 56N,Projected CRS
+32657,WGS 84 / UTM zone 57N,Projected CRS
+32658,WGS 84 / UTM zone 58N,Projected CRS
+32659,WGS 84 / UTM zone 59N,Projected CRS
+32660,WGS 84 / UTM zone 60N,Projected CRS
+32661,"WGS 84 / UPS North (N,E)",Projected CRS
+32664,WGS 84 / BLM 14N (ftUS),Projected CRS
+32665,WGS 84 / BLM 15N (ftUS),Projected CRS
+32666,WGS 84 / BLM 16N (ftUS),Projected CRS
+32667,WGS 84 / BLM 17N (ftUS),Projected CRS
+32700,WGS 84 / UTM grid system (southern hemisphere),Projected CRS
+32701,WGS 84 / UTM zone 1S,Projected CRS
+32702,WGS 84 / UTM zone 2S,Projected CRS
+32703,WGS 84 / UTM zone 3S,Projected CRS
+32704,WGS 84 / UTM zone 4S,Projected CRS
+32705,WGS 84 / UTM zone 5S,Projected CRS
+32706,WGS 84 / UTM zone 6S,Projected CRS
+32707,WGS 84 / UTM zone 7S,Projected CRS
+32708,WGS 84 / UTM zone 8S,Projected CRS
+32709,WGS 84 / UTM zone 9S,Projected CRS
+32710,WGS 84 / UTM zone 10S,Projected CRS
+32711,WGS 84 / UTM zone 11S,Projected CRS
+32712,WGS 84 / UTM zone 12S,Projected CRS
+32713,WGS 84 / UTM zone 13S,Projected CRS
+32714,WGS 84 / UTM zone 14S,Projected CRS
+32715,WGS 84 / UTM zone 15S,Projected CRS
+32716,WGS 84 / UTM zone 16S,Projected CRS
+32717,WGS 84 / UTM zone 17S,Projected CRS
+32718,WGS 84 / UTM zone 18S,Projected CRS
+32719,WGS 84 / UTM zone 19S,Projected CRS
+32720,WGS 84 / UTM zone 20S,Projected CRS
+32721,WGS 84 / UTM zone 21S,Projected CRS
+32722,WGS 84 / UTM zone 22S,Projected CRS
+32723,WGS 84 / UTM zone 23S,Projected CRS
+32724,WGS 84 / UTM zone 24S,Projected CRS
+32725,WGS 84 / UTM zone 25S,Projected CRS
+32726,WGS 84 / UTM zone 26S,Projected CRS
+32727,WGS 84 / UTM zone 27S,Projected CRS
+32728,WGS 84 / UTM zone 28S,Projected CRS
+32729,WGS 84 / UTM zone 29S,Projected CRS
+32730,WGS 84 / UTM zone 30S,Projected CRS
+32731,WGS 84 / UTM zone 31S,Projected CRS
+32732,WGS 84 / UTM zone 32S,Projected CRS
+32733,WGS 84 / UTM zone 33S,Projected CRS
+32734,WGS 84 / UTM zone 34S,Projected CRS
+32735,WGS 84 / UTM zone 35S,Projected CRS
+32736,WGS 84 / UTM zone 36S,Projected CRS
+32737,WGS 84 / UTM zone 37S,Projected CRS
+32738,WGS 84 / UTM zone 38S,Projected CRS
+32739,WGS 84 / UTM zone 39S,Projected CRS
+32740,WGS 84 / UTM zone 40S,Projected CRS
+32741,WGS 84 / UTM zone 41S,Projected CRS
+32742,WGS 84 / UTM zone 42S,Projected CRS
+32743,WGS 84 / UTM zone 43S,Projected CRS
+32744,WGS 84 / UTM zone 44S,Projected CRS
+32745,WGS 84 / UTM zone 45S,Projected CRS
+32746,WGS 84 / UTM zone 46S,Projected CRS
+32747,WGS 84 / UTM zone 47S,Projected CRS
+32748,WGS 84 / UTM zone 48S,Projected CRS
+32749,WGS 84 / UTM zone 49S,Projected CRS
+32750,WGS 84 / UTM zone 50S,Projected CRS
+32751,WGS 84 / UTM zone 51S,Projected CRS
+32752,WGS 84 / UTM zone 52S,Projected CRS
+32753,WGS 84 / UTM zone 53S,Projected CRS
+32754,WGS 84 / UTM zone 54S,Projected CRS
+32755,WGS 84 / UTM zone 55S,Projected CRS
+32756,WGS 84 / UTM zone 56S,Projected CRS
+32757,WGS 84 / UTM zone 57S,Projected CRS
+32758,WGS 84 / UTM zone 58S,Projected CRS
+32759,WGS 84 / UTM zone 59S,Projected CRS
+32760,WGS 84 / UTM zone 60S,Projected CRS
+32761,"WGS 84 / UPS South (N,E)",Projected CRS
+32766,WGS 84 / TM 36 SE,Projected CRS

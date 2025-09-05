@@ -165,17 +165,17 @@ for i in range(len(pos_fpaths)):
     
 
 #%%
-# model_item_num =1
-# t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
-# xq = np.asarray(adcp.position.x)
-# yq = np.asarray(adcp.position.y)
+model_item_num =1
+t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
+xq = np.asarray(adcp.position.x)
+yq = np.asarray(adcp.position.y)
 
-# Xq, Yq = mt_model._to_mesh_xy(xq, yq, adcp.position.epsg)
-# cx, cy = mt_model._centroids[:, 0], mt_model._centroids[:, 1]
-# fig,ax = PlottingShell.subplots()
-# ax.scatter(cx,cy, s = 0.1)
-# ax.plot(Xq,Yq, c = 'red', lw = 10)
-# ax.set_aspect('equal')
+Xq, Yq = mt_model._to_mesh_xy(xq, yq, adcp.position.epsg)
+cx, cy = mt_model._centroids[:, 0], mt_model._centroids[:, 1]
+fig,ax = PlottingShell.subplots()
+ax.scatter(cx,cy, s = 0.1)
+ax.plot(Xq,Yq, c = 'red', lw = 10)
+ax.set_aspect('equal')
 
 
 # vals = mt_model.extract_transect_idw(xq=xq,
@@ -1442,9 +1442,9 @@ def animate_bbox_timeseries(
 
 
 #%%
-dsa
-bbox = (103.95, 104.09, 1.30, 1.42)
-
+#dsa
+#bbox = (103.95, 104.09, 1.30, 1.42)
+bbox = (cx.min(), cx.max(),cy.min(),cy.max())
 out = mt_model.rasterize_bbox_timeseries(
     item_number=1,
     bbox=bbox,
@@ -1454,7 +1454,7 @@ out = mt_model.rasterize_bbox_timeseries(
     times=mt_model.model_times,
     pad=0.0,
     as_stack=True,
-    input_crs = adcp.position.epsg
+    output_crs = adcp.position.epsg
 )
 
 out['frames'] = out['frames']*1000
@@ -1462,7 +1462,10 @@ out['frames'] = out['frames']*1000
 #%%
 # Optional shapefile layers (reuse your existing style spec)
 shp_layers = [
-    {"path": r'/Users/anba/Downloads/v20250509/v20250509/RD7550_CEx_SG_v20250509.shp', "type": "polygon", "edgecolor": "#222", "linewidth": 1.0,
+    {"path": r'/Users/anba/Downloads/v20250509/v20250509/RD7550_CEx_SG_v20250509.shp',
+     "type": "polygon",
+     "edgecolor": "#222",
+     "linewidth": 1.0,
      "fill_color": "lightgray", "fill_alpha": 1.0}
 ]
 
@@ -1474,7 +1477,7 @@ fig, ani = animate_bbox_timeseries(
     interval=5,
     figsize=(4,4),
     dpi=100,
-    gif_path=None,#r'C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\model_gif_test.gif', 
+    gif_path=r'C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\model_gif_test2.gif', 
     fps = 8,            # e.g., "model_anim.gif" to export
 )
 

@@ -232,6 +232,6 @@ def Dfs2_to_Dfsu(in_path, out_path, *, show_qt_progress: bool = False):
 
 if __name__ == '__main__':
     in_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/MTD20241002.dfs2'
-    out_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test3.dfsu'
+    out_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test4.dfsu'
 
     Dfs2_to_Dfsu(in_path, out_path)
