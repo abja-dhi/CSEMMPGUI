@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "LIiONE9EtWY=",
+  "dgSpecHash": "GeH6oqM6l8A=",
   "success": true,
   "projectFilePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
   "expectedPackageFiles": [
@@ -17,6 +17,9 @@
     "C:\\Users\\abja\\.nuget\\packages\\dhi.mikecore\\23.0.3\\dhi.mikecore.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.pfs\\23.0.3\\dhi.pfs.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.projections\\23.0.3\\dhi.projections.23.0.3.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\gdal\\3.11.3\\gdal.3.11.3.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\gdal.core\\1.0.0\\gdal.core.1.0.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\gdal.native\\3.11.3\\gdal.native.3.11.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",

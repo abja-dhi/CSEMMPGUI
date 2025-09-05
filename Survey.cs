@@ -132,6 +132,7 @@ namespace CSEMMPGUI_v1
             int status = Save();
             FillTree();
             isSaved = true;
+            mode = 1; // Switch to edit mode after saving
         }
 
         private void menuExit_Click(object sender, EventArgs e)

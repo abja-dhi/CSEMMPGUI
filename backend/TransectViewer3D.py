@@ -887,7 +887,7 @@ if __name__ == "__main__":
         "field_name": "absolute_backscatter",
         "vmin": None,
         "vmax": None,
-        "zscale": 3.0,
+        "zscale": 3.0,          # vertical exaggeration
         "pad_deg": 0.03,
         "grid_lines": 10,
         "grid_opacity": 0.35,
@@ -906,6 +906,6 @@ if __name__ == "__main__":
     viewer = TransectViewer3D(inputs)
     fig = viewer.render()
     # Save HTML with north arrow overlay
-    viewer.save_html(auto_open=True)
+    viewer.save_html(auto_open=False)
     # Or just show in a browser tab:
     # fig.show()

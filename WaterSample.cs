@@ -525,6 +525,7 @@ namespace CSEMMPGUI_v1
             else
                 UPDATE();
             isSaved = true;
+            mode = 1;
             return 1;
         }
 

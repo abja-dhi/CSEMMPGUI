@@ -565,19 +565,29 @@ if __name__ == "__main__":
         "shp": [
             {
                 "path": r"C:/Users/anba/Downloads/v20250509/v20250509/RD7550_CEx_SG_v20250509.shp",
+<<<<<<< Updated upstream
                 "type": "line", "color": "limegreen", "width": 1,
                 "label": "Channel", "label_fontsize": 11, "label_color": "#cccccc",
+=======
+                "type": "line",
+                "color": "limegreen",
+                "width": 0.5,
+>>>>>>> Stashed changes
             },
             {
                 "path": r"C:/Users/anba/Downloads/v20250509/v20250509/points_labels.shp",
                 "type": "point",
-                "color": "#FFD166", "markersize": 6,
-                "text_attr": None, "label": "Source Location", "label_fontsize": 11, "label_color": "pink",
+                "color": "#FFD166",
+                "markersize": 6,
+                "label": "Source Location",
+                "label_fontsize": 11,
+                "label_color": "pink",
             },
         ],
         "cmap": "jet",
         "field_name": "absolute_backscatter",
         "vmin": None,
+<<<<<<< Updated upstream
         "vmax": -60,
         "pad_deg": 0.03,
         "grid_lines": 10,
@@ -598,9 +608,30 @@ if __name__ == "__main__":
         "beam": 'mean', # beam 1-4 or "mean
             
         },
+=======
+        "vmax": None,
+        "pad_deg": 0.03,        # Pad on the bounding box on all the transects. Defines the margin to the edges of the figure.
+        "grid_lines": 10,       # Number of grid lines in each direction (lon, lat).
+        "grid_opacity": 0.35,   # Opacity of the grid lines.
+        "grid_color": "#333",   # Color of the grid lines.
+        "grid_width": 1,        # Width of the grid lines.
+        "bgcolor": "black",     # Background color of the plot.
+        "axis_ticks": 7,        # Number of ticks on each axis.
+        "tick_fontsize": 10,    # Font size of the axis ticks.
+        "tick_decimals": 4,   # Number of decimals for the axis tick labels.
+        "axis_label_fontsize": 12,  # Font size of the axis labels.
+        "axis_label_color": "#cccccc",  # Color of the axis labels.
+        "hover_fontsize": 9,    # Font size of the hover labels.
+        "transect_line_width": 3.0, # Width of the transect lines. (Max = 4)
+        "vertical_agg": {
+                "method": "mean",  # or "bin"/"range(depth)/hab", plus target/beam/agg as needed
+                "target": 5, # targed bin,range or hab
+                "beam": "mean", # beam 1-4 or "mean"
+            },
+>>>>>>> Stashed changes
         "out": r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\adcp_transects_2d.html",
     }
 
     viewer = TransectViewer2D(inputs)
     fig = viewer.render()
-    viewer.save_html(auto_open=True)
+    viewer.save_html(auto_open=False)

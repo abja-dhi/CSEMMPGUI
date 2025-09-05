@@ -90,7 +90,7 @@ namespace CSEMMPGUI_v1
             this.Load += async (s, e) =>
             {
                 await webView.EnsureCoreWebView2Async();
-                webView.Source = new Uri(@"C:\Users\abja\Downloads\test_w_shapefile 1.html");
+                webView.Source = new Uri(Path.Combine(_Globals.basePath, "load_data_message.html"));
             };
 
         }
@@ -254,7 +254,7 @@ namespace CSEMMPGUI_v1
 
         private void menuAddModel_Click(object sender, EventArgs e)
         {
-            Model addModel = new Model(null);
+            ModelMT addModel = new ModelMT(null);
             addModel.ShowDialog();
             FillTree(); // Refresh the tree view after adding a model
         }
@@ -264,12 +264,6 @@ namespace CSEMMPGUI_v1
             SSCModel addSSCModel = new SSCModel(null);
             addSSCModel.ShowDialog();
             FillTree(); // Refresh the tree view after adding a model
-        }
-
-        private void processPositionFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ViSea_Extern viSea_Extern = new();
-            viSea_Extern.ShowDialog();
         }
 
         private void menuAboutUs_Click(object sender, EventArgs e)
@@ -311,9 +305,13 @@ namespace CSEMMPGUI_v1
                         Survey editSurvey = new Survey(xmlNode);
                         editSurvey.ShowDialog();
                         break;
-                    case "Model":
-                        Model editModel = new Model(xmlNode);
-                        editModel.ShowDialog();
+                    case "HDModel":
+                        ModelHD editHDModel = new ModelHD(xmlNode);
+                        editHDModel.ShowDialog();
+                        break;
+                    case "MTDModel":
+                        ModelMT editMTModel = new ModelMT(xmlNode);
+                        editMTModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
                         VesselMountedADCP editVesselMountedADCP = new VesselMountedADCP(null, xmlNode);
@@ -355,9 +353,13 @@ namespace CSEMMPGUI_v1
                         Survey editSurvey = new Survey(xmlNode);
                         editSurvey.ShowDialog();
                         break;
-                    case "Model":
-                        Model editModel = new Model(xmlNode);
-                        editModel.ShowDialog();
+                    case "HDModel":
+                        ModelHD editHDModel = new ModelHD(xmlNode);
+                        editHDModel.ShowDialog();
+                        break;
+                    case "MTDModel":
+                        ModelMT editMTModel = new ModelMT(xmlNode);
+                        editMTModel.ShowDialog();
                         break;
                     case "VesselMountedADCP":
                         VesselMountedADCP editVesselMountedADCP = new VesselMountedADCP(null, xmlNode);
@@ -400,9 +402,13 @@ namespace CSEMMPGUI_v1
                         MessageBox.Show($"Plotting survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         // Implement survey opening logic here
                         break;
-                    case "Model":
-                        ModelPlot modelPlot = new ModelPlot(id);
-                        modelPlot.Show();
+                    case "HDModel":
+                        ModelPlot modelHDPlot = new ModelPlot(id);
+                        modelHDPlot.Show();
+                        break;
+                    case "MTModel":
+                        ModelPlot modelMTPlot = new ModelPlot(id);
+                        modelMTPlot.Show();
                         break;
                     case "VesselMountedADCP":
                         VesselMountedADCPPlot vesselMountedADCPPlot = new VesselMountedADCPPlot(id);

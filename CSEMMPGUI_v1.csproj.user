@@ -4,10 +4,19 @@
     <Compile Update="Debugger.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Model.cs">
+    <Compile Update="MapOptions.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="ModelPlot.cs">
+    <Compile Update="ModelHD.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ModelHDPlot.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ModelMT.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ModelMTPlot.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="OBSVerticalProfile.cs">
@@ -44,9 +53,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="VesselMountedADCPPrintConfig.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UtilsViSea Extern.dat to CSV.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

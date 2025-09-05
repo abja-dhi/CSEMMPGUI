@@ -134,8 +134,7 @@ class Utils:
         
         fname = filepath.replace(".dat", ".csv")
         if os.path.exists(fname):
-            print(f"File {fname} already exists, skipping.")
-            return 1
+            return f"File {fname} already exists, skipping."
         try:
             df = pd.read_fwf(filepath, colspecs=colspecs, names=column_names)
             df = df.iloc[1:]  # drop header row
@@ -158,14 +157,12 @@ class Utils:
 
             try:
                 df.to_csv(fname, index_label="DateTime")
-                return 0
+                return True
             except Exception as e:
-                print(f"Failed to save {fname}: {e}")
-                return -1
+                return f"Failed to save {fname}: {e}"
 
         except Exception as e:
-            print(f"Failed to read {filepath}: {e}")
-            return -1
+            return f"Failed to read {filepath}: {e}"
 
 
     def extern_to_csv_batch(directory):
@@ -180,10 +177,8 @@ class Utils:
         n_success = 0
         n_failed = 0
         n_already_converted = 0
-        print(f"Identifying extern.dat files within {directory}")
         files = [str(p) for p in Path(directory).rglob("*extern.dat")]
-        print(f"Identified {len(files)} files. Parsing...")
-
+        
         colspecs = [
             (1, 11), (12, 25), (27, 50), (50, 70), (70, 93),
             (112, 135), (135, 162), (162, 170), (170, 195), (195, 220)
@@ -196,7 +191,6 @@ class Utils:
         for file in files:
             fname = file.replace(".dat", ".csv")
             if os.path.exists(fname):
-                print(f"File {fname} already exists, skipping.")
                 n_already_converted += 1
                 continue
             try:
@@ -223,11 +217,9 @@ class Utils:
                     df.to_csv(fname, index_label="DateTime")
                     n_success += 1
                 except Exception as e:
-                    print(f"Failed to save {fname}: {e}")
                     n_failed += 1
 
             except Exception as e:
-                print(f"Failed to read {file}: {e}")
                 n_failed += 1
         return n_success, n_failed, n_already_converted
 
