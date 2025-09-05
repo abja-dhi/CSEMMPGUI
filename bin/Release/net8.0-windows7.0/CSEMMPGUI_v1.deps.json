@@ -10,6 +10,8 @@
         "dependencies": {
           "CsvHelper": "33.1.0",
           "DHI.MikeCore": "23.0.3",
+          "GDAL.Native": "3.11.3",
+          "Gdal.Core": "1.0.0",
           "Microsoft.Web.WebView2": "1.0.3405.78",
           "WindowsAPICodePack-Shell": "1.1.1",
           "pythonnet": "3.0.5",
@@ -243,6 +245,91 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           }
+        }
+      },
+      "GDAL/3.11.3": {
+        "runtime": {
+          "lib/netstandard2.0/gdal_csharp.dll": {
+            "assemblyVersion": "3.11.3.0",
+            "fileVersion": "3.11.3.0"
+          },
+          "lib/netstandard2.0/gdalconst_csharp.dll": {
+            "assemblyVersion": "3.11.3.0",
+            "fileVersion": "3.11.3.0"
+          },
+          "lib/netstandard2.0/ogr_csharp.dll": {
+            "assemblyVersion": "3.11.3.0",
+            "fileVersion": "3.11.3.0"
+          },
+          "lib/netstandard2.0/osr_csharp.dll": {
+            "assemblyVersion": "3.11.3.0",
+            "fileVersion": "3.11.3.0"
+          }
+        }
+      },
+      "Gdal.Core/1.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/Gdal.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/linux-x64/native/gdal_wrap.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/gdalconst_wrap.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libgdal.so.20": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/ogr_wrap.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/osr_wrap.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win10-x64/native/gdal202.dll": {
+            "rid": "win10-x64",
+            "assetType": "native",
+            "fileVersion": "2.3.0.0"
+          },
+          "runtimes/win10-x64/native/gdal_wrap.dll": {
+            "rid": "win10-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win10-x64/native/gdalconst_wrap.dll": {
+            "rid": "win10-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win10-x64/native/ogr_wrap.dll": {
+            "rid": "win10-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win10-x64/native/osr_wrap.dll": {
+            "rid": "win10-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "GDAL.Native/3.11.3": {
+        "dependencies": {
+          "GDAL": "3.11.3"
         }
       },
       "Microsoft.CSharp/4.7.0": {},
@@ -1096,6 +1183,27 @@
       "sha512": "sha512-RQ5vK2efKIxx2WdrJTUTkHZvO8ntL4xzyS7yoeESR5IX+WKpbG/IrX4XTsm9BqbWV81DM7G8ChReORWbycT9fA==",
       "path": "dhi.projections/23.0.3",
       "hashPath": "dhi.projections.23.0.3.nupkg.sha512"
+    },
+    "GDAL/3.11.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rvQKEJTCc81xVyIe2o5NcN3JrUTOfJ72C18RqA9VzZY7gSzM6mvKlS+OvUNzePCQUZjPJ0znbJXqqRFzSNgDpg==",
+      "path": "gdal/3.11.3",
+      "hashPath": "gdal.3.11.3.nupkg.sha512"
+    },
+    "Gdal.Core/1.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Bbo5jKeDvxDrqEVszn3SMM+QyUrV4n+P9kmbwkSJoCIK45JdHOP1y/VZKSyk7Kyeu77RqBFruhR51GuHJJ28vg==",
+      "path": "gdal.core/1.0.0",
+      "hashPath": "gdal.core.1.0.0.nupkg.sha512"
+    },
+    "GDAL.Native/3.11.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-7mKQLsa6xPZ5kLWw3pgJ1kjjH7GW6Y1wj3WpfSXuU2kJvzTqtPnyvM7jzRBzEp+HNhN1Tl23HfCvuIhw9HwrsA==",
+      "path": "gdal.native/3.11.3",
+      "hashPath": "gdal.native.3.11.3.nupkg.sha512"
     },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",

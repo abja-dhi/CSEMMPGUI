@@ -32,7 +32,10 @@ def LoadPd0(filepath):
 
 def Extern2CSVSingle(filepath):
     result = Utils.extern_to_csv_single(filepath)
-    return {"Result": result} # 1: already converted, 0: success, -1: failed
+    if not result:
+        return {"Error": result} # 1: already converted, 0: success, -1: failed
+    else:
+        return {"Result": "Success"}
     
 def Extern2CSVBatch(folderpath):
     result = Utils.extern_to_csv_batch(folderpath)
@@ -40,6 +43,9 @@ def Extern2CSVBatch(folderpath):
     n_failed = result[1]
     n_already_converted = result[2]
     return {"NSuccess": n_success, "NFailed": n_failed, "NAlreadyConverted": n_already_converted}
+
+def Dfs2ToDfsu(filepath):
+    result = Utils.dfs2_to_dfsu(filepath)
 
 def ViSeaSample2CSV(filepath):
     try:

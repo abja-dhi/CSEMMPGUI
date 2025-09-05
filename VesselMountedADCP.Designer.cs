@@ -35,6 +35,9 @@
             menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
+            utilitiesToolStripMenuItem = new ToolStripMenuItem();
+            menuExtern2CSV = new ToolStripMenuItem();
+            menuBatchExtern2CSV = new ToolStripMenuItem();
             lblPD0File = new Label();
             lblPositionFile = new Label();
             txtPD0Path = new TextBox();
@@ -183,7 +186,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { menuFile });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { menuFile, utilitiesToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1094, 24);
@@ -209,6 +212,7 @@
             menuSave.Name = "menuSave";
             menuSave.Size = new Size(107, 22);
             menuSave.Text = "Save...";
+            menuSave.Visible = false;
             menuSave.Click += menuSave_Click;
             // 
             // menuExit
@@ -217,6 +221,27 @@
             menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
+            // 
+            // utilitiesToolStripMenuItem
+            // 
+            utilitiesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuExtern2CSV, menuBatchExtern2CSV });
+            utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
+            utilitiesToolStripMenuItem.Size = new Size(58, 20);
+            utilitiesToolStripMenuItem.Text = "Utilities";
+            // 
+            // menuExtern2CSV
+            // 
+            menuExtern2CSV.Name = "menuExtern2CSV";
+            menuExtern2CSV.Size = new Size(229, 22);
+            menuExtern2CSV.Text = "ViSea Extern.dat to CSV";
+            menuExtern2CSV.Click += menuExtern2CSV_Click;
+            // 
+            // menuBatchExtern2CSV
+            // 
+            menuBatchExtern2CSV.Name = "menuBatchExtern2CSV";
+            menuBatchExtern2CSV.Size = new Size(229, 22);
+            menuBatchExtern2CSV.Text = "Batch ViSea Extern.dat to CSV";
+            menuBatchExtern2CSV.Click += menuBatchExtern2CSV_Click;
             // 
             // lblPD0File
             // 
@@ -1962,5 +1987,8 @@
         private TextBox txtPitch;
         private TextBox txtRoll;
         private ToolTip toolTip;
+        private ToolStripMenuItem utilitiesToolStripMenuItem;
+        private ToolStripMenuItem menuExtern2CSV;
+        private ToolStripMenuItem menuBatchExtern2CSV;
     }
 }

@@ -640,8 +640,8 @@ class XMLUtils:
 
 #%%
 
-xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
-project = XMLUtils(xml_path)
+# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
+# project = XMLUtils(xml_path)
 
 
 
@@ -653,10 +653,10 @@ project = XMLUtils(xml_path)
 
 
 
-adcp_cfgs = project.get_survey_adcp_cfgs("Survey 1")
-obs_cfgs = project.get_survey_obs_cfgs("Survey 1")
-ws_elems  = project.get_survey_ws_elems("Survey 2")
+# adcp_cfgs = project.get_survey_adcp_cfgs("Survey 1")
+# obs_cfgs = project.get_survey_obs_cfgs("Survey 1")
+# ws_elems  = project.get_survey_ws_elems("Survey 2")
 
 
-ws = WaterSampleDataset(ws_elems[0])
+# ws = WaterSampleDataset(ws_elems[0])
 

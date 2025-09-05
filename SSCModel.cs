@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics.Metrics;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -406,17 +407,20 @@ namespace CSEMMPGUI_v1
         private void CreateSSCModel()
         {
             TreeView tree;
+            string label;
             if (rbNTU2SSC.Checked)
             {
                 sscElement = _Globals.Config.CreateElement("NTU2SSC");
                 modelType = "NTU2SSC";
                 tree = treeNTU2SSC;
+                label = "NTU";
             }
             else
             {
                 sscElement = _Globals.Config.CreateElement("BKS2SSC");
                 modelType = "BKS2SSC";
                 tree = treeBKS2SSC;
+                label = "AbsoluteBackscatter";
             }
             sscElement.SetAttribute("name", txtModelName.Text);
             sscElement.SetAttribute("type", modelType);
@@ -456,7 +460,6 @@ namespace CSEMMPGUI_v1
                         }
                     }
                 }
-                MessageBox.Show(sscElement.OuterXml.ToString());
                 Dictionary<string, string> inputs = null;
                 inputs = new Dictionary<string, string>
                 {
@@ -484,12 +487,26 @@ namespace CSEMMPGUI_v1
                 XmlElement r2Element = _Globals.Config.CreateElement("R2");
                 r2Element.InnerText = outputs["R2"];
                 sscElement.AppendChild(r2Element);
+                XmlElement Data = _Globals.Config.CreateElement("Data");
+                double[] sscs = ParseArray(outputs["SSC"]);
+                double[] data = ParseArray(outputs[label]);
+                for (int i = 0; i < sscs.Length; i++)
+                {
+                    XmlElement point = _Globals.Config.CreateElement("Point");
+                    XmlElement sscValue = _Globals.Config.CreateElement("SSC");
+                    sscValue.InnerText = sscs[i].ToString();
+                    point.AppendChild(sscValue);
+                    XmlElement dataValue = _Globals.Config.CreateElement(label);
+                    dataValue.InnerText = data[i].ToString();
+                    point.AppendChild(dataValue);
+                    Data.AppendChild(point);
+                }
+                sscElement.AppendChild(Data);
                 XmlElement root = _Globals.Config.CreateElement("Pairs");
                 var matches = Regex.Matches(outputs["Pairs"], @"\{([^}]+)\}");
                 foreach (Match match in matches)
                 {
                     XmlElement pair = _Globals.Config.CreateElement("Pair");
-                    pair.InnerText = match.Groups[1].Value;
                     var kvs = Regex.Matches(match.Value, @"'([^']+)'\s*:\s*'([^']+)'");
                     foreach (Match kv in kvs)
                     {
@@ -505,6 +522,14 @@ namespace CSEMMPGUI_v1
             }
         }
 
+        static double[] ParseArray(string raw)
+        {
+            return raw
+                .Trim('[', ']')                                // remove brackets
+                .Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => double.Parse(s, CultureInfo.InvariantCulture))
+                .ToArray();
+        }
         private void SAVE()
         {
             CreateSSCModel();
@@ -521,15 +546,18 @@ namespace CSEMMPGUI_v1
         private void UPDATE()
         {
             TreeView tree;
+            string label;
             if (rbNTU2SSC.Checked)
             {
                 modelType = "NTU2SSC";
                 tree = treeNTU2SSC;
+                label = "NTU";
             }
             else
             {
                 modelType = "BKS2SSC";
                 tree = treeBKS2SSC;
+                label = "AbsoluteBackscatter";
             }
             sscElement.SetAttribute("name", txtModelName.Text);
             XmlNode? modeNode = sscElement.SelectSingleNode("Mode");
@@ -602,12 +630,26 @@ namespace CSEMMPGUI_v1
                 XmlElement r2Element = _Globals.Config.CreateElement("R2");
                 r2Element.InnerText = outputs["R2"];
                 sscElement.AppendChild(r2Element);
+                XmlElement Data = _Globals.Config.CreateElement("Data");
+                double[] sscs = ParseArray(outputs["SSC"]);
+                double[] data = ParseArray(outputs[label]);
+                for (int i = 0; i < sscs.Length; i++)
+                {
+                    XmlElement point = _Globals.Config.CreateElement("Point");
+                    XmlElement sscValue = _Globals.Config.CreateElement("SSC");
+                    sscValue.InnerText = sscs[i].ToString();
+                    point.AppendChild(sscValue);
+                    XmlElement dataValue = _Globals.Config.CreateElement(label);
+                    dataValue.InnerText = data[i].ToString();
+                    point.AppendChild(dataValue);
+                    Data.AppendChild(point);
+                }
+                sscElement.AppendChild(Data);
                 XmlElement root = _Globals.Config.CreateElement("Pairs");
                 var matches = Regex.Matches(outputs["Pairs"], @"\{([^}]+)\}");
                 foreach (Match match in matches)
                 {
                     XmlElement pair = _Globals.Config.CreateElement("Pair");
-                    pair.InnerText = match.Groups[1].Value;
                     var kvs = Regex.Matches(match.Value, @"'([^']+)'\s*:\s*'([^']+)'");
                     foreach (Match kv in kvs)
                     {

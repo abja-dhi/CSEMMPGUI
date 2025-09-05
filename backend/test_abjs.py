@@ -823,8 +823,8 @@ def nearest_merge_depth_first(
 
 
 if __name__ == "__main__":
-    tree = ET.parse(source=r"C:\Users\abja\OneDrive - DHI\61803553-05 EMMP Support Group\github\CSEMMPGUI\tests\New Project.mtproj")
+    tree = ET.parse(source=r"C:\Users\abja\AppData\Roaming\PlumeTrack\Untitiled-Project.mtproj")
     project = tree.getroot()
-    sscmodel = find_element(project, 60, "BKS2SSC")
-    result = BKS2SSCModel(project, sscmodel)
+    sscmodel = find_element(project, 21, "NTU2SSC")
+    result = NTU2SSCModel(project, sscmodel)
     print(GenerateOutputXML(result))

@@ -260,6 +260,7 @@ namespace CSEMMPGUI_v1
             {
                 surveyManager = _surveyManager;
                 InitializeADCP();
+                menuSave.Visible = false;
                 mode = 0; // New ADCP
                 this.Text = "Add Vessel Mounted ADCP";
             }
@@ -268,6 +269,7 @@ namespace CSEMMPGUI_v1
                 adcpElement = adcpNode as XmlElement;
                 PopulateADCP();
                 menuNew.Visible = false;
+                menuSave.Visible = true;
                 tableMode.Visible = false;
                 rbSingle.Checked = true; // Default to single file mode
                 mode = 1; // Edit ADCP
@@ -369,6 +371,53 @@ namespace CSEMMPGUI_v1
                 {
                     e.Cancel = true; // Cancel the closing event
                 }
+            }
+        }
+
+        private void menuExtern2CSV_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "ViSea Position extern.dat (*extern.dat)|*extern.dat";
+            ofd.Title = "Select ViSea Position File";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                var input = new Dictionary<string, string>
+                {
+                    {"Task", "Extern2CSVSingle" },
+                    {"Path", _Utils.GetFullPath(ofd.FileName) }
+                };
+                string xmlInput = _Tools.GenerateInput(input);
+                XmlDocument doc = _Tools.CallPython(xmlInput);
+                Dictionary<string, string> output = _Tools.ParseOutput(doc);
+                if (output.ContainsKey("Error"))
+                {
+                    MessageBox.Show(output["Error"], "Import Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else
+                {
+                    MessageBox.Show("File converted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void menuBatchExtern2CSV_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog ofd = new FolderBrowserDialog();
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                var input = new Dictionary<string, string>
+                {
+                    {"Task", "Extern2CSVBatch" },
+                    {"Path", _Utils.GetFullPath(ofd.SelectedPath) }
+                };
+                string xmlInput = _Tools.GenerateInput(input);
+                XmlDocument doc = _Tools.CallPython(xmlInput);
+                Dictionary<string, string> output = _Tools.ParseOutput(doc);
+                string nSuccess = output["NSuccess"];
+                string nFailed = output["NFailed"];
+                string nAlredyConverted = output["NAlreadyConverted"];
+                MessageBox.Show($"Batch conversion completed.\n\nSuccessful: {nSuccess}\nFailed: {nFailed}\nAlready Converted: {nAlredyConverted}", "Batch Conversion", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1043,7 +1092,7 @@ namespace CSEMMPGUI_v1
                 positionColumns.AppendChild(column);
             }
             position.AppendChild(positionColumns);
-            
+
             XmlElement header = project.CreateElement("Header");
             header.InnerText = _headerLine.ToString();
             position.AppendChild(header);
@@ -1238,7 +1287,7 @@ namespace CSEMMPGUI_v1
 
         private void VesselMountedADCP_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control && e.KeyCode == Keys.S) // Ctrl + S
+            if (e.Control && e.KeyCode == Keys.S && mode == 1) // Ctrl + S
             {
                 e.SuppressKeyPress = true; // Prevent default behavior
                 SaveADCP(); // Save the project
@@ -1252,7 +1301,5 @@ namespace CSEMMPGUI_v1
                 }
             }
         }
-
-        
     }
 }

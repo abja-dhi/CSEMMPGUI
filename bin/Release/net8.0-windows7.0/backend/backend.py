@@ -26,6 +26,10 @@ def Call(XML):
         filepath = root.find("Path").text
         results = ViSeaSample2CSV(filepath)
 
+    elif task_type == "Dfs2ToDfsu":
+        filepath = root.find("Path").text
+        results = Dfs2ToDfsu(filepath)
+
     elif task_type == "GetColumnsFromCSV":
         filepath = root.find("Path").text
         header = int(root.find("Header").text)

@@ -58,6 +58,14 @@
               "target": "Package",
               "version": "[23.0.3, )"
             },
+            "GDAL.Native": {
+              "target": "Package",
+              "version": "[3.11.3, )"
+            },
+            "Gdal.Core": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
             "Microsoft.Web.WebView2": {
               "target": "Package",
               "version": "[1.0.3405.78, )"
