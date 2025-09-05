@@ -6,6 +6,7 @@
 import numpy as np
 from scipy.spatial import cKDTree
 from mikecore.DfsuFile import DfsuFile
+from mikecore.eum import eumUnit
 from pyproj import CRS, Transformer
 
 
@@ -65,9 +66,8 @@ class DfsuUtils2D:
 
         # CRS (use MIKE token/WKT → pyproj CRS). Hemisphere set explicitly.
         proj_token = self.dfsu.Projection.WKTString
-        self._mesh_crs = crs_from_mike_token(proj_token, hemisphere="south")
+        self._mesh_crs = crs_from_mike_token(proj_token, hemisphere="north")
         self._is_geographic = self._mesh_crs.is_geographic
-
 
     # ---------- props ----------
     @property
@@ -93,6 +93,62 @@ class DfsuUtils2D:
     def elements_nodes(self):
         """(list_of_arrays_0based, nverts_per_element)."""
         return self._elt_nodes, self._nverts
+
+    # ---------- unit helpers ----------
+    def _item_unit(self, item_number: int) -> eumUnit:
+        return eumUnit(int(self.dfsu.ItemInfo[item_number - 1].Quantity.Unit))
+
+    def _to_eum_unit(self, u) -> eumUnit:
+        if isinstance(u, eumUnit): return u
+        if isinstance(u, (int, np.integer)): return eumUnit(int(u))
+        s = str(u).strip().lower().replace(" ", "")
+        aliases = {
+            "g/l":  eumUnit.eumUgramPerLitre,
+            "kg/m3": eumUnit.eumUkilogramPerCubicMeter,
+            "g/m3":  eumUnit.eumUgramPerCubicMeter,
+            "mg/l":  eumUnit.eumUmilligramPerLitre,
+            "m/s":   eumUnit.eumUMeterPerSecond,
+            "cm/s":  eumUnit.eumUCentimeterPerSecond,
+            "m":     eumUnit.eumUMeter,
+            "cm":    eumUnit.eumUCentiMeter,
+            "k":     eumUnit.eumUKelvin,
+            "degc":  eumUnit.eumUDegreeCelsius,
+            "c":     eumUnit.eumUDegreeCelsius,
+            "psu":   eumUnit.eumUPSU,
+        }
+        if s in aliases:
+            return aliases[s]
+        raise ValueError(f"Unknown unit spec: {u}")
+
+    def _convert_array(self, x: np.ndarray, src: eumUnit, dst: eumUnit) -> np.ndarray:
+        if src == dst:
+            return x
+        a, b = None, 0.0
+
+        # velocity
+        if src == eumUnit.eumUCentimeterPerSecond and dst == eumUnit.eumUMeterPerSecond: a = 0.01
+        if src == eumUnit.eumUMeterPerSecond and dst == eumUnit.eumUCentimeterPerSecond: a = 100.0
+
+        # length
+        if src == eumUnit.eumUCentiMeter and dst == eumUnit.eumUMeter: a = 0.01
+        if src == eumUnit.eumUMeter and dst == eumUnit.eumUCentiMeter: a = 100.0
+
+        # temperature
+        if src == eumUnit.eumUKelvin and dst == eumUnit.eumUDegreeCelsius: a, b = 1.0, -273.15
+        if src == eumUnit.eumUDegreeCelsius and dst == eumUnit.eumUKelvin: a, b = 1.0, 273.15
+
+        # mass/volume
+        # 1 kg/m3 = 1 g/L ; 1 g/m3 = 0.001 g/L ; 1 mg/L = 0.001 g/L
+        if src == eumUnit.eumUkilogramPerCubicMeter and dst == eumUnit.eumUgramPerLitre: a = 1.0
+        if src == eumUnit.eumUgramPerCubicMeter    and dst == eumUnit.eumUgramPerLitre: a = 0.001
+        if src == eumUnit.eumUmilligramPerLitre    and dst == eumUnit.eumUgramPerLitre: a = 0.001
+        if src == eumUnit.eumUgramPerLitre         and dst == eumUnit.eumUkilogramPerCubicMeter: a = 1.0
+        if src == eumUnit.eumUgramPerLitre         and dst == eumUnit.eumUgramPerCubicMeter:     a = 1000.0
+        if src == eumUnit.eumUgramPerLitre         and dst == eumUnit.eumUmilligramPerLitre:     a = 1000.0
+
+        if a is None:
+            return x  # unmapped pair -> leave as-is
+        return a * x + b
 
     # ---------- CRS helpers ----------
     def _make_transformer(self, from_crs: str | CRS, to_mesh: bool):
@@ -154,20 +210,64 @@ class DfsuUtils2D:
         elems = self._select_elements_in_bbox_centroid(xmin, xmax, ymin, ymax)
         return self._nearest_elements_by_centroid(Xq, Yq, elems)
 
-    def extract_transect(self, xq, yq, t, item_number: int, pad: float = 0.01, *, input_crs: str | None = None):
-        """Nearest centroid element → linear time interpolation. Returns (data, times, elem_idx)."""
+    def extract_transect(
+        self,
+        xq,
+        yq,
+        t,
+        item_number: int,
+        *,
+        input_crs: str | None = None,
+        to_unit=None,
+    ):
+        """
+        Nearest-centroid per (xq,yq) with linear time interpolation.
+        No pad argument. ROI auto-sized from element AABBs and expanded if sparse.
+        Returns: data (n,), times (n,), elem_idx (n,)
+        """
         if not (1 <= item_number <= self.n_items):
             raise ValueError(f"item_number must be 1..{self.n_items}")
 
+        # coords and time
         Xq, Yq = self._to_mesh_xy(xq, yq, input_crs)
         t = np.asarray(t, dtype="datetime64[ns]").ravel()
-        if Xq.size != Yq.size or Xq.size != t.size:
+        if not (Xq.size == Yq.size == t.size):
             raise ValueError("xq, yq, t must have equal length.")
 
-        xmin, xmax, ymin, ymax = self._bbox_from_points(Xq, Yq, pad)
-        elems = self._select_elements_in_bbox_centroid(xmin, xmax, ymin, ymax)
-        elem_idx = self._nearest_elements_by_centroid(Xq, Yq, elems)
+        # --- ROI from AABB intersection with auto pad ---
+        span_x = self._emax_x - self._emin_x
+        span_y = self._emin_y * 0 + (self._emax_y - self._emin_y)
+        typical = 0.5 * float(np.median(np.maximum(span_x, span_y))) if span_x.size else 0.0
+        pad_eff = max(typical, 1.0 if not self._is_geographic else 1e-4)
 
+        xmin = float(np.nanmin(Xq) - pad_eff); xmax = float(np.nanmax(Xq) + pad_eff)
+        ymin = float(np.nanmin(Yq) - pad_eff); ymax = float(np.nanmax(Yq) + pad_eff)
+
+        def _expand(x0, x1, y0, y1, s):
+            cx = 0.5*(x0+x1); cy = 0.5*(y0+y1)
+            Lx = (x1-x0)*s; Ly = (y1-y0)*s
+            return cx-0.5*Lx, cx+0.5*Lx, cy-0.5*Ly, cy+0.5*Ly
+
+        tries = 0
+        while True:
+            intersects = (
+                (self._emax_x >= xmin) & (self._emin_x <= xmax) &
+                (self._emax_y >= ymin) & (self._emin_y <= ymax)
+            )
+            elems_roi = np.nonzero(intersects)[0]
+            if elems_roi.size > 0 or tries >= 6:
+                break
+            xmin, xmax, ymin, ymax = _expand(xmin, xmax, ymin, ymax, 1.8)
+            tries += 1
+        if elems_roi.size == 0:
+            raise ValueError("No elements intersect the track envelope. Increase coverage or verify CRS.")
+
+        # nearest centroid element per query
+        C_roi = self._centroids[elems_roi]
+        j = cKDTree(C_roi).query(np.column_stack([Xq, Yq]), k=1, workers=-1)[1]
+        elem_idx = elems_roi[np.asarray(j, int)]
+
+        # minimal I/O over unique times and elements
         before, after = self._bracket_times(t)
         need_t = np.unique(np.concatenate([before, after]))
         uniq_elems, inv_e = np.unique(elem_idx, return_inverse=True)
@@ -186,36 +286,87 @@ class DfsuUtils2D:
         dt = np.where(dt == 0, 1.0, dt)
         w1 = (t - mt[before]) / np.timedelta64(1, "s") / dt
         data = (1.0 - w1) * v0 + w1 * v1
+
+        # optional unit conversion
+        if to_unit is not None:
+            src_u = self._item_unit(item_number)
+            dst_u = self._to_eum_unit(to_unit)
+            data = self._convert_array(data, src_u, dst_u)
+
         return data, t, elem_idx
 
-    def extract_transect_idw(self, xq, yq, t, item_number: int, k: int = 6, p: float = 2.0,
-                             pad: float = 0.01, *, input_crs: str | None = None):
-        """IDW at (xq,yq). Time-linear per element then spatial IDW."""
+    def extract_transect_idw(
+        self,
+        xq,
+        yq,
+        t,
+        item_number: int,
+        k: int = 6,
+        p: float = 2.0,
+        *,
+        input_crs: str | None = None,
+        to_unit=None,
+    ):
+        """
+        IDW at each (xq,yq). Time-linear per element then spatial IDW across k nearest centroids.
+        No pad argument. ROI auto-sized from element AABBs and expanded if sparse.
+
+        Returns
+        -------
+        data_idw : (n_points,) float
+        times    : datetime64[ns]
+        elem_nn  : (n_points, k_eff) int
+        weights  : (n_points, k_eff) float
+        """
         if not (1 <= item_number <= self.n_items):
             raise ValueError(f"item_number must be 1..{self.n_items}")
 
+        # coords and time
         Xq, Yq = self._to_mesh_xy(xq, yq, input_crs)
         t = np.asarray(t, dtype="datetime64[ns]").ravel()
         if not (Xq.size == Yq.size == t.size):
             raise ValueError("xq, yq, t must have equal length.")
 
-        xmin, xmax, ymin, ymax = self._bbox_from_points(Xq, Yq, pad)
-        cx, cy = self._centroids[:, 0], self._centroids[:, 1]
-        keep = (cx >= xmin) & (cx <= xmax) & (cy >= ymin) & (cy <= ymax)
-        elems_roi = np.nonzero(keep)[0]
-        if elems_roi.size == 0:
-            raise ValueError("No elements in ROI bbox.")
+        # --- ROI from AABB intersection with auto pad ---
+        span_x = self._emax_x - self._emin_x
+        span_y = self._emin_y * 0 + (self._emax_y - self._emin_y)
+        typical = 0.5 * float(np.median(np.maximum(span_x, span_y))) if span_x.size else 0.0
+        pad_eff = max(typical, 1.0 if not self._is_geographic else 1e-4)
 
+        xmin = float(np.nanmin(Xq) - pad_eff); xmax = float(np.nanmax(Xq) + pad_eff)
+        ymin = float(np.nanmin(Yq) - pad_eff); ymax = float(np.nanmax(Yq) + pad_eff)
+
+        def _expand(x0, x1, y0, y1, s):
+            cx = 0.5*(x0+x1); cy = 0.5*(y0+y0) + 0.5*(y1-y0)  # same as 0.5*(y0+y1)
+            Lx = (x1-x0)*s; Ly = (y1-y0)*s
+            return cx-0.5*Lx, cx+0.5*Lx, cy-0.5*Ly, cy+0.5*Ly
+
+        tries = 0
+        while True:
+            intersects = (
+                (self._emax_x >= xmin) & (self._emin_x <= xmax) &
+                (self._emax_y >= ymin) & (self._emin_y <= ymax)
+            )
+            elems_roi = np.nonzero(intersects)[0]
+            if elems_roi.size >= max(10, k) or tries >= 6:
+                break
+            xmin, xmax, ymin, ymax = _expand(xmin, xmax, ymin, ymax, 1.8)
+            tries += 1
+        if elems_roi.size == 0:
+            raise ValueError("No elements in ROI bbox after expansion. Verify CRS or track coverage.")
+
+        # neighbors by centroid
         C_roi = self._centroids[elems_roi]
         tree = cKDTree(C_roi)
-        k_eff = min(k, elems_roi.size)
+        k_eff = min(int(k), elems_roi.size)
         d, j = tree.query(np.column_stack([Xq, Yq]), k=k_eff, workers=-1)
         if k_eff == 1:
             d = d[:, None]; j = j[:, None]
         elem_nn = elems_roi[j]
 
+        # IDW weights
         with np.errstate(divide='ignore', invalid='ignore'):
-            w = 1.0 / np.maximum(d, 1e-12) ** p
+            w = 1.0 / np.maximum(d, 1e-12) ** float(p)
         zero = d <= 1e-12
         if np.any(zero):
             w[zero] = 0.0
@@ -224,6 +375,7 @@ class DfsuUtils2D:
         wsum = w.sum(axis=1, keepdims=True)
         w = np.divide(w, wsum, out=np.zeros_like(w), where=wsum > 0)
 
+        # time bracketing and minimal I/O over unique neighbor elements
         mt = self._mt
         after = np.searchsorted(mt, t, side='right')
         before = np.clip(after - 1, 0, mt.size - 1)
@@ -248,6 +400,13 @@ class DfsuUtils2D:
         vt = (1.0 - w1t)[:, None] * v0 + w1t[:, None] * v1
 
         data_idw = np.sum(w * vt, axis=1)
+
+        # optional unit conversion
+        if to_unit is not None:
+            src_u = self._item_unit(item_number)
+            dst_u = self._to_eum_unit(to_unit)
+            data_idw = self._convert_array(data_idw, src_u, dst_u)
+
         return data_idw, t, elem_nn, w
 
     def rasterize_idw_bbox(
@@ -431,14 +590,11 @@ class DfsuUtils2D:
         frames = np.stack(frames, axis=0) if as_stack else frames
         return {"X": X, "Y": Y, "extent": extent, "times": t_ns, "frames": frames}
 
-        
-    
+
 if __name__ == "__main__":
-    
+
     model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
     fm_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
 
-    
     model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
     fm_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
-

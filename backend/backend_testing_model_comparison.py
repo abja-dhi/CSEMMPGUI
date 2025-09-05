@@ -32,7 +32,7 @@ from plotting import PlottingShell
 
 
 #model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
-model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
+model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test3.dfsu'
 mt_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
 
 
@@ -58,7 +58,7 @@ mt_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
 
 
 #root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
-# root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul\20250725_CESS_CETUS'
+#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\2025_CESS_survey_data\5. Jul\20250709_CESS_CETUS'
 
 #root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\2024_survey_data\10. Oct\20241002_F3(E)'
 root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\F3\2024\10. Oct\20241002_F3(E)'
@@ -158,23 +158,36 @@ for i in range(len(pos_fpaths)):
         'ssc_params': ssc_params,
         }
      
-    adcp = ADCPDataset(cfg, name = cfg['name'])
-    adcps.append(adcp)
+    try:
+        adcp = ADCPDataset(cfg, name = cfg['name'])
+        adcps.append(adcp)
+    except: None
     
-    break 
-#%%
-model_item_num =1
-t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
-xq = np.asarray(adcp.position.x)
-yq = np.asarray(adcp.position.y)
-
-Xq, Yq = mt_model._to_mesh_xy(xq, yq, adcp.position.epsg)
-
-vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num, input_crs = adcp.position.epsg)
-
 
 #%%
-fdas
+# model_item_num =1
+# t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
+# xq = np.asarray(adcp.position.x)
+# yq = np.asarray(adcp.position.y)
+
+# Xq, Yq = mt_model._to_mesh_xy(xq, yq, adcp.position.epsg)
+# cx, cy = mt_model._centroids[:, 0], mt_model._centroids[:, 1]
+# fig,ax = PlottingShell.subplots()
+# ax.scatter(cx,cy, s = 0.1)
+# ax.plot(Xq,Yq, c = 'red', lw = 10)
+# ax.set_aspect('equal')
+
+
+# vals = mt_model.extract_transect_idw(xq=xq,
+#                                      yq=yq,
+#                                      t=t, 
+#                                      item_number=model_item_num,
+#                                      input_crs = adcp.position.epsg,
+#                                      )
+
+
+#%%
+
 #%%
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -203,8 +216,12 @@ def timeseries_MT_comparison(
 
     # Figure with dedicated metadata column
     fig = plt.figure(figsize=(figwidth, figheight), constrained_layout=True)
+    
+    #fig,ax = PlottingShell.subplots(ncol = 2, width_ratios=[3.2, 1.0])
     gs = fig.add_gridspec(nrows=1, ncols=2, width_ratios=[3.2, 1.0])
     ax = fig.add_subplot(gs[0, 0])
+    
+
     meta_ax = fig.add_subplot(gs[0, 1])
     meta_ax.axis("off")
 
@@ -268,7 +285,8 @@ def timeseries_MT_comparison(
         t = np.asarray(pd.to_datetime(adcp.time.ensemble_datetimes).to_pydatetime())
         xq = np.asarray(adcp.position.x); yq = np.asarray(adcp.position.y)
         vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num, input_crs = adcp.position.epsg)
-        y_model = np.asarray(vals[0], float) * 1000.0
+        vals = vals*1000
+        y_model = np.asarray(vals[0], float)
 
         # Align
         n = min(t.size, y_adcp.size, y_model.size)
@@ -513,8 +531,14 @@ def plot_transect_distance_bars(
     yq = np.asarray(adcp.position.y)
     d = np.asarray(adcp.position.distance, float)
 
-    vals = mt_model.extract_transect_idw(xq=xq, yq=yq, t=t, item_number=model_item_num)
-    y_model = np.asarray(vals[0], float) * 1000.0
+    vals = mt_model.extract_transect_idw(xq=xq,
+                                         yq=yq,
+                                         t=t,
+                                         item_number=model_item_num,
+                                         input_crs = adcp.position.epsg)
+    
+    vals = vals*1000
+    y_model = np.asarray(vals[0], float) 
 
     # Align lengths
     n = min(d.size, y_adcp.size, y_model.size)
@@ -915,8 +939,17 @@ def plot_transect_model_with_distance_bins(
 
     # ---- Raster (mg/L)
     Xg, Yg, Zg, extent = model.rasterize_idw_bbox(
-        xq=x_deg, yq=y_deg, t=t_dt.astype("datetime64[ns]"),
-        item_number=item_number, pad=pad, pixel_size_m=pixel_size_m, k=k, p=p, debug=False
+        xq=x_deg,
+        yq=y_deg,
+        t=t_dt.astype("datetime64[ns]"),
+        item_number=item_number,
+        pad=pad, 
+        pixel_size_m=pixel_size_m,
+        k=k,
+        p=p,
+        debug=False, 
+        input_crs = adcp.position.epsg,
+        output_crs = adcp.position.epsg
     )
     Z_mgL = np.asarray(Zg, float) * 1000.0
 
@@ -938,7 +971,7 @@ def plot_transect_model_with_distance_bins(
     y_adcp  = _adcp_ssc_mean4()[:n]
     y_model = np.asarray(
         model.extract_transect_idw(xq=x_deg, yq=y_deg, t=t_dt.astype("datetime64[ns]"),
-                                   item_number=item_number)[0], float
+                                   item_number=item_number, input_crs = adcp.position.epsg)[0], float
     )[:n] * 1000.0
 
     # ---- Distance bins
@@ -985,6 +1018,7 @@ def plot_transect_model_with_distance_bins(
     vmax_img = np.nanmax(Z_mgL[np.isfinite(Z_mgL)])
     if not np.isfinite(vmax_img):
         vmax_img = cbar_bottom_thresh*2
+        
     im = axL.imshow(
         Z_mgL, extent=extent, origin="lower",
         cmap=cm, vmin=cbar_bottom_thresh, vmax=vmax_img,
@@ -1028,8 +1062,10 @@ def plot_transect_model_with_distance_bins(
     # ----- RHS: bars
     rhs_title = title_right or f"model comparison along ADCP transect {getattr(adcp,'name','Unknown')}"
     axR.set_title(rhs_title, fontsize=8, pad=6)
-    if centers_plot.size>1: bw=0.25*(centers_plot[1]-centers_plot[0])
-    else: bw=3.0
+    if centers_plot.size>1:
+        bw=0.25*(centers_plot[1]-centers_plot[0])
+    else: 
+        bw=3.0
     off=0.5*bw
     axR.bar(centers_plot-off, model_plot, width=bw, color="#1f77b4", alpha=0.95, label="Simulated", edgecolor="none")
     axR.bar(centers_plot+off, adcp_plot,  width=bw, color=overlay_color, alpha=0.95, label="Observed",  edgecolor="none")
@@ -1039,11 +1075,14 @@ def plot_transect_model_with_distance_bins(
     axR.grid(True, axis="y", alpha=0.3)
     axR.legend(loc="upper right", frameon=False, fontsize=8, borderaxespad=0.4)
     if centers_plot.size<=12:
-        axR.set_xticks(centers_plot); axR.set_xticklabels([f"{c:.0f}" for c in centers_plot], fontsize=8)
+        axR.set_xticks(centers_plot)
+        axR.set_xticklabels([f"{c:.0f}" for c in centers_plot], fontsize=8)
 
     finite_rhs = np.concatenate([model_plot[np.isfinite(model_plot)], adcp_plot[np.isfinite(adcp_plot)]])
     if finite_rhs.size:
-        ymin_rhs=float(np.nanmin(finite_rhs)); ymax_rhs=float(np.nanmax(finite_rhs)); span=max(1e-9, ymax_rhs-ymin_rhs)
+        ymin_rhs=float(np.nanmin(finite_rhs))
+        ymax_rhs=float(np.nanmax(finite_rhs))
+        span=max(1e-9, ymax_rhs-ymin_rhs)
         axR.set_ylim(ymin_rhs-0.05*span, ymax_rhs+0.18*span)
 
     # update image clim to RHS y-lims
@@ -1403,17 +1442,19 @@ def animate_bbox_timeseries(
 
 
 #%%
-
+dsa
 bbox = (103.95, 104.09, 1.30, 1.42)
 
 out = mt_model.rasterize_bbox_timeseries(
     item_number=1,
     bbox=bbox,
     pixel_size_m=100.0,
-    k=8, p=2.0,
+    k=8, 
+    p=2.0,
     times=mt_model.model_times,
     pad=0.0,
-    as_stack=True
+    as_stack=True,
+    input_crs = adcp.position.epsg
 )
 
 out['frames'] = out['frames']*1000
@@ -1433,7 +1474,7 @@ fig, ani = animate_bbox_timeseries(
     interval=5,
     figsize=(4,4),
     dpi=100,
-    gif_path=r'C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\model_gif_test.gif', 
+    gif_path=None,#r'C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\model_gif_test.gif', 
     fps = 8,            # e.g., "model_anim.gif" to export
 )
 
