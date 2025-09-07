@@ -242,7 +242,6 @@ def Dfs2_to_Dfsu(in_path, out_path, *, show_qt_progress: bool = True):
     wrote = 0
 
     for it in range(n_steps):
-        if it>2: break
         t_sec = float(tsec[it])
         for k in range(1, n_items + 1):
             vals = dfs2.ReadItemTimeStep(k, it).Data
@@ -283,6 +282,6 @@ if __name__ == '__main__':
     
     
     in_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/MTD20241002.dfs2'
-    out_path = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Models\F3\2024\10. October/MT\test2.dfsu'
+    out_path = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Models\F3\2024\10. October/MT/test3.dfsu'
     
     status = Dfs2_to_Dfsu(in_path, out_path, show_qt_progress=True)

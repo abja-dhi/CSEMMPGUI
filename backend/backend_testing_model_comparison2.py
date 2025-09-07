@@ -4,26 +4,23 @@ Created on Tue Sep  2 12:17:25 2025
 
 @author: anba
 """
-# import pathlib
-# root = pathlib.Path(r".")  
-# total = 0
-# for path in root.rglob('*.py'):
-#     total += sum(1 for _ in open(path, 'r', encoding='utf-8'))
-
-
-#%%
 import sys,os
-# Class with params on the PLOT method, not on __init__.
-# Simple continuous lines. No helpers called across methods.
-
 import numpy as np
 import pandas as pd
 import matplotlib.dates as mdates
-from utils_dfsu2D_test import DfsuUtils2D
+
+import pathlib
+root = pathlib.Path(r".")  
+total = 0
+for path in root.rglob('*.py'):
+    total += sum(1 for _ in open(path, 'r', encoding='utf-8'))
+
+from utils_dfsu2d import DfsuUtils2D
 from utils_xml import XMLUtils
 from adcp import ADCP as ADCPDataset
 from utils_crs import CRSHelper
 from plotting import PlottingShell
+
 # # %% load from project file
 
 # xml_path = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj"
@@ -41,7 +38,6 @@ from plotting import PlottingShell
 #%%
 
 crs_helper = CRSHelper(project_crs = 4326)
-
 #model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
 model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
 mt_model = DfsuUtils2D(model_fpath, crs_helper = crs_helper)  # provides extract_transect_idw(...)
@@ -50,20 +46,9 @@ mt_model = DfsuUtils2D(model_fpath, crs_helper = crs_helper)  # provides extract
 
 
 
+#%% get ADCP transect survey data
 
-#%%
-
-
-
-#%% get a bunch of examaple data 
-
-
-#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2024_survey_data\10. Oct\20241024_F3(E)'
-#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\2025_CESS_survey_data\5. Jul\20250709_CESS_CETUS'
-
-#root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\2024_survey_data\10. Oct\20241002_F3(E)'
 root = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Surveys\F3\2024\10. Oct\20241002_F3(E)'
-
 #Utils.extern_to_csv_batch(r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\2025_CESS_survey_data\5. Jul')
 
 pd0_fpaths = []
@@ -78,7 +63,6 @@ for dirpath, _, filenames in os.walk(root):
         elif fname.endswith('extern.csv'):
             pos_fpaths.append(fpath)
             
-
 #% Load a dataset
 
 i = 6 # indicator variable for dataset selection
@@ -165,8 +149,8 @@ for i in range(len(pos_fpaths)):
     
     except: None
  
-    
 adcp = adcps[0]
+
 #%% extract an adcp transect 
 xq = adcp.position.x
 yq = adcp.position.y
@@ -200,9 +184,7 @@ ax.set_aspect('equal')
 #%%
 
 fig,ax = PlottingShell.subplots()
-
 xc,yc = mt_model.get_centroids()
-
 # ax.scatter(xc,yc)
 # ax.plot(xq,yq, c = 'red')
 
