@@ -21,6 +21,8 @@ from adcp import ADCP as ADCPDataset
 from utils_crs import CRSHelper
 from plotting import PlottingShell
 
+import numpy as np
+from typing import Iterable, Tuple
 # # %% load from project file
 
 # xml_path = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj"
@@ -39,7 +41,7 @@ from plotting import PlottingShell
 
 crs_helper = CRSHelper(project_crs = 4326)
 #model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
-model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
+model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/MTD20241002_1.dfsu'
 mt_model = DfsuUtils2D(model_fpath, crs_helper = crs_helper)  # provides extract_transect_idw(...)
 
 
@@ -84,7 +86,7 @@ abs_params = {'C': -139.0,
               'rssi_beam3': 0.41,
               'rssi_beam4': 0.41,}
 
-ssc_params = {'A': 3.5, 'B':.049}
+ssc_params = {'A': 3, 'B':.049}
 
 adcps = []
 for i in range(len(pos_fpaths)):
@@ -150,13 +152,56 @@ for i in range(len(pos_fpaths)):
     except: None
  
 adcp = adcps[0]
+#%%
 
-#%% extract an adcp transect 
+
+
+#%% Inputs
 xq = adcp.position.x
 yq = adcp.position.y
 t = adcp.time.ensemble_datetimes
 item_number = 1
-ssc = mt_model.extract_transect(xq, yq, t, item_number)
+
+#%% generate bounding box for trasnect
+bbox = crs_helper.bbox_from_coords(xq,yq, pad_m = 100, from_crs = adcp.position.epsg)
+
+
+
+#%%
+out = mt_model.rasterize_idw_bbox(item_number = 1,
+                                        bbox = bbox, 
+                                        t = adcp.time.ensemble_datetimes,
+                                        pixel_size_m = 10)
+
+fig,ax = PlottingShell.subplots()
+im = ax.imshow(out[0], extent = out[1], origin = 'lower')
+
+for adcp in adcps:
+    
+    ax.plot(adcp.position.x,
+            adcp.position.y)
+fig.colorbar(im)
+
+
+
+
+#%%
+
+out = mt_model.extract_transect(xq, yq, t, item_number)
+ssc_model = out[0]*1000
+
+out = adcp.get_beam_series(field_name = 'suspended_solids_concentration',
+                                mode = 'bin',
+                                target = 3)
+ssc_adcp = out[0]
+
+
+
+fig,ax = PlottingShell.subplots()
+ax.plot(t,ssc_model, label = 'model')
+ax.plot(t,ssc_adcp, label = 'observed')
+ax.legend()
+
 
 
 #%%
@@ -188,7 +233,7 @@ xc,yc = mt_model.get_centroids()
 # ax.scatter(xc,yc)
 # ax.plot(xq,yq, c = 'red')
 
-im = ax.imshow(data, extent = out[1], origin = 'lower')
+im = ax.imshow(out[0], extent = out[1], origin = 'lower')
 
 for adcp in adcps:
     

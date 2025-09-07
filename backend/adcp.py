@@ -851,51 +851,50 @@ class ADCP():
                         field_name: str,
                         mode: str,
                         target,
-                        beam="mean",
-                        agg="mean"):
+                        beam="mean"):
         """
-        Aggregate a time series across selected bins/beams at a fixed vertical band.
+        Time series from ADCP beam data with either a numeric selector or an
+        all-bins aggregation controlled by `target`.
     
         Parameters
         ----------
         field_name : str
             Beam field name passed to get_beam_data(...).
         mode : {'bin', 'range', 'hab'}
-            'bin'   -> select by 1-based bin index (single value).
-            'range' -> select the SINGLE CLOSEST bin by along-beam distance [m].
-            'hab'   -> select the SINGLE CLOSEST bin by height-above-bed [m].
-        target : int | float
-            Single selection value. Tuples/ranges are NOT accepted.
-            - bin   : 1-based bin index.
-            - range : target distance [m].
-            - hab   : target HAB [m].
+            Used only when `target` is numeric.
+            'bin'   -> select by 1-based bin index (single bin).
+            'range' -> select closest bin by along-beam distance [m].
+            'hab'   -> select closest bin by height-above-bed [m].
+        target : int | float | str
+            If numeric: value used with `mode` to pick a single bin per beam.
+              - 'bin'   : 1-based bin index.
+              - 'range' : target distance [m].
+              - 'hab'   : target HAB [m].
+            If str: aggregation over ALL bins (per ensemble) for selected beams.
+              - 'mean' or 'avg' : mean over bins×beams.
+              - 'pXX'           : percentile XX in [0,100] over bins×beams, e.g. 'p50','p90'.
         beam : {'mean', int, list[int]}
             Beam selection; 1-based indices. 'mean' selects all beams.
-        agg : {'mean', float}
-            'mean' or percentile in [0, 100].
     
         Returns
         -------
         out : np.ndarray
             Shape (n_ensembles,) aggregated values.
         meta : dict
-            Diagnostics for verification:
-            Common:
-              - 'mode': str
-              - 'beam_mask': (nm,) bool
-            bin/range:
-              - 'bin_index': int (1-based)
-              - 'depth_m': float (only for 'range', the along-beam distance used)
-            hab:
-              - 'bin_index_per_beam': (ne, nm) float (1-based; NaN for unselected beams)
-              - 'hab_m_per_beam': (ne, nm) float (NaN for unselected beams)
-              - 'hab_m': (ne,) float (beam-mean HAB of selected bins)
+            Diagnostics:
+              - 'mode' : str  ('bin'/'range'/'hab' or 'aggregate')
+              - 'beam_mask' : (nm,) bool
+              - If numeric target and mode='bin'/'range':
+                  * 'bin_index' : int (1-based)
+                  * 'depth_m'   : float (for 'range', selected along-beam distance)
+              - If numeric target and mode='hab':
+                  * 'bin_index_per_beam' : (ne, nm) float (1-based; NaN if unselected)
+                  * 'hab_m_per_beam'     : (ne, nm) float
+                  * 'hab_m'              : (ne,) float beam-mean HAB
+              - If aggregation target (str):
+                  * 'aggregation' : 'mean' or 'pXX'
         """
         import numpy as np
-    
-        # Validate target type: single scalar only
-        if isinstance(target, (tuple, list, np.ndarray)):
-            raise TypeError("target must be a single int/float, not a tuple/range.")
     
         data = self.get_beam_data(field_name, mask=True)  # (ne, nb, nm)
         ne, nb, nm = data.shape
@@ -908,18 +907,41 @@ class ADCP():
             idx = [int(b) - 1 for b in sel if 1 <= int(b) <= nm]
             beam_mask = np.zeros(nm, dtype=bool)
             beam_mask[idx] = True
-        beam_mask3 = beam_mask[None, None, :]  # (1, 1, nm)
+        beam_mask3 = beam_mask[None, None, :]  # (1,1,nm)
     
+        # Aggregation target?
+        if isinstance(target, str):
+            t = target.strip().lower()
+            meta = {"mode": "aggregate", "beam_mask": beam_mask.copy()}
+            vals = np.where(beam_mask3, data, np.nan)  # all bins for selected beams
+    
+            if t in {"mean", "avg"}:
+                meta["aggregation"] = "mean"
+                out = np.nanmean(vals, axis=(1, 2))
+            elif t.startswith("p") and t[1:].replace(".", "", 1).isdigit():
+                q = float(t[1:])
+                if not (0.0 <= q <= 100.0):
+                    raise ValueError("percentile must be between 0 and 100.")
+                meta["aggregation"] = f"p{q:g}"
+                out = np.nanpercentile(vals, q, axis=(1, 2), method="nearest")
+            else:
+                raise ValueError("string target must be 'mean'/'avg' or 'pXX' like 'p50'.")
+    
+            empty = ~np.any(np.isfinite(vals), axis=(1, 2))
+            out[empty] = np.nan
+            return out, meta
+    
+        # Numeric selector path
+        if isinstance(target, (tuple, list, np.ndarray)):
+            raise TypeError("target must be a single int/float or an aggregation string.")
         mode = mode.lower().strip()
         meta = {"mode": mode, "beam_mask": beam_mask.copy()}
     
-        # Build selection mask
         if mode == "bin":
             b = int(target)
             if b < 1 or b > nb:
                 raise ValueError(f"bin target {b} out of range 1..{nb}")
-            bin_mask = np.zeros(nb, dtype=bool)
-            bin_mask[b - 1] = True
+            bin_mask = np.zeros(nb, dtype=bool); bin_mask[b - 1] = True
             sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
             sel_mask = sel_bins & np.broadcast_to(beam_mask3, (ne, nb, nm))
             meta["bin_index"] = int(b)
@@ -928,20 +950,17 @@ class ADCP():
             r_bins = np.asarray(self.geometry.bin_midpoint_distances, float)  # (nb,)
             tgt = float(target)
             b_idx = int(np.nanargmin(np.abs(r_bins - tgt)))  # 0-based
-            bin_mask = np.zeros(nb, dtype=bool)
-            bin_mask[b_idx] = True
+            bin_mask = np.zeros(nb, dtype=bool); bin_mask[b_idx] = True
             sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
             sel_mask = sel_bins & np.broadcast_to(beam_mask3, (ne, nb, nm))
-            meta["bin_index"] = int(b_idx + 1)     # 1-based for reporting
+            meta["bin_index"] = int(b_idx + 1)
             meta["depth_m"] = float(r_bins[b_idx])
     
         elif mode == "hab":
-            # HAB midpoints vary by ensemble and beam: (ne, nb, nm)
-            hab = np.asarray(self.geometry.HAB_beam_midpoint_distances, float)
-    
+            hab = np.asarray(self.geometry.HAB_beam_midpoint_distances, float)  # (ne, nb, nm)
             tgt = float(target)
             sel_mask = np.zeros((ne, nb, nm), dtype=bool)
-            bin_idx_pb = np.full((ne, nm), np.nan)   # per-beam 1-based index
+            bin_idx_pb = np.full((ne, nm), np.nan)
             hab_pb = np.full((ne, nm), np.nan)
     
             for m in range(nm):
@@ -953,32 +972,23 @@ class ADCP():
                 idx_min = np.argmin(np.abs(hb_fill - tgt), axis=1)  # (ne,)
                 rows = np.arange(ne)
                 sel_mask[rows, idx_min, m] = True
-                bin_idx_pb[:, m] = idx_min + 1  # 1-based
+                bin_idx_pb[:, m] = idx_min + 1
                 hab_pb[:, m] = hb[rows, idx_min]
     
-            # Store HAB diagnostics
             meta["bin_index_per_beam"] = bin_idx_pb
             meta["hab_m_per_beam"] = hab_pb
-            # Beam-mean HAB of selected bins (only over selected beams)
             with np.errstate(invalid="ignore"):
                 meta["hab_m"] = np.nanmean(np.where(beam_mask[None, :], hab_pb, np.nan), axis=1)
     
         else:
-            raise ValueError("mode must be one of {'bin', 'range', 'hab'}")
+            raise ValueError("mode must be one of {'bin','range','hab'} for numeric targets.")
     
-        # Aggregate
-        vals = np.where(sel_mask, data, np.nan)  # (ne, nb, nm)
-        if isinstance(agg, str) and agg.lower() == "mean":
-            out = np.nanmean(vals, axis=(1, 2))
-        else:
-            q = float(agg)
-            out = np.nanpercentile(vals, q, axis=(1, 2), method="nearest")
-    
-        # If nothing selected for an ensemble, set NaN
+        vals = np.where(sel_mask, data, np.nan)
+        out = np.nanmean(vals, axis=(1, 2))  # single-bin per beam → mean across selected beams
         empty = ~np.any(np.isfinite(vals), axis=(1, 2))
         out[empty] = np.nan
-    
         return out, meta
+
 
 
 

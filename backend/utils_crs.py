@@ -263,6 +263,70 @@ class CRSHelper:
         """Alias for from_project with a more explicit name."""
         return self.from_project(x, y, to_crs)
 
+    def bbox_from_coords(
+        self,
+        x: ArrayLike,
+        y: ArrayLike,
+        from_crs: Union[str, int, CRS],
+        pad_m: float = 0.0,
+    ) -> BBox:
+        """
+        Square bbox around a set of coordinates with padding in meters. Returned in project CRS.
+    
+        Parameters
+        ----------
+        x, y : array-like of float
+            Input coordinates in `from_crs`.
+        from_crs : str | int | pyproj.CRS
+            CRS of the input coordinates.
+        pad_m : float, default 0.0
+            Padding (half-size) in meters added to the square.
+    
+        Returns
+        -------
+        (xmin, ymin, xmax, ymax) : tuple[float, float, float, float]
+            Axis-aligned bbox in the project CRS.
+        """
+        x = _as_np(x); y = _as_np(y)
+        m = np.isfinite(x) & np.isfinite(y)
+        if not np.any(m):
+            raise ValueError("No finite coordinates found.")
+        if pad_m < 0:
+            raise ValueError("pad_m must be >= 0.")
+    
+        src = CRS.from_user_input(from_crs)
+    
+        # If project CRS is meter-based, work there. Else use local UTM picked from lon/lat of centroid.
+        if (self.project_crs.is_projected and
+            getattr(self.project_crs.axis_info[0], "unit_name", "").lower() in {"metre", "meter"}):
+            Xp, Yp = _transform_xy(x[m], y[m], src, self.project_crs)
+            work_crs = self.project_crs
+        else:
+            # derive lon/lat centroid in WGS84, then choose UTM
+            lon_wgs84, lat_wgs84 = _transform_xy(
+                np.array([np.nanmean(x[m])]),
+                np.array([np.nanmean(y[m])]),
+                src, CRS.from_epsg(4326)
+            )
+            utm = self.utm_crs_from_lonlat(float(lon_wgs84[0]), float(lat_wgs84[0]))
+            Xp, Yp = _transform_xy(x[m], y[m], src, utm)
+            work_crs = utm
+    
+        xmin, xmax = float(np.min(Xp)), float(np.max(Xp))
+        ymin, ymax = float(np.min(Yp)), float(np.max(Yp))
+        cx, cy = (xmin + xmax) * 0.5, (ymin + ymax) * 0.5
+        half = 0.5 * max(xmax - xmin, ymax - ymin) + float(pad_m)
+        bbox_work: BBox = (cx - half, cy - half, cx + half, cy + half)
+    
+        if work_crs == self.project_crs:
+            return bbox_work
+    
+        # Transform 4 corners back. No densification.
+        x4 = [bbox_work[0], bbox_work[2], bbox_work[2], bbox_work[0]]
+        y4 = [bbox_work[1], bbox_work[1], bbox_work[3], bbox_work[3]]
+        Xr, Yr = _transform_xy(x4, y4, work_crs, self.project_crs)
+        return [float(np.min(Xr)), float(np.max(Xr)),float(np.min(Yr)), float(np.max(Yr))]
+
 
 if __name__ == '__main__':
 

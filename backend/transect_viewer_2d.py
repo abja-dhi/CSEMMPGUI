@@ -564,18 +564,16 @@ if __name__ == "__main__":
         "surveys": ["Survey 1", "Survey 2"],
         "shp": [
             {
-                "path": r"C:/Users/anba/Downloads/v20250509/v20250509/RD7550_CEx_SG_v20250509.shp",
-<<<<<<< Updated upstream
+                "path": r'//usden1-stor.dhi.dk/Projects/61803553-05/GIS/SG Coastline/RD7550_CEx_SG_v20250509.shp',
                 "type": "line", "color": "limegreen", "width": 1,
                 "label": "Channel", "label_fontsize": 11, "label_color": "#cccccc",
-=======
                 "type": "line",
                 "color": "limegreen",
                 "width": 0.5,
->>>>>>> Stashed changes
+
             },
             {
-                "path": r"C:/Users/anba/Downloads/v20250509/v20250509/points_labels.shp",
+                "path": r'//usden1-stor.dhi.dk/Projects/61803553-05/GIS/F3/example point layer/points_labels.shp',
                 "type": "point",
                 "color": "#FFD166",
                 "markersize": 6,
@@ -587,7 +585,6 @@ if __name__ == "__main__":
         "cmap": "jet",
         "field_name": "absolute_backscatter",
         "vmin": None,
-<<<<<<< Updated upstream
         "vmax": -60,
         "pad_deg": 0.03,
         "grid_lines": 10,
@@ -608,7 +605,6 @@ if __name__ == "__main__":
         "beam": 'mean', # beam 1-4 or "mean
             
         },
-=======
         "vmax": None,
         "pad_deg": 0.03,        # Pad on the bounding box on all the transects. Defines the margin to the edges of the figure.
         "grid_lines": 10,       # Number of grid lines in each direction (lon, lat).
@@ -628,7 +624,6 @@ if __name__ == "__main__":
                 "target": 5, # targed bin,range or hab
                 "beam": "mean", # beam 1-4 or "mean"
             },
->>>>>>> Stashed changes
         "out": r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\adcp_transects_2d.html",
     }
 
