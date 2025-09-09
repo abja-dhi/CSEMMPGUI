@@ -8,13 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "CSEMMPGUI_v1/1.0.0": {
         "dependencies": {
-          "AdamsLair.TreeViewAdv": "1.7.7",
-          "CsvHelper": "33.1.0",
           "DHI.MikeCore": "23.0.3",
-          "Esri.ArcGISRuntime": "200.8.0",
-          "FastTree": "1.6.0",
-          "GDAL.Native": "3.11.3",
-          "Gdal.Core": "1.0.0",
           "Microsoft.Web.WebView2": "1.0.3485.44",
           "NetTopologySuite.IO.ShapeFile": "2.1.0",
           "WindowsAPICodePack-Shell": "1.1.1",
@@ -27,14 +21,6 @@
           "CSEMMPGUI_v1.dll": {}
         }
       },
-      "AdamsLair.TreeViewAdv/1.7.7": {
-        "runtime": {
-          "lib/net20/Aga.Controls.dll": {
-            "assemblyVersion": "1.7.7.0",
-            "fileVersion": "1.7.7.0"
-          }
-        }
-      },
       "Antlr4.Runtime.Standard/4.7.2": {
         "dependencies": {
           "NETStandard.Library": "1.6.1"
@@ -43,14 +29,6 @@
           "lib/netstandard1.3/Antlr4.Runtime.Standard.dll": {
             "assemblyVersion": "4.7.2.0",
             "fileVersion": "4.7.2.0"
-          }
-        }
-      },
-      "CsvHelper/33.1.0": {
-        "runtime": {
-          "lib/net8.0/CsvHelper.dll": {
-            "assemblyVersion": "33.0.0.0",
-            "fileVersion": "33.1.0.26"
           }
         }
       },
@@ -257,284 +235,6 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           }
-        }
-      },
-      "Esri.ArcGISRuntime/200.8.0": {
-        "dependencies": {
-          "Esri.ArcGISRuntime.runtimes.win": "200.8.0"
-        },
-        "runtime": {
-          "lib/net8.0/Esri.ArcGISRuntime.dll": {
-            "assemblyVersion": "200.8.0.0",
-            "fileVersion": "200.8.0.4672"
-          }
-        },
-        "resources": {
-          "lib/net8.0/ar/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ar"
-          },
-          "lib/net8.0/bg/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "bg"
-          },
-          "lib/net8.0/bs/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "bs"
-          },
-          "lib/net8.0/ca/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ca"
-          },
-          "lib/net8.0/cs/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "cs"
-          },
-          "lib/net8.0/da/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "da"
-          },
-          "lib/net8.0/de/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "de"
-          },
-          "lib/net8.0/el/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "el"
-          },
-          "lib/net8.0/es/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "es"
-          },
-          "lib/net8.0/et/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "et"
-          },
-          "lib/net8.0/fi/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "fi"
-          },
-          "lib/net8.0/fr/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "fr"
-          },
-          "lib/net8.0/he/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "he"
-          },
-          "lib/net8.0/hr/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "hr"
-          },
-          "lib/net8.0/hu/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "hu"
-          },
-          "lib/net8.0/id/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "id"
-          },
-          "lib/net8.0/it/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "it"
-          },
-          "lib/net8.0/ja/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ja"
-          },
-          "lib/net8.0/ko/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ko"
-          },
-          "lib/net8.0/lt/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "lt"
-          },
-          "lib/net8.0/lv/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "lv"
-          },
-          "lib/net8.0/nb-NO/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "nb-NO"
-          },
-          "lib/net8.0/nl/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "nl"
-          },
-          "lib/net8.0/no/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "no"
-          },
-          "lib/net8.0/pl/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "pl"
-          },
-          "lib/net8.0/pt-BR/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "pt-BR"
-          },
-          "lib/net8.0/pt-PT/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "pt-PT"
-          },
-          "lib/net8.0/ro/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ro"
-          },
-          "lib/net8.0/ru/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "ru"
-          },
-          "lib/net8.0/sk/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "sk"
-          },
-          "lib/net8.0/sl/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "sl"
-          },
-          "lib/net8.0/sr/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "sr"
-          },
-          "lib/net8.0/sv/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "sv"
-          },
-          "lib/net8.0/th/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "th"
-          },
-          "lib/net8.0/tr/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "tr"
-          },
-          "lib/net8.0/uk/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "uk"
-          },
-          "lib/net8.0/vi/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "vi"
-          },
-          "lib/net8.0/zh-CN/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "zh-CN"
-          },
-          "lib/net8.0/zh-HK/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "zh-HK"
-          },
-          "lib/net8.0/zh-Hans/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "zh-Hans"
-          },
-          "lib/net8.0/zh-TW/Esri.ArcGISRuntime.resources.dll": {
-            "locale": "zh-TW"
-          }
-        }
-      },
-      "Esri.ArcGISRuntime.runtimes.win/200.8.0": {
-        "runtimeTargets": {
-          "runtimes/win-arm64/native/RuntimeCoreNet200_8.dll": {
-            "rid": "win-arm64",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-arm64/native/runtimecore.dll": {
-            "rid": "win-arm64",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-arm64/native/runtimecoreAssembly.manifest": {
-            "rid": "win-arm64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win-x64/native/RuntimeCoreNet200_8.dll": {
-            "rid": "win-x64",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-x64/native/runtimecore.dll": {
-            "rid": "win-x64",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-x64/native/runtimecoreAssembly.manifest": {
-            "rid": "win-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win-x86/native/RuntimeCoreNet200_8.dll": {
-            "rid": "win-x86",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-x86/native/runtimecore.dll": {
-            "rid": "win-x86",
-            "assetType": "native",
-            "fileVersion": "200.8.0.4672"
-          },
-          "runtimes/win-x86/native/runtimecoreAssembly.manifest": {
-            "rid": "win-x86",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "FastTree/1.6.0": {
-        "runtime": {
-          "lib/FastTree.dll": {
-            "assemblyVersion": "1.6.0.0",
-            "fileVersion": "1.6.0.0"
-          }
-        }
-      },
-      "GDAL/3.11.3": {
-        "runtime": {
-          "lib/netstandard2.0/gdal_csharp.dll": {
-            "assemblyVersion": "3.11.3.0",
-            "fileVersion": "3.11.3.0"
-          },
-          "lib/netstandard2.0/gdalconst_csharp.dll": {
-            "assemblyVersion": "3.11.3.0",
-            "fileVersion": "3.11.3.0"
-          },
-          "lib/netstandard2.0/ogr_csharp.dll": {
-            "assemblyVersion": "3.11.3.0",
-            "fileVersion": "3.11.3.0"
-          },
-          "lib/netstandard2.0/osr_csharp.dll": {
-            "assemblyVersion": "3.11.3.0",
-            "fileVersion": "3.11.3.0"
-          }
-        }
-      },
-      "Gdal.Core/1.0.0": {
-        "runtime": {
-          "lib/netstandard2.0/Gdal.Core.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        },
-        "runtimeTargets": {
-          "runtimes/linux-x64/native/gdal_wrap.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/gdalconst_wrap.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/libgdal.so.20": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/ogr_wrap.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/osr_wrap.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win10-x64/native/gdal202.dll": {
-            "rid": "win10-x64",
-            "assetType": "native",
-            "fileVersion": "2.3.0.0"
-          },
-          "runtimes/win10-x64/native/gdal_wrap.dll": {
-            "rid": "win10-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win10-x64/native/gdalconst_wrap.dll": {
-            "rid": "win10-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win10-x64/native/ogr_wrap.dll": {
-            "rid": "win10-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win10-x64/native/osr_wrap.dll": {
-            "rid": "win10-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "GDAL.Native/3.11.3": {
-        "dependencies": {
-          "GDAL": "3.11.3"
         }
       },
       "Microsoft.CSharp/4.7.0": {},
@@ -1329,26 +1029,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "AdamsLair.TreeViewAdv/1.7.7": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-nFDEFgVEDmbdR0B8a71H++JlQY6lwg5qhB9AlZ56k3/CozWLFdN5pqhL7bHNwF1OpNBemjoZ70NS8GNuChSJuA==",
-      "path": "adamslair.treeviewadv/1.7.7",
-      "hashPath": "adamslair.treeviewadv.1.7.7.nupkg.sha512"
-    },
     "Antlr4.Runtime.Standard/4.7.2": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-vT7inRjayVvSQ+tvm9h9Ovygz5Nh9DgvTkt5w6G6M8Wpsqz6rQpou/pLsShwrrZTOjHgCiizbWjO3G/NzMihyw==",
       "path": "antlr4.runtime.standard/4.7.2",
       "hashPath": "antlr4.runtime.standard.4.7.2.nupkg.sha512"
-    },
-    "CsvHelper/33.1.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-kqfTOZGrn7NarNeXgjh86JcpTHUoeQDMB8t9NVa/ZtlSYiV1rxfRnQ49WaJsob4AiGrbK0XDzpyKkBwai4F8eg==",
-      "path": "csvhelper/33.1.0",
-      "hashPath": "csvhelper.33.1.0.nupkg.sha512"
     },
     "DHI.corlib/1.0.1": {
       "type": "package",
@@ -1426,48 +1112,6 @@
       "sha512": "sha512-RQ5vK2efKIxx2WdrJTUTkHZvO8ntL4xzyS7yoeESR5IX+WKpbG/IrX4XTsm9BqbWV81DM7G8ChReORWbycT9fA==",
       "path": "dhi.projections/23.0.3",
       "hashPath": "dhi.projections.23.0.3.nupkg.sha512"
-    },
-    "Esri.ArcGISRuntime/200.8.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-+NT8/hcNEk6rWoM8fuNl4CXd5egJsKGcS24FyYGO/TSd+F8zDdLr3lJcLRx+BKWHOBkWIoKPlFwwRSfT72VSEg==",
-      "path": "esri.arcgisruntime/200.8.0",
-      "hashPath": "esri.arcgisruntime.200.8.0.nupkg.sha512"
-    },
-    "Esri.ArcGISRuntime.runtimes.win/200.8.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-/bSGOFcAZGidpYtzDj4ILVM5H9w8vs+Bf6+Zu46RHc5Rfqtd3cI831R7JYPn49YaPkfPzMxnbj3H5/fatzdk7g==",
-      "path": "esri.arcgisruntime.runtimes.win/200.8.0",
-      "hashPath": "esri.arcgisruntime.runtimes.win.200.8.0.nupkg.sha512"
-    },
-    "FastTree/1.6.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-GMu0wbQCoYhPPHfsNqEKwXppiUMOu5mjbF5v1jWdGZgBSGcnt8HoKjfDZLmbz7lMsTZcdJhHEsf7VwG/ULr85Q==",
-      "path": "fasttree/1.6.0",
-      "hashPath": "fasttree.1.6.0.nupkg.sha512"
-    },
-    "GDAL/3.11.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-rvQKEJTCc81xVyIe2o5NcN3JrUTOfJ72C18RqA9VzZY7gSzM6mvKlS+OvUNzePCQUZjPJ0znbJXqqRFzSNgDpg==",
-      "path": "gdal/3.11.3",
-      "hashPath": "gdal.3.11.3.nupkg.sha512"
-    },
-    "Gdal.Core/1.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-Bbo5jKeDvxDrqEVszn3SMM+QyUrV4n+P9kmbwkSJoCIK45JdHOP1y/VZKSyk7Kyeu77RqBFruhR51GuHJJ28vg==",
-      "path": "gdal.core/1.0.0",
-      "hashPath": "gdal.core.1.0.0.nupkg.sha512"
-    },
-    "GDAL.Native/3.11.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-7mKQLsa6xPZ5kLWw3pgJ1kjjH7GW6Y1wj3WpfSXuU2kJvzTqtPnyvM7jzRBzEp+HNhN1Tl23HfCvuIhw9HwrsA==",
-      "path": "gdal.native/3.11.3",
-      "hashPath": "gdal.native.3.11.3.nupkg.sha512"
     },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",

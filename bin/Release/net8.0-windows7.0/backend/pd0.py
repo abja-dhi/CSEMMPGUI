@@ -12,6 +12,7 @@ import numpy as np
 
 
 from ._pd0_fields import Pd0Formats, FieldDef
+from .utils import Utils, Constants
 
 @dataclass
 class _DataCodeID:
@@ -117,17 +118,45 @@ class CoordTransform:
         self.bin_mapping = None
         self.raw_bytes = None
     
+# class ExternalFields:
+#     def __init__(self, values_dict: Dict[str, any] = None):
+#         self.leader_id = next((values_dict[k] for k in ['leader_id', 'LEADER ID'] if k in values_dict), 6241)
+#         self.geodetic_datum = next((values_dict[k] for k in ['geodetic_datum', 'GEODETIC DATUM'] if k in values_dict), 'NONE')
+#         self.vertical_datum = next((values_dict[k] for k in ['vertical_datum', 'VERTICAL DATUM'] if k in values_dict), 'SEAFLOOR')
+#         self.magnetic_declination = next((values_dict[k] for k in ['magnetic_declination', 'MAGNETIC DECLINATION'] if k in values_dict), 0)
+#         self.utc_offset = next((values_dict[k] for k in ['utc_offset', 'UTC OFFSET'] if k in values_dict), 0)
+#         self.crp_x = next((values_dict[k] for k in ['crp_x', 'CRP X'] if k in values_dict), 0)
+#         self.crp_y = next((values_dict[k] for k in ['crp_y', 'CRP Y'] if k in values_dict), 0)
+#         self.crp_z = next((values_dict[k] for k in ['crp_z', 'CRP Z'] if k in values_dict), 0)
+#         self.site_name = next((values_dict[k] for k in ['site_name', 'SITE NAME'] if k in values_dict), 'NONE')
+#         self.surveyor = next((values_dict[k] for k in ['surveyor', 'SURVEYOR'] if k in values_dict), 'NONE')
+#         self.deployment_id = next((values_dict[k] for k in ['deployment_id', 'DEPLOYMENT ID'] if k in values_dict), 'NONE')
+#         self.x = next((values_dict[k] for k in ['x', 'X'] if k in values_dict), 0)
+#         self.y = next((values_dict[k] for k in ['y', 'Y'] if k in values_dict), 0)
+#         self.z = next((values_dict[k] for k in ['z', 'Z'] if k in values_dict), 0)
+#         self.pitch = next((values_dict[k] for k in ['pitch', 'PITCH'] if k in values_dict), 0)
+#         self.roll = next((values_dict[k] for k in ['roll', 'ROLL'] if k in values_dict), 0)
+#         self.yaw = next((values_dict[k] for k in ['yaw', 'YAW'] if k in values_dict), 0)
+#         self.turbidity = next((values_dict[k] for k in ['turbidity', 'TURBIDITY'] if k in values_dict), 0)
+#         self.rssi_beam_1 = next((values_dict[k] for k in ['rssi_beam_1', 'RSSI BEAM 1'] if k in values_dict), 0.45)
+#         self.rssi_beam_2 = next((values_dict[k] for k in ['rssi_beam_2', 'RSSI BEAM 2'] if k in values_dict), 0.45)
+#         self.rssi_beam_3 = next((values_dict[k] for k in ['rssi_beam_3', 'RSSI BEAM 3'] if k in values_dict), 0.45)
+#         self.rssi_beam_4 = next((values_dict[k] for k in ['rssi_beam_4', 'RSSI BEAM 4'] if k in values_dict), 0.45)
+#         self.rssi_beam_5 = next((values_dict[k] for k in ['rssi_beam_5', 'RSSI BEAM 5'] if k in values_dict), 0.45)
+#         self.rssi_beam_6 = next((values_dict[k] for k in ['rssi_beam_6', 'RSSI BEAM 6'] if k in values_dict), 0.45)
        
 
 class Pd0Decoder:
-    def __init__(self, filepath: str | Path, cfg: Dict[str, Any]) -> None:
+    def __init__(self, filepath: str | Path, cfg: Dict[str, Any], scan: bool | bool = False) -> None:
         """
         Initialize the Pd0Decoder with the path to the binary PD0 file.
 
         Parameters:
             file_path (str): Path to the binary PD0 file.
+            cfg (dict) : dictionary of pd0 config params 
+            scan (bool) : if True, only fixed leaders are read and report generated. 
         """
-        self.filepath = Path(filepath)
+        self.filepath = Utils._validate_file_path(filepath, Constants._PD0_SUFFIX)
         self.cfg = cfg
         #self.progress_bar = self.cfg.get('progress_bar', "True").lower() in ['true', '1', 'yes']
         
@@ -159,7 +188,41 @@ class Pd0Decoder:
         #get fixed and variable leader data 
         self.fixed_leaders = self._get_fixed_leaders()
         self.variable_leaders = self._get_variable_leaders()   
-               
+        
+        
+        
+        # # extract other useful metadata 
+        # self._n_cells = self.fixed_leaders[0].number_of_cells_wn
+        # self._n_beams = self.fixed_leaders[0].number_of_beams
+        
+        # self._beam_facing = self.fixed_leaders[0].system_configuration.beam_facing.lower()
+        # self._depth_cell_length = self.fixed_leaders[0].depth_cell_length_ws
+        # self._bin_1_distance = self.fixed_leaders[0].bin_1_distance
+        # self._beam_angle = self.fixed_leaders[0].beam_angle
+        
+        
+        # # self._n_cells = self._fixed.number_of_cells_wn
+        # # self._n_beams = self._fixed.number_of_beams
+        # # self._variable_leader = self._getvariable_leaders()
+        # # self._n_data_types = self._header.n_data_types
+        # # self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
+        
+        
+        # #self._header, self._fixed, self._variable = self._get_info()
+        # # self._n_data_types = self._header.n_data_types
+        # # self._n_bytes_in_ensemble = self._header.n_bytes_in_ensemble
+        # # self._n_cells = self._fixed.number_of_cells_wn
+        # # self._n_beams = self._fixed.number_of_beams
+        # # self._n_ensembles = self.filesize // self._n_bytes_in_ensemble - 3
+        # # self._beam_facing = self._fixed.system_configuration.beam_facing.lower()
+        # # self._depth_cell_length = self._fixed.depth_cell_length_ws
+        # # self._bin_1_distance = self._fixed.bin_1_distance
+        # # self._beam_angle = self._fixed.beam_angle
+        # #self._approximate_n_ensembles = True
+        # #self.status = 0
+        #self.close()
+        
+        
         
     def close(self):
         self.fobject.close()
@@ -354,7 +417,24 @@ class Pd0Decoder:
  
             variable_leaders.append(variable_leader)
         return variable_leaders
+    # def _get_info(self, initial_offset=0) -> Tuple[Header, FixedLeader, VariableLeader]:
+    #     self.fobject.seek(initial_offset)
+    #     header = Header(self.decode_fields(Pd0Formats.ensemble_header, 0))
+    #     n_data_types = header.n_data_types if header.n_data_types is not np.nan else 0
+    #     address_offsets = []
+    #     for i in range(n_data_types):
+    #         value, _ = self._decode_field(Pd0Formats.address_offsets[0])
+    #         address_offsets.append(value)
+    #     header.address_offset = address_offsets        
+    #     fixed_leader = FixedLeader(self.decode_fields(Pd0Formats.fixed_leader))
+    #     fixed_leader.system_configuration = self.decode_system_configuration(fixed_leader.system_configuration)
+    #     variable_leader = VariableLeader(self.decode_fields(Pd0Formats.variable_leader))
+    #     return header, fixed_leader, variable_leader
+        
+
+
     
+
     def _decode_field(self, field: FieldDef) -> Tuple[Any, bytes]:
         fmtstr = f"{field.endian}{field.fmt}"
         nbytes = struct.calcsize(fmtstr)
@@ -405,6 +485,9 @@ class Pd0Decoder:
             else:
                 bits += "0"
         return bits
+
+
+    
 
     def _decode_system_configuration(self, syscfg: str) -> SystemConfiguration:
         """
@@ -465,7 +548,15 @@ class Pd0Decoder:
         transform = (low >> 3) & 0b11       # bits 4..3 → xx
         frame = {0b00:"beam", 0b01:"instrument", 0b10:"ship", 0b11:"earth"}[transform]
         
+    #     "frame": frame,
+    #     "tilts_used": bool((low >> 2) & 1),   # p
+    #     "three_beam": bool((low >> 1) & 1),   # t
+    #     "bin_mapping": bool(low & 1),         # b
+    #     "raw_low_byte": low,
+    # }
+        
         coord_trans = CoordTransform()
+        
         coord_trans.frame = frame
         coord_trans.tilts_used = bool((low >> 2) & 1)
         coord_trans.three_beam = bool((low >> 1) & 1)
@@ -474,6 +565,27 @@ class Pd0Decoder:
         
         return coord_trans 
 
+    # def __parse_EX_command(self,ex):
+    #     """
+    #     determine the coordinate transformation processing parameters (EX command). parameters from 1-byte hex
+        
+    #     Args:
+    #         ex: 1-byte hex string 
+    #     Returns:
+    #         string - coordinate transformation processing parameter 
+    #     """      
+    
+    #     LSB = self.__get_LE_bit_string(ex[0])
+        
+    #     coord_sys = {'00': 'BEAM COORDINATES',
+    #                  '01': 'INSTRUMENT COORDINATES',
+    #                  '10': 'SHIP COORDINATES',
+    #                  '11': 'EARTH COORDINATES'}    
+        
+    #     coord_system= coord_sys[LSB[3:5]]
+        
+    #     return coord_system
+    
     def get_datetimes(self) -> List[VariableLeader]:
         """
         Get the variable leader data from the PD0 file.
@@ -685,8 +797,8 @@ class Pd0Decoder:
             "Beam Configuration and System Geometry": {
                 "Beam Facing": fixed_leader.system_configuration.beam_facing,
                 "Beam Pattern": fixed_leader.system_configuration.beam_pattern,
-                "Beam Angle (\u00B0)": fixed_leader.system_configuration.beam_angle,
-                "Beam Angle (Redundant \u00B0)": getattr(fixed_leader, "beam_angle", None),
+                "Beam Angle (°)": fixed_leader.system_configuration.beam_angle,
+                "Beam Angle (Redundant °)": getattr(fixed_leader, "beam_angle", None),
                 "Janus Config": fixed_leader.system_configuration.janus_config,
                 "Frequency": fixed_leader.system_configuration.frequency,
             },
@@ -716,8 +828,8 @@ class Pd0Decoder:
             },
             "Coordinate Transforms and Orientation": {
                 "Coordinate Transform Flags": fixed_leader.coordinate_transform_ex,
-                "Heading Alignment (\u00B0)": fixed_leader.heading_alignment_ea,
-                "Heading Bias (\u00B0)": fixed_leader.heading_bias_eb,
+                "Heading Alignment (°)": fixed_leader.heading_alignment_ea,
+                "Heading Bias (°)": fixed_leader.heading_bias_eb,
             },
             "Sensor and Source Configuration": {
                 "Sensor Source Flags": fixed_leader.sensor_source_ez,
@@ -748,6 +860,11 @@ class Pd0Decoder:
                 key_str = key.ljust(max_key_len + 4)
                 lines.append(f"  {key_str}: {value}")
             lines.append("")
-        report = "_br_".join(lines)
+        report = "\n".join(lines)
     
-        return report
+        # with open(out_path, "w", encoding="utf-8") as f:
+        #     f.write(report)
+        if return_dict:
+            return out
+        else:
+            return report

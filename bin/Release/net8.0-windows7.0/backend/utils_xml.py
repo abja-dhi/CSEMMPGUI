@@ -789,3 +789,37 @@ class XMLUtils:
                 break
         return cfg
 
+
+if __name__ == '__main__':
+    xml_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj'
+
+    project = XMLUtils(xml_path)
+
+    # ADCP by survey name
+    adcp_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="VesselMountedADCP",
+    )
+
+    # OBS by survey name (use survey_id="..." if you prefer id)
+    obs_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="OBSVerticalProfile",
+    )
+
+    # Water Samples by survey name
+    ws_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="WaterSample",
+    )
+    
+    info = project.project_info()
+    
+    
+    # get individual instrument configs by name and ID
+    cfg1 = project.get_cfg_by_instrument("VesselMountedADCP",instrument_name = '20241002_F3(E)_006r', instrument_id=5)
+    cfg2 = project.get_cfg_by_instrument("OBSVerticalProfile", instrument_name="OBS1",instrument_id=18)
+

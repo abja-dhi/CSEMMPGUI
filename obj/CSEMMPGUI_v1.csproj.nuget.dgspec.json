@@ -50,33 +50,9 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows7.0",
           "dependencies": {
-            "AdamsLair.TreeViewAdv": {
-              "target": "Package",
-              "version": "[1.7.7, )"
-            },
-            "CsvHelper": {
-              "target": "Package",
-              "version": "[33.1.0, )"
-            },
             "DHI.MikeCore": {
               "target": "Package",
               "version": "[23.0.3, )"
-            },
-            "Esri.ArcGISRuntime": {
-              "target": "Package",
-              "version": "[200.8.0, )"
-            },
-            "FastTree": {
-              "target": "Package",
-              "version": "[1.6.0, )"
-            },
-            "GDAL.Native": {
-              "target": "Package",
-              "version": "[3.11.3, )"
-            },
-            "Gdal.Core": {
-              "target": "Package",
-              "version": "[1.0.0, )"
             },
             "Microsoft.Web.WebView2": {
               "target": "Package",

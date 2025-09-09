@@ -9,16 +9,6 @@ import numpy as np
 from .utils import Utils, Constants, XYZ
 from .plotting import PlottingShell
 
-
-from typing import Dict, Any
-import numpy as np
-import pandas as pd
-
-
-from typing import Dict, Any
-import numpy as np
-import pandas as pd
-
 class ADCPPosition:
     _Vars = ["X", "Y", "Depth", "Pitch", "Roll", "Heading", "DateTime"]
 

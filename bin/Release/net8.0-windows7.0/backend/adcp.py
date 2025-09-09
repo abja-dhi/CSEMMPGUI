@@ -1,52 +1,43 @@
+# Standard library
 from pathlib import Path
-from typing import List, Tuple, Dict, Optional,Union
-import warnings
-import numpy as np
-from numpy.typing import NDArray
+from typing import List, Tuple, Dict, Optional, Union
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from dateutil import parser
+import warnings
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from pathlib import Path
 
-from dataclasses import dataclass, field
-from datetime import datetime
+# Third-party
+import numpy as np
+import numpy.ma as ma
+from numpy.typing import NDArray
+from dateutil import parser
 
+
+from pyproj import CRS, Transformer
+
+
+import cmocean.cm as cmo
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.gridspec as gridspec
+from matplotlib.animation import FuncAnimation, PillowWriter
+from matplotlib.axes import Axes
+from matplotlib.collections import LineCollection
+from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
+import matplotlib.ticker as mticker
+from matplotlib.ticker import AutoLocator, ScalarFormatter
+from matplotlib import colors as mcolors
+from scipy.ndimage import gaussian_filter1d
+
+# Local
 from .utils import Utils, Constants, XYZ
 from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
 from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
-from pyproj import CRS, Transformer
-import cmocean.cm as cmo
 
-
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
-from matplotlib import dates as mdates
-from matplotlib.lines import Line2D
-import numpy as np
-import numpy.ma as ma
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.gridspec as gridspec
-
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
-from typing import Union
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-from matplotlib.ticker import AutoLocator
-from matplotlib.collections import LineCollection
-import matplotlib as mpl
-
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-import matplotlib.dates as mdates
-from matplotlib.collections import LineCollection
-from matplotlib import colors as mcolors
-from matplotlib.ticker import ScalarFormatter
 
 
         
@@ -102,7 +93,7 @@ class ADCP():
             transect_shift_y=float(get_valid(self._cfg, 'transect_shift_y', 0)),
             transect_shift_z=float(get_valid(self._cfg, 'transect_shift_z', 0)),
             transect_shift_t=float(get_valid(self._cfg, 'transect_shift_t', 0)),
-            velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 0))
+            velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 5))
         )
         
      
@@ -184,6 +175,9 @@ class ADCP():
         self.position._resample_to(self.time.ensemble_datetimes)
         
 
+        
+        
+        
         if np.all(self.position.heading ==0):
             self.position.heading = self.aux_sensor_data.heading
             
@@ -210,7 +204,7 @@ class ADCP():
             relative_beam_origin: NDArray[np.float64] = field (metadata = {"desc": "Relative XYZ position of the beams with respect to CRP"})
             relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
             geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
-                    
+            HAB_beam_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from seabed to bin centers (m)"})        
                 
         
         #vh_list = self._pd0._get_variable_leader()  
@@ -231,6 +225,7 @@ class ADCP():
             relative_beam_origin = None,
             relative_beam_midpoint_positions=None,
             geographic_beam_midpoint_positions=None,
+            HAB_beam_midpoint_distances = None,
         )
 
         self.geometry.bin_midpoint_distances=self._get_bin_midpoints()
@@ -239,7 +234,7 @@ class ADCP():
         self.geometry.relative_beam_midpoint_positions = relative_bmp
         self.geometry.geographic_beam_midpoint_positions = geographic_bmp
         self.geometry.relative_beam_origin  = relative_org  
-            
+        
         
         # Beam data (unmasked)
         @dataclass
@@ -270,9 +265,11 @@ class ADCP():
             correlation_magnitude: np.ndarray = field(metadata={"desc": "Bottom-track correlation magnitude for each beam (counts)"})
             percent_good: np.ndarray = field(metadata={"desc": "Bottom-track percent-good per beam (0–100%)"})
             range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters)"})
+            adjusted_range_to_seabed: np.ndarray = field(metadata={"desc": "Vertical range to seabed per beam (meters), adjusted for beam angle and platform orientation"})
+            seabed_points: np.ndarray = field(metadata={"desc": "Geographic location of all bottom track range measurements"})
             velocity: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), in raw coordinate frame (set by EX_command)"})
-            # velocity_ship: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (F,B,Z,ev) in ship coordinate frame"})
-            # velocity_earth: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (E,N,U,ev) in earth coordinate frame"})
+            velocity_ship: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (F,B,Z,ev) in ship coordinate frame"})
+            velocity_earth: np.ndarray = field(metadata={"desc": "Bottom-track velocity vectors for each beam (m/s), (E,N,U,ev) in earth coordinate frame"})
             ref_layer_velocity: np.ndarray = field(metadata={"desc": "Reference layer velocity for each beam (m/s)"})
             ref_correlation_magnitude: np.ndarray = field(metadata={"desc": "Correlation magnitude in reference layer (counts)"})
             ref_echo_intensity: np.ndarray = field(metadata={"desc": "Echo intensity in reference layer (counts)"})
@@ -299,6 +296,8 @@ class ADCP():
 
         bt_list = self._pd0.get_bottom_track()
         
+        
+        
         if bt_list:
             self._bt_mode_active = True
             self.bottom_track = ADCPBottomTrack(
@@ -306,7 +305,11 @@ class ADCP():
                 correlation_magnitude = np.array([[getattr(bt_list[e], f"beam{b}_bt_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 percent_good = np.array([[getattr(bt_list[e], f"beam{b}_bt_pgood") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 range_to_seabed = np.array([[getattr(bt_list[e], f"beam{b}_bt_range") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T/100,
+                adjusted_range_to_seabed =None,
+                seabed_points = None,
                 velocity = np.array([[getattr(bt_list[e], f"beam{b}_bt_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
+                velocity_ship = None,
+                velocity_earth = None,
                 ref_layer_velocity = np.array([[getattr(bt_list[e], f"beam_{b}_ref_layer_vel") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)], dtype = np.float64).T,
                 ref_correlation_magnitude = np.array([[getattr(bt_list[e], f"bm{b}_ref_corr") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
                 ref_echo_intensity = np.array([[getattr(bt_list[e], f"bm{b}_ref_int") for b in range(1, self.geometry.n_beams+1)] for e in range(self.time.n_ensembles)]).T,
@@ -330,9 +333,17 @@ class ADCP():
             
             self.bottom_track.velocity_ship = self._get_bt_velocity(target_frame = 'ship')
             self.bottom_track.velocity_earth = self._get_bt_velocity(target_frame = 'earth')
+            
+            adjusted_depth, seabed_points = self._calculate_bottom_track_geometry()
+            
+            self.bottom_track.adjusted_range_to_seabed = adjusted_depth
+            self.bottom_track.seabed_points = seabed_points
+            self.geometry.HAB_beam_midpoint_distances = self._calculate_height_above_bed()
         else: 
             self._bt_mode_active = False
             
+       
+        
         
         
         # @dataclass
@@ -735,8 +746,8 @@ class ADCP():
             cormag_max=int(get_valid(self._cfg, 'cormag_max', 255)),
             echo_min=int(get_valid(self._cfg, 'echo_min', 0)),
             echo_max=int(get_valid(self._cfg, 'echo_max', 255)),
-            abs_min=int(get_valid(self._cfg, 'abs_min', 0)),
-            abs_max=int(get_valid(self._cfg, 'abs_max', Constants._LOW_NUMBER)),
+            abs_min=int(get_valid(self._cfg, 'abs_min', Constants._LOW_NUMBER)),
+            abs_max=int(get_valid(self._cfg, 'abs_max', 0)),
             vel_min=float(get_valid(self._cfg, 'vel_min', Constants._LOW_NUMBER)),
             vel_max=float(get_valid(self._cfg, 'vel_max', Constants._HIGH_NUMBER)),
             bt_bin_offset = int(get_valid(self._cfg, 'bt_bin_offset', 0)),
@@ -836,6 +847,153 @@ class ADCP():
         
         return data
     
+    def get_beam_series(self,
+                        field_name: str,
+                        mode: str,
+                        target,
+                        beam="mean"):
+        """
+        Time series from ADCP beam data with either a numeric selector or an
+        all-bins aggregation controlled by `target`.
+    
+        Parameters
+        ----------
+        field_name : str
+            Beam field name passed to get_beam_data(...).
+        mode : {'bin', 'range', 'hab'}
+            Used only when `target` is numeric.
+            'bin'   -> select by 1-based bin index (single bin).
+            'range' -> select closest bin by along-beam distance [m].
+            'hab'   -> select closest bin by height-above-bed [m].
+        target : int | float | str
+            If numeric: value used with `mode` to pick a single bin per beam.
+              - 'bin'   : 1-based bin index.
+              - 'range' : target distance [m].
+              - 'hab'   : target HAB [m].
+            If str: aggregation over ALL bins (per ensemble) for selected beams.
+              - 'mean' or 'avg' : mean over bins×beams.
+              - 'pXX'           : percentile XX in [0,100] over bins×beams, e.g. 'p50','p90'.
+        beam : {'mean', int, list[int]}
+            Beam selection; 1-based indices. 'mean' selects all beams.
+    
+        Returns
+        -------
+        out : np.ndarray
+            Shape (n_ensembles,) aggregated values.
+        meta : dict
+            Diagnostics:
+              - 'mode' : str  ('bin'/'range'/'hab' or 'aggregate')
+              - 'beam_mask' : (nm,) bool
+              - If numeric target and mode='bin'/'range':
+                  * 'bin_index' : int (1-based)
+                  * 'depth_m'   : float (for 'range', selected along-beam distance)
+              - If numeric target and mode='hab':
+                  * 'bin_index_per_beam' : (ne, nm) float (1-based; NaN if unselected)
+                  * 'hab_m_per_beam'     : (ne, nm) float
+                  * 'hab_m'              : (ne,) float beam-mean HAB
+              - If aggregation target (str):
+                  * 'aggregation' : 'mean' or 'pXX'
+        """
+        import numpy as np
+    
+        data = self.get_beam_data(field_name, mask=True)  # (ne, nb, nm)
+        ne, nb, nm = data.shape
+    
+        # Beam mask
+        if isinstance(beam, str) and beam.lower() in {"mean", "avg"}:
+            beam_mask = np.ones(nm, dtype=bool)
+        else:
+            sel = [beam] if isinstance(beam, (int, np.integer)) else list(beam)
+            idx = [int(b) - 1 for b in sel if 1 <= int(b) <= nm]
+            beam_mask = np.zeros(nm, dtype=bool)
+            beam_mask[idx] = True
+        beam_mask3 = beam_mask[None, None, :]  # (1,1,nm)
+    
+        # Aggregation target?
+        if isinstance(target, str):
+            t = target.strip().lower()
+            meta = {"mode": "aggregate", "beam_mask": beam_mask.copy()}
+            vals = np.where(beam_mask3, data, np.nan)  # all bins for selected beams
+    
+            if t in {"mean", "avg"}:
+                meta["aggregation"] = "mean"
+                out = np.nanmean(vals, axis=(1, 2))
+            elif t.startswith("p") and t[1:].replace(".", "", 1).isdigit():
+                q = float(t[1:])
+                if not (0.0 <= q <= 100.0):
+                    raise ValueError("percentile must be between 0 and 100.")
+                meta["aggregation"] = f"p{q:g}"
+                out = np.nanpercentile(vals, q, axis=(1, 2), method="nearest")
+            else:
+                raise ValueError("string target must be 'mean'/'avg' or 'pXX' like 'p50'.")
+    
+            empty = ~np.any(np.isfinite(vals), axis=(1, 2))
+            out[empty] = np.nan
+            return out, meta
+    
+        # Numeric selector path
+        if isinstance(target, (tuple, list, np.ndarray)):
+            raise TypeError("target must be a single int/float or an aggregation string.")
+        mode = mode.lower().strip()
+        meta = {"mode": mode, "beam_mask": beam_mask.copy()}
+    
+        if mode == "bin":
+            b = int(target)
+            if b < 1 or b > nb:
+                raise ValueError(f"bin target {b} out of range 1..{nb}")
+            bin_mask = np.zeros(nb, dtype=bool); bin_mask[b - 1] = True
+            sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
+            sel_mask = sel_bins & np.broadcast_to(beam_mask3, (ne, nb, nm))
+            meta["bin_index"] = int(b)
+    
+        elif mode == "range":
+            r_bins = np.asarray(self.geometry.bin_midpoint_distances, float)  # (nb,)
+            tgt = float(target)
+            b_idx = int(np.nanargmin(np.abs(r_bins - tgt)))  # 0-based
+            bin_mask = np.zeros(nb, dtype=bool); bin_mask[b_idx] = True
+            sel_bins = np.broadcast_to(bin_mask[None, :, None], (ne, nb, nm))
+            sel_mask = sel_bins & np.broadcast_to(beam_mask3, (ne, nb, nm))
+            meta["bin_index"] = int(b_idx + 1)
+            meta["depth_m"] = float(r_bins[b_idx])
+    
+        elif mode == "hab":
+            hab = np.asarray(self.geometry.HAB_beam_midpoint_distances, float)  # (ne, nb, nm)
+            tgt = float(target)
+            sel_mask = np.zeros((ne, nb, nm), dtype=bool)
+            bin_idx_pb = np.full((ne, nm), np.nan)
+            hab_pb = np.full((ne, nm), np.nan)
+    
+            for m in range(nm):
+                if not beam_mask[m]:
+                    continue
+                hb = hab[:, :, m]  # (ne, nb)
+                finite = np.isfinite(hb)
+                hb_fill = np.where(finite, hb, np.inf)
+                idx_min = np.argmin(np.abs(hb_fill - tgt), axis=1)  # (ne,)
+                rows = np.arange(ne)
+                sel_mask[rows, idx_min, m] = True
+                bin_idx_pb[:, m] = idx_min + 1
+                hab_pb[:, m] = hb[rows, idx_min]
+    
+            meta["bin_index_per_beam"] = bin_idx_pb
+            meta["hab_m_per_beam"] = hab_pb
+            with np.errstate(invalid="ignore"):
+                meta["hab_m"] = np.nanmean(np.where(beam_mask[None, :], hab_pb, np.nan), axis=1)
+    
+        else:
+            raise ValueError("mode must be one of {'bin','range','hab'} for numeric targets.")
+    
+        vals = np.where(sel_mask, data, np.nan)
+        out = np.nanmean(vals, axis=(1, 2))  # single-bin per beam → mean across selected beams
+        empty = ~np.any(np.isfinite(vals), axis=(1, 2))
+        out[empty] = np.nan
+        return out, meta
+
+
+
+
+
+    
     def get_velocity_data(self,
                           coord_sys: str = "earth",
                           mask: bool = True,):
@@ -909,6 +1067,224 @@ class ADCP():
     
         return v1, v2, v3, ev, speed, direction
 
+    def get_velocity_series(
+        self,
+        component: str,
+        mode: str,
+        target,
+    ):
+        """
+        Time series from ADCP earth-coordinate velocities with either a numeric
+        per-bin selector or an all-bins aggregation controlled by `target`.
+    
+        Data source
+        -----------
+        Uses self.get_velocity_data(coord_sys="earth", mask=True) which must return:
+            v1, v2, v3, ev, speed, direction  # each (n_ensembles, n_bins)
+    
+        Parameters
+        ----------
+        component : {'u', 'v', 'w', 'ev', 'speed', 'direction'}
+            Velocity quantity to extract:
+              - 'u','v','w' map to v1,v2,v3 in earth frame.
+              - 'ev' is error velocity.
+              - 'speed' is horizontal speed magnitude.
+              - 'direction' is flow direction (degrees, 0–360 expected).
+        mode : {'bin', 'range', 'hab'}
+            Used only when `target` is numeric.
+            'bin'   -> select by 1-based bin index (single bin).
+            'range' -> select closest bin by along-beam or range distance [m].
+            'hab'   -> select closest bin by height-above-bed [m].
+        target : int | float | str
+            If numeric: value used with `mode` to pick a single bin per ensemble.
+              - 'bin'   : 1-based bin index.
+              - 'range' : target distance [m] (requires per-bin distances).
+              - 'hab'   : target HAB [m] (requires per-ensemble per-bin HAB).
+            If str: aggregation over ALL bins (per ensemble):
+              - 'mean' or 'avg' : mean over bins.
+                  * for 'direction' uses circular mean.
+              - 'pXX'           : percentile XX in [0,100] over bins, e.g. 'p50','p90'.
+                  * not supported for 'direction' (raises ValueError).
+    
+        Returns
+        -------
+        out : np.ndarray
+            Shape (n_ensembles,) aggregated values.
+        meta : dict
+            Diagnostics:
+              - 'component' : str
+              - 'mode'      : str  ('bin'/'range'/'hab' or 'aggregate')
+              - If numeric target and mode='bin':
+                  * 'bin_index' : int (1-based)
+              - If numeric target and mode='range':
+                  * 'bin_index' : int (1-based)
+                  * 'range_m'   : float (selected bin center distance)
+              - If numeric target and mode='hab':
+                  * 'bin_index_per_ens' : (ne,) float (1-based; NaN if unselected)
+                  * 'hab_m_per_ens'     : (ne,) float
+                  * 'hab_note'          : str (source array name)
+              - If aggregation target (str):
+                  * 'aggregation' : 'mean' or 'pXX'
+                  * 'circular'    : bool (True for direction-mean)
+    
+        Notes
+        -----
+        Required geometry arrays for numeric selection:
+          - For mode='range': one of
+              self.geometry.bin_midpoint_distances               #(nb,)
+              self.geometry.range_bin_midpoints                  #(nb,)
+            If neither exists, a ValueError is raised specifying what to provide.
+          - For mode='hab': one of
+              self.geometry.HAB_cell_midpoint_distances          #(ne, nb)
+              self.geometry.hab_bin_midpoints                    #(ne, nb)
+            If neither exists, a ValueError is raised specifying what to provide.
+        """
+        import numpy as np
+    
+        # ---------- fetch earth-frame velocity products ----------
+        v1, v2, v3, ev, speed, direction = self.get_velocity_data(
+            coord_sys="earth", mask=True
+        )  # each (ne, nb)
+        ne, nb = v1.shape
+    
+        comp = component.strip().lower()
+        if comp == "u":
+            data = np.asarray(v1, dtype=float)
+        elif comp == "v":
+            data = np.asarray(v2, dtype=float)
+        elif comp == "w":
+            data = np.asarray(v3, dtype=float)
+        elif comp == "ev":
+            data = np.asarray(ev, dtype=float)
+        elif comp == "speed":
+            data = np.asarray(speed, dtype=float)
+        elif comp == "direction":
+            data = np.asarray(direction, dtype=float)
+        else:
+            raise ValueError("component must be one of {'u','v','w','ev','speed','direction'}.")
+    
+        # ---------- aggregation path (target is a string) ----------
+        if isinstance(target, str):
+            t = target.strip().lower()
+            meta = {"mode": "aggregate", "component": comp}
+    
+            if t in {"mean", "avg"}:
+                meta["aggregation"] = "mean"
+                if comp == "direction":
+                    # circular mean in degrees
+                    rad = np.deg2rad(data)
+                    c = np.nanmean(np.cos(rad), axis=1)
+                    s = np.nanmean(np.sin(rad), axis=1)
+                    ang = np.rad2deg(np.arctan2(s, c)) % 360.0
+                    out = ang
+                    meta["circular"] = True
+                else:
+                    out = np.nanmean(data, axis=1)
+                    meta["circular"] = False
+    
+            elif t.startswith("p") and t[1:].replace(".", "", 1).isdigit():
+                if comp == "direction":
+                    raise ValueError("Percentiles for 'direction' are undefined. Use 'mean' instead.")
+                q = float(t[1:])
+                if not (0.0 <= q <= 100.0):
+                    raise ValueError("percentile must be between 0 and 100.")
+                meta["aggregation"] = f"p{q:g}"
+                meta["circular"] = False
+                out = np.nanpercentile(data, q, axis=1, method="nearest")
+            else:
+                raise ValueError("string target must be 'mean'/'avg' or 'pXX' like 'p50'.")
+    
+            # ensembles with all-NaN across bins
+            empty = ~np.any(np.isfinite(data), axis=1)
+            out = np.asarray(out, dtype=float)
+            out[empty] = np.nan
+            return out, meta
+    
+        # ---------- numeric selector path (single bin per ensemble or fixed bin) ----------
+        if isinstance(target, (tuple, list, np.ndarray)):
+            raise TypeError("target must be a single int/float or an aggregation string.")
+    
+        mode = mode.lower().strip()
+        meta = {"mode": mode, "component": comp}
+    
+        if mode == "bin":
+            b = int(target)
+            if b < 1 or b > nb:
+                raise ValueError(f"bin target {b} out of range 1..{nb}")
+            meta["bin_index"] = int(b)
+            out = data[:, b - 1]
+    
+        elif mode == "range":
+            # try common attribute names for per-bin range distances
+            rng = None
+            src_name = None
+            for cand in (
+                "bin_midpoint_distances",
+                "range_bin_midpoints",
+            ):
+                if hasattr(self.geometry, cand):
+                    rng = np.asarray(getattr(self.geometry, cand), dtype=float)
+                    src_name = cand
+                    break
+            if rng is None:
+                raise ValueError(
+                    "Provide a 1D per-bin distance array on self.geometry, e.g., "
+                    "'bin_midpoint_distances' or 'range_bin_midpoints' (shape (nb,))."
+                )
+            if rng.shape[0] != nb:
+                raise ValueError(f"Distance array '{src_name}' must have length nb={nb}.")
+    
+            tgt = float(target)
+            b_idx0 = int(np.nanargmin(np.abs(rng - tgt)))  # 0-based
+            meta["bin_index"] = int(b_idx0 + 1)
+            meta["range_m"] = float(rng[b_idx0])
+            out = data[:, b_idx0]
+    
+        elif mode == "hab":
+            # try common attribute names for per-ensemble per-bin HAB distances
+            hab = None
+            src_name = None
+            for cand in (
+                "HAB_cell_midpoint_distances",
+                "hab_bin_midpoints",
+            ):
+                if hasattr(self.geometry, cand):
+                    hab = np.asarray(getattr(self.geometry, cand), dtype=float)
+                    src_name = cand
+                    break
+            if hab is None:
+                raise ValueError(
+                    "Provide a 2D HAB array on self.geometry, e.g., "
+                    "'HAB_cell_midpoint_distances' or 'hab_bin_midpoints' (shape (ne, nb))."
+                )
+            if hab.shape != (ne, nb):
+                raise ValueError(f"HAB array '{src_name}' must have shape (ne, nb)=({ne}, {nb}).")
+    
+            tgt = float(target)
+            sel_idx = np.full(ne, np.nan)
+            sel_hab = np.full(ne, np.nan)
+    
+            finite = np.isfinite(hab)
+            # Replace NaN with +inf so argmin ignores them
+            hab_fill = np.where(finite, hab, np.inf)
+            idx_min = np.argmin(np.abs(hab_fill - tgt), axis=1)  # (ne,)
+            rows = np.arange(ne)
+            sel_idx[:] = idx_min + 1
+            sel_hab[:] = hab[rows, idx_min]
+    
+            meta["bin_index_per_ens"] = sel_idx
+            meta["hab_m_per_ens"] = sel_hab
+            meta["hab_note"] = f"selected using geometry.{src_name}"
+    
+            out = data[rows, idx_min]
+    
+        else:
+            raise ValueError("mode must be one of {'bin','range','hab'} for numeric targets.")
+    
+        # set NaN where selection is invalid
+        out = np.asarray(out, dtype=float)
+        out[~np.isfinite(out)] = np.nan
+        return out, meta
 
     
     
@@ -1110,6 +1486,7 @@ class ADCP():
             delta = timedelta(hours=float(self.corrections.utc_offset)) + \
                     timedelta(hours=float(self.corrections.transect_shift_t))
             datetimes = [dt + delta for dt in datetimes]
+        
         return np.array(datetimes)
     
     
@@ -1404,6 +1781,50 @@ class ADCP():
         # Earth → ship not implemented
         raise ValueError(f"Transformation from native '{frame}' to '{target_frame}' not supported for BT.")
 
+    def _calculate_height_above_bed(self, clamp_zero: bool = True):
+        """
+        HAB per ensemble/bin/beam using self.bottom_track.adjusted_range_to_seabed.
+        Returns array with shape (n_ensembles, n_bins, n_beams).
+        """
+        import numpy as np
+    
+        ne = int(self.time.n_ensembles)
+        nb = int(self.geometry.n_bins)
+        nm = int(self.geometry.n_beams)
+    
+        if str(self.geometry.beam_facing).lower() != "down":
+            return np.full((ne, nb, nm), np.nan)
+    
+        bt = getattr(self, "bottom_track", None)
+        if bt is None or not hasattr(bt, "adjusted_range_to_seabed"):
+            return np.full((ne, nb, nm), np.nan)
+    
+        # Bin midpoints: rel_xyz.z is transducer->bin in earth z. Positive up => make positive down.
+        _, rel_xyz, _ = self._calculate_beam_geometry()      # rel_xyz.z: (ne, nb, nm)
+        dz_vert = -np.asarray(rel_xyz.z, float)              # positive down
+    
+        # Adjusted BT depth: shape must be (n_beams, n_ensembles)
+        adj = np.asarray(bt.adjusted_range_to_seabed, float)
+        if adj.shape == (ne, nm):
+            adj = adj.T
+        if adj.shape != (nm, ne):
+            return np.full((ne, nb, nm), np.nan)
+    
+        # Broadcast BT depth to all bins
+        adj_full = np.broadcast_to(adj.T[:, None, :], (ne, nb, nm))
+    
+        # HAB = bottom depth - bin vertical depth
+        hab = adj_full - dz_vert
+    
+        # Mask invalids using broadcasted shapes
+        invalid = ~np.isfinite(adj_full) | ~np.isfinite(dz_vert)
+        hab[invalid] = np.nan
+    
+        if clamp_zero:
+            hab[hab < 0] =np.nan
+    
+        return hab
+
 
  
     
@@ -1495,6 +1916,135 @@ class ADCP():
             geographic_beam_midpoint_positions = XYZ(x=gx, y=gy, z=gz)
     
             return rel_orig, relative_beam_midpoint_positions, geographic_beam_midpoint_positions
+
+    def _calculate_bottom_track_geometry(self):
+        """
+        Tilt-corrected vertical bottom-track depth per beam×ensemble.
+    
+        Parameters
+        ----------
+        return_points : bool
+            If True, also return seabed hit points XYZ(time, beam).
+        save_adjusted : bool
+            If True, write self.bottom_track.adjusted_range_to_seabed.
+    
+        Returns
+        -------
+        adjusted_range_to_seabed : (n_beams, n_ensembles) float
+        seabed_points : XYZ or None
+        """
+        import numpy as np
+        from pyproj import CRS
+    
+        n_beams = int(self.geometry.n_beams)
+        n_ens   = int(self.time.n_ensembles)
+    
+        # Preconditions
+        bt = getattr(self, "bottom_track", None)
+        if bt is None or not hasattr(bt, "range_to_seabed"):
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        if str(self.geometry.beam_facing).lower() != "down":
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        # Slant TRDI ranges (beam, ens) – may arrive in other shapes; coerce
+        R_bt = np.asarray(bt.range_to_seabed, float)
+        if R_bt.ndim == 1:
+            R_bt = R_bt[:, None] if R_bt.size == n_beams else R_bt[None, :]
+        if R_bt.shape == (n_ens, n_beams):
+            R_bt = R_bt.T
+        if R_bt.shape != (n_beams, n_ens):
+            adj = np.full((n_beams, n_ens), np.nan)
+            return adj, None if return_points else None
+    
+        # CRP rotation and beam bases (instrument frame)
+        crp_theta = float(self.geometry.crp_rotation_angle)
+        dr = float(self.geometry.beam_dr)
+        R_crp = Utils.gen_rot_z(crp_theta)
+        bases = np.array([[ dr, -dr,  0,   0],
+                          [  0,   0,  dr, -dr],
+                          [  0,   0,   0,   0]], float)[:, :n_beams]
+        rel_orig = R_crp @ bases
+        off_vec = np.array([self.geometry.crp_offset_x,
+                            self.geometry.crp_offset_y,
+                            self.geometry.crp_offset_z], float)
+    
+        # Beam unit vectors in instrument frame (down-looking => -Z)
+        beam_angle = float(self.geometry.beam_angle)
+        out_sign = -1.0
+        u_beam_inst = np.zeros((n_beams, 3), float)
+        for b in range(n_beams):
+            if b in (0, 1):
+                Rb = Utils.gen_rot_y((-1 if b == 0 else 1) * beam_angle)
+            else:
+                Rb = Utils.gen_rot_x((1 if b == 3 else -1) * beam_angle)
+            v = Rb @ np.array([0.0, 0.0, out_sign])
+            nrm = np.linalg.norm(v)
+            u_beam_inst[b] = v / nrm if nrm > 0 else v
+    
+        # Position arrays for optional hit points
+        def ens_array(val):
+            return np.full(n_ens, float(val)) if isinstance(val, (int, float)) else np.asarray(val, float)
+    
+        xx   = ens_array(self.position.x)
+        yy   = ens_array(self.position.y)
+        xloc = ens_array(self.position.x_local_m)
+        yloc = ens_array(self.position.y_local_m)
+        zz   = ens_array(self.position.z)
+    
+        use_local = CRS.from_user_input(self.position.epsg).is_geographic
+    
+        # Outputs
+        adjusted = np.full((n_beams, n_ens), np.nan, float)
+        seabed_points = None
+
+        gx = np.full((n_ens, n_beams), np.nan, float)
+        gy = np.full((n_ens, n_beams), np.nan, float)
+        gz = np.full((n_ens, n_beams), np.nan, float)
+    
+        # Per-ensemble attitude
+        for e in range(n_ens):
+            heading = self.position.heading if isinstance(self.position.heading, float) else self.position.heading[e]
+            pitch   = self.position.pitch  if isinstance(self.position.pitch,  float) else self.position.pitch[e]
+            roll    = self.position.roll   if isinstance(self.position.roll,   float) else self.position.roll[e]
+            yaw = -(heading + crp_theta)
+    
+            R_att = Utils.gen_rot_z(yaw) @ Utils.gen_rot_y(pitch) @ Utils.gen_rot_x(roll)
+    
+            # Beam bases in earth frame
+            base_e = R_att @ (rel_orig + off_vec[:, None])
+    
+            xb = xloc[e] if use_local else xx[e]
+            yb = yloc[e] if use_local else yy[e]
+            zb = zz[e]
+    
+            for b in range(n_beams):
+                r = R_bt[b, e]
+                if not np.isfinite(r):
+                    continue
+    
+                u = R_att @ u_beam_inst[b]
+                nrm = np.linalg.norm(u)
+                if nrm == 0 or not np.isfinite(nrm):
+                    continue
+                u /= nrm
+    
+                vz = abs(float(u[2]))            # cosine with vertical
+                adjusted[b, e] = r * vz          # vertical depth from transducer
+    
+                
+                gx[e, b] = xb + base_e[0, b] + u[0] * r
+                gy[e, b] = yb + base_e[1, b] + u[1] * r
+                gz[e, b] = zb + base_e[2, b] + u[2] * r
+    
+
+    
+
+        seabed_points = XYZ(x=gx, y=gy, z=gz)
+    
+        return adjusted, seabed_points
 
 
 
@@ -1943,36 +2493,17 @@ class ADCP():
 
 
 class Plotting:
-    # _CMAPS = {
-    #     "percent_good": plt.cm.binary,
-    #     "echo_intensity": plt.cm.turbo,
-    #     "filtered_echo_intensity": plt.cm.turbo,
-    #     "correlation_magnitude": plt.cm.nipy_spectral,
-    #     "absolute_backscatter": plt.cm.turbo,
-    #     "ntu": plt.cm.turbo,
-    #     "ssc": plt.cm.turbo,
-    #     "signal_to_noise_ratio": plt.cm.bone_r,
-    # }
-    
-    
-    # _CBAR_LABELS = {
-    #     "u": "Eastward Velocity (m/s)",
-    #     "v": "Northward Velocity (m/s)",
-    #     "w": "Upward Velocity (m/s)",
-    #     "CS": "Current Speed (m/s)",
-    #     "error_velocity": "Error Velocity (m/s)",
-    # }
-    
+
     def __init__(self, adcp: ADCP) -> None:
         self._adcp = adcp
 
     
-    def platform_orientation(self, title=None):
+    def platform_orientation(self):
         pos = self._adcp.geometry.relative_beam_origin
         
         
         fig, (ax, ax2) = PlottingShell.subplots(
-            figheight=6, figwidth=4, nrow=2, height_ratios=[3, 1]
+            figheight=6, figwidth=4, nrow=2, height_ratios = [3,1]
         )
         
         # Temporary limit calc for scaling label offsets
@@ -2042,9 +2573,7 @@ class Plotting:
         
         ax.set_xlabel('Δx (m)')
         ax.set_ylabel('Δy (m)')
-        if title is None:
-            title = f'{self._adcp.name} Platform Orientation'
-        ax.set_title(title)
+        ax.set_title(f'{self._adcp.name} Platform Orientation')
         
         # --- Bottom plot: Z-offset relative to CRP ---
         y = np.mean(pos[1,:])
@@ -2224,7 +2753,9 @@ class Plotting:
             if gif_name is None:
                 gif_name = f"{adcp.name} transect animation.gif"
             ani.save(gif_name, dpi=120, fps=1000/interval_ms)
-        return ani
+        
+        #plt.show()
+        return fig,ani
 
 
  
@@ -2396,11 +2927,10 @@ class Plotting:
                 gif_path = f"{adcp.name} beam geometry animation.gif"
             ani.save(gif_path, writer=PillowWriter(fps=max(1, 1000 // interval)))
 
-        if show:
-            plt.show()
 
-        return ani, ax
-            
+
+        return fig,ani
+                
     def single_beam_flood_plot(
             self,
             beam: int | str,
@@ -2411,213 +2941,266 @@ class Plotting:
             vmax: float | None = None,
             n_time_ticks: int = 6,
             title: str | None = None,
-            mask: bool = True
+            mask: bool = True,
+            ax=None,                              # optional target Axes
+            cax=None,                             # optional colorbar Axes
+            *,
+            color_scale: str = "linear",          # "linear" or "log"
+            cmap_levels: list | tuple | None = None,        # colorbar tick locations
+            cbar_tick_labels: list[str] | None = None,      # optional custom labels
+            tick_decimals: int = 2                # fixed-decimal for log ticks
         ):
-            """
-            Single-beam curtain plot with colorbar and top distance axis.
+        """
+        Single-beam curtain plot with optional target axes and colorbar controls.
+        Returns (fig, (ax, cax)).
+        """
+        import numpy as np
+        import numpy.ma as ma
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+        import matplotlib.gridspec as gridspec
+        from matplotlib.colors import Normalize, LogNorm
+        from matplotlib.ticker import FuncFormatter
+        from scipy.ndimage import gaussian_filter1d
     
-            Parameters
-            ----------
-            beam : int or "mean"
-                Beam number in [1, n_beams] or 'mean' to average across beams.
-            field_name, y_axis_mode, cmap, vmin, vmax, n_time_ticks, title : standard.
+        if cmap is None:
+            cmap = "turbo"
     
-            Returns
-            -------
-            fig, (ax, ax_cbar)
-            """
-            import numpy as np
-            import numpy.ma as ma
-            import matplotlib.pyplot as plt
-            import matplotlib.dates as mdates
-            import matplotlib.gridspec as gridspec
+        # --- Beam selection ---
+        if isinstance(beam, (str, bytes, bytearray)):
+            beam_text = (beam.decode() if isinstance(beam, (bytes, bytearray)) else beam).strip().lower()
+        else:
+            beam_text = None
+        use_mean = beam_text in {"mean", "avg", "average"}
+        if not use_mean:
+            try:
+                ib = int(beam) - 1
+            except Exception:
+                raise TypeError("beam must be an int 1..n or 'mean'")
+            n_beams = int(self._adcp.geometry.n_beams)
+            if not (0 <= ib < n_beams):
+                raise ValueError(f"beam must be in [1, {n_beams}] or 'mean'")
     
-            # Colormap default
-            if cmap is None:
-                cmap = "turbo"
+        plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
+                             "xtick.labelsize": 8, "ytick.labelsize": 8})
     
-            # Beam selection
-            if isinstance(beam, (str,)):
-                beam_text = beam.strip().lower()
-            elif isinstance(beam, (bytes, bytearray)):
-                try:
-                    beam_text = bytes(beam).decode().strip().lower()
-                except Exception:
-                    beam_text = str(beam).strip().lower()
-            else:
-                beam_text = None
+        A = self._adcp
     
-            use_mean = bool(beam_text in {"mean", "avg", "average"})
-            if not use_mean:
-                try:
-                    ib = int(beam) - 1
-                except Exception:
-                    raise TypeError("beam must be an int 1..n or 'mean'")
-                n_beams = int(self._adcp.geometry.n_beams)
-                if not (0 <= ib < n_beams):
-                    raise ValueError(f"beam must be in [1, {n_beams}] or 'mean'")
+        # --- Data ---
+        t_dt  = np.asarray(A.time.ensemble_datetimes)
+        t_num = mdates.date2num(t_dt).astype(float)
+        t0, t1 = float(t_num[0]), float(t_num[-1])
     
-            # Small fonts
-            plt.rcParams.update({
-                "axes.titlesize": 8,
-                "axes.labelsize": 8,
-                "xtick.labelsize": 8,
-                "ytick.labelsize": 8,
-            })
+        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
+        data_tb   = ma.masked_invalid(ma.mean(beam_data, axis=2)) if use_mean else ma.masked_invalid(beam_data[:, :, ib])
     
-            # ---------- Data ----------
-            t_dt = np.asarray(self._adcp.time.ensemble_datetimes)
-            t_num = mdates.date2num(t_dt).astype(float)
-            t0, t1 = float(t_num[0]), float(t_num[-1])
+        scale_mode = str(color_scale).lower()
+        if scale_mode == "log":
+            data_tb = ma.masked_where(~(data_tb > 0), data_tb)  # log needs positive
     
-            beam_data = ma.masked_invalid(self._adcp.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
-            if use_mean:
-                data_tb = ma.masked_invalid(ma.mean(beam_data, axis=2))  # (time,bins)
-            else:
-                data_tb = ma.masked_invalid(beam_data[:, :, ib])         # (time,bins)
+        bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
+        z_rel      = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)
+        invert_y   = str(A.geometry.beam_facing).lower() == "down"
     
-            bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
-            z_rel = np.asarray(self._adcp.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
-            bt_range = np.asarray(self._adcp.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
-            invert_y = str(self._adcp.geometry.beam_facing).lower() == "down"
-    
-            # Color limits from selected data
-            if vmin is None or vmax is None:
-                finite_vals = data_tb.compressed()
-                if finite_vals.size == 0:
-                    raise ValueError("No finite data in selected field.")
-                if vmin is None:
-                    vmin = float(np.nanmin(finite_vals))
-                if vmax is None:
-                    vmax = float(np.nanmax(finite_vals))
-    
-            units_map = {
-                "echo_intensity": "Counts",
-                "correlation_magnitude": "Counts",
-                "percent_good": "%",
-                "absolute_backscatter": "dB",
-                "absolute backscatter": "dB",
-                "alpha_s": "dB/km",
-                "alpha_w": "dB/km",
-                "signal_to_noise_ratio": "",
-                "suspended_solids_concentration": "mg/L",
-            }
-    
-            def pretty(s: str) -> str:
-                return s.replace("_", " ").strip().capitalize()
-    
-            # ---------- Y axis config ----------
-            ymode = (y_axis_mode or "depth").lower()
-            if ymode == "bin":
-                # Bin 0 at TOP: normal extent then invert axis
-                y_label = "Bin distance (m)"
-                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-                do_invert = True
-                bt_single = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
-            elif ymode == "depth":
-                # Depth positive downward; invert only for down-looking heads
-                y_label = "Depth (m)"
-                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-                do_invert = bool(invert_y)
-                bt_single = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
-            else:  # "z"
-                y_label = "Mean z (m)"
+        # Bottom track envelope
+        _bt = getattr(A.bottom_track, "adjusted_range_to_seabed",
+                      getattr(A.bottom_track, "range_to_seabed", None))
+        bt_top_s = bt_bottom_s = bt_series_s = None
+        ymin = None
+        if _bt is not None:
+            bt_all = -np.asarray(_bt, dtype=float).T
+            if np.isfinite(bt_all).any():
+                ymin = 1.25 * float(np.nanmin(bt_all))
                 if use_mean:
-                    z_mean = np.nanmean(np.nanmean(z_rel, axis=2), axis=0)  # mean over beams then time
+                    bt_top    = np.nanmax(bt_all, axis=1)
+                    bt_bottom = np.nanmin(bt_all, axis=1)
+                    bt_top_s    = gaussian_filter1d(bt_top,    sigma=1.5, mode="nearest")
+                    bt_bottom_s = gaussian_filter1d(bt_bottom, sigma=1.5, mode="nearest")
                 else:
-                    z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
-                if not np.isfinite(z_mean).any():
-                    z_mean = bin_dist_m
-                y0, y1 = float(np.nanmin(z_mean)), float(np.nanmax(z_mean))
-                do_invert = bool(invert_y)
-                # Project range to z for each time
-                bt_abs = np.nanmin(np.abs(bt_range), axis=1) if use_mean else np.asarray(np.abs(bt_range[:, ib]), float)
-                bt_single = np.full(bt_abs.shape, np.nan, float)
-                for it in range(len(t_num)):
-                    if use_mean:
-                        zi = np.nanmean(z_rel[it, :, :], axis=1)  # per-time, mean across beams → len=bins
-                    else:
-                        zi = z_rel[it, :, ib]
-                    if np.all(~np.isfinite(zi)):
-                        continue
-                    bt_single[it] = np.interp(bt_abs[it], bin_dist_m, zi)
+                    bt_series   = bt_all[:, ib]
+                    bt_series_s = gaussian_filter1d(bt_series, sigma=1.5, mode="nearest")
     
-            # ---------- Layout ----------
-            fig = plt.figure(figsize=(8, 4.5))
-            gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
+        # --- Color limits ---
+        finite_vals = data_tb.compressed()
+        if finite_vals.size == 0:
+            raise ValueError("No finite data in selected field after masking.")
+        if vmin is None:
+            vmin = float(np.nanmin(finite_vals))
+        if vmax is None:
+            vmax = float(np.nanmax(finite_vals))
+        if scale_mode == "log":
+            if vmin <= 0:
+                vmin = float(np.nanmin(finite_vals[finite_vals > 0]))
+            if vmax <= vmin:
+                vmax = float(np.nextafter(vmin, np.inf))
+    
+        # --- Honor cmap_levels when choosing norm bounds ---
+        vmin_use, vmax_use = vmin, vmax
+        if cmap_levels is not None and len(cmap_levels) > 0:
+            lv = np.asarray(cmap_levels, dtype=float)
+            if scale_mode == "log":
+                lv = lv[lv > 0]  # valid only
+            if lv.size > 0:
+                low, high = np.nanmin(lv), np.nanmax(lv)
+                vmin_use = min(vmin, low)
+                vmax_use = max(vmax, high)
+        if scale_mode == "log":
+            vmin_use = max(vmin_use, np.nextafter(0.0, 1.0))
+            if vmax_use <= vmin_use:
+                vmax_use = float(np.nextafter(vmin_use, np.inf))
+    
+        units_map = {
+            "echo_intensity": "Counts",
+            "correlation_magnitude": "Counts",
+            "percent_good": "%",
+            "absolute_backscatter": "dB",
+            "absolute backscatter": "dB",
+            "alpha_s": "dB/km",
+            "alpha_w": "dB/km",
+            "signal_to_noise_ratio": "",
+            "suspended_solids_concentration": "mg/L",
+        }
+        def pretty(s: str) -> str: return s.replace("_", " ").strip().capitalize()
+    
+        # --- Y axis extent ---
+        ymode = (y_axis_mode or "depth").lower()
+        if ymode == "bin":
+            y_label = "Bin distance (m)"
+            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+        else:
+            y_label = "Depth (m)" if ymode == "depth" else "Mean z (m)"
+            if use_mean:
+                z_mean = np.nanmean(np.nanmean(z_rel, axis=2), axis=0)
+            else:
+                z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
+            if not np.isfinite(z_mean).any():
+                z_mean = bin_dist_m
+            y0, y1 = float(z_mean[0]), float(z_mean[-1])
+    
+        # --- Axes / Layout ---
+        if ax is None:
+            fig = plt.figure(figsize=(8, 4.5), constrained_layout=True)
+            gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], figure=fig)
             ax = fig.add_subplot(gs[0, 0])
-            ax_cbar = fig.add_subplot(gs[0, 1])
+            cax = fig.add_subplot(gs[0, 1]) if cax is None else cax
+            fig.set_constrained_layout_pads(w_pad=0.02, h_pad=0.02, wspace=0.05, hspace=0.05)
+            fig.suptitle(str(title) if title is not None else str(A.name), fontsize=9, fontweight="bold")
+        else:
+            fig = ax.figure
+            if title is not None:
+                ax.set_title(str(title), fontsize=9, fontweight="bold")
+            if cax is None:
+                try:
+                    fig.set_constrained_layout(False)
+                except Exception:
+                    pass
+                from mpl_toolkits.axes_grid1 import make_axes_locatable
+                divider = make_axes_locatable(ax)
+                cax = divider.append_axes("right", size="3%", pad=0.05)
     
-            fig.suptitle(str(title) if title is not None else str(self._adcp.name), fontsize=9, fontweight="bold")
+        # --- Time ticks ---
+        xticks = np.linspace(t0, t1, n_time_ticks)
     
-            # Time ticks
-            xticks = np.linspace(t0, t1, n_time_ticks)
+        # --- Colormap normalization ---
+        norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
     
-            # Image
-            im = ax.matshow(
-                data_tb.T,
-                origin="lower",
-                aspect="auto",
-                extent=[t0, t1, y0, y1],
-                vmin=vmin,
-                vmax=vmax,
-                cmap=cmap,
-            )
+        # --- Image ---
+        im = ax.matshow(
+            data_tb.T, origin="lower", aspect="auto",
+            extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
+        )
     
-            # Invert only when requested
-            if do_invert:
-                ax.invert_yaxis()
+        # --- Geometry window ---
+        ymax = 0.0
+        if ymin is None:
+            ymin = 1.25 * float(np.nanmin(z_rel)) if np.isfinite(z_rel).any() else float(-np.nanmax(bin_dist_m))
+        ax.set_ylim(ymax, ymin)
+        if invert_y:
+            ax.invert_yaxis()
     
-            # Bottom track line clipped to axis y-range
-            if np.isfinite(bt_single).any():
-                bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
-                ax.plot(t_num, bt_clipped, color="k", linewidth=1)
+        # --- Bottom track ---
+        if use_mean and (bt_top_s is not None) and (bt_bottom_s is not None):
+            ax.fill_between(t_num, bt_top_s, bt_bottom_s, facecolor="#808080", alpha=0.25, edgecolor="none")
+            ax.plot(t_num, bt_top_s,    linestyle="--", color="k", linewidth=1)
+            ax.plot(t_num, bt_bottom_s, linestyle="--", color="k", linewidth=1)
+        elif (bt_series_s is not None):
+            ax.plot(t_num, bt_series_s, linestyle="-", color="k", linewidth=1)
     
-            # X axis formatting
-            ax.xaxis.set_ticks_position("bottom")
-            ax.xaxis.set_label_position("bottom")
-            ax.set_xticks(xticks)
+        # --- X axis formatting ---
+        ax.xaxis.set_ticks_position("bottom")
+        ax.xaxis.set_label_position("bottom")
+        ax.set_xticks(xticks)
+        lbls = []
+        for i, x in enumerate(xticks):
+            dt = mdates.num2date(x)
+            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+        ax.set_xticklabels(lbls)
+        ax.set_xlabel("Time", fontsize=8)
     
-            lbls = []
-            for i, x in enumerate(xticks):
-                dt = mdates.num2date(x)
-                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks) - 1) else dt.strftime("%H:%M:%S"))
-            ax.set_xticklabels(lbls)
-            ax.set_xlabel("Time", fontsize=8)
+        # --- Y label and beam tag ---
+        ax.set_ylabel(y_label, fontsize=8)
+        beam_tag = ("Beam mean" if use_mean else f"Beam {ib + 1}")
+        ax.text(0.01, 0.02, beam_tag, transform=ax.transAxes,
+                ha="left", va="bottom", fontsize=7,
+                bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
     
-            # Y label and beam tag
-            ax.set_ylabel(y_label, fontsize=8)
-            beam_tag = ("Beam mean" if use_mean else f"Beam {ib + 1}")
-            ax.text(
-                0.01,
-                0.02,
-                beam_tag,
-                transform=ax.transAxes,
-                ha="left",
-                va="bottom",
-                fontsize=7,
-                bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9),
-            )
+        # --- Top distance axis ---
+        dist = np.asarray(A.position.distance, dtype=float)
+        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        dist_ticks = dist[idx]
+        ax_top = ax.twiny()
+        ax_top.set_xlim(t0, t1)
+        ax_top.set_xticks(xticks)
+        ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
+        ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
+        ax_top.tick_params(axis="x", labelsize=8)
     
-            # Top distance axis aligned to time ticks
-            dist = np.asarray(self._adcp.position.distance, dtype=float)
-            idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
-            dist_ticks = dist[idx]
-            ax_top = ax.twiny()
-            ax_top.set_xlim(t0, t1)
-            ax_top.set_xticks(xticks)
-            ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
-            ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
-            ax_top.tick_params(axis="x", labelsize=8)
+        # --- Colorbar ---
+        cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
     
-            # Colorbar
-            cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
-            cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
-            cbar.set_label(cblabel, fontsize=8)
-            cbar.ax.tick_params(labelsize=8)
+        # decide extend status before creating cbar
+        if cmap_levels is not None and len(cmap_levels) > 0:
+            lv_for_ext = np.asarray(cmap_levels, dtype=float)
+            if scale_mode == "log":
+                lv_for_ext = lv_for_ext[lv_for_ext > 0]
+            has_low_gap  = lv_for_ext.size > 0 and np.nanmin(lv_for_ext) > vmin_use
+            has_high_gap = lv_for_ext.size > 0 and np.nanmax(lv_for_ext) < vmax_use
+            cbar_extend = "both" if (has_low_gap and has_high_gap) else ("min" if has_low_gap else ("max" if has_high_gap else "neither"))
+        else:
+            cbar_extend = "neither"
     
-            plt.tight_layout(rect=[0, 0, 1, 0.93])
-            return fig, (ax, ax_cbar)
+        cbar = fig.colorbar(im, cax=cax, orientation="vertical", extend=cbar_extend)
+        cbar.set_label(cblabel, fontsize=8)
+        cbar.ax.tick_params(labelsize=8)
+    
+        # User-specified ticks and labels
+        if cmap_levels is not None:
+            levels = list(cmap_levels)
+            if scale_mode == "log":
+                levels = [v for v in levels if v > 0]
+            if len(levels) > 0:
+                cbar.set_ticks(levels)
+                if cbar_tick_labels is not None:
+                    if len(cbar_tick_labels) != len(levels):
+                        raise ValueError("cbar_tick_labels must match length of cmap_levels.")
+                    cbar.set_ticklabels(list(cbar_tick_labels))
+                else:
+                    if scale_mode == "log":
+                        fmt = f"{{x:.{int(tick_decimals)}f}}"
+                        cbar.formatter = FuncFormatter(lambda x, pos: fmt.format(x=x))
+                        cbar.update_ticks()
+                    else:
+                        cbar.set_ticklabels([f"{v:.{int(tick_decimals)}f}" for v in levels])
+        else:
+            if scale_mode == "log":
+                fmt = f"{{x:.{int(tick_decimals)}f}}"
+                cbar.formatter = FuncFormatter(lambda x, pos: fmt.format(x=x))
+                cbar.update_ticks()
+    
+        return fig, (ax, cax)
+
+    
+
 
 
 
@@ -2627,44 +3210,39 @@ class Plotting:
 
     
     def four_beam_flood_plot(
-        self,
-        field_name: str = "echo_intensity",
-        y_axis_mode: str = "depth",          # "depth", "bin", or "z"
-        cmap=None,                            # str or Colormap; defaults to cmocean.thermal if available else "turbo"
-        vmin: float | None = None,
-        vmax: float | None = None,
-        n_time_ticks: int = 6,
-        title: str | None = None,
-        mask: bool = True
-    ):
+            self,
+            field_name: str = "echo_intensity",
+            y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+            cmap=None,
+            vmin: float | None = None,
+            vmax: float | None = None,
+            n_time_ticks: int = 6,
+            title: str | None = None,
+            mask: bool = True,
+            *,
+            color_scale: str = "linear",          # "linear" or "log"
+            cmap_levels: list | tuple | None = None,
+            cbar_tick_labels: list[str] | None = None,
+            tick_decimals: int = 2
+        ):
         """
         Four-beam curtain plot with shared colorbar and distance top axis.
-    
-        Params
-        ------
-        field_name : beam_data attribute to plot (time,bins,beams)
-        y_axis_mode : "depth", "bin", or "z"
-        cmap : Matplotlib colormap or name
-        vmin, vmax : color scale limits; if None, computed from finite data
-        n_time_ticks : number of evenly spaced time ticks
-        title : optional suptitle (defaults to self._adcp.name)
-    
-        Returns
-        -------
-        fig, (ax_beams, ax_cbar)
+        Returns fig, (ax_beams, ax_cbar).
         """
         import numpy as np
+        import numpy.ma as ma
         import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
         import matplotlib.gridspec as gridspec
+        from matplotlib.colors import Normalize, LogNorm
+        from matplotlib.ticker import FuncFormatter
+        from scipy.ndimage import gaussian_filter1d
     
-        # Colormap default
         if cmap is None:
-                cmap = "turbo"
+            cmap = "turbo"
     
-        A = self._adcp  # shorthand
+        A = self._adcp
     
-        # Small fonts
         plt.rcParams.update({
             "axes.titlesize": 8,
             "axes.labelsize": 8,
@@ -2672,23 +3250,55 @@ class Plotting:
             "ytick.labelsize": 8,
         })
     
-        # ---------- Data ----------
-        t_dt = np.asarray(A.time.ensemble_datetimes)
+        # --- Data ---
+        t_dt  = np.asarray(A.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
         t0, t1 = float(t_num[0]), float(t_num[-1])
     
         beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
         bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
         z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
-        bt_range = np.asarray(A.bottom_track.range_to_seabed, dtype=float).T              # (time,beams)
         invert_y = str(A.geometry.beam_facing).lower() == "down"
     
-        # Color limits
-        if vmin is None or vmax is None:
-            if vmin is None: vmin = float(np.nanmin(beam_data))
-            if vmax is None: vmax = float(np.nanmax(beam_data))
+        _bt = getattr(A.bottom_track, "adjusted_range_to_seabed",
+                      getattr(A.bottom_track, "range_to_seabed", None))
+        if _bt is not None:
+            bt_range = -np.asarray(_bt, dtype=float).T  # (time,beams), negative depth
+        else:
+            bt_range = np.full((t_num.size, int(A.geometry.n_beams)), np.nan)
     
-        # Units for colorbar
+        scale_mode = str(color_scale).lower()
+        if scale_mode == "log":
+            beam_data = ma.masked_where(~(beam_data > 0), beam_data)
+    
+        # --- Color limits ---
+        finite_vals = beam_data.compressed()
+        if finite_vals.size == 0:
+            raise ValueError("No finite data in selected field after masking.")
+        if vmin is None:
+            vmin = float(np.nanmin(finite_vals))
+        if vmax is None:
+            vmax = float(np.nanmax(finite_vals))
+        if scale_mode == "log":
+            if vmin <= 0:
+                vmin = float(np.nanmin(finite_vals[finite_vals > 0]))
+            if vmax <= vmin:
+                vmax = float(np.nextafter(vmin, np.inf))
+    
+        # widen by levels
+        vmin_use, vmax_use = vmin, vmax
+        if cmap_levels is not None and len(cmap_levels) > 0:
+            lv = np.asarray(cmap_levels, dtype=float)
+            if scale_mode == "log":
+                lv = lv[lv > 0]
+            if lv.size > 0:
+                vmin_use = min(vmin, np.nanmin(lv))
+                vmax_use = max(vmax, np.nanmax(lv))
+        if scale_mode == "log":
+            vmin_use = max(vmin_use, np.nextafter(0.0, 1.0))
+            if vmax_use <= vmin_use:
+                vmax_use = float(np.nextafter(vmin_use, np.inf))
+    
         units_map = {
             "echo_intensity": "Counts",
             "correlation_magnitude": "Counts",
@@ -2702,34 +3312,52 @@ class Plotting:
         }
         def pretty(s): return s.replace("_", " ").strip().capitalize()
     
-        # Y label & seabed sign
+        # --- Y label mode ---
         ymode = (y_axis_mode or "depth").lower()
-        if ymode == "depth":
-            y_label = "Depth (m)"
-            bt_range = -np.abs(bt_range)
-        elif ymode == "bin":
+        if ymode == "bin":
             y_label = "Bin distance (m)"
-
+        elif ymode == "z":
+            y_label = "Mean z (m)"
+        else:
+            y_label = "Depth (m)"
     
-        # ---------- Layout ----------
-        fig = plt.figure(figsize=(8, 6))
-        gs = gridspec.GridSpec(nrows=A.geometry.n_beams, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
-        ax_beams = [fig.add_subplot(gs[i, 0]) for i in range(A.geometry.n_beams)]
-        ax_cbar  = fig.add_subplot(gs[:, 1])
+        # --- Layout ---
+        fig = plt.figure(figsize=(8, 6), constrained_layout=True)
+        gs = gridspec.GridSpec(nrows=int(A.geometry.n_beams), ncols=2,
+                               width_ratios=[20, 0.6], wspace=0.05, figure=fig)
+        ax_beams = []
+        for i in range(int(A.geometry.n_beams)):
+            ax = (fig.add_subplot(gs[i, 0]) if i == 0
+                  else fig.add_subplot(gs[i, 0], sharex=ax_beams[0], sharey=ax_beams[0]))
+            ax_beams.append(ax)
+        ax_cbar = fig.add_subplot(gs[:, 1])
     
+        fig.set_constrained_layout_pads(w_pad=0.02, h_pad=0.02, wspace=0.05, hspace=0.05)
         fig.suptitle(str(title) if title is not None else str(A.name), fontsize=9, fontweight="bold")
     
-        # Time ticks
+        # --- Ticks ---
         xticks = np.linspace(t0, t1, n_time_ticks)
     
-        # ---------- Plot per beam ----------
+        # --- Norm ---
+        norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
+    
+        # --- Plot beams ---
         last_im = None
+        ymin_all = 1.25 * np.nanmin(bt_range) if np.isfinite(bt_range).any() else None
+        ymax = 0.0
+    
         for ib, ax in enumerate(ax_beams):
-            data_tb = ma.masked_invalid(beam_data[:, :, ib])  # (time,bins)
+            data_tb = ma.masked_invalid(beam_data[:, :, ib])
     
             if ymode == "bin":
                 y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-            else:  # depth or z → mean z per bin
+            elif ymode == "z":
+                z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
+                if not np.isfinite(z_mean).any():
+                    z_mean = bin_dist_m
+                y0, y1 = float(z_mean[0]), float(z_mean[-1])
+            else:
+                # depth with seabed sign already negative
                 z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
                 if not np.isfinite(z_mean).any():
                     z_mean = bin_dist_m
@@ -2737,29 +3365,30 @@ class Plotting:
     
             last_im = ax.matshow(
                 data_tb.T, origin="lower", aspect="auto",
-                extent=[t0, t1, y0, y1],
-                vmin=vmin, vmax=vmax, cmap=cmap
+                extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
             )
     
+            ymin = ymin_all
+            if ymin is None:
+                ymin = 1.25 * float(np.nanmin(z_rel[:, :, ib])) if np.isfinite(z_rel[:, :, ib]).any() else float(-np.nanmax(bin_dist_m))
+            ax.set_ylim(ymax, ymin)
             if invert_y:
                 ax.invert_yaxis()
     
-            # bottom track
-            ax.plot(t_num, bt_range[:, ib], color="k", linewidth=1)
+            y_bt = gaussian_filter1d(bt_range[:, ib], sigma=1.5, mode="nearest")
+            ax.plot(t_num, y_bt, color="k", linewidth=1)
     
-            # x-axis bottom; labels only on last
             ax.xaxis.set_ticks_position("bottom")
             ax.xaxis.set_label_position("bottom")
             ax.set_xticks(xticks)
-            if ib != A.geometry.n_beams - 1:
+            if ib != int(A.geometry.n_beams) - 1:
                 ax.tick_params(labelbottom=False)
     
-            # beam tag
             ax.text(0.01, 0.02, f"Beam {ib+1}", transform=ax.transAxes,
                     ha="left", va="bottom", fontsize=7,
                     bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
     
-        # bottom labels (first/last full date, middle HH:MM:SS)
+        # bottom labels
         lbls = []
         for i, x in enumerate(xticks):
             dt = mdates.num2date(x)
@@ -2767,7 +3396,7 @@ class Plotting:
         ax_beams[-1].set_xticklabels(lbls)
         ax_beams[-1].set_xlabel("Time", fontsize=8)
     
-        # top distance axis aligned to time ticks
+        # top distance axis
         dist = np.asarray(A.position.distance, dtype=float)
         idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
@@ -2778,20 +3407,57 @@ class Plotting:
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
         ax_top.tick_params(axis="x", labelsize=8)
     
-        # colorbar
-        cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
-        cbar = fig.colorbar(last_im, cax=ax_cbar, orientation="vertical")
+        # --- Colorbar ---
+        def pretty(s): return s.replace("_", " ").strip().capitalize()
+        units = units_map.get(field_name, "")
+        cblabel = f"{pretty(field_name)}" + (f" ({units})" if units else "")
+    
+        if cmap_levels is not None and len(cmap_levels) > 0:
+            lv = np.asarray(cmap_levels, dtype=float)
+            if scale_mode == "log":
+                lv = lv[lv > 0]
+            has_low_gap  = lv.size > 0 and np.nanmin(lv) > vmin_use
+            has_high_gap = lv.size > 0 and np.nanmax(lv) < vmax_use
+            cbar_extend = "both" if (has_low_gap and has_high_gap) else ("min" if has_low_gap else ("max" if has_high_gap else "neither"))
+        else:
+            cbar_extend = "neither"
+    
+        cbar = fig.colorbar(last_im, cax=ax_cbar, orientation="vertical", extend=cbar_extend)
         cbar.set_label(cblabel, fontsize=8)
         cbar.ax.tick_params(labelsize=8)
     
-        # shared y-label placed manually after layout
+        if cmap_levels is not None:
+            levels = list(cmap_levels)
+            if scale_mode == "log":
+                levels = [v for v in levels if v > 0]
+            if len(levels) > 0:
+                cbar.set_ticks(levels)
+                if cbar_tick_labels is not None:
+                    if len(cbar_tick_labels) != len(levels):
+                        raise ValueError("cbar_tick_labels must match length of cmap_levels.")
+                    cbar.set_ticklabels(list(cbar_tick_labels))
+                else:
+                    if scale_mode == "log":
+                        fmt = f"{{x:.{int(tick_decimals)}f}}"
+                        cbar.formatter = FuncFormatter(lambda x, pos: fmt.format(x=x))
+                        cbar.update_ticks()
+                    else:
+                        cbar.set_ticklabels([f"{v:.{int(tick_decimals)}f}" for v in levels])
+        else:
+            if scale_mode == "log":
+                fmt = f"{{x:.{int(tick_decimals)}f}}"
+                cbar.formatter = FuncFormatter(lambda x, pos: fmt.format(x=x))
+                cbar.update_ticks()
+    
+        # shared y-label
         fig.canvas.draw()
         left_edges = [ax.get_position().x0 for ax in ax_beams]
         x_left = min(left_edges)
-        fig.text(x_left - 0.05, 0.5, y_label, rotation=90, va="center", ha="right", fontsize=8, transform=fig.transFigure)
+        fig.text(x_left - 0.05, 0.5, y_label, rotation=90, va="center", ha="right",
+                 fontsize=8, transform=fig.transFigure)
     
-        plt.tight_layout(rect=[0, 0, 1, 0.96])  # space for suptitle
         return fig, (ax_beams, ax_cbar)
+
         
     def velocity_flood_plot(
             self,
@@ -2806,146 +3472,181 @@ class Plotting:
             title: str | None = None,
             mask: bool = True
         ):
-            import numpy as np
-            import numpy.ma as ma
-            import matplotlib.pyplot as plt
-            import matplotlib.dates as mdates
-            import matplotlib.gridspec as gridspec
+        """
+        Velocity curtain with single-beam-flood geometry:
+          - constrained layout
+          - depth axis 0 at top, negatives downward
+          - ALWAYS plot bottom-track swath (envelope across beams) with dashed bounds + gray fill
+          - robust against NaN/Inf in BT and z
+        """
+        import numpy as np
+        import numpy.ma as ma
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
+        import matplotlib.gridspec as gridspec
+        from scipy.ndimage import gaussian_filter1d
     
-            if cmap is None:
-                cmap = "turbo"
+        if cmap is None:
+            cmap = "turbo"
     
-            # Coord normalization; assume validity handled upstream
-            c = str(coord).lower()
-            if c in {"instrument", "inst"}:
-                c = "inst"
+        # ---------------- Field selection ----------------
+        c = str(coord).lower()
+        if c in {"instrument", "inst"}:
+            c = "inst"
     
-            # Field selection; assume validity handled upstream
-            name_map = {
-                None: None,
-                "speed": "speed",
-                "direction": "direction",
-                "error_velocity": "ev",
-                "error-velocity": "ev",
-                "error velocity": "ev",
-                "ev": "ev",
-            }
-            fn = name_map.get(None if field_name is None else str(field_name).lower())
-            m = str(metric).lower()
-            if fn is not None:
-                m = fn  # field_name overrides metric
-            if m not in {"speed", "direction", "ev"}:
-                m = "speed"
+        name_map = {
+            None: None,
+            "speed": "speed",
+            "direction": "direction",
+            "error_velocity": "ev",
+            "error-velocity": "ev",
+            "error velocity": "ev",
+            "ev": "ev",
+        }
+        fn = name_map.get(None if field_name is None else str(field_name).lower())
+        m = (fn or str(metric).lower())
+        if m not in {"speed", "direction", "ev"}:
+            m = "speed"
     
-            # ---------- Data ----------
-            u, v, z, ev, s, d = self._adcp.get_velocity_data(coord_sys=c, mask=mask)  # (time,bins)
-            data = {"speed": s, "direction": d, "ev": ev}[m]
-            data = ma.masked_invalid(data)
+        # ---------------- Data ----------------
+        u, v, z, ev, s, d = self._adcp.get_velocity_data(coord_sys=c, mask=mask)  # (time,bins)
+        data = {"speed": s, "direction": d, "ev": ev}[m]
+        data = ma.masked_invalid(data)
     
-            t_dt = np.asarray(self._adcp.time.ensemble_datetimes)
-            t_num = mdates.date2num(t_dt).astype(float)
-            t0, t1 = float(t_num[0]), float(t_num[-1])
+        t_dt  = np.asarray(self._adcp.time.ensemble_datetimes)
+        t_num = mdates.date2num(t_dt).astype(float)
+        t0, t1 = float(t_num[0]), float(t_num[-1])
     
-            bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
-            invert_y = str(self._adcp.geometry.beam_facing).lower() == "down"
+        bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
+        invert_y   = str(self._adcp.geometry.beam_facing).lower() == "down"
     
-            # ---------- Bottom-track optional ----------
-            adcp_obj = getattr(self, "adcp", getattr(self, "_adcp", None))
-            bt_active = bool(getattr(adcp_obj, "_bt_mode_active", False))
-            if bt_active:
-                bt_all = np.asarray(self._adcp.bottom_track.range_to_seabed, dtype=float).T
-                bt_min = np.nanmin(np.abs(bt_all), axis=1) if bt_all.size else np.full(t_num.shape, np.nan, float)
-            else:
-                bt_min = None
+        # ---------------- Bottom-track swath (ALWAYS if available), negative down ----------------
+        _bt = getattr(self._adcp.bottom_track, "adjusted_range_to_seabed",
+                      getattr(self._adcp.bottom_track, "range_to_seabed", None))
+        bt_top_s = bt_bottom_s = None
+        ymin = None
+        if _bt is not None:
+            bt_all = -np.asarray(_bt, float).T  # (time, beams), negative depths
+            finite_bt = np.isfinite(bt_all)
+            if finite_bt.any():
+                # Envelope across beams (per time)
+                bt_top    = np.nanmax(bt_all, axis=1)   # least negative (closest to 0)
+                bt_bottom = np.nanmin(bt_all, axis=1)   # most negative
     
-            # ---------- Y axis config ----------
-            ymode = (y_axis_mode or "depth").lower()
-            if ymode == "bin":
-                y_label = "Bin distance (m)"
-                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-                do_invert = True
-                bt_single = bt_min if bt_active else None
-            elif ymode == "depth":
-                y_label = "Depth (m)"
-                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
-                do_invert = bool(invert_y)
-                bt_single = bt_min if bt_active else None
-            else:  # "z"
-                y_label = "Mean z (m)"
-                y0, y1 = float(np.nanmin(z)), float(np.nanmax(z))
-                do_invert = bool(invert_y)
-                if bt_active and bt_min is not None:
-                    bt_single = np.full(bt_min.shape, np.nan, float)
-                    for it in range(len(t_num)):
-                        zi = z[it, :]
-                        if np.all(~np.isfinite(zi)):
-                            continue
-                        bt_single[it] = np.interp(bt_min[it], bin_dist_m, zi)
-                else:
-                    bt_single = None
+                # Fill NaNs linearly before smoothing
+                def _fill_nan(y):
+                    y = np.asarray(y, float)
+                    m = np.isfinite(y)
+                    if not m.any():
+                        return y
+                    idx = np.arange(y.size)
+                    y[~m] = np.interp(idx[~m], idx[m], y[m])
+                    return y
     
-            # ---------- Color limits ----------
-            if m == "direction" and vmin is None and vmax is None:
-                vmin, vmax = 0.0, 360.0
-            else:
-                if vmin is None:
-                    vmin = float(np.nanmin(data))
-                if vmax is None:
-                    vmax = float(np.nanmax(data))
+                bt_top_s    = gaussian_filter1d(_fill_nan(bt_top),    sigma=1.5, mode="nearest")
+                bt_bottom_s = gaussian_filter1d(_fill_nan(bt_bottom), sigma=1.5, mode="nearest")
+                ymin = 1.25 * float(np.nanmin(bt_all[finite_bt]))  # deeper bound (more negative)
     
-            # ---------- Layout ----------
-            plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
-            fig = plt.figure(figsize=(8, 4.5))
-            gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6], wspace=0.05)
-            ax = fig.add_subplot(gs[0, 0])
-            ax_cbar = fig.add_subplot(gs[0, 1])
+        # ---------------- Y axis config for image extent (independent of final ylim) ----------------
+        ymode = (y_axis_mode or "depth").lower()
+        if ymode == "bin":
+            y_label = "Bin distance (m)"
+            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+        else:
+            y_label = "Depth (m)" if ymode == "depth" else "Mean z (m)"
+            z_mean = np.nanmean(z, axis=0)  # (bins,)
+            if not np.isfinite(z_mean).any():
+                z_mean = bin_dist_m
+            y0 = float(z_mean[0]) if np.isfinite(z_mean[0]) else 0.0
+            y1 = float(z_mean[-1]) if np.isfinite(z_mean[-1]) else -float(np.nanmax(bin_dist_m) or 1.0)
     
-            fig.suptitle(str(title) if title is not None else str(self._adcp.name), fontsize=9, fontweight="bold")
-            xticks = np.linspace(t0, t1, n_time_ticks)
+        # ---------------- Color limits ----------------
+        if m == "direction" and vmin is None and vmax is None:
+            vmin, vmax = 0.0, 360.0
+        else:
+            finite_vals = data.compressed()
+            if finite_vals.size == 0:
+                raise ValueError("No finite data in selected field.")
+            if vmin is None:
+                vmin = float(np.nanmin(finite_vals))
+            if vmax is None:
+                vmax = float(np.nanmax(finite_vals))
     
-            im = ax.matshow(
-                data.T, origin="lower", aspect="auto",
-                extent=[t0, t1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
-            )
-            if do_invert:
-                ax.invert_yaxis()
+        # ---------------- Layout (constrained) ----------------
+        plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
+                             "xtick.labelsize": 8, "ytick.labelsize": 8})
+        fig = plt.figure(figsize=(8, 4.5), constrained_layout=True)
+        gs = gridspec.GridSpec(nrows=1, ncols=2, width_ratios=[20, 0.6])
+        ax = fig.add_subplot(gs[0, 0])
+        ax_cbar = fig.add_subplot(gs[0, 1])
+        fig.set_constrained_layout_pads(w_pad=0.02, h_pad=0.02, wspace=0.05, hspace=0.05)
     
-            if (bt_single is not None) and np.isfinite(bt_single).any():
-                bt_clipped = np.clip(bt_single, min(y0, y1), max(y0, y1))
-                ax.plot(t_num, bt_clipped, color="k", linewidth=1)
+        fig.suptitle(str(title) if title is not None else str(self._adcp.name),
+                     fontsize=9, fontweight="bold")
     
-            ax.xaxis.set_ticks_position("bottom")
-            ax.xaxis.set_label_position("bottom")
-            ax.set_xticks(xticks)
-            lbls = []
-            for i, x in enumerate(xticks):
-                dt = mdates.num2date(x)
-                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-            ax.set_xticklabels(lbls)
-            ax.set_xlabel("Time", fontsize=8)
+        # Time ticks
+        xticks = np.linspace(t0, t1, n_time_ticks)
     
-            ax.set_ylabel(y_label, fontsize=8)
+        # Image
+        im = ax.matshow(
+            data.T, origin="lower", aspect="auto",
+            extent=[t0, t1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
+        )
     
-            dist = np.asarray(self._adcp.position.distance, dtype=float)
-            idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
-            dist_ticks = dist[idx]
-            ax_top = ax.twiny()
-            ax_top.set_xlim(t0, t1)
-            ax_top.set_xticks(xticks)
-            ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
-            ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
-            ax_top.tick_params(axis="x", labelsize=8)
+        # ---------------- Geometry window (0 to negative; robust fallback) ----------------
+        ymax = 0.0
+        if (ymin is None) or (not np.isfinite(ymin)):
+            z_min = float(np.nanmin(z)) if np.isfinite(z).any() else np.nan
+            if not np.isfinite(z_min):
+                z_min = -float(np.nanmax(bin_dist_m) or 1.0)
+            ymin = 1.25 * z_min
+        ax.set_ylim(ymax, ymin)
+        if invert_y:
+            ax.invert_yaxis()
     
-            def pretty(s): return s.replace("_", " ").strip().capitalize()
-            units_map = {"speed": "m/s", "direction": "deg", "ev": "m/s"}
-            label_key = {"speed": "speed", "direction": "direction", "ev": "error velocity"}[m]
-            cblabel = f"{pretty(label_key)} ({units_map[m]})"
-            cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
-            cbar.set_label(cblabel, fontsize=8)
-            cbar.ax.tick_params(labelsize=8)
+        # ---------------- BT envelope shading and dashed bounds ----------------
+        if (bt_top_s is not None) and (bt_bottom_s is not None):
+            msk = np.isfinite(bt_top_s) & np.isfinite(bt_bottom_s)
+            if msk.any():
+                ax.fill_between(t_num[msk], bt_top_s[msk], bt_bottom_s[msk],
+                                facecolor="#808080", alpha=0.25, edgecolor="none")
+                ax.plot(t_num[msk], bt_top_s[msk],    linestyle="--", color="k", linewidth=1)
+                ax.plot(t_num[msk], bt_bottom_s[msk], linestyle="--", color="k", linewidth=1)
     
-            plt.tight_layout(rect=[0, 0, 1, 0.93])
-            return fig, (ax, ax_cbar)
+        # ---------------- Axes formatting ----------------
+        ax.xaxis.set_ticks_position("bottom")
+        ax.xaxis.set_label_position("bottom")
+        ax.set_xticks(xticks)
+        lbls = []
+        for i, x in enumerate(xticks):
+            dt = mdates.num2date(x)
+            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+        ax.set_xticklabels(lbls)
+        ax.set_xlabel("Time", fontsize=8)
+        ax.set_ylabel(y_label, fontsize=8)
+    
+        # Top distance axis aligned to time ticks
+        dist = np.asarray(self._adcp.position.distance, dtype=float)
+        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        dist_ticks = dist[idx]
+        ax_top = ax.twiny()
+        ax_top.set_xlim(t0, t1)
+        ax_top.set_xticks(xticks)
+        ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
+        ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
+        ax_top.tick_params(axis="x", labelsize=8)
+    
+        # Colorbar
+        def pretty(s): return s.replace("_", " ").strip().capitalize()
+        units_map = {"speed": "m/s", "direction": "deg", "ev": "m/s"}
+        label_key = {"speed": "speed", "direction": "direction", "ev": "error velocity"}[m]
+        cblabel = f"{pretty(label_key)} ({units_map[m]})"
+        cbar = fig.colorbar(im, cax=ax_cbar, orientation="vertical")
+        cbar.set_label(cblabel, fontsize=8)
+        cbar.ax.tick_params(labelsize=8)
+    
+        return fig, (ax, ax_cbar)
+
 
     def transect_velocities(self,
                             bin_sel=15,
@@ -3041,4 +3742,5 @@ class Plotting:
     
         plt.show()
         return fig, ax
-    
+
+

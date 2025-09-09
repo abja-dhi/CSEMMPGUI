@@ -21,6 +21,8 @@ from .watersample import WaterSample as WaterSampleDataset
 from .plotting import PlottingShell
 from .mapview2D import TransectViewer2D
 from .mapview3D import TransectViewer3D
+from .utils_xml import XMLUtils
+from .utils_crs import CRSHelper
 
 def GenerateOutputXML(xml):
     result = ET.Element("Result")
@@ -848,17 +850,27 @@ def CallMapViewer2D(settings: ET.Element, mapSettings: ET.Element):
     try:
         directory = settings.find("Directory").text
         name = settings.find("Name").text
+        epsg = settings.find("EPSG").text
         xml_path = os.path.join(directory, f"{name}.mtproj")
+        project = XMLUtils(xml_path)
         map2D = mapSettings.find("Map2D")
         surveys = map2D.find("Surveys")
+        surveys_list = surveys.findall("Survey")
+        
         output_dir = os.path.join(os.environ.get("APPDATA"), "PlumeTrack")
         os.makedirs(output_dir, exist_ok=True)
         out_fname = os.path.join(output_dir, "MapViewer2D.html")
-        if surveys.text is None:
+        if len(surveys_list) == 0:
             create_temp_html(out_fname)
         else:
-            surveys_list = surveys.findall("Survey")
-            survey_names = [s.text for s in surveys_list if s.text is not None]
+            survey_ids = [s.text for s in surveys_list if s.text is not None]
+            adcps = []
+            for s in survey_ids:
+                surv = project.find_element(elem_id=s, _type="Survey")
+                surv_name = surv.attrib.get("name", s)
+                for acfg in project.get_cfgs_from_survey(surv_name, s, "VesselMountedADCP"):
+                    adcps.append(ADCPDataset(acfg, name=acfg['name']))
+            crs_helper = CRSHelper(project_crs=epsg)
             shp = []    #TODO
             cmap = get_value(map2D, "ColorMap", "jet")
             field_name = field_name_map[get_value(map2D, "FieldName", "Absolute Backscatter")]
@@ -867,14 +879,14 @@ def CallMapViewer2D(settings: ET.Element, mapSettings: ET.Element):
             pad_deg = get_value(map2D, "Padding", 0.03)
             grid_lines = get_value(map2D, "NGridLines", 10)
             grid_opacity = get_value(map2D, "GridOpacity", 0.2)
-            grid_color = get_value(map2D, "GridColor", "#000000")
+            grid_color = get_value(map2D, "GridColor", "#000000").lower()
             grid_width = get_value(map2D, "GridWidth", 1)
-            bgcolor = get_value(map2D, "BackgroundColor", "#FFFFFF")
+            bgcolor = get_value(map2D, "BackgroundColor", "#FFFFFF").lower()
             axis_ticks = get_value(map2D, "NAxisTicks", 5)
             tick_fontsize = get_value(map2D, "TickFontSize", 10)
             tick_decimals = get_value(map2D, "TickNDecimals", 2)
             axis_label_fontsize = get_value(map2D, "AxisLabelFontSize", 12)
-            axis_label_color = get_value(map2D, "AxisLabelColor", "#000000")
+            axis_label_color = get_value(map2D, "AxisLabelColor", "#000000").lower()
             hover_fontsize = get_value(map2D, "HoverFontSize", 10)
             transect_line_width = get_value(map2D, "TransectLineWidth", 2)
             bin_method = get_value(map2D, "VerticalAggBinItem", "bin").lower()
@@ -890,9 +902,7 @@ def CallMapViewer2D(settings: ET.Element, mapSettings: ET.Element):
                 "beam": beam_value
             }
             cfg = {
-                "xml": xml_path,
-                "surveys": survey_names,
-                "shp": shp,
+                "shp_layers": shp,
                 "cmap": cmap,
                 "field_name": field_name,
                 "vmin": vmin,
@@ -911,15 +921,15 @@ def CallMapViewer2D(settings: ET.Element, mapSettings: ET.Element):
                 "hover_fontsize": hover_fontsize,
                 "transect_line_width": transect_line_width,
                 "vertical_agg": vertical_agg,
-                "out_fname": out_fname
+                
             }
-            viewer = TransectViewer2D(cfg)
+            viewer = TransectViewer2D(adcps=adcps, crs_helper=crs_helper, inputs=cfg)
             fig = viewer.render()
-            viewer.save_html(auto_open=False)
+            viewer.save_html(out_fname, auto_open=False)
 
         return {"Result": out_fname}
     except:
-        return {"Error": "Failed to create Map Viewer. Please ensure the project is saved and try again."}
+        return {"Error": traceback.format_exc()}
 
 def create_temp_html(out_fname: str):
     content = """<!DOCTYPE html>

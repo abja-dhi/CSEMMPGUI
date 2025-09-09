@@ -1,12 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "kHhFK9/6Rro=",
+  "dgSpecHash": "+gqg5jSir4s=",
   "success": true,
   "projectFilePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\abja\\.nuget\\packages\\adamslair.treeviewadv\\1.7.7\\adamslair.treeviewadv.1.7.7.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\antlr4.runtime.standard\\4.7.2\\antlr4.runtime.standard.4.7.2.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.corlib\\1.0.1\\dhi.corlib.1.0.1.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.dfs\\23.0.3\\dhi.dfs.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.dhifl\\23.0.3\\dhi.dhifl.23.0.3.nupkg.sha512",
@@ -18,12 +16,6 @@
     "C:\\Users\\abja\\.nuget\\packages\\dhi.mikecore\\23.0.3\\dhi.mikecore.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.pfs\\23.0.3\\dhi.pfs.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.projections\\23.0.3\\dhi.projections.23.0.3.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\esri.arcgisruntime\\200.8.0\\esri.arcgisruntime.200.8.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\esri.arcgisruntime.runtimes.win\\200.8.0\\esri.arcgisruntime.runtimes.win.200.8.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\fasttree\\1.6.0\\fasttree.1.6.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\gdal\\3.11.3\\gdal.3.11.3.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\gdal.core\\1.0.0\\gdal.core.1.0.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\gdal.native\\3.11.3\\gdal.native.3.11.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.platforms\\2.1.2\\microsoft.netcore.platforms.2.1.2.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
@@ -110,30 +102,6 @@
     "C:\\Users\\abja\\.nuget\\packages\\windowsapicodepack-shell\\1.1.1\\windowsapicodepack-shell.1.1.1.nupkg.sha512"
   ],
   "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "message": "Package 'AdamsLair.TreeViewAdv 1.7.7' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
-      "libraryId": "AdamsLair.TreeViewAdv",
-      "targetGraphs": [
-        "net8.0-windows7.0"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "message": "Package 'FastTree 1.6.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
-      "libraryId": "FastTree",
-      "targetGraphs": [
-        "net8.0-windows7.0"
-      ]
-    },
     {
       "code": "NU1701",
       "level": "Warning",

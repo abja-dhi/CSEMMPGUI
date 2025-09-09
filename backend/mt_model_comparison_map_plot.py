@@ -503,7 +503,7 @@ if __name__ == '__main__':
         distance_bin_m=50,
         bar_width_scale=0.15,
         adcp_series_mode="range",
-        adcp_series_target=5,
+        adcp_series_target="mean",
         shapefile_layers=shapefile_layers,
     )
     
