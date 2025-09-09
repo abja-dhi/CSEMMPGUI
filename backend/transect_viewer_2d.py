@@ -18,7 +18,8 @@ from plotly.colors import sample_colorscale
 from adcp import ADCP as ADCPDataset
 from utils_crs import CRSHelper
 from utils_shapefile import ShapefileLayer
-
+from utils_xml import XMLUtils  # only for example construction
+from adcp import ADCP as ADCPDataset
 pio.renderers.default = "browser"
 
 
@@ -478,8 +479,7 @@ class TransectViewer2D:
 # ---------------- Example ----------------
 if __name__ == "__main__":
     # You construct ADCP objects elsewhere (e.g., from XMLUtils). Inject them here:
-    from utils_xml import XMLUtils  # only for example construction
-    from adcp import ADCP as ADCPDataset
+
     
     project = XMLUtils(r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj')
     adcps = []
