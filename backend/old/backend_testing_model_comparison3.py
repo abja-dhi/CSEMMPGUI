@@ -1,0 +1,441 @@
+
+# ============================== HD Velocity vs ADCP Transect Comparison (standalone) ==============================
+# Current speed map + overlaid quivers (ADCP, Model), distance-binned speed bars, and metadata.
+
+from utils_dfsu2d import DfsuUtils2D
+from utils_xml import XMLUtils
+from adcp import ADCP as ADCPDataset
+from utils_crs import CRSHelper
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import ticker as mticker
+from matplotlib.colors import Normalize
+from matplotlib.ticker import FixedLocator
+from plotting import PlottingShell
+from utils_shapefile import ShapefileLayer
+from matplotlib.patches import FancyArrowPatch
+from matplotlib.legend_handler import HandlerPatch
+import cmocean as cmo
+# ============================== LOAD DATA (run once) ==============================
+xml_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj'
+project = XMLUtils(xml_path)
+adcp_cfgs = project.get_cfgs_from_survey(survey_name="20241002_F3(E)", survey_id=0, instrument_type="VesselMountedADCP")
+adcp_cfg = adcp_cfgs[9]
+adcp_cfg['velocity_average_window_len'] =10
+
+crs_helper = CRSHelper(project_crs=4326)
+model_fpath = r'\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\Models\\F3\\2024\\10. October\\HD\\HDD20241002.dfsu'
+
+hd_model = DfsuUtils2D(model_fpath, crs_helper=crs_helper)
+adcp     = ADCPDataset(adcp_cfg, name=adcp_cfg["name"])
+
+# Lightweight aliases
+xq = adcp.position.x
+yq = adcp.position.y
+t  = adcp.time.ensemble_datetimes
+
+#%%
+# ============================== INPUTS ==============================
+# Map scale (linear only) and colormap
+levels = [0.0,.1,.2,.3,.4,.5]  # m/s
+vmin, vmax = None, None               # if None, use min/max of levels or data
+cmap_name = cmo.cm.speed#"Spectral_r"
+tick_decimals = 2
+tick_decimal_precision = 3
+pad_m = 2000
+pixel_size_m = 20
+speed_bottom_thresh = 0.001  # m/s; values below transparent
+
+# HD item numbers (m/s)
+u_item_number = 4
+v_item_number = 5
+
+# ADCP series aggregation for speed and components
+adcp_series_mode = "bin"    # 'bin' | 'range' | 'hab'
+adcp_series_target = "mean" # numeric or 'mean'/'pXX'
+
+# Quiver controls
+quiver_every_n = 5                # plot every Nth sample along track
+adcp_quiver_scale = 3              # ADCP quiver scale
+model_quiver_scale = 3            # Model quiver scale
+quiver_color_model = "black"
+quiver_color_adcp = PlottingShell.red1
+
+# Model quiver mode: 'transect' (along track) or 'field' (coarse vector field over map)
+model_quiver_mode = "transect"
+field_pixel_size_m = 100            # coarse grid resolution for field mode
+field_quiver_stride_n = 3           # plot every Nth vector on the coarse grid
+
+# Distance-binning for middle plot
+distance_bin_m = 50
+bar_width_scale = 0.15
+
+# Labels and overlays
+x_label, y_label = crs_helper.axis_labels()
+shapefile_layers = [
+    ShapefileLayer(
+        path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\SG Coastline\RD7550_CEx_SG_v20250509.shp",
+        kind="polygon",
+        crs_helper=crs_helper,
+        poly_edgecolor="black",
+        poly_linewidth=0.6,
+        poly_facecolor="none",
+        alpha=1.0,
+        zorder=10,
+    ),
+]
+
+# ============================== CLEAN LAYOUT CONTROLS ==============================
+FIG_W, FIG_H = 6.5, 9.0
+LEFT, RIGHT = 0.06, 0.9
+TOP, BOTTOM = 0.98, 0.05
+HSPACE = 0.22
+CB_WIDTH = 0.012
+CB_GAP = 0.008
+
+META_TOP_Y = 0.95
+META_SECTION_GAP = 0.20
+META_LINE_GAP = 0.16
+META_COL_X = [0.02, 0.43, 0.84]
+META_LEFT_OVERSHOOT = 0.10
+
+# ============================== FIGURE SHELL ==============================
+fig, ax = PlottingShell.subplots(
+    figheight=FIG_H, figwidth=FIG_W, nrow=3, ncol=1,
+    height_ratios=[1.00, 0.30, 0.22]
+)
+fig.subplots_adjust(left=LEFT, right=RIGHT, top=TOP, bottom=BOTTOM, hspace=HSPACE)
+ax0, ax1, ax2 = ax
+
+# ======================================================================
+# TOP — HD current speed raster + quivers
+# ======================================================================
+# Bbox and rasterize U and V then compute speed magnitude
+bbox = crs_helper.bbox_from_coords(xq, yq, pad_m=pad_m, from_crs=adcp.position.epsg)
+
+U_img, extent_u = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=pixel_size_m)
+V_img, extent_v = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=pixel_size_m)
+if extent_u != extent_v:
+    raise RuntimeError("U and V raster extents differ. Verify rasterization inputs.")
+
+speed_img = np.hypot(U_img, V_img)  # m/s
+model_extent = extent_u
+
+data = np.asarray(speed_img, dtype=float)
+finite = np.isfinite(data)
+if not finite.any():
+    raise ValueError("No finite speed values in model raster.")
+
+auto_min = float(np.nanmin(data[finite]))
+auto_max = float(np.nanmax(data[finite]))
+cbar_min = vmin if vmin is not None else (min(levels) if levels else max(speed_bottom_thresh, auto_min))
+cbar_max = vmax if vmax is not None else (max(levels) if levels else auto_max)
+cbar_min = max(speed_bottom_thresh, cbar_min)
+if (not np.isfinite(cbar_min)) or (not np.isfinite(cbar_max)) or (cbar_min >= cbar_max):
+    cbar_min, cbar_max = max(speed_bottom_thresh, 0.001), max(1.0, auto_max)
+
+cmap = plt.get_cmap(cmap_name).copy()
+cmap.set_under(alpha=0.0)
+norm = Normalize(vmin=cbar_min, vmax=cbar_max, clip=True)
+
+im = ax0.imshow(data, extent=model_extent, origin="lower", cmap=cmap, norm=norm, interpolation="nearest")
+for layer in shapefile_layers:
+    layer.plot(ax0)
+
+# ADCP and Model quivers
+# ADCP: earth-frame u=v1, v=v2 aggregated per target
+adcp_u_ts, _ = adcp.get_velocity_series(component="u", mode=adcp_series_mode, target=adcp_series_target)
+adcp_v_ts, _ = adcp.get_velocity_series(component="v", mode=adcp_series_mode, target=adcp_series_target)
+
+# Model transect U,V at ensemble times (used for transect-mode quivers and middle panel)
+model_u_ts = np.asarray(hd_model.extract_transect_idw(xq, yq, t, item_number=u_item_number)[0], dtype=float)
+model_v_ts = np.asarray(hd_model.extract_transect_idw(xq, yq, t, item_number=v_item_number)[0], dtype=float)
+
+# Either quiver along transect or field quiver on coarse grid
+if model_quiver_mode.lower() == "transect":
+    idx = np.arange(0, xq.size, max(1, int(quiver_every_n)))
+    ax0.quiver(
+        xq[idx], yq[idx], model_u_ts[idx], model_v_ts[idx],
+        color=quiver_color_model, scale=model_quiver_scale, width=0.002,
+        alpha=0.9, zorder=20, label="Model"
+    )
+elif model_quiver_mode.lower() == "field":
+    Uc, extent_c = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
+    Vc, extent_cv = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
+    if extent_c != extent_cv:
+        raise RuntimeError("Coarse U and V raster extents differ in field mode.")
+
+    xmin, xmax, ymin, ymax = extent_c
+    ny, nx = Uc.shape
+    dx = (xmax - xmin) / nx
+    dy = (ymax - ymin) / ny
+    xs = np.linspace(xmin + dx * 0.5, xmax - dx * 0.5, nx)
+    ys = np.linspace(ymin + dy * 0.5, ymax - dy * 0.5, ny)
+    XX, YY = np.meshgrid(xs, ys)
+
+    stride = max(1, int(field_quiver_stride_n))
+    ax0.quiver(
+        XX[::stride, ::stride], YY[::stride, ::stride],
+        Uc[::stride, ::stride], Vc[::stride, ::stride],
+        color=quiver_color_model, scale=model_quiver_scale, width=0.002,
+        alpha=0.85, zorder=19, label="Model (field)"
+    )
+else:
+    raise ValueError("model_quiver_mode must be 'transect' or 'field'.")
+
+# ADCP quiver along the transect
+idx = np.arange(0, xq.size, max(1, int(quiver_every_n)))
+ax0.quiver(
+    xq[idx], yq[idx], adcp_u_ts[idx], adcp_v_ts[idx],
+    color=quiver_color_adcp, scale=adcp_quiver_scale, width=0.002,
+    alpha=0.9, zorder=21, label="ADCP"
+)
+
+# Overlay ADCP track
+ax0.plot(xq, yq, color=quiver_color_adcp, lw=1, alpha=0.5, zorder=9)
+
+# Axes, limits, labels
+ax0.set_xlabel(x_label)
+ax0.set_ylabel(y_label)
+xmin, xmax, ymin, ymax = bbox
+ax0.set_xlim(xmin, xmax)
+ax0.set_ylim(ymin, ymax)
+ax0.set_aspect("equal", adjustable="box")
+ax0.set_title(f"HD Current Speed vs ADCP Transect {adcp.name}", fontsize=8)
+
+xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimal_precision}f}")
+ax0.xaxis.set_major_formatter(xy_fmt)
+ax0.yaxis.set_major_formatter(xy_fmt)
+
+# Colorbar in dedicated axis with edge gap
+fig.canvas.draw()
+pos0 = ax0.get_position()
+ax0.set_position([pos0.x0, pos0.y0, pos0.width - (CB_WIDTH + CB_GAP), pos0.height])
+fig.canvas.draw()
+pos = ax0.get_position()
+cb_ax = fig.add_axes([pos.x1 + CB_GAP, pos.y0, CB_WIDTH, pos.height])
+cb = plt.colorbar(im, cax=cb_ax)
+cb.ax.set_ylabel("Mean Current Speed During Transect (m/s)", fontsize=7)
+cb.ax.tick_params(labelsize=6)
+
+def _fmt_num(v: float, nd: int) -> str:
+    return f"{v:.{nd}f}"
+
+_ticks = sorted(set((levels or []) + [cbar_min]))
+_ticks = [v for v in _ticks if cbar_min <= v <= cbar_max]
+if _ticks:
+    cb.set_ticks(_ticks)
+    cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in _ticks])
+else:
+    _cb_ticks = np.linspace(cbar_min, cbar_max, 5)
+    cb.set_ticks(_cb_ticks)
+    cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in _cb_ticks])
+
+
+
+# legend
+# legend (solid white, on top)
+
+def _legend_arrow(color, edge="black", lw=0.8, scale=14):
+    return FancyArrowPatch((0.05, 0.5), (0.95, 0.5),
+                           arrowstyle='-|>', mutation_scale=scale,
+                           facecolor=color, edgecolor=edge, linewidth=lw)
+
+h_adcp  = _legend_arrow(quiver_color_adcp,  edge="black")
+h_model = _legend_arrow(quiver_color_model, edge="black")
+
+leg = ax0.legend([h_adcp, h_model], ["ADCP", "Model"],
+                 handler_map={FancyArrowPatch: HandlerPatch()},
+                 loc="upper left", frameon=True, fontsize=7,
+                 framealpha=1.0, fancybox=False)
+
+# solid white background and bring to front
+frame = leg.get_frame()
+frame.set_facecolor("white")
+frame.set_alpha(1.0)
+frame.set_edgecolor("black")
+leg.set_zorder(1000)
+frame.set_zorder(1001)
+
+
+# ======================================================================
+# MIDDLE — Distance-binned current speed (Model vs ADCP)
+# ======================================================================
+model_speed_ts = np.hypot(model_u_ts, model_v_ts)
+adcp_speed_ts = adcp.get_velocity_series(component="speed", mode=adcp_series_mode, target=adcp_series_target)[0]
+dist_m = np.asarray(adcp.position.distance, dtype=float).ravel()
+
+n = min(dist_m.size, model_speed_ts.size, adcp_speed_ts.size)
+dist_m = dist_m[:n]
+model_speed_ts = model_speed_ts[:n]
+adcp_speed_ts = adcp_speed_ts[:n]
+
+valid = np.isfinite(dist_m) & np.isfinite(model_speed_ts) & np.isfinite(adcp_speed_ts)
+dist_m = dist_m[valid]
+model_speed_ts = model_speed_ts[valid]
+adcp_speed_ts = adcp_speed_ts[valid]
+if dist_m.size == 0:
+    raise ValueError("No valid samples for distance binning.")
+
+dmax = float(np.nanmax(dist_m))
+edges = np.arange(0.0, dmax + distance_bin_m, distance_bin_m)
+if edges.size < 2:
+    edges = np.array([0.0, max(distance_bin_m, dmax if np.isfinite(dmax) else distance_bin_m)], dtype=float)
+centers = 0.5 * (edges[:-1] + edges[1:])
+nbins = edges.size - 1
+bin_idx = np.clip(np.digitize(dist_m, edges) - 1, 0, nbins - 1)
+
+def binned_mean(values: np.ndarray, idx: np.ndarray, nb: int) -> np.ndarray:
+    sums = np.bincount(idx, weights=values, minlength=nb).astype(float)
+    cnts = np.bincount(idx, minlength=nb).astype(float)
+    out = np.full(nb, np.nan, dtype=float)
+    ok = cnts > 0
+    out[ok] = sums[ok] / cnts[ok]
+    return out
+
+model_bin_mean = binned_mean(model_speed_ts, bin_idx, nbins)
+adcp_bin_mean = binned_mean(adcp_speed_ts, bin_idx, nbins)
+
+bar_w = max(0.5, distance_bin_m * bar_width_scale)
+offset = bar_w / 2.0
+ax1.bar(
+    centers - offset, model_bin_mean, width=bar_w,
+    color=PlottingShell.blue1, alpha=0.9, label="Model", align="center"
+)
+ax1.bar(
+    centers + offset, adcp_bin_mean, width=bar_w,
+    color=PlottingShell.red1, alpha=0.9, label="ADCP", align="center"
+)
+
+ax1.set_xticks(centers)
+ax1.set_xticklabels([f"{c:.1f}" for c in centers])
+
+ax1.set_xlim(edges[0], edges[-1])
+ax1.set_xlabel("Distance along transect (m)")
+ax1.set_ylabel("Speed (m/s)")
+ax1.grid(alpha=0.3)
+ax1.legend(frameon=False, fontsize=7, ncol=2)
+
+# x ticks and y ticks formatting (plain numbers, use levels)
+ax1.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, pos: f"{v:.1f}"))
+_y_ticks = [v for v in levels if (v >= cbar_min) and (v <= cbar_max)]
+if not _y_ticks:
+    _y_ticks = np.linspace(cbar_min, cbar_max, 5).tolist()
+ax1.yaxis.set_major_locator(FixedLocator(_y_ticks))
+ax1.yaxis.set_minor_locator(FixedLocator([]))
+ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimals}f}"))
+
+# Match middle width to top; use same y-limit max as colorbar
+fig.canvas.draw()
+p0 = ax0.get_position()
+p1 = ax1.get_position()
+ax1.set_aspect("auto")
+ax1.set_anchor("W")
+try:
+    ax1.set_box_aspect(None)
+except Exception:
+    pass
+ax1.set_position([p0.x0, p1.y0, p0.width, p1.height])
+ax1.set_ylim(cbar_min, cbar_max)
+
+# ======================================================================
+# BOTTOM — Metadata (three columns)
+# ======================================================================
+t_arr = np.asarray(t)[:n]
+t_valid = t_arr[valid]
+t0 = pd.to_datetime(t_valid.min())
+t1 = pd.to_datetime(t_valid.max())
+dur_min = (t1 - t0).total_seconds() / 60.0
+
+# Mean speeds
+mean_speed_model = float(np.nanmean(model_speed_ts))
+mean_speed_obs = float(np.nanmean(adcp_speed_ts))
+mean_speed_err = float(np.nanmean(model_speed_ts - adcp_speed_ts))
+
+# Directions (0° = North, clockwise). ADCP directions already in that frame.
+def circmean_deg(a_deg: np.ndarray) -> float:
+    a = np.deg2rad(a_deg)
+    c = np.nanmean(np.cos(a))
+    s = np.nanmean(np.sin(a))
+    return float((np.degrees(np.arctan2(s, c)) + 360.0) % 360.0)
+
+def circdiff_deg(a_deg: np.ndarray, b_deg: np.ndarray) -> np.ndarray:
+    d = (a_deg - b_deg + 180.0) % 360.0 - 180.0
+    return d
+
+adcp_dir_ts = adcp.get_velocity_series(component="direction", mode=adcp_series_mode, target=adcp_series_target)[0]
+model_dir_ts = (np.degrees(np.arctan2(model_u_ts, model_v_ts)) + 360.0) % 360.0
+
+adcp_dir_ts = adcp_dir_ts[:n][valid]
+model_dir_ts = model_dir_ts[:n][valid]
+
+mean_dir_model = circmean_deg(model_dir_ts)
+mean_dir_obs = circmean_deg(adcp_dir_ts)
+dir_err_series = circdiff_deg(model_dir_ts, adcp_dir_ts)
+mean_dir_err = float(np.nanmean(dir_err_series))
+
+ax2.clear()
+ax2.set_axis_off()
+fmt_time = lambda dt: dt.strftime("%d %b. %Y %H:%M")
+
+def H(x, y, text):
+    ax2.text(x, y, text, ha="left", va="top", fontsize=8, fontweight="bold", family="monospace")
+
+def I(x, y, k, v):
+    ax2.text(x, y, f"{k}: {v}", ha="left", va="top", fontsize=7, family="monospace")
+
+# Match bottom width to top, then overshoot further left
+fig.canvas.draw()
+p2 = ax2.get_position()
+ax2.set_aspect("auto")
+ax2.set_anchor("W")
+try:
+    ax2.set_box_aspect(None)
+except Exception:
+    pass
+new_x0 = p0.x0 - META_LEFT_OVERSHOOT
+new_w = min(p0.width + META_LEFT_OVERSHOOT, 1.0 - new_x0)
+ax2.set_position([new_x0, p2.y0, new_w, p2.height])
+
+y0 = META_TOP_Y
+sec = META_SECTION_GAP
+line = META_LINE_GAP
+cols_x = META_COL_X
+
+# Column 1 — ADCP aggregation
+x = cols_x[0]
+y = y0
+H(x, y, "Observation Aggregation")
+y -= sec
+I(x, y, "Mode", adcp_series_mode)
+y -= line
+I(x, y, "Target", adcp_series_target)
+
+# Column 2 — Transect timing
+x = cols_x[1]
+y = y0
+H(x, y, "Transect Timing")
+y -= sec
+I(x, y, "Start", fmt_time(t0))
+y -= line
+I(x, y, "End", fmt_time(t1))
+y -= line
+I(x, y, "Duration", f"{dur_min:.1f} min")
+
+# Column 3 — Model vs ADCP (velocity)
+x = cols_x[2]
+y = y0
+H(x, y, "Model vs ADCP (Velocity)")
+y -= sec
+I(x, y, "Mean speed error", f"{mean_speed_err:.{tick_decimals}f} m/s")
+y -= line
+I(x, y, "Mean speed (obs)", f"{mean_speed_obs:.{tick_decimals}f} m/s")
+y -= line
+I(x, y, "Mean speed (model)", f"{mean_speed_model:.{tick_decimals}f} m/s")
+y -= line
+I(x, y, "Mean direction error", f"{mean_dir_err:.{tick_decimals}f}°")
+y -= line
+I(x, y, "Mean direction (obs)", f"{mean_dir_obs:.{tick_decimals}f}°")
+y -= line
+I(x, y, "Mean direction (model)", f"{mean_dir_model:.{tick_decimals}f}°")

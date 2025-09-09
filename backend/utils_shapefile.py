@@ -4,20 +4,22 @@ from dataclasses import dataclass, field
 from typing import Optional, Tuple, Union
 import os
 from pathlib import Path
+import numpy as np
 import geopandas as gpd
 import matplotlib.axes as maxes
-from shapely.geometry import Polygon, MultiPolygon
-
-# from utils_crs import CRSHelper
-
+from shapely.geometry import Polygon, MultiPolygon, box
+from shapely.ops import unary_union
+from utils_crs import CRSHelper
 
 @dataclass
 class ShapefileLayer:
     """
     Minimal shapefile wrapper with explicit styling and a single layer-wide label.
-    - Reads on init
-    - Reprojects to project CRS on init via CRSHelper
-    - Stores error string if anything fails
+
+    Robust bounds():
+      1) Use projected GDF total_bounds if available and finite.
+      2) Try geometry repair (buffer(0), explode, drop empties) and recompute.
+      3) Fallback: compute raw bounds in source CRS and reproject that bbox to project CRS.
     """
 
     # required
@@ -37,20 +39,26 @@ class ShapefileLayer:
     alpha: Optional[float] = None
     zorder: Optional[int] = None
 
-    # layer-wide label (applied at feature representative point)
+    # label
     label_text: Optional[str] = None
     label_fontsize: Optional[float] = None
     label_color: Optional[str] = None
     label_ha: Optional[str] = None
     label_va: Optional[str] = None
     label_zorder: Optional[int] = None
+    label_offset_pts: Optional[Tuple[float, float]] = None
+    label_offset_data: Optional[Tuple[float, float]] = None
+
+    # behavior
+    keep_invalid: bool = True
+    try_repair_for_bounds: bool = True
 
     # internals
     error: Optional[str] = field(default=None, init=False, repr=False)
+    _gdf_raw: Optional[gpd.GeoDataFrame] = field(default=None, init=False, repr=False)
     _gdf_proj: Optional[gpd.GeoDataFrame] = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
-        # sanitize path (UNC with forward slashes)
         p = str(Path(self.path))
         if p.startswith("//"):
             p = "\\\\" + p.lstrip("/")
@@ -76,34 +84,73 @@ class ShapefileLayer:
             self.error = f"Input dataset has no CRS: {self.path}"
             return
 
+        self._gdf_raw = gdf
+
         try:
             self._gdf_proj = self.crs_helper.to_project_gdf(gdf)
-        except Exception as e:
-            self.error = f"Reprojection failed to {self.crs_helper.project_crs}: {e}"
+        except Exception:
+            try:
+                self._gdf_proj = gdf.to_crs(self.crs_helper.project_crs)
+            except Exception as e:
+                self.error = f"Reprojection failed to {self.crs_helper.project_crs}: {e}"
 
-    # -------- queries --------
     def is_ok(self) -> bool:
-        return self.error is None and self._gdf_proj is not None
+        return self._gdf_raw is not None
 
     def as_gdf(self) -> Union[gpd.GeoDataFrame, str]:
-        if not self.is_ok():
-            return self.error or "Layer not loaded."
-        return self._gdf_proj
+        if self._gdf_proj is not None:
+            return self._gdf_proj
+        if self.error:
+            return self.error
+        return "Layer not loaded."
 
     def bounds(self) -> Union[Tuple[float, float, float, float], str]:
-        """Return (xmin, xmax, ymin, ymax) in project CRS."""
-        g = self.as_gdf()
-        if isinstance(g, str):
-            return g
-        xmin, ymin, xmax, ymax = g.total_bounds
-        return float(xmin), float(xmax), float(ymin), float(ymax)
+        """Return (xmin, xmax, ymin, ymax) in project CRS with fallbacks."""
+        if self._gdf_proj is not None and not self._gdf_proj.empty:
+            b = self._gdf_proj.total_bounds  # (minx, miny, maxx, maxy)
+            if _finite_bounds(b):
+                return float(b[0]), float(b[2]), float(b[1]), float(b[3])
 
-    # -------- plotting --------
+        if self.try_repair_for_bounds and self._gdf_proj is not None:
+            gp = self._gdf_proj.copy()
+            try:
+                gp["geometry"] = gp.geometry.buffer(0)
+                gp = gp.explode(index_parts=False, ignore_index=True)
+                gp = gp[gp.geometry.notnull() & (~gp.geometry.is_empty)]
+                if not gp.empty:
+                    b = gp.total_bounds
+                    if _finite_bounds(b):
+                        return float(b[0]), float(b[2]), float(b[1]), float(b[3])
+            except Exception:
+                pass
+
+        if self._gdf_raw is not None and not self._gdf_raw.empty:
+            try:
+                rb = self._gdf_raw.total_bounds
+                if _finite_bounds(rb):
+                    bbox_poly_raw = gpd.GeoDataFrame(
+                        geometry=[box(rb[0], rb[1], rb[2], rb[3])],
+                        crs=self._gdf_raw.crs
+                    )
+                    try:
+                        bbox_proj = self.crs_helper.to_project_gdf(bbox_poly_raw)
+                    except Exception:
+                        bbox_proj = bbox_poly_raw.to_crs(self.crs_helper.project_crs)
+                    b = bbox_proj.total_bounds
+                    if _finite_bounds(b):
+                        return float(b[0]), float(b[2]), float(b[1]), float(b[3])
+            except Exception:
+                pass
+
+        return "Unable to compute bounds for layer."
+
     def plot(self, ax: maxes.Axes) -> Union[None, str]:
-        """Plot layer. Labels placed at representative points (handles Multi*)."""
         g = self.as_gdf()
         if isinstance(g, str):
             return g
+        if g.empty:
+            return "Layer is empty."
+
         kd = self.kind.lower()
 
         if kd == "polygon":
@@ -131,123 +178,90 @@ class ShapefileLayer:
             g.plot(ax=ax, color=color, marker=marker, markersize=markersize,
                    alpha=alpha, zorder=zorder)
 
-        # Labels for any geometry type
         if self.label_text:
             fontsize = self.label_fontsize or 8
             color = self.label_color or "k"
             ha = self.label_ha or "left"
             va = self.label_va or "center"
             lz = self.label_zorder or ((self.zorder or 15) + 1)
+
+            use_pts = self.label_offset_pts is not None
+            dx_pts, dy_pts = (self.label_offset_pts or (0, 0))
+            dx_dat, dy_dat = (self.label_offset_data or (0.0, 0.0))
+
             for _, row in g.iterrows():
                 geom = row.geometry
                 if geom is None or geom.is_empty:
                     continue
-                # representative_point handles MultiPoint/Line/MultiLine/Polygon/MultiPolygon
                 if kd == "point" and getattr(geom, "geom_type", "") == "Point":
                     x, y = geom.x, geom.y
                 else:
                     x, y = geom.representative_point().coords[0]
-                ax.text(x, y, self.label_text, fontsize=fontsize,
-                        color=color, ha=ha, va=va, zorder=lz)
+
+                if use_pts:
+                    ax.annotate(
+                        self.label_text, xy=(x, y), xytext=(dx_pts, dy_pts),
+                        textcoords="offset points", ha=ha, va=va,
+                        fontsize=fontsize, color=color, zorder=lz
+                    )
+                else:
+                    ax.text(
+                        x + dx_dat, y + dy_dat, self.label_text,
+                        fontsize=fontsize, color=color, ha=ha, va=va, zorder=lz
+                    )
         return None
 
-    # -------- geometry helper --------
     def polygon_mask(self) -> Union[Polygon, MultiPolygon, None, str]:
-        """Dissolved polygon in project CRS if kind='polygon'."""
         g = self.as_gdf()
-        if isinstance(g, str):
-            return g
-        if self.kind.lower() != "polygon" or g.empty:
+        if isinstance(g, str) or g.empty or self.kind.lower() != "polygon":
+            return None if not isinstance(g, str) else g
+        try:
+            return unary_union(g.geometry)
+        except Exception:
             return None
-        return g.unary_union
 
+def _finite_bounds(b) -> bool:
+    if b is None or len(b) != 4:
+        return False
+    return all(np.isfinite(bi) for bi in b)
 
-# ---------------- test shell ----------------
+# ---------------- test for the bbox shapefile ----------------
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from utils_crs import CRSHelper
 
-    helper = CRSHelper("EPSG:4326")
+    epsg = 4326
+    helper = CRSHelper(project_crs=epsg)
 
-    # Polygon layer
-    coast = ShapefileLayer(
-        path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\SG Coastline\RD7550_CEx_SG_v20250509.shp",
+    bbox_layer = ShapefileLayer(
+        path=r"//usden1-stor.dhi.dk/Projects/61803553-05/GIS/F3/example point layer/extract_model_results.shp",
         kind="polygon",
         crs_helper=helper,
         poly_edgecolor="black",
         poly_linewidth=0.6,
         poly_facecolor="none",
         alpha=1.0,
-        zorder=10,
-        label_text=None,
+        zorder=8,
+        label_text="Extraction AOI",
         label_fontsize=8,
         label_color="black",
+        label_offset_pts=(6, 6),
     )
-    if coast.error:
-        raise SystemExit(coast.error)
+
+    b = bbox_layer.bounds()
+    print("bounds:", b)
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    err = coast.plot(ax)
+    err = bbox_layer.plot(ax)
     if isinstance(err, str):
-        raise SystemExit(err)
+        print("plot error:", err)
+    if isinstance(b, tuple):
+        xmin, xmax, ymin, ymax = b
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
     ax.set_aspect("equal")
-    ax.set_xlabel(helper.axis_labels()[0])
-    ax.set_ylabel(helper.axis_labels()[1])
-    plt.show()
-
-    # line layer
-    coast_lines = ShapefileLayer(
-        path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\SG Coastline\RD7550_CEx_SG_v20250509.shp",
-        kind="line",
-        crs_helper=helper,
-        line_color="black",
-        line_width=0.8,
-        alpha=1.0,
-        zorder=12,
-        label_text="Coastline",
-        label_fontsize=8,
-        label_color="black",
-        label_ha="left",
-        label_va="center",
-    )
-    if coast_lines.error:
-        raise SystemExit(coast_lines.error)
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    err = coast_lines.plot(ax)
-    if isinstance(err, str):
-        raise SystemExit(err)
-
-    ax.set_aspect("equal")
-    ax.set_xlabel(helper.axis_labels()[0])
-    ax.set_ylabel(helper.axis_labels()[1])
-    plt.show()
-    
-    
-    # Point layer
-    pts = ShapefileLayer(
-        path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\F3\example point layer\points_labels.shp",
-        kind="point",
-        crs_helper=helper,
-        point_color="black",
-        point_marker="o",
-        point_markersize=10,
-        alpha=1.0,
-        zorder=14,
-        label_text="Example Label",
-        label_fontsize=8,
-        label_color="black",
-        label_ha="left",
-        label_va="center",
-    )
-    if pts.error:
-        raise SystemExit(pts.error)
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    err = pts.plot(ax)
-    if isinstance(err, str):
-        raise SystemExit(err)
-    ax.set_aspect("equal")
-    ax.set_xlabel(helper.axis_labels()[0])
-    ax.set_ylabel(helper.axis_labels()[1])
+    xlab, ylab = helper.axis_labels()
+    ax.set_xlabel(xlab)
+    ax.set_ylabel(ylab)
+    ax.set_title("BBox Shapefile sanity check")
+    plt.tight_layout()
     plt.show()
