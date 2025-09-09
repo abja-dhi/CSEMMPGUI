@@ -39,9 +39,8 @@ import plotly.io as pio
 from plotly.colors import sample_colorscale
 
 # Project imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils_xml import XMLUtils          
-from adcp import ADCP as ADCPDataset   
+from .utils_xml import XMLUtils          
+from .adcp import ADCP as ADCPDataset   
 
 pio.renderers.default = "browser"
 
@@ -570,7 +569,7 @@ if __name__ == "__main__":
                 "width": 0.5,
             },
             {
-                "path": r"C:/Users/anba/Downloads/v20250509/v20250509/points_labels.shp",
+                "path": r'//usden1-stor.dhi.dk/Projects/61803553-05/GIS/F3/example point layer/points_labels.shp',
                 "type": "point",
                 "color": "#FFD166",
                 "markersize": 6,
@@ -579,9 +578,8 @@ if __name__ == "__main__":
                 "label_color": "pink",
             },
         ],
-        "bgcolor": "black",     # Background color of the plot.
-        "field_name": "absolute_backscatter",
         "cmap": "jet",
+        "field_name": "absolute_backscatter",
         "vmin": None,
         "vmax": None,
         "pad_deg": 0.03,        # Pad on the bounding box on all the transects. Defines the margin to the edges of the figure.
@@ -589,6 +587,7 @@ if __name__ == "__main__":
         "grid_opacity": 0.35,   # Opacity of the grid lines.
         "grid_color": "#333",   # Color of the grid lines.
         "grid_width": 1,        # Width of the grid lines.
+        "bgcolor": "black",     # Background color of the plot.
         "axis_ticks": 7,        # Number of ticks on each axis.
         "tick_fontsize": 10,    # Font size of the axis ticks.
         "tick_decimals": 4,   # Number of decimals for the axis tick labels.

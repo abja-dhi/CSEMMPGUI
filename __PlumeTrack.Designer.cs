@@ -59,6 +59,7 @@
             tableMap = new TableLayoutPanel();
             map2D = new RadioButton();
             map3D = new RadioButton();
+            webView = new Microsoft.Web.WebView2.WinForms.WebView2();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitter).BeginInit();
@@ -66,6 +67,7 @@
             splitter.Panel2.SuspendLayout();
             splitter.SuspendLayout();
             tableMap.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)webView).BeginInit();
             SuspendLayout();
             // 
             // menuStrip1
@@ -87,49 +89,49 @@
             // menuNew
             // 
             menuNew.Name = "menuNew";
-            menuNew.Size = new Size(180, 22);
+            menuNew.Size = new Size(167, 22);
             menuNew.Text = "New...";
             menuNew.Click += menuNew_Click;
             // 
             // menuOpen
             // 
             menuOpen.Name = "menuOpen";
-            menuOpen.Size = new Size(180, 22);
+            menuOpen.Size = new Size(167, 22);
             menuOpen.Text = "Open...";
             menuOpen.Click += menuOpen_Click;
             // 
             // menuSave
             // 
             menuSave.Name = "menuSave";
-            menuSave.Size = new Size(180, 22);
+            menuSave.Size = new Size(167, 22);
             menuSave.Text = "Save...";
             menuSave.Click += menuSave_Click;
             // 
             // menuSaveAs
             // 
             menuSaveAs.Name = "menuSaveAs";
-            menuSaveAs.Size = new Size(180, 22);
+            menuSaveAs.Size = new Size(167, 22);
             menuSaveAs.Text = "Save As...";
             menuSaveAs.Click += menuSaveAs_Click;
             // 
             // menuProperties
             // 
             menuProperties.Name = "menuProperties";
-            menuProperties.Size = new Size(180, 22);
+            menuProperties.Size = new Size(167, 22);
             menuProperties.Text = "Project Properties";
             menuProperties.Click += menuProperties_Click;
             // 
             // menuMapOptions
             // 
             menuMapOptions.Name = "menuMapOptions";
-            menuMapOptions.Size = new Size(180, 22);
+            menuMapOptions.Size = new Size(167, 22);
             menuMapOptions.Text = "Map Options";
             menuMapOptions.Click += menuMapOptions_Click;
             // 
             // menuExit
             // 
             menuExit.Name = "menuExit";
-            menuExit.Size = new Size(180, 22);
+            menuExit.Size = new Size(167, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
             // 
@@ -263,6 +265,7 @@
             tableMap.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableMap.Controls.Add(map2D, 0, 0);
             tableMap.Controls.Add(map3D, 1, 0);
+            tableMap.Controls.Add(webView, 0, 1);
             tableMap.Dock = DockStyle.Fill;
             tableMap.Location = new Point(0, 0);
             tableMap.Name = "tableMap";
@@ -275,16 +278,15 @@
             // map2D
             // 
             map2D.AutoSize = true;
-            map2D.Checked = true;
             map2D.Dock = DockStyle.Fill;
             map2D.Location = new Point(3, 3);
             map2D.Name = "map2D";
             map2D.Size = new Size(44, 24);
             map2D.TabIndex = 0;
-            map2D.TabStop = true;
             map2D.Text = "2D";
             map2D.TextAlign = ContentAlignment.MiddleCenter;
             map2D.UseVisualStyleBackColor = true;
+            map2D.CheckedChanged += map2D_CheckedChanged;
             // 
             // map3D
             // 
@@ -294,10 +296,22 @@
             map3D.Name = "map3D";
             map3D.Size = new Size(44, 24);
             map3D.TabIndex = 1;
-            map3D.TabStop = true;
             map3D.Text = "3D";
             map3D.TextAlign = ContentAlignment.MiddleCenter;
             map3D.UseVisualStyleBackColor = true;
+            // 
+            // webView
+            // 
+            webView.AllowExternalDrop = true;
+            tableMap.SetColumnSpan(webView, 3);
+            webView.CreationProperties = null;
+            webView.DefaultBackgroundColor = Color.White;
+            webView.Dock = DockStyle.Fill;
+            webView.Location = new Point(3, 33);
+            webView.Name = "webView";
+            webView.Size = new Size(580, 401);
+            webView.TabIndex = 2;
+            webView.ZoomFactor = 1D;
             // 
             // __PlumeTrack
             // 
@@ -322,6 +336,7 @@
             splitter.ResumeLayout(false);
             tableMap.ResumeLayout(false);
             tableMap.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)webView).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -357,5 +372,6 @@
         private TableLayoutPanel tableMap;
         private RadioButton map2D;
         private RadioButton map3D;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webView;
     }
 }

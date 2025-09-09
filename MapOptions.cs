@@ -25,8 +25,11 @@ namespace CSEMMPGUI_v1
         public XmlElement mapShapefiles;
         public int currentShapefileIndex;
         public Dictionary<string, XmlElement> shapefileSettings = new Dictionary<string, XmlElement>();
-        public List<Panel> colorPanels;
-        //public List
+        public List<TextBox> shpPathTextBoxes;
+        public List<TextBox> shpTypeTextBoxes;
+        public List<Panel> shpColorPanels;
+        public List<Button> shpColorButtons;
+        public List<TextBox> shpSizeTextBoxes;
 
         private string GetShapeType(string filePath)
         {

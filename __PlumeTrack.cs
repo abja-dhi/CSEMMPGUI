@@ -1,9 +1,10 @@
 using DHI.Mike1D.ResultDataAccess;
 using DHI.Mike1D.ResultDataAccess.Epanet;
 using Microsoft.VisualBasic;
+using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Wpf;
 using Python.Runtime;
 using System.Xml;
-using Microsoft.Web.WebView2.WinForms;
 
 
 namespace CSEMMPGUI_v1
@@ -71,20 +72,15 @@ namespace CSEMMPGUI_v1
             }
             else
                 InitializeProject();
-            
+
             this.KeyPreview = true; // Enable form to capture key events
             this.KeyDown += __PlumeTrack_KeyDown; // Attach key down event handler
 
-            WebView2 webView = new WebView2();
-            webView.Dock = DockStyle.Fill;
-            tableMap.Controls.Add(webView, 0, 1);
-            tableMap.SetColumnSpan(webView, 3);
             this.Load += async (s, e) =>
             {
                 await webView.EnsureCoreWebView2Async();
                 webView.Source = new Uri(Path.Combine(_Globals.basePath, "load_data_message.html"));
             };
-
         }
 
         private void menuNew_Click(object sender, EventArgs e)
@@ -241,25 +237,6 @@ namespace CSEMMPGUI_v1
         private void frmMain_Activated(object sender, EventArgs e)
         {
             FillTree(); // Refresh the tree view when the form is activated
-            Dictionary<string, string> inputs2D = new Dictionary<string, string>
-                {
-                    { "Task", "MapViewer2D" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                };
-            string xmlInput2D = _Tools.GenerateInput(inputs2D);
-            XmlDocument result2D = _Tools.CallPython(xmlInput2D);
-            Dictionary<string, string> outputs2D = _Tools.ParseOutput(result2D);
-            
-            Dictionary<string, string> inputs3D = new Dictionary<string, string>
-                {
-                    { "Task", "MapViewer3D" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                };
-            string xmlInput3D = _Tools.GenerateInput(inputs3D);
-            XmlDocument result3D = _Tools.CallPython(xmlInput3D);
-            Dictionary<string, string> outputs3D = _Tools.ParseOutput(result3D);
-            
-
         }
 
         private void menuAddSurvey_Click(object sender, EventArgs e)
@@ -313,7 +290,7 @@ namespace CSEMMPGUI_v1
                         string mode = modeNode?.InnerText ?? string.Empty;
 
                         itemPlot.Visible = mode != "Manual";
-                        
+
                     }
                 }
                 cmenuNode.Show(treeProject, e.Location);
@@ -601,6 +578,27 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        
+        private void map2D_CheckedChanged(object sender, EventArgs e)
+        {
+            if (map2D.Checked)
+            {
+                Dictionary<string, string> inputs2D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer2D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+                string xmlInput2D = _Tools.GenerateInput(inputs2D);
+                XmlDocument result2D = _Tools.CallPython(xmlInput2D);
+                Dictionary<string, string> outputs2D = _Tools.ParseOutput(result2D);
+                if (outputs2D.ContainsKey("Error"))
+                {
+                    MessageBox.Show(outputs2D["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                webView.Source = new Uri(outputs2D["Result"]);
+            }
+
+        }
     }
 }

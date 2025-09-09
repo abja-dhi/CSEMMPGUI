@@ -80,9 +80,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 # Project imports (assumes this file lives under /backend or similar)
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils_xml import XMLUtils          # noqa: E402
-from adcp import ADCP as ADCPDataset    # noqa: E402
+from .utils_xml import XMLUtils          # noqa: E402
+from .adcp import ADCP as ADCPDataset    # noqa: E402
 
 # Use system browser by default
 pio.renderers.default = "browser"

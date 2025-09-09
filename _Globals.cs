@@ -16,7 +16,7 @@ namespace CSEMMPGUI_v1
         public static string PythonModulePath = basePath;
         public static string BackendModuleName = "backend.backend";
         public static string CMapsPath = Path.Combine(basePath, "colormaps");
-
+        public static string dataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         // XML document for project configuration
         public static XmlDocument Config { get; private set; } = new XmlDocument();
         public static XmlDocument mapOptions { get; private set; } = new XmlDocument();

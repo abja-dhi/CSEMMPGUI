@@ -172,8 +172,8 @@ def Call(XML):
 
     elif task_type == "MapViewer2D":
         project = ET.fromstring(root.find("Project").text)
-        settings = find_element(root, "1", "Settings")
-        mapSettings = find_element(root, "2", "MapSettings")
+        settings = find_element(project, "1", "Settings")
+        mapSettings = find_element(project, "2", "MapSettings")
         results = CallMapViewer2D(settings, mapSettings)
 
     else:
