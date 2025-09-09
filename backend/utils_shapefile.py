@@ -195,6 +195,35 @@ if __name__ == "__main__":
     ax.set_ylabel(helper.axis_labels()[1])
     plt.show()
 
+    # line layer
+    coast_lines = ShapefileLayer(
+        path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\SG Coastline\RD7550_CEx_SG_v20250509.shp",
+        kind="line",
+        crs_helper=helper,
+        line_color="black",
+        line_width=0.8,
+        alpha=1.0,
+        zorder=12,
+        label_text="Coastline",
+        label_fontsize=8,
+        label_color="black",
+        label_ha="left",
+        label_va="center",
+    )
+    if coast_lines.error:
+        raise SystemExit(coast_lines.error)
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    err = coast_lines.plot(ax)
+    if isinstance(err, str):
+        raise SystemExit(err)
+
+    ax.set_aspect("equal")
+    ax.set_xlabel(helper.axis_labels()[0])
+    ax.set_ylabel(helper.axis_labels()[1])
+    plt.show()
+    
+    
     # Point layer
     pts = ShapefileLayer(
         path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\F3\example point layer\points_labels.shp",

@@ -1,575 +1,629 @@
+
 # -*- coding: utf-8 -*-
 """
-XMLUtils — optimized to avoid passing `project` around.
-- Caches Settings/EPSG and a parent map.
-- All finders use self.project.
-- ParseSSCModel/Create*Dict methods use internal helpers.
-External deps expected: ADCPDataset, OBSDataset, WaterSampleDataset,
-combine_adcps, combine_obs, combine_watersamples, nearest_merge_depth_first,
-sklearn, numpy, pandas, utils.Constants, PlottingShell (if plotting used elsewhere).
-"""
-from __future__ import annotations
+XMLUtils — single-XML initializer with clear, minimal helpers.
 
+Design:
+- Initialize once from a project XML path.
+- Provide small, predictable helper finders for @id/@type/@name.
+- Resolve a Survey by id or name (id wins).
+- Build config dictionaries for ADCP, OBS, and WaterSample.
+- Public entrypoint: get_cfgs_from_survey(survey_name, survey_id, instrument_type).
+
+Notes:
+- This is a readable baseline. Field coverage mirrors your prior implementation
+  where relevant but avoids hidden globals and ambiguous lookups.
+- Extend builders in-place when you need more fields.
+"""
+
+from __future__ import annotations
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, List, Dict, Any
 
-import numpy as np
-import pandas as pd
-
-from adcp import ADCP as ADCPDataset
-from obs import OBS as OBSDataset
-from watersample import WaterSample as WaterSampleDataset
-from utils import Constants
+from utils import Constants  # expects FAR_PAST/FUTURE and LOW/HIGH sentinels
 
 
 class XMLUtils:
-    """Utilities for parsing project XML and building instrument configs."""
+    """Parse a project XML and build instrument configuration dicts."""
 
+    # ----------------------
+    # Construction
+    # ----------------------
     def __init__(self, xml_file: str):
-        # Parse once
+        """
+        Load and parse a single project XML file.
+
+        Parameters
+        ----------
+        xml_file : str
+            Filesystem path to the project XML.
+        """
         self.tree = ET.parse(xml_file)
         self.project: ET.Element = self.tree.getroot()
-        # Cached lookups
-        self._settings = self.project.find("Settings")
-        self._epsg = (
-            self._settings.find("EPSG").text
-            if self._settings is not None and self._settings.find("EPSG") is not None
-            else "4326"
-        )
+        # Lazy-built map for parent lookup; populated on first use
         self._parent_map: Optional[dict[ET.Element, ET.Element]] = None
 
     # ----------------------
-    # Helpers
+    # Public API
     # ----------------------
-    def _get_parent_map(self) -> dict[ET.Element, ET.Element]:
-        if self._parent_map is None:
-            self._parent_map = {child: parent for parent in self.project.iter() for child in parent}
-        return self._parent_map
+    def get_cfgs_from_survey(
+        self,
+        survey_name: Optional[str],
+        survey_id: Optional[str],
+        instrument_type: str,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get configuration dictionaries for all instruments of a type within a survey.
 
-    def _get_survey_context(self, instrument: ET.Element):
-        parent = self._get_parent_map().get(instrument)
-        if parent is not None and parent.tag == "Survey":
-            return parent.find("Water"), parent.find("Sediment")
-        return None, None
+        Parameters
+        ----------
+        survey_name : Optional[str]
+            Survey @name value. Used if survey_id is not provided or not found.
+        survey_id : Optional[str]
+            Survey @id value. Takes precedence over survey_name when provided.
+        instrument_type : str
+            Instrument type tag stored in the XML @type attribute.
+            Examples: "VesselMountedADCP", "OBSVerticalProfile", "WaterSample".
 
-    def get_value(self, element: ET.Element | None, tag: str, default):
-        """Safe tag text getter with default."""
-        if element is None:
-            return default
-        found = element.find(tag)
-        if found is None or found.text is None or found.text.strip() == "":
-            return default
-        return found.text
+        Returns
+        -------
+        List[Dict[str, Any]]
+            List of configuration dictionaries, one per instrument element found.
+            Empty list if the survey cannot be resolved or no instruments match.
+        """
+        survey = self._resolve_survey(survey_name=survey_name, survey_id=survey_id)
+        if survey is None:
+            return []
 
-    # Finders use self.project
-    def find_element(self, id: str, _type: str, root: ET.Element | None = None) -> ET.Element | None:
+        # Collect instruments under the resolved Survey
+        elems = self.find_elements(type_name=instrument_type, root=survey)
+
+        cfgs: List[Dict[str, Any]] = []
+        for el in elems:
+            inst_id = el.attrib.get("id")
+            if not inst_id:
+                # Skip instruments without an id because builders expect one
+                continue
+            if instrument_type == "VesselMountedADCP":
+                cfgs.append(self.CreateADCPDict(inst_id, add_ssc=True))
+            elif instrument_type == "OBSVerticalProfile":
+                cfgs.append(self.CreateOBSDict(inst_id, add_ssc=True))
+            elif instrument_type == "WaterSample":
+                cfgs.append(self.CreateWaterSampleDict(inst_id))
+            else:
+                # Unknown instrument: return minimal identity info
+                cfgs.append({
+                    "type": el.attrib.get("type"),
+                    "id": inst_id,
+                    "name": el.attrib.get("name"),
+                })
+        return cfgs
+
+    # ----------------------
+    # Element finders
+    # ----------------------
+    def find_element(
+        self,
+        elem_id: Optional[str] = None,
+        _type: Optional[str] = None,
+        name: Optional[str] = None,
+        root: Optional[ET.Element] = None,
+    ) -> Optional[ET.Element]:
+        """
+        Find the first element matching any provided attribute constraints.
+
+        Parameters
+        ----------
+        elem_id : Optional[str]
+            Match @id.
+        _type : Optional[str]
+            Match @type.
+        name : Optional[str]
+            Match @name.
+        root : Optional[ET.Element]
+            Search root. Defaults to the project root.
+
+        Returns
+        -------
+        Optional[ET.Element]
+            First matching element or None if no match.
+        """
         root = self.project if root is None else root
-        for el in root.findall(f".//*[@id='{id}']"):
-            if el.attrib.get("type") == _type:
+        for el in root.findall(".//*"):
+            if elem_id is not None and el.attrib.get("id") != elem_id:
+                continue
+            if _type is not None and el.attrib.get("type") != _type:
+                continue
+            if name is not None and el.attrib.get("name") != name:
+                continue
+            return el
+        return None
+
+    def find_elements(
+        self,
+        type_name: Optional[str] = None,
+        elem_id: Optional[str] = None,
+        name: Optional[str] = None,
+        tag: str = "*",
+        root: Optional[ET.Element] = None,
+    ) -> List[ET.Element]:
+        """
+        Find all elements meeting optional attribute constraints.
+
+        Parameters
+        ----------
+        type_name : Optional[str]
+            Match @type.
+        elem_id : Optional[str]
+            Match @id.
+        name : Optional[str]
+            Match @name.
+        tag : str
+            XML tag name filter. Defaults to '*' (any tag).
+        root : Optional[ET.Element]
+            Search root. Defaults to the project root.
+
+        Returns
+        -------
+        List[ET.Element]
+            All matching elements (possibly empty).
+        """
+        root = self.project if root is None else root
+        matches: List[ET.Element] = []
+        for el in root.findall(f".//{tag}"):
+            if type_name is not None and el.attrib.get("type") != type_name:
+                continue
+            if elem_id is not None and el.attrib.get("id") != elem_id:
+                continue
+            if name is not None and el.attrib.get("name") != name:
+                continue
+            matches.append(el)
+        return matches
+
+    # ----------------------
+    # Survey resolution
+    # ----------------------
+    def _resolve_survey(
+        self,
+        survey_name: Optional[str],
+        survey_id: Optional[str],
+    ) -> Optional[ET.Element]:
+        """
+        Resolve a Survey element by id or name. Id is preferred.
+
+        Returns
+        -------
+        Optional[ET.Element]
+            The Survey element, or None if not found.
+        """
+        # Prefer id lookup if provided
+        if survey_id:
+            el = self.project.find(f".//Survey[@id='{survey_id}']")
+            if el is not None:
+                return el
+        # Fallback to name lookup
+        if survey_name:
+            el = self.project.find(f".//Survey[@name='{survey_name}']")
+            if el is not None:
                 return el
         return None
 
-    def find_elements(self, type_name: str | None = None, elem_id: str | None = None, tag: str = "*") -> list[ET.Element]:
-        predicates = []
-        if type_name:
-            predicates.append(f"@type='{type_name}'")
-        if elem_id:
-            predicates.append(f"@id='{elem_id}'")
-        pred = f"[{ ' and '.join(predicates) }]" if predicates else ""
-        return list(self.project.findall(f".//{tag}{pred}"))
-
-    def find_adcps(self) -> list[ET.Element]:
-        return self.find_elements(type_name="VesselMountedADCP")
-
-    def find_obss(self) -> list[ET.Element]:
-        return self.find_elements(type_name="OBSVerticalProfile")
-
-    def find_watersamples(self) -> list[ET.Element]:
-        return self.find_elements(type_name="WaterSample")
-    # ----------------------
-    # Survey-scoped cfg getters
-    # ----------------------
-    def _find_surveys(self) -> list[ET.Element]:
-        node = self.project.find("Surveys")
-        if node is not None:
-            sv = list(node.findall("Survey"))
-            if sv:
-                return sv
-        sv = list(self.project.findall("./Survey"))
-        return sv if sv else list(self.project.findall(".//Survey"))
-
-    def _resolve_survey(self, survey_key: int | str | ET.Element) -> ET.Element | None:
-        if isinstance(survey_key, ET.Element):
-            return survey_key
-        surveys = self._find_surveys()
-        if isinstance(survey_key, int):
-            return surveys[survey_key - 1] if 1 <= survey_key <= len(surveys) else None
-        for s in surveys:
-            if s.attrib.get("id") == survey_key:
-                return s
-        for s in surveys:
-            if s.attrib.get("name") == survey_key:
-                return s
-        return None
-
-    def _find_under(self, root: ET.Element, type_name: str) -> list[ET.Element]:
-        return list(root.findall(f".//*[@type='{type_name}']"))
-
-    def get_survey_adcp_cfgs(self, survey_key, add_ssc: bool = True) -> list[dict]:
-        s = self._resolve_survey(survey_key)
-        if s is None:
-            return []
-        elements = self._find_under(s, "VesselMountedADCP")
-        return self.CreateADCPDicts(elements, add_ssc=add_ssc)
-
-    def get_survey_obs_cfgs(self, survey_key, add_ssc: bool = True) -> list[dict]:
-        s = self._resolve_survey(survey_key)
-        if s is None:
-            return []
-        elements = self._find_under(s, "OBSVerticalProfile")
-        return self.CreateOBSDicts(elements, add_ssc=add_ssc)
-
-    def get_survey_ws_elems(self, survey_key) -> list[dict]:
-        s = self._resolve_survey(survey_key)
-        if s is None:
-            return []
-        elements = self._find_under(s, "WaterSample")
-        return elements
+    def _parent(self, el: ET.Element) -> Optional[ET.Element]:
+        """
+        Return parent of the given element using a cached map.
+        """
+        if self._parent_map is None:
+            # Build a dict mapping each child to its parent
+            self._parent_map = {child: parent for parent in self.project.iter() for child in parent}
+        return self._parent_map.get(el)
 
     # ----------------------
-    # SSC Model
+    # Value helpers
     # ----------------------
-    def ParseSSCModel(self, sscmodel: ET.Element, _type: str) -> dict:
-        ssc_params: dict = {}
-        mode_el = sscmodel.find("Mode")
-        mode = mode_el.text if mode_el is not None else "Manual"
-        if mode == "Manual":
-            A = float(sscmodel.find("A").text)
-            B = float(sscmodel.find("B").text)
-            ssc_params["A"] = A
-            ssc_params["B"] = B
-            return ssc_params
+    @staticmethod
+    def _text(root: Optional[ET.Element], tag: str, default: Optional[str]) -> Optional[str]:
+        """
+        Get .text for a child tag or return default if missing/blank.
+        """
+        if root is None:
+            return default
+        n = root.find(tag)
+        if n is None or n.text is None or n.text.strip() == "":
+            return default
+        return n.text
 
-        # Auto mode
-        adcps: list = []
-        adcpIDs: list[str] = []
-        obss: list = []
-        obsIDs: list[str] = []
-        watersamples: list = []
-        watersampleIDs: list[str] = []
-
-        for inst in sscmodel.findall("Instrument"):
-            inst_id = inst.find("ID").text
-            inst_type = inst.find("Type").text
-            if inst_type == "VesselMountedADCP":
-                cfg = self.CreateADCPDict(inst_id, add_ssc=False)
-                adcps.append(ADCPDataset(cfg, name=cfg["name"]))
-                adcpIDs.append(inst_id)
-            elif inst_type == "OBSVerticalProfile":
-                cfg = self.CreateOBSDict(inst_id, add_ssc=False)
-                obss.append(OBSDataset(cfg))
-                obsIDs.append(inst_id)
-            elif inst_type == "WaterSample":
-                watersamples.append(WaterSampleDataset(self.find_element(inst_id, "WaterSample")))
-                watersampleIDs.append(inst_id)
-
-        if len(watersamples) == 0:
-            return {"Error": "No water samples found for SSC calibration"}
-        if len(adcps) == 0 and _type == "VesselMountedADCP":
-            return {"Error": "No ADCP data found for SSC calibration"}
-        if len(obss) == 0 and _type == "OBSVerticalProfile":
-            return {"Error": "No OBS data found for SSC calibration"}
-
-        # External combiners
-        df_adcp = combine_adcps(adcps, adcpIDs)
-        df_adcp["depth"] = -df_adcp["depth"]  # positive down
-        df_adcp = df_adcp.sort_values("datetime")
-        df_obs = combine_obs(obss, obsIDs)
-        df_water = combine_watersamples(watersamples, watersampleIDs)
-
-        if _type == "VesselMountedADCP":
-            col_name = "bks"
-            df_water_inst, df_water = nearest_merge_depth_first(
-                df_water, df_adcp,
-                on_time="datetime", on_depth="depth", col_name=col_name,
-                time_tolerance="2min", depth_tolerance=2,
-            )
-            ssc = np.log10(df_water["ssc"].to_numpy())
-            intercept = True
-        else:
-            col_name = "ntu"
-            df_water_inst, df_water = nearest_merge_depth_first(
-                df_water, df_obs,
-                on_time="datetime", on_depth="depth", col_name=col_name,
-                time_tolerance="2min", depth_tolerance=2,
-            )
-            ssc = df_water["ssc"].to_numpy()
-            intercept = False
-
-        if len(df_water_inst) == 0:
-            return {"Error": "No valid water samples found for SSC calibration"}
-
-        from sklearn.linear_model import LinearRegression
-
-        vals = df_water_inst[col_name].to_numpy()
-        X = vals.reshape(-1, 1)
-        Y = ssc.reshape(-1, 1)
-        dt = (df_water_inst["datetime"] - df_water["datetime"]).dt.total_seconds().abs()
-        reg = LinearRegression(fit_intercept=intercept).fit(X, Y, sample_weight=1 / (dt + 1))
-        B = reg.coef_[0]
-        A = reg.intercept_
-
-        # Preserve user's existing RMSE/R2 conventions
-        ssc_params["A"] = A
-        ssc_params["B"] = B
-        ssc_params["RMSE"] = float(np.sqrt(np.mean((vals * A + B - ssc) ** 2)))
-        ssc_params["R2"] = float(reg.score(X, Y))
-        mapper = {"bks": "Absolute Backscatter", "ntu": "NTU"}
-        ssc_params[mapper[col_name]] = vals
-        ssc_params["SSC"] = ssc
-
-        pairs = (
-            df_water_inst[["id_src", "type_src", "id_tgt", "type_tgt"]]
-            .drop_duplicates()
-            .to_dict(orient="records")
-        )
-        typed_pairs = [{p["type_src"]: p["id_src"], p["type_tgt"]: p["id_tgt"]} for p in pairs]
-        ssc_params["Pairs"] = typed_pairs
-        return ssc_params
+    @staticmethod
+    def _get_value(element: Optional[ET.Element], tag: str, default):
+        """
+        Safe accessor for a child tag's .text with fallback default.
+        """
+        if element is None:
+            return default
+        node = element.find(tag)
+        if node is None or node.text is None or node.text.strip() == "":
+            return default
+        return node.text
 
     # ----------------------
-    # ADCP
+    # Config builders
     # ----------------------
-    def CreateADCPDict(self, instrument_id: str, add_ssc: bool = True):
-        instrument = self.find_element(instrument_id, "VesselMountedADCP")
+    def CreateADCPDict(self, instrument_id: str, add_ssc: bool = True) -> Dict[str, Any]:
+        """
+        Build an ADCP configuration dictionary for a given instrument id.
+
+        Pulls water/sediment context from the parent Survey.
+        Returns a dictionary with masking limits, georeferencing params,
+        position CSV mapping, water/sediment properties, absolute backscatter
+        parameters, and SSC model parameters.
+
+        Raises
+        ------
+        ValueError
+            If the ADCP instrument id is not found.
+        """
+        instrument = self.find_element(elem_id=instrument_id, _type="VesselMountedADCP")
         if instrument is None:
-            raise ValueError(f"VesselMountedADCP id={instrument_id} not found")
+            raise ValueError(f"ADCP id={instrument_id} not found")
 
-        water, sediment = self._get_survey_context(instrument)
-        epsg = self._epsg
+        # Survey-scoped context
+        parent = self._parent(instrument)
+        water = parent.find("Water") if parent is not None else None
+        sediment = parent.find("Sediment") if parent is not None else None
 
+        # Settings / EPSG
+        settings = self.project.find("Settings")
+        epsg = self._text(settings, "EPSG", "4326")
+
+        # Required structure under <Pd0>
         pd0 = instrument.find("Pd0")
-        configuration = pd0.find("Configuration")
-        crp_offset = configuration.find("CRPOffset")
-        rssis = configuration.find("RSSICoefficients")
-        transect_shift = configuration.find("TransectShift")
-        masking = pd0.find("Masking")
-        maskEchoIntensity = masking.find("MaskEchoIntensity")
-        maskPercentGood = masking.find("MaskPercentGood")
-        maskCorrelationMagnitude = masking.find("MaskCorrelationMagnitude")
-        maskCurrentSpeed = masking.find("MaskCurrentSpeed")
-        maskErrorVelocity = masking.find("MaskErrorVelocity")
-        maskAbsoluteBackscatter = masking.find("MaskAbsoluteBackscatter")
+        configuration = pd0.find("Configuration") if pd0 is not None else None
+        crp_offset = configuration.find("CRPOffset") if configuration is not None else None
+        rssis = configuration.find("RSSICoefficients") if configuration is not None else None
+        transect_shift = configuration.find("TransectShift") if configuration is not None else None
+        masking = pd0.find("Masking") if pd0 is not None else None
         position = instrument.find("PositionData")
-        # columns = position.find("Columns")  # unused
 
-        filename = pd0.find("Path").text
-        name = instrument.attrib.get("name", Path(filename).stem)
-        sscmodelid_el = pd0.find("SSCModelID")
-        sscmodelid = sscmodelid_el.text if sscmodelid_el is not None else None
+        # Paths and identifiers
+        filename = self._text(pd0, "Path", "")
+        name = instrument.attrib.get("name", Path(filename).stem if filename else "ADCP")
+        sscmodelid = self._text(pd0, "SSCModelID", None)
 
-        pg_min = float(self.get_value(maskPercentGood, "Min", 0)) if maskPercentGood.attrib.get("Enabled") == "true" else 0
-        if maskCurrentSpeed.attrib.get("Enabled") == "true":
-            vel_min = float(self.get_value(maskCurrentSpeed, "Min", Constants._LOW_NUMBER))
-            vel_max = float(self.get_value(maskCurrentSpeed, "Max", Constants._HIGH_NUMBER))
+        # Helper to read "Enabled" flags safely
+        def _enabled(node: Optional[ET.Element]) -> bool:
+            return node is not None and node.attrib.get("Enabled", "").lower() == "true"
+
+        # Individual mask nodes (some may be missing)
+        maskEchoIntensity = masking.find("MaskEchoIntensity") if masking is not None else None
+        maskPercentGood = masking.find("MaskPercentGood") if masking is not None else None
+        maskCorrelationMagnitude = masking.find("MaskCorrelationMagnitude") if masking is not None else None
+        maskCurrentSpeed = masking.find("MaskCurrentSpeed") if masking is not None else None
+        maskErrorVelocity = masking.find("MaskErrorVelocity") if masking is not None else None
+        maskAbsoluteBackscatter = masking.find("MaskAbsoluteBackscatter") if masking is not None else None
+
+        # Percent good
+        pg_min = float(self._get_value(maskPercentGood, "Min", 0)) if _enabled(maskPercentGood) else 0
+
+        # Current speed limits
+        if _enabled(maskCurrentSpeed):
+            vel_min = float(self._get_value(maskCurrentSpeed, "Min", Constants._LOW_NUMBER))
+            vel_max = float(self._get_value(maskCurrentSpeed, "Max", Constants._HIGH_NUMBER))
         else:
-            vel_min = Constants._LOW_NUMBER
-            vel_max = Constants._HIGH_NUMBER
-        if maskEchoIntensity.attrib.get("Enabled") == "true":
-            echo_min = float(self.get_value(maskEchoIntensity, "Min", 0))
-            echo_max = float(self.get_value(maskEchoIntensity, "Max", 255))
+            vel_min, vel_max = Constants._LOW_NUMBER, Constants._HIGH_NUMBER
+
+        # Echo intensity limits
+        if _enabled(maskEchoIntensity):
+            echo_min = float(self._get_value(maskEchoIntensity, "Min", 0))
+            echo_max = float(self._get_value(maskEchoIntensity, "Max", 255))
         else:
-            echo_min = 0
-            echo_max = 255
-        if maskCorrelationMagnitude.attrib.get("Enabled") == "true":
-            cormag_min = self.get_value(maskCorrelationMagnitude, "Min", None)
-            cormag_min = float(cormag_min) if cormag_min is not None else None
-            cormag_max = self.get_value(maskCorrelationMagnitude, "Max", None)
-            cormag_max = float(cormag_max) if cormag_max is not None else None
+            echo_min, echo_max = 0, 255
+
+        # Correlation magnitude limits
+        if _enabled(maskCorrelationMagnitude):
+            cmn = self._get_value(maskCorrelationMagnitude, "Min", None)
+            cmx = self._get_value(maskCorrelationMagnitude, "Max", None)
+            cormag_min = float(cmn) if cmn is not None else None
+            cormag_max = float(cmx) if cmx is not None else None
         else:
-            cormag_min = None
-            cormag_max = None
-        if maskAbsoluteBackscatter.attrib.get("Enabled") == "true":
-            absback_min = float(self.get_value(maskAbsoluteBackscatter, "Min", 0))
-            absback_max = float(self.get_value(maskAbsoluteBackscatter, "Max", 255))
+            cormag_min = cormag_max = None
+
+        # Absolute backscatter bounds
+        if _enabled(maskAbsoluteBackscatter):
+            absback_min = float(self._get_value(maskAbsoluteBackscatter, "Min", 0))
+            absback_max = float(self._get_value(maskAbsoluteBackscatter, "Max", 255))
         else:
-            absback_min = 0
-            absback_max = 255
-        if maskErrorVelocity.attrib.get("Enabled") == "true":
-            err_vel_max = self.get_value(maskErrorVelocity, "Max", "auto")
+            absback_min, absback_max = 0, 255
+
+        # Error velocity cap
+        if _enabled(maskErrorVelocity):
+            err_vel_max = self._get_value(maskErrorVelocity, "Max", "auto")
             if err_vel_max != "auto":
                 err_vel_max = float(err_vel_max)
         else:
             err_vel_max = "auto"
 
-        start_datetime = self.get_value(masking, "StartDateTime", None)
-        end_datetime = self.get_value(masking, "EndDateTime", None)
-        first_good_ensemble = self.get_value(masking, "FirstEnsemble", None)
-        first_good_ensemble = int(first_good_ensemble) if first_good_ensemble is not None else None
-        last_good_ensemble = self.get_value(masking, "LastEnsemble", None)
-        last_good_ensemble = int(last_good_ensemble) if last_good_ensemble is not None else None
+        # Time window and ensemble filters
+        start_datetime = self._get_value(masking, "StartDateTime", None)
+        end_datetime = self._get_value(masking, "EndDateTime", None)
+        fge = self._get_value(masking, "FirstEnsemble", None)
+        first_good_ensemble = int(fge) if fge is not None else None
+        lge = self._get_value(masking, "LastEnsemble", None)
+        last_good_ensemble = int(lge) if lge is not None else None
 
-        magnetic_declination = float(self.get_value(configuration, "MagneticDeclination", 0))
-        utc_offset = self.get_value(configuration, "UTCOffset", None)
+        # Configuration and coordinate parameters
+        magnetic_declination = float(self._get_value(configuration, "MagneticDeclination", 0))
+        utc_offset = self._get_value(configuration, "UTCOffset", None)
         utc_offset = float(utc_offset) if utc_offset is not None else None
-        crp_rotation_angle = float(self.get_value(configuration, "RotationAngle", 0.0))
-        crp_offset_x = float(self.get_value(crp_offset, "X", 0))
-        crp_offset_y = float(self.get_value(crp_offset, "Y", 0))
-        crp_offset_z = float(self.get_value(crp_offset, "Z", 0))
-        transect_shift_x = float(self.get_value(transect_shift, "X", 0))
-        transect_shift_y = float(self.get_value(transect_shift, "Y", 0))
-        transect_shift_z = float(self.get_value(transect_shift, "Z", 0))
-        transect_shift_t = float(self.get_value(transect_shift, "T", 0))
+        crp_rotation_angle = float(self._get_value(configuration, "RotationAngle", 0.0))
+        crp_offset_x = float(self._get_value(crp_offset, "X", 0))
+        crp_offset_y = float(self._get_value(crp_offset, "Y", 0))
+        crp_offset_z = float(self._get_value(crp_offset, "Z", 0))
+        transect_shift_x = float(self._get_value(transect_shift, "X", 0))
+        transect_shift_y = float(self._get_value(transect_shift, "Y", 0))
+        transect_shift_z = float(self._get_value(transect_shift, "Z", 0))
+        transect_shift_t = float(self._get_value(transect_shift, "T", 0))
 
-        position_fname = self.get_value(position, "Path", "")
-        X_value = self.get_value(position, "XColumn", "Longitude")
-        Y_value = self.get_value(position, "YColumn", "Latitude")
-        Heading_value = self.get_value(position, "HeadingColumn", "Course")
-        DateTime_value = self.get_value(position, "DateTimeColumn", "DateTime")
-        header = int(self.get_value(position, "Header", 0))
-        sep = self.get_value(position, "Sep", ",")
-
+        # Position file mapping for track CSVs
         pos_cfg = {
-            "filename": position_fname,
-            "epsg": self._epsg,
-            "X_mode": "Variable",
-            "Y_mode": "Variable",
-            "Depth_mode": "Constant",
-            "Pitch_mode": "Constant",
-            "Roll_mode": "Constant",
-            "Heading_mode": "Variable",
-            "DateTime_mode": "Variable",
-            "X_value": X_value,
-            "Y_value": Y_value,
-            "Depth_value": 0,
-            "Pitch_value": 0,
-            "Roll_value": 0,
-            "Heading_value": Heading_value,
-            "DateTime_value": DateTime_value,
-            "header": header,
-            "sep": sep,
+            'filename': self._get_value(position, "Path", ""),
+            'epsg': epsg,
+            'X_mode': "Variable", 'Y_mode': "Variable",
+            'Depth_mode': "Constant", 'Pitch_mode': "Constant", 'Roll_mode': "Constant",
+            'Heading_mode': "Variable", 'DateTime_mode': "Variable",
+            'X_value': self._get_value(position, "XColumn", "Longitude"),
+            'Y_value': self._get_value(position, "YColumn", "Latitude"),
+            'Depth_value': 0, 'Pitch_value': 0, 'Roll_value': 0,
+            'Heading_value': self._get_value(position, "HeadingColumn", "Course"),
+            'DateTime_value': self._get_value(position, "DateTimeColumn", "DateTime"),
+            'header': int(self._get_value(position, "Header", 0)),
+            'sep': self._get_value(position, "Sep", ","),
         }
 
-        # Water/Sediment properties (nil-safe)
-        water_density = float((water or ET.Element("Water", {})).attrib.get("Density", "1023"))
-        salinity = float((water or ET.Element("Water", {})).attrib.get("Salinity", "32"))
-        temperature = (water or ET.Element("Water", {})).attrib.get("Temperature", None)
-        if temperature is not None and str(temperature).strip() != "":
-            temperature = float(temperature)
-        pH = float((water or ET.Element("Water", {})).attrib.get("pH", "8.1"))
-        water_properties = {"density": water_density, "salinity": salinity, "temperature": temperature, "pH": pH}
+        # Water and sediment properties (optional)
+        water_properties = {}
+        if water is not None:
+            water_properties = {
+                'density': float(water.attrib.get("Density", "1023")),
+                'salinity': float(water.attrib.get("Salinity", "32")),
+                'temperature': float(water.attrib["Temperature"]) if "Temperature" in water.attrib and water.attrib["Temperature"].strip() != "" else None,
+                'pH': float(water.attrib.get("pH", "8.1")),
+            }
 
-        sediment_density = float((sediment or ET.Element("Sediment", {})).attrib.get("Density", "2650"))
-        diameter = float((sediment or ET.Element("Sediment", {})).attrib.get("Diameter", "2.5e-4"))
-        sediment_properties = {"particle_density": sediment_density, "particle_diameter": diameter}
+        sediment_properties = {}
+        if sediment is not None:
+            sediment_properties = {
+                'particle_density': float(sediment.attrib.get("Density", "2650")),
+                'particle_diameter': float(sediment.attrib.get("Diameter", "2.5e-4")),
+            }
 
-        C = float(self.get_value(configuration, "C", -139.0))
-        P_dbw = float(self.get_value(configuration, "Pdbw", 9))
-        E_r = float(self.get_value(rssis, "Er", 39))
-        rssi_beam1 = float(self.get_value(rssis, "Beam1", 0.41))
-        rssi_beam2 = float(self.get_value(rssis, "Beam2", 0.41))
-        rssi_beam3 = float(self.get_value(rssis, "Beam3", 0.41))
-        rssi_beam4 = float(self.get_value(rssis, "Beam4", 0.41))
-        abs_params = {"C": C, "P_dbw": P_dbw, "E_r": E_r, "rssi_beam1": rssi_beam1, "rssi_beam2": rssi_beam2, "rssi_beam3": rssi_beam3, "rssi_beam4": rssi_beam4}
+        # Absolute backscatter calibration params
+        C = float(self._get_value(configuration, "C", -139.0))
+        P_dbw = float(self._get_value(configuration, "Pdbw", 9))
+        E_r = float(self._get_value(rssis, "Er", 39))
+        rssi_beam1 = float(self._get_value(rssis, "Beam1", 0.41))
+        rssi_beam2 = float(self._get_value(rssis, "Beam2", 0.41))
+        rssi_beam3 = float(self._get_value(rssis, "Beam3", 0.41))
+        rssi_beam4 = float(self._get_value(rssis, "Beam4", 0.41))
+        abs_params = {
+            'C': C, 'P_dbw': P_dbw, 'E_r': E_r,
+            'rssi_beam1': rssi_beam1, 'rssi_beam2': rssi_beam2,
+            'rssi_beam3': rssi_beam3, 'rssi_beam4': rssi_beam4
+        }
 
+        # SSC model parameters (from linked model id if available)
         if add_ssc and sscmodelid:
-            sscmodel = self.find_element(sscmodelid, "SSCModel")
-            ssc_params = self.ParseSSCModel(sscmodel, _type="VesselMountedADCP") if sscmodel is not None else {"A": None, "B": None}
+            sscmodel = self.find_element(elem_id=sscmodelid, _type="BKS2SSC")
+            A = float(self._get_value(sscmodel, "A", None)) 
+            B = float(self._get_value(sscmodel, "B", None)) 
         else:
-            ssc_params = {"A": None, "B": None}
+            A, B = None, None
+        ssc_params = {'A': A, 'B': B}
 
-        cfg = {
-            "filename": filename,
-            "name": name,
-            "pg_min": pg_min,
-            "vel_min": vel_min,
-            "vel_max": vel_max,
-            "echo_min": echo_min,
-            "echo_max": echo_max,
-            "cormag_min": cormag_min,
-            "cormag_max": cormag_max,
-            "err_vel_max": err_vel_max,
-            "start_datetime": start_datetime,
-            "end_datetime": end_datetime,
-            "first_good_ensemble": first_good_ensemble,
-            "last_good_ensemble": last_good_ensemble,
-            "abs_min": absback_min,
-            "abs_max": absback_max,
-            "magnetic_declination": magnetic_declination,
-            "utc_offset": utc_offset,
-            "crp_rotation_angle": crp_rotation_angle,
-            "crp_offset_x": crp_offset_x,
-            "crp_offset_y": crp_offset_y,
-            "crp_offset_z": crp_offset_z,
-            "transect_shift_x": transect_shift_x,
-            "transect_shift_y": transect_shift_y,
-            "transect_shift_z": transect_shift_z,
-            "transect_shift_t": transect_shift_t,
-            "pos_cfg": pos_cfg,
-            "water_properties": water_properties,
-            "sediment_properties": sediment_properties,
-            "abs_params": abs_params,
-            "ssc_params": ssc_params,
+        # Final structured configuration
+        return {
+            'filename': filename,
+            'name': name,
+            'pg_min': pg_min,
+            'vel_min': vel_min, 'vel_max': vel_max,
+            'echo_min': echo_min, 'echo_max': echo_max,
+            'cormag_min': cormag_min, 'cormag_max': cormag_max,
+            'err_vel_max': err_vel_max,
+            'start_datetime': start_datetime, 'end_datetime': end_datetime,
+            'first_good_ensemble': first_good_ensemble, 'last_good_ensemble': last_good_ensemble,
+            'abs_min': absback_min, 'abs_max': absback_max,
+            'magnetic_declination': magnetic_declination, 'utc_offset': utc_offset,
+            'crp_rotation_angle': crp_rotation_angle,
+            'crp_offset_x': crp_offset_x, 'crp_offset_y': crp_offset_y, 'crp_offset_z': crp_offset_z,
+            'transect_shift_x': transect_shift_x, 'transect_shift_y': transect_shift_y,
+            'transect_shift_z': transect_shift_z, 'transect_shift_t': transect_shift_t,
+            'pos_cfg': pos_cfg,
+            'water_properties': water_properties,
+            'sediment_properties': sediment_properties,
+            'abs_params': abs_params,
+            'ssc_params': ssc_params,
         }
-        return cfg
 
-    # ----------------------
-    # OBS
-    # ----------------------
-    def CreateOBSDict(self, instrument_id: str, add_ssc: bool = True):
-        instrument = self.find_element(instrument_id, "OBSVerticalProfile")
+    def CreateOBSDict(self, instrument_id: str, add_ssc: bool = True) -> Dict[str, Any]:
+        """
+        Build an OBS vertical profile configuration dictionary.
+
+        Includes file mapping, optional SSC model parameters, and masking ranges.
+
+        Raises
+        ------
+        ValueError
+            If the OBS instrument id is not found.
+        """
+        instrument = self.find_element(elem_id=instrument_id, _type="OBSVerticalProfile")
         if instrument is None:
-            raise ValueError(f"OBSVerticalProfile id={instrument_id} not found")
+            raise ValueError(f"OBS id={instrument_id} not found")
 
-        water, sediment = self._get_survey_context(instrument)
-        epsg = self._epsg
+        # EPSG (optional, for downstream georeferencing)
+        settings = self.project.find("Settings")
+        epsg = self._text(settings, "EPSG", "4326")
 
-        fileinfo = instrument.find("FileInfo")
+        # File mapping
         name = instrument.attrib.get("name", "OBSProfile")
-        filename = fileinfo.find("Path").text
-        header = int(fileinfo.find("Header").text)
-        sep = fileinfo.find("Sep").text
-        date_col = fileinfo.find("DateColumn").text
-        time_col = fileinfo.find("TimeColumn").text
-        depth_col = fileinfo.find("DepthColumn").text
-        ntu_col = fileinfo.find("NTUColumn").text
+        fileinfo = instrument.find("FileInfo")
+        filename = self._text(fileinfo, "Path", "")
+        header = int(self._text(fileinfo, "Header", "0"))
+        sep = self._text(fileinfo, "Sep", ",")
+        date_col = self._text(fileinfo, "DateColumn", "Date")
+        time_col = self._text(fileinfo, "TimeColumn", "Time")
+        depth_col = self._text(fileinfo, "DepthColumn", "Depth")
+        ntu_col = self._text(fileinfo, "NTUColumn", "NTU")
+        sscmodelid = self._text(fileinfo, "SSCModelID", None)
 
+        # SSC model
+        if add_ssc and sscmodelid:
+            sscmodel = self.find_element(elem_id=sscmodelid, _type="NTU2SSC")
+            A = float(self._get_value(sscmodel, "A", None))
+            B = float(self._get_value(sscmodel, "B", None)) 
+        else:
+            A, B = None, None
+        ssc_params = {'A': A, 'B': B}
+
+        # Masking ranges
         masking = instrument.find("Masking")
-        maskDateTime = masking.find("MaskDateTime")
-        if maskDateTime.attrib.get("Enabled") == "true":
-            start_datetime = self.get_value(maskDateTime, "Start", Constants._FAR_PAST_DATETIME)
-            end_datetime = self.get_value(maskDateTime, "End", Constants._FAR_FUTURE_DATETIME)
+        maskDateTime = masking.find("MaskDateTime") if masking is not None else None
+        if maskDateTime is not None and maskDateTime.attrib.get("Enabled", "").lower() == "true":
+            start_datetime = self._get_value(maskDateTime, "Start", Constants._FAR_PAST_DATETIME)
+            end_datetime = self._get_value(maskDateTime, "End", Constants._FAR_FUTURE_DATETIME)
         else:
             start_datetime = Constants._FAR_PAST_DATETIME
             end_datetime = Constants._FAR_FUTURE_DATETIME
-        maskDepth = masking.find("MaskDepth")
-        if maskDepth.attrib.get("Enabled") == "true":
-            maskDepthMin = self.get_value(maskDepth, "Min", Constants._LOW_NUMBER)
-            maskDepthMax = self.get_value(maskDepth, "Max", Constants._HIGH_NUMBER)
+
+        maskDepth = masking.find("MaskDepth") if masking is not None else None
+        if maskDepth is not None and maskDepth.attrib.get("Enabled", "").lower() == "true":
+            maskDepthMin = float(self._get_value(maskDepth, "Min", Constants._LOW_NUMBER))
+            maskDepthMax = float(self._get_value(maskDepth, "Max", Constants._HIGH_NUMBER))
         else:
             maskDepthMin = Constants._LOW_NUMBER
             maskDepthMax = Constants._HIGH_NUMBER
-        maskNTU = masking.find("MaskNTU")
-        if maskNTU.attrib.get("Enabled") == "true":
-            maskNTUMin = self.get_value(maskNTU, "Min", Constants._LOW_NUMBER)
-            maskNTUMax = self.get_value(maskNTU, "Max", Constants._HIGH_NUMBER)
+
+        maskNTU = masking.find("MaskNTU") if masking is not None else None
+        if maskNTU is not None and maskNTU.attrib.get("Enabled", "").lower() == "true":
+            maskNTUMin = float(self._get_value(maskNTU, "Min", Constants._LOW_NUMBER))
+            maskNTUMax = float(self._get_value(maskNTU, "Max", Constants._HIGH_NUMBER))
         else:
             maskNTUMin = Constants._LOW_NUMBER
             maskNTUMax = Constants._HIGH_NUMBER
 
-        # optional SSC model id could be under FileInfo or elsewhere; tolerate absence
-        sscmodelid_el = fileinfo.find("SSCModelID")
-        ssc_params = {"A": None, "B": None}
-        if add_ssc and sscmodelid_el is not None and sscmodelid_el.text:
-            sscmodel = self.find_element(sscmodelid_el.text, "SSCModel")
-            if sscmodel is not None:
-                ssc_params = self.ParseSSCModel(sscmodel, _type="OBSVerticalProfile")
-
-        cfg = {
-            "name": name,
-            "epsg": epsg,
-            "filename": filename,
-            "header": header,
-            "sep": sep,
-            "date_col": date_col,
-            "time_col": time_col,
-            "depth_col": depth_col,
-            "ntu_col": ntu_col,
-            "start_datetime": start_datetime,
-            "end_datetime": end_datetime,
-            "depthMin": maskDepthMin,
-            "depthMax": maskDepthMax,
-            "ntuMin": maskNTUMin,
-            "ntuMax": maskNTUMax,
-            "ssc_params": ssc_params,
+        return {
+            'name': name,
+            'epsg': epsg,
+            'filename': filename,
+            'header': header,
+            'sep': sep,
+            'date_col': date_col,
+            'time_col': time_col,
+            'depth_col': depth_col,
+            'ntu_col': ntu_col,
+            'ssc_params': ssc_params,
+            'start_datetime': start_datetime,
+            'end_datetime': end_datetime,
+            'depthMin': maskDepthMin,
+            'depthMax': maskDepthMax,
+            'ntuMin': maskNTUMin,
+            'ntuMax': maskNTUMax
         }
-        return cfg
 
-    # ----------------------
-    # Water Samples
-    # ----------------------
-    def CreateWaterSampleDict(self, instrument_id: str) -> dict:
-        instrument = self.find_element(instrument_id, "WaterSample")
+    def CreateWaterSampleDict(self, instrument_id: str) -> Dict[str, Any]:
+        """
+        Build a Water Sample configuration dictionary.
+
+        Supports both external file mapping and inline <Sample> entries.
+        Returns basic masks and an embedded 'samples' section listing inline points.
+
+        Raises
+        ------
+        ValueError
+            If the WaterSample instrument id is not found.
+        """
+        instrument = self.find_element(elem_id=instrument_id, _type="WaterSample")
         if instrument is None:
             raise ValueError(f"WaterSample id={instrument_id} not found")
-    
+
         fileinfo = instrument.find("FileInfo") or instrument
-    
-        def first_text(elem: ET.Element, tags: list[str], default):
+
+        def first_text(elem: Optional[ET.Element], tags: List[str], default: str) -> str:
+            """Return first present non-blank text among candidate tags."""
+            if elem is None:
+                return default
             for t in tags:
                 v = elem.find(t)
                 if v is not None and v.text and v.text.strip():
                     return v.text
             return default
-    
+
+        # File mapping
         filename = first_text(fileinfo, ["Path", "File", "Filename"], "")
-        header = int(first_text(fileinfo, ["Header"], 0))
+        header = int(first_text(fileinfo, ["Header"], "0"))
         sep = first_text(fileinfo, ["Sep", "Delimiter"], ",")
         datetime_col = first_text(fileinfo, ["DateTimeColumn", "DatetimeColumn"], None)
         date_col = first_text(fileinfo, ["DateColumn"], None)
         time_col = first_text(fileinfo, ["TimeColumn"], None)
         depth_col = first_text(fileinfo, ["DepthColumn", "ZColumn"], None)
         ssc_col = first_text(fileinfo, ["SSCColumn", "TSSColumn", "ConcentrationColumn"], "SSC")
-    
+
+        # Masking
         masking = instrument.find("Masking")
         if masking is not None:
-            maskDateTime = masking.find("MaskDateTime")
-            if maskDateTime is not None and maskDateTime.attrib.get("Enabled") == "true":
-                start_datetime = self.get_value(maskDateTime, "Start", Constants._FAR_PAST_DATETIME)
-                end_datetime = self.get_value(maskDateTime, "End", Constants._FAR_FUTURE_DATETIME)
+            mdt = masking.find("MaskDateTime")
+            if mdt is not None and mdt.attrib.get("Enabled", "").lower() == "true":
+                start_datetime = self._get_value(mdt, "Start", Constants._FAR_PAST_DATETIME)
+                end_datetime = self._get_value(mdt, "End", Constants._FAR_FUTURE_DATETIME)
             else:
                 start_datetime = Constants._FAR_PAST_DATETIME
                 end_datetime = Constants._FAR_FUTURE_DATETIME
-    
-            maskDepth = masking.find("MaskDepth")
-            if maskDepth is not None and maskDepth.attrib.get("Enabled") == "true":
-                depth_min = float(self.get_value(maskDepth, "Min", Constants._LOW_NUMBER))
-                depth_max = float(self.get_value(maskDepth, "Max", Constants._HIGH_NUMBER))
+
+            md = masking.find("MaskDepth")
+            if md is not None and md.attrib.get("Enabled", "").lower() == "true":
+                depth_min = float(self._get_value(md, "Min", Constants._LOW_NUMBER))
+                depth_max = float(self._get_value(md, "Max", Constants._HIGH_NUMBER))
             else:
                 depth_min = Constants._LOW_NUMBER
                 depth_max = Constants._HIGH_NUMBER
-    
-            maskSSC = masking.find("MaskSSC") or masking.find("MaskConcentration")
-            if maskSSC is not None and maskSSC.attrib.get("Enabled") == "true":
-                ssc_min = float(self.get_value(maskSSC, "Min", Constants._LOW_NUMBER))
-                ssc_max = float(self.get_value(maskSSC, "Max", Constants._HIGH_NUMBER))
+
+            ms = masking.find("MaskSSC") or masking.find("MaskConcentration")
+            if ms is not None and ms.attrib.get("Enabled", "").lower() == "true":
+                ssc_min = float(self._get_value(ms, "Min", Constants._LOW_NUMBER))
+                ssc_max = float(self._get_value(ms, "Max", Constants._HIGH_NUMBER))
             else:
                 ssc_min = Constants._LOW_NUMBER
                 ssc_max = Constants._HIGH_NUMBER
         else:
+            # No masking block: fall back to global sentinels
             start_datetime = Constants._FAR_PAST_DATETIME
             end_datetime = Constants._FAR_FUTURE_DATETIME
             depth_min = Constants._LOW_NUMBER
             depth_max = Constants._HIGH_NUMBER
             ssc_min = Constants._LOW_NUMBER
             ssc_max = Constants._HIGH_NUMBER
-    
-        # Inline <Sample/> parsing → nested dict
-        records = []
+
+        # Inline <Sample/> parsing → raw list (leave pandas to caller)
+        records: List[Dict[str, Any]] = []
         for s in instrument.findall("Sample"):
-            dt = pd.to_datetime(s.attrib.get("DateTime"), errors="coerce")
+            dt_txt = s.attrib.get("DateTime")
+            depth_txt = s.attrib.get("Depth")
+            ssc_txt = s.attrib.get("SSC")
             try:
-                depth_val = float(s.attrib.get("Depth")) if s.attrib.get("Depth") is not None else None
+                depth_val = float(depth_txt) if depth_txt is not None else None
             except ValueError:
                 depth_val = None
             try:
-                ssc_val = float(s.attrib.get("SSC")) if s.attrib.get("SSC") is not None else None
+                ssc_val = float(ssc_txt) if ssc_txt is not None else None
             except ValueError:
                 ssc_val = None
             records.append({
                 "sample": s.attrib.get("Sample"),
-                "datetime": dt,
+                "datetime": dt_txt,
                 "depth": depth_val,
                 "ssc": ssc_val,
                 "notes": s.attrib.get("Notes", ""),
             })
-    
-        if records:
-            # sort by time, keep NaT at end
-            records.sort(key=lambda r: (pd.isna(r["datetime"]), r["datetime"] if not pd.isna(r["datetime"]) else pd.Timestamp.max))
-    
-        cfg = {
+
+        return {
             "filename": filename,
             "header": header,
             "sep": sep,
@@ -585,78 +639,193 @@ class XMLUtils:
             "sscMin": ssc_min,
             "sscMax": ssc_max,
             "samples": {
-                "records": records,                 # list of dicts as parsed above
+                "records": records,
                 "count": len(records),
                 "units": {"depth": "m", "ssc": "mg/L"},
                 "source": "inline" if records else "file",
             },
         }
+
+    
+    def project_info(self) -> Dict[str, Any]:
+        """
+        Aggregate overview of the project.
+    
+        Returns
+        -------
+        dict with:
+          - "surveys": list of {id, name, counts, total_instruments}
+            * counts: per-@type tally within each Survey
+          - "models": {
+                "BKS2SSC": {"count": N, "items": [...]},
+                "NTU2SSC": {"count": N, "items": [...]},
+                "MTModels": {"count": N, "items": [...]},
+                "HDModels": {"count": N, "items": [...]},
+            }
+        """
+        overview: Dict[str, Any] = {"surveys": [], "models": {}}
+    
+        # 1) Surveys + instrument counts
+        surveys = list(self.project.findall(".//Survey"))
+        for idx, s in enumerate(surveys, start=1):
+            sid = s.attrib.get("id")
+            sname = s.attrib.get("name")
+            counts: Dict[str, int] = {}
+            for el in s.findall(".//*[@type]"):
+                t = el.attrib.get("type")
+                counts[t] = counts.get(t, 0) + 1
+            overview["surveys"].append({
+                "id": sid,
+                "name": sname,
+                "counts": counts,
+                "total_instruments": sum(counts.values()),
+                "index": idx,
+            })
+    
+        # 2) SSC models (BKS2SSC, NTU2SSC)
+        def _ssc_models(tname: str) -> Dict[str, Any]:
+            items = []
+            for m in self.find_elements(type_name=tname):
+                items.append({
+                    "id": m.attrib.get("id"),
+                    "name": m.attrib.get("name"),
+                    "mode": self._get_value(m, "Mode", None),
+                    "A": _to_float(self._get_value(m, "A", None)),
+                    "B": _to_float(self._get_value(m, "B", None)),
+                })
+            return {"count": len(items), "items": items}
+    
+        # 3) MTModels and HDModels
+        def _generic_models(tname: str) -> Dict[str, Any]:
+            items = []
+            for m in self.find_elements(type_name=tname):
+                # Capture shallow fields so this remains schema-agnostic
+                d = {"id": m.attrib.get("id"), "name": m.attrib.get("name")}
+                # Common optional children (silently ignore if absent)
+                for tag in ("Path", "ConfigFile", "Version", "Description"):
+                    val = self._get_value(m, tag, None)
+                    if val is not None:
+                        d[tag] = val
+                items.append(d)
+            return {"count": len(items), "items": items}
+    
+        def _to_float(x):
+            try:
+                return float(x) if x is not None else None
+            except Exception:
+                return None
+    
+        overview["models"]["BKS2SSC"] = _ssc_models("BKS2SSC")
+        overview["models"]["NTU2SSC"] = _ssc_models("NTU2SSC")
+        overview["models"]["MTModels"] = _generic_models("MTModel")
+        overview["models"]["HDModels"] = _generic_models("HDModel")
+    
+        return overview
+
+    def get_cfg_by_instrument(
+        self,
+        instrument_type: str,
+        instrument_name: Optional[str] = None,
+        instrument_id: Optional[str] = None,
+        add_ssc: bool = True,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Return one configuration dict for a specific instrument.
+    
+        Parameters
+        ----------
+        instrument_type : str
+            Expected @type of the instrument ("VesselMountedADCP", "OBSVerticalProfile", "WaterSample", ...).
+        instrument_name : Optional[str]
+            Match @name (used if id not found).
+        instrument_id : Optional[str]
+            Match @id (preferred).
+        add_ssc : bool
+            Pass-through for ADCP/OBS builders.
+    
+        Resolution
+        ----------
+        - Constrain search by `instrument_type`.
+        - Prefer `instrument_id`; fall back to `instrument_name`.
+        - Dispatch to the correct builder based on `instrument_type`.
+    
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            Config dict or None if not found.
+        """
+        if not instrument_id and not instrument_name:
+            return None
+    
+        el = None
+        if instrument_id:
+            el = self.find_element(elem_id=instrument_id, _type=instrument_type)
+        if el is None and instrument_name:
+            el = self.find_element(name=instrument_name, _type=instrument_type)
+        if el is None:
+            return None
+    
+        inst_id = el.attrib.get("id")
+        if not inst_id:
+            return None
+    
+        if instrument_type == "VesselMountedADCP":
+            return self.CreateADCPDict(inst_id, add_ssc=add_ssc)
+        if instrument_type == "OBSVerticalProfile":
+            return self.CreateOBSDict(inst_id, add_ssc=add_ssc)
+        if instrument_type == "WaterSample":
+            return self.CreateWaterSampleDict(inst_id)
+    
+        # Generic fallback for other types
+        cfg: Dict[str, Any] = {
+            "type": instrument_type,
+            "id": inst_id,
+            "name": el.attrib.get("name"),
+        }
+        for tag in ("Path", "File", "Filename"):
+            val = self._get_value(el, tag, None)
+            if val is not None:
+                cfg["path"] = val
+                break
         return cfg
 
 
-    # ----------------------
-    # Batch builders
-    # ----------------------
-    def CreateADCPDicts(self, adcp_elements: list[ET.Element], add_ssc: bool = True) -> list[dict]:
-        cfgs: list[dict] = []
-        for inst in adcp_elements:
-            if inst is None:
-                continue
-            inst_id = inst.attrib.get("id")
-            if not inst_id:
-                continue
-            cfgs.append(self.CreateADCPDict(inst_id, add_ssc=add_ssc))
-        return cfgs
+if __name__ == '__main__':
+    xml_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj'
 
-    def CreateOBSDicts(self, obs_elements: list[ET.Element], add_ssc: bool = True) -> list[dict]:
-        cfgs: list[dict] = []
-        for inst in obs_elements:
-            inst_id = inst.attrib.get("id")
-            if inst_id:
-                cfgs.append(self.CreateOBSDict(inst_id, add_ssc=add_ssc))
-        return cfgs
+    project = XMLUtils(xml_path)
 
-    def CreateWaterSampleDicts(self, ws_elements: list[ET.Element]) -> list[dict]:
-        cfgs: list[dict] = []
-        for inst in ws_elements:
-            inst_id = inst.attrib.get("id")
-            if inst_id:
-                cfgs.append(self.CreateWaterSampleDict(inst_id))
-        return cfgs
+    # ADCP by survey name
+    adcp_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="VesselMountedADCP",
+    )
 
-    # ----------------------
-    # Public getters
-    # ----------------------
-    def get_adcp_cfgs(self) -> list[dict]:
-        return self.CreateADCPDicts(adcp_elements=self.find_adcps(), add_ssc=True)
+    # OBS by survey name (use survey_id="..." if you prefer id)
+    obs_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="OBSVerticalProfile",
+    )
 
-    def get_obs_cfgs(self) -> list[dict]:
-        return self.CreateOBSDicts(obs_elements=self.find_obss(), add_ssc=True)
-
-    def get_ws_cfgs(self) -> list[dict]:
-        return self.CreateWaterSampleDicts(ws_elements=self.find_watersamples())
+    # Water Samples by survey name
+    ws_cfgs = project.get_cfgs_from_survey(
+        survey_name="20241002_F3(E)",
+        survey_id=0,
+        instrument_type="WaterSample",
+    )
+    
+    info = project.project_info()
+    
+    
+    # get individual instrument configs by name and ID
+    cfg1 = project.get_cfg_by_instrument("VesselMountedADCP",instrument_name = '20241002_F3(E)_006r', instrument_id=5)
+    cfg2 = project.get_cfg_by_instrument("OBSVerticalProfile", instrument_name="OBS1",instrument_id=18)
 
 
-
-#%%
-
-# xml_path = r'C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Real Project.mtproj'
-# project = XMLUtils(xml_path)
-
-
-
-
-# adcp = ADCPDataset(adcp_cfgs[0],name = '1')
-
-# tree = ET.parse(source=xml_path)
-
-
-
-
-# adcp_cfgs = project.get_survey_adcp_cfgs("Survey 1")
-# obs_cfgs = project.get_survey_obs_cfgs("Survey 1")
-# ws_elems  = project.get_survey_ws_elems("Survey 2")
-
-
-# ws = WaterSampleDataset(ws_elems[0])
-
+    
+    
+    
+    
+    

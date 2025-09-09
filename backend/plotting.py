@@ -16,7 +16,34 @@ import cycler
 from utils import CSVParser
 from utils_dfsu import DfsuUtils
 
-
+mpl.rcParams['font.size'] = 7
+mpl.rcParams['lines.linewidth'] = 0.75
+mpl.rcParams['patch.edgecolor'] = 'white'
+mpl.rcParams['axes.grid.which'] = 'major'
+mpl.rcParams['lines.markersize'] = 1
+mpl.rcParams['ytick.labelsize'] = 7
+mpl.rcParams['xtick.labelsize'] = 7
+mpl.rcParams['ytick.labelright'] = False
+mpl.rcParams['xtick.labeltop'] = False
+mpl.rcParams['ytick.right'] = True
+mpl.rcParams['xtick.top'] = True
+mpl.rcParams['ytick.major.right'] = True
+mpl.rcParams['xtick.major.top'] = True
+mpl.rcParams['axes.labelweight'] = 'normal'
+mpl.rcParams['legend.fontsize'] = 7
+mpl.rcParams['legend.framealpha'] = 0.5
+mpl.rcParams['axes.titlesize'] = 9
+mpl.rcParams['axes.titleweight'] = 'normal'
+mpl.rcParams['font.family'] = 'monospace'
+mpl.rcParams['axes.labelsize'] = 7
+mpl.rcParams['axes.linewidth'] = 0.5
+mpl.rcParams['xtick.major.size'] = 5.0
+mpl.rcParams['xtick.minor.size'] = 3.0
+mpl.rcParams['ytick.major.size'] = 5.0
+mpl.rcParams['ytick.minor.size'] = 3.0
+mpl.rcParams['xtick.direction'] = 'in'
+mpl.rcParams['ytick.direction'] = 'in'
+        
 class PlottingShell:
     # ---- class-level palettes so PlottingShell.blue1 works ----
     blue1   = '#04426e'; blue2   = '#4d9ab3'; blue3   = '#0493b2'; blue4   = '#c3dde5'
@@ -33,33 +60,7 @@ class PlottingShell:
 
     def __init__(self):
         # rcParams
-        mpl.rcParams['font.size'] = 8
-        mpl.rcParams['lines.linewidth'] = 0.75
-        mpl.rcParams['patch.edgecolor'] = 'white'
-        mpl.rcParams['axes.grid.which'] = 'major'
-        mpl.rcParams['lines.markersize'] = 1
-        mpl.rcParams['ytick.labelsize'] = 8
-        mpl.rcParams['xtick.labelsize'] = 8
-        mpl.rcParams['ytick.labelright'] = False
-        mpl.rcParams['xtick.labeltop'] = False
-        mpl.rcParams['ytick.right'] = True
-        mpl.rcParams['xtick.top'] = True
-        mpl.rcParams['ytick.major.right'] = True
-        mpl.rcParams['xtick.major.top'] = True
-        mpl.rcParams['axes.labelweight'] = 'normal'
-        mpl.rcParams['legend.fontsize'] = 8
-        mpl.rcParams['legend.framealpha'] = 0.5
-        mpl.rcParams['axes.titlesize'] = 9
-        mpl.rcParams['axes.titleweight'] = 'normal'
-        mpl.rcParams['font.family'] = 'monospace'
-        mpl.rcParams['axes.labelsize'] = 10
-        mpl.rcParams['axes.linewidth'] = 0.5
-        mpl.rcParams['xtick.major.size'] = 5.0
-        mpl.rcParams['xtick.minor.size'] = 3.0
-        mpl.rcParams['ytick.major.size'] = 5.0
-        mpl.rcParams['ytick.minor.size'] = 3.0
-        mpl.rcParams['xtick.direction'] = 'in'
-        mpl.rcParams['ytick.direction'] = 'in'
+
 
         # color + linestyle cycle with alpha preserved
         base_colors = 2 * ['#283747', '#0051a2', '#41ab5d', '#feb24c', '#93003a']  # 10
@@ -137,11 +138,11 @@ class PlottingShell:
             sharey=sharey
         )
 
-        if nrow == 1 and ncol == 1:
-            ax.grid(alpha=0.25)
-        else:
-            for a in np.ravel(ax):
-                a.grid(alpha=0.25)
+        # if nrow == 1 and ncol == 1:
+        #     ax.grid(alpha=0.25)
+        # else:
+        #     for a in np.ravel(ax):
+        #         a.grid(alpha=0.25)
 
         return fig, ax
 

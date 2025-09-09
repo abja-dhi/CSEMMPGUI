@@ -68,8 +68,8 @@ class CRSHelper:
         Returns (xlabel, ylabel).
         """
         if self.is_geographic:
-            return "Longitude [°E]", "Latitude [°N]"
-        return "Easting [m]", "Northing [m]"
+            return "Longitude (°E)", "Latitude (°N)"
+        return "Easting (m)", "Northing (m)"
 
     # -------------------------
     # Coordinate transforms
