@@ -542,4 +542,4 @@ if __name__ == "__main__":
 
     viewer = TransectViewer2D(adcps=adcps, crs_helper=crs_helper, inputs=cfg)
     fig = viewer.render()
-    viewer.save_html(r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\2d_transect_view_v2.html", auto_open=False)
+    viewer.save_html(r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\2d_transect_view.html", auto_open=False)
