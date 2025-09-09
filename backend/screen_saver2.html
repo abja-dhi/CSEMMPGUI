@@ -1,0 +1,158 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Logo Drop</title>
+<style>
+  html,body { margin:0; height:100%; background:#fff }
+  #c { display:block; width:100vw; height:100vh }
+  .ui {
+    position:fixed; top:10px; left:10px; padding:8px 10px; background:#00000010; backdrop-filter:blur(4px);
+    font:12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif; border-radius:8px
+  }
+  .ui label { display:block; margin:6px 0 2px }
+  .ui input[type="range"] { width:220px }
+  .ui .row { display:flex; gap:8px; align-items:center }
+  .ui output { min-width:42px; text-align:right; display:inline-block }
+</style>
+
+<canvas id="c"></canvas>
+<div class="ui">
+  <div class="row">
+    <label>Gravity (px/s²)</label>
+    <input id="g" type="range" min="100" max="3000" step="50" value="1200">
+    <output id="gOut">1200</output>
+  </div>
+  <div class="row">
+    <label>Bounciness (e)</label>
+    <input id="e" type="range" min="0.10" max="0.98" step="0.01" value="0.65">
+    <output id="eOut">0.65</output>
+  </div>
+</div>
+
+<script>
+(() => {
+  const cnv = document.getElementById('c');
+  const ctx = cnv.getContext('2d');
+  const img = new Image(); img.src = 'dhi_logo.png';
+
+  const SCALE_MIN = 0.01, SCALE_MAX = 0.18;       // size fraction of min(W,H)
+  const VX_MIN = 40, VX_MAX = 220;                // initial |vx| px/s
+  const REST_VY = 30, REST_VX = 20;               // settle thresholds px/s
+  const REST_TIME = 700;                          // ms on floor before removal
+
+  const gSlider = document.getElementById('g');
+  const eSlider = document.getElementById('e');
+  const gOut = document.getElementById('gOut');
+  const eOut = document.getElementById('eOut');
+
+  const balls = []; // {x,y,vx,vy,iw,ih,restStart?,scale}
+
+  let W=0, H=0, dpr=1, lastT=null;
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function sign(){ return Math.random()<0.5 ? -1 : 1; }
+
+  function resize(){
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    W = Math.floor(innerWidth); H = Math.floor(innerHeight);
+    cnv.style.width = W+'px'; cnv.style.height = H+'px';
+    cnv.width = Math.floor(W*dpr); cnv.height = Math.floor(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    // rescale each icon to keep its scale consistent
+    for(const b of balls){
+      const sPx = b.scale * Math.min(W,H);
+      b.iw = sPx;
+      b.ih = sPx * (img.naturalHeight / img.naturalWidth || 1);
+      b.x = Math.min(Math.max(0,b.x), Math.max(0,W-b.iw));
+      b.y = Math.min(Math.max(0,b.y), Math.max(0,H-b.ih));
+    }
+  }
+
+  function spawnAt(clientX, clientY){
+    const rect = cnv.getBoundingClientRect();
+    const sx = (clientX - rect.left) * (W / rect.width);
+    const sy = (clientY - rect.top)  * (H / rect.height);
+
+    const scale = rand(SCALE_MIN, SCALE_MAX);
+    const iw = scale * Math.min(W,H);
+    const ih = iw * (img.naturalHeight / img.naturalWidth || 1);
+
+    const x = Math.min(Math.max(0, sx - iw/2), Math.max(0, W - iw));
+    const y = Math.min(Math.max(0, sy - ih/2), Math.max(0, H - ih));
+
+    const vx = sign() * rand(VX_MIN, VX_MAX);
+    const vy = -rand(0, VX_MAX * 0.5); // small upward bias is fine
+
+    balls.push({ x, y, vx, vy, iw, ih, scale, restStart: null });
+  }
+
+  function step(dt){
+    const g = parseFloat(gSlider.value);
+    const e = parseFloat(eSlider.value);
+
+    for(let i=balls.length-1; i>=0; --i){
+      const b = balls[i];
+      // integrate
+      b.vy += g*dt;
+      b.x  += b.vx*dt;
+      b.y  += b.vy*dt;
+
+      // walls
+      if (b.x <= 0){ b.x = 0; b.vx = Math.abs(b.vx); }
+      if (b.x + b.iw >= W){ b.x = W - b.iw; b.vx = -Math.abs(b.vx); }
+
+      // floor bounce
+      const floorY = H - b.ih;
+      if (b.y >= floorY){
+        b.y = floorY;
+        if (Math.abs(b.vy) > 1) b.vy = -b.vy * e;
+      }
+
+      // settle detection
+      const onFloor = Math.abs(b.y - floorY) < 0.5;
+      const slow = Math.abs(b.vy) < REST_VY && Math.abs(b.vx) < REST_VX;
+      if (onFloor && slow){
+        if (b.restStart == null) b.restStart = performance.now();
+        else if (performance.now() - b.restStart > REST_TIME){
+          balls.splice(i,1); // remove
+          continue;
+        }
+      } else {
+        b.restStart = null;
+      }
+    }
+  }
+
+  function draw(){
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,W,H);
+    for(const b of balls){
+      ctx.drawImage(img, b.x, b.y, b.iw, b.ih);
+    }
+  }
+
+  function loop(t){
+    if (lastT==null) lastT = t;
+    const dt = Math.min(0.033, (t - lastT)/1000); // cap at ~30 FPS step
+    lastT = t;
+    step(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // UI bindings
+  gSlider.addEventListener('input', () => gOut.textContent = gSlider.value);
+  eSlider.addEventListener('input', () => eOut.textContent = (+eSlider.value).toFixed(2));
+  gOut.textContent = gSlider.value; eOut.textContent = (+eSlider.value).toFixed(2);
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('click', (ev) => { if (img.complete) spawnAt(ev.clientX, ev.clientY); });
+  window.addEventListener('touchstart', (ev) => {
+    if (!img.complete) return;
+    const t = ev.changedTouches[0];
+    spawnAt(t.clientX, t.clientY);
+  }, {passive:true});
+
+  img.decode().then(()=>{ resize(); requestAnimationFrame(loop); })
+              .catch(()=>{ img.onload = ()=>{ resize(); requestAnimationFrame(loop); }; });
+})();
+</script>
