@@ -89,12 +89,13 @@ namespace CSEMMPGUI_v1
             SelectComboItem(comboTime, fileInfoNode?.SelectSingleNode("TimeColumn")?.InnerText ?? "");
             SelectComboItem(comboDepth, fileInfoNode?.SelectSingleNode("DepthColumn")?.InnerText ?? "");
             SelectComboItem(comboNTU, fileInfoNode?.SelectSingleNode("NTUColumn")?.InnerText ?? "");
-            List<XmlElement> sscModels = _project.GetObjects("SSCModel");
+            XmlNodeList sscModels = _project.GetObjects("NTU2SSC");
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in sscModels)
+                foreach (XmlNode modelNode in sscModels)
                 {
+                    XmlElement model = modelNode as XmlElement;
                     comboSSCModel.Items.Add(new
                     {
                         Display = model.GetAttribute("name"),
@@ -305,12 +306,13 @@ namespace CSEMMPGUI_v1
             {
                 return; // User cancelled the file dialog
             }
-            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            XmlNodeList sscModels = _project.GetObjects(type: "NTU2SSC");
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in sscModels)
+                foreach (XmlNode modelNode in sscModels)
                 {
+                    XmlElement model = modelNode as XmlElement;
                     comboSSCModel.Items.Add(new
                     {
                         Display = model.GetAttribute("name"),
@@ -478,7 +480,7 @@ namespace CSEMMPGUI_v1
             ntuColumn.InnerText = comboNTU.Text.Trim() ?? string.Empty;
             fileInfo.AppendChild(ntuColumn);
             XmlElement sscModel = project.CreateElement("SSCModelID");
-            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            XmlNodeList sscModels = _project.GetObjects(type: "NTU2SSC");
             if (sscModels.Count == 0)
             {
                 sscModel.InnerText = string.Empty;
@@ -486,7 +488,7 @@ namespace CSEMMPGUI_v1
             else
             {
                 var selectedItem = comboSSCModel.SelectedItem;
-                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : sscModels[0].GetAttribute("id");
+                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : string.Empty;
                 sscModel.InnerText = selectedId;
             }
             fileInfo.AppendChild(sscModel);

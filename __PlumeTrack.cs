@@ -17,7 +17,7 @@ namespace CSEMMPGUI_v1
         {
             foreach (XmlNode child in xmlNode.ChildNodes)
             {
-                if (child.NodeType != XmlNodeType.Element || child.Name == "Settings")
+                if (child.NodeType != XmlNodeType.Element || child.Name == "Settings" || child.Name == "MapSettings")
                     continue; // Skip non-element nodes and the Settings node
 
                 XmlAttribute? typeAttr = child.Attributes?["type"];
@@ -71,22 +71,14 @@ namespace CSEMMPGUI_v1
             }
             else
                 InitializeProject();
-            //Dictionary<string, string> inputs = null;
-            //inputs = new Dictionary<string, string>
-            //    {
-            //        { "Task", "HelloBackend" },
-            //    };
-            //string xmlInput = _Tools.GenerateInput(inputs);
-            //XmlDocument result = _Tools.CallPython(xmlInput);
-            //Dictionary<string, string> outputs = _Tools.ParseOutput(result);
-            //MessageBox.Show(outputs["Status"], "Backend Response", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
             this.KeyPreview = true; // Enable form to capture key events
             this.KeyDown += __PlumeTrack_KeyDown; // Attach key down event handler
 
             WebView2 webView = new WebView2();
             webView.Dock = DockStyle.Fill;
-            splitter.Panel2.Controls.Add(webView);
-
+            tableMap.Controls.Add(webView, 0, 1);
+            tableMap.SetColumnSpan(webView, 3);
             this.Load += async (s, e) =>
             {
                 await webView.EnsureCoreWebView2Async();
@@ -187,6 +179,12 @@ namespace CSEMMPGUI_v1
             propertiesPage.ShowDialog();
         }
 
+        private void menuMapOptions_Click(object sender, EventArgs e)
+        {
+            MapOptions mapOptions = new();
+            mapOptions.ShowDialog();
+        }
+
         private void menuExit_Click(object sender, EventArgs e)
         {
             if (!_Globals.isSaved || !isSaved)
@@ -243,6 +241,25 @@ namespace CSEMMPGUI_v1
         private void frmMain_Activated(object sender, EventArgs e)
         {
             FillTree(); // Refresh the tree view when the form is activated
+            Dictionary<string, string> inputs2D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer2D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+            string xmlInput2D = _Tools.GenerateInput(inputs2D);
+            XmlDocument result2D = _Tools.CallPython(xmlInput2D);
+            Dictionary<string, string> outputs2D = _Tools.ParseOutput(result2D);
+            
+            Dictionary<string, string> inputs3D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer3D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+            string xmlInput3D = _Tools.GenerateInput(inputs3D);
+            XmlDocument result3D = _Tools.CallPython(xmlInput3D);
+            Dictionary<string, string> outputs3D = _Tools.ParseOutput(result3D);
+            
+
         }
 
         private void menuAddSurvey_Click(object sender, EventArgs e)
@@ -252,10 +269,17 @@ namespace CSEMMPGUI_v1
             FillTree(); // Refresh the tree view after adding a survey
         }
 
-        private void menuAddModel_Click(object sender, EventArgs e)
+        private void menuAddHDModel_Click(object sender, EventArgs e)
         {
-            ModelMT addModel = new ModelMT(null);
-            addModel.ShowDialog();
+            ModelHD addHDModel = new ModelHD(null);
+            addHDModel.ShowDialog();
+            FillTree(); // Refresh the tree view after adding a model
+        }
+
+        private void menuAddMTModel_Click(object sender, EventArgs e)
+        {
+            ModelMT addMTModel = new ModelMT(null);
+            addMTModel.ShowDialog();
             FillTree(); // Refresh the tree view after adding a model
         }
 
@@ -282,6 +306,15 @@ namespace CSEMMPGUI_v1
                 {
                     string? type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                     itemDelete.Visible = type != "Project"; // Disable delete for the root project node
+
+                    if (type == "NTU2SSC" || type == "BKS2SSC")
+                    {
+                        XmlNode? modeNode = xmlNode.SelectSingleNode("Mode");
+                        string mode = modeNode?.InnerText ?? string.Empty;
+
+                        itemPlot.Visible = mode != "Manual";
+                        
+                    }
                 }
                 cmenuNode.Show(treeProject, e.Location);
             }
@@ -403,11 +436,11 @@ namespace CSEMMPGUI_v1
                         // Implement survey opening logic here
                         break;
                     case "HDModel":
-                        ModelPlot modelHDPlot = new ModelPlot(id);
+                        ModelMTPlot modelHDPlot = new ModelMTPlot(id);
                         modelHDPlot.Show();
                         break;
                     case "MTModel":
-                        ModelPlot modelMTPlot = new ModelPlot(id);
+                        ModelMTPlot modelMTPlot = new ModelMTPlot(id);
                         modelMTPlot.Show();
                         break;
                     case "VesselMountedADCP":
@@ -423,8 +456,12 @@ namespace CSEMMPGUI_v1
                         // Implement OBS vertical profile opening logic here
                         break;
                     case "NTU2SSC":
+                        SSCModelPlot sscModelPlot = new SSCModelPlot(id, "NTU2SSC");
+                        sscModelPlot.Show();
+                        break;
                     case "BKS2SSC":
-                        MessageBox.Show($"Plotting SSC model: {name}", "Open SSC Model", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SSCModelPlot bks2sscModelPlot = new SSCModelPlot(id, "BKS2SSC");
+                        bks2sscModelPlot.Show();
                         break;
                 }
             }

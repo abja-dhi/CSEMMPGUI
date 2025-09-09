@@ -119,12 +119,13 @@ namespace CSEMMPGUI_v1
             // Pd0 related attributes
             XmlNode pd0Node = adcpElement.SelectSingleNode("Pd0");
             txtPD0Path.Text = pd0Node?.SelectSingleNode("Path")?.InnerText ?? string.Empty;
-            List<XmlElement> sscModels = _project.GetObjects("SSCModel");
+            XmlNodeList sscModels = _project.GetObjects("BKS2SSC");
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in sscModels)
+                foreach (XmlNode modelNode in sscModels)
                 {
+                    XmlElement model = modelNode as XmlElement;
                     comboSSCModel.Items.Add(new
                     {
                         Display = model.GetAttribute("name"),
@@ -651,12 +652,13 @@ namespace CSEMMPGUI_v1
             updateCombo(comboX, columns, 1);
             updateCombo(comboY, columns, 2);
             updateCombo(comboHeading, columns, 3);
-            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            XmlNodeList sscModels = _project.GetObjects(type: "BKS2SSC");
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
-                foreach (XmlElement model in sscModels)
+                foreach (XmlNode modelNode in sscModels)
                 {
+                    XmlElement model = modelNode as XmlElement;
                     comboSSCModel.Items.Add(new
                     {
                         Display = model.GetAttribute("name"),
@@ -921,7 +923,7 @@ namespace CSEMMPGUI_v1
             pd0Path.InnerText = pd0FilePath;
             pd0.AppendChild(pd0Path);
             XmlElement sscModel = project.CreateElement("SSCModelID");
-            List<XmlElement> sscModels = _project.GetObjects(type: "SSCModel");
+            XmlNodeList sscModels = _project.GetObjects(type: "BKS2SSC");
             if (sscModels.Count == 0)
             {
                 sscModel.InnerText = string.Empty;
@@ -929,7 +931,7 @@ namespace CSEMMPGUI_v1
             else
             {
                 var selectedItem = comboSSCModel.SelectedItem;
-                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : sscModels[0].GetAttribute("id");
+                string selectedId = selectedItem != null ? ((dynamic)selectedItem).Tag : string.Empty;
                 sscModel.InnerText = selectedId;
             }
             pd0.AppendChild(sscModel);

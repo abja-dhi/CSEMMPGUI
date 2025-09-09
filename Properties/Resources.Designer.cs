@@ -63,9 +63,39 @@ namespace CSEMMPGUI_v1.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap DHI_Logo_No_Background {
+            get {
+                object obj = ResourceManager.GetObject("DHI_Logo_No_Background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Logo {
             get {
                 object obj = ResourceManager.GetObject("Logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PlumeTrack_Logo_No_Background {
+            get {
+                object obj = ResourceManager.GetObject("PlumeTrack_Logo_No_Background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SplashWindow {
+            get {
+                object obj = ResourceManager.GetObject("SplashWindow", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

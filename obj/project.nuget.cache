@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "GeH6oqM6l8A=",
+  "dgSpecHash": "kHhFK9/6Rro=",
   "success": true,
   "projectFilePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\abja\\.nuget\\packages\\adamslair.treeviewadv\\1.7.7\\adamslair.treeviewadv.1.7.7.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\antlr4.runtime.standard\\4.7.2\\antlr4.runtime.standard.4.7.2.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.corlib\\1.0.1\\dhi.corlib.1.0.1.nupkg.sha512",
@@ -17,16 +18,21 @@
     "C:\\Users\\abja\\.nuget\\packages\\dhi.mikecore\\23.0.3\\dhi.mikecore.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.pfs\\23.0.3\\dhi.pfs.23.0.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\dhi.projections\\23.0.3\\dhi.projections.23.0.3.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\esri.arcgisruntime\\200.8.0\\esri.arcgisruntime.200.8.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\esri.arcgisruntime.runtimes.win\\200.8.0\\esri.arcgisruntime.runtimes.win.200.8.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\fasttree\\1.6.0\\fasttree.1.6.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\gdal\\3.11.3\\gdal.3.11.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\gdal.core\\1.0.0\\gdal.core.1.0.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\gdal.native\\3.11.3\\gdal.native.3.11.3.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.platforms\\2.1.2\\microsoft.netcore.platforms.2.1.2.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\microsoft.web.webview2\\1.0.3405.78\\microsoft.web.webview2.1.0.3405.78.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\microsoft.web.webview2\\1.0.3485.44\\microsoft.web.webview2.1.0.3485.44.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.win32.primitives\\4.3.0\\microsoft.win32.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\netstandard.library\\1.6.1\\netstandard.library.1.6.1.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\nettopologysuite\\2.0.0\\nettopologysuite.2.0.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\nettopologysuite.features\\2.0.0\\nettopologysuite.features.2.0.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\nettopologysuite.io.shapefile\\2.1.0\\nettopologysuite.io.shapefile.2.1.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\pythonnet\\3.0.5\\pythonnet.3.0.5.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
@@ -77,6 +83,7 @@
     "C:\\Users\\abja\\.nuget\\packages\\system.reflection.typeextensions\\4.3.0\\system.reflection.typeextensions.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.resources.resourcemanager\\4.3.0\\system.resources.resourcemanager.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.runtime\\4.3.0\\system.runtime.4.3.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.5.2\\system.runtime.compilerservices.unsafe.4.5.2.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.runtime.extensions\\4.3.0\\system.runtime.extensions.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.runtime.handles\\4.3.0\\system.runtime.handles.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.runtime.interopservices\\4.3.0\\system.runtime.interopservices.4.3.0.nupkg.sha512",
@@ -90,6 +97,7 @@
     "C:\\Users\\abja\\.nuget\\packages\\system.security.cryptography.primitives\\4.3.0\\system.security.cryptography.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.security.cryptography.x509certificates\\4.3.0\\system.security.cryptography.x509certificates.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.text.encoding\\4.3.0\\system.text.encoding.4.3.0.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\system.text.encoding.codepages\\4.5.1\\system.text.encoding.codepages.4.5.1.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.text.encoding.extensions\\4.3.0\\system.text.encoding.extensions.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.text.regularexpressions\\4.3.0\\system.text.regularexpressions.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
@@ -102,6 +110,30 @@
     "C:\\Users\\abja\\.nuget\\packages\\windowsapicodepack-shell\\1.1.1\\windowsapicodepack-shell.1.1.1.nupkg.sha512"
   ],
   "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AdamsLair.TreeViewAdv 1.7.7' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
+      "libraryId": "AdamsLair.TreeViewAdv",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'FastTree 1.6.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
+      "libraryId": "FastTree",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
     {
       "code": "NU1701",
       "level": "Warning",

@@ -25,7 +25,7 @@ namespace CSEMMPGUI_v1
 
         private void InitializeModel()
         {
-            txtModelName.Text = "New Model";
+            txtModelName.Text = "New MT Model";
             txtFilePath.Text = string.Empty;
             isSaved = true;
         }
@@ -34,7 +34,7 @@ namespace CSEMMPGUI_v1
         {
             if (modelElement == null)
             {
-                MessageBox.Show(text: "Invalid model node provided.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                MessageBox.Show(text: "Invalid MT model node provided.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -62,7 +62,7 @@ namespace CSEMMPGUI_v1
             {
                 InitializeModel();
                 mode = 0; // New model mode
-                this.Text = "Add Model";
+                this.Text = "Add MT Model";
             }
             else
             {
@@ -70,7 +70,7 @@ namespace CSEMMPGUI_v1
                 PopulateModel();
                 menuNew.Visible = false; // Hide New menu option if editing an existing model
                 mode = 1; // Edit model mode
-                this.Text = "Edit Model";
+                this.Text = "Edit MT Model";
             }
 
             this.KeyPreview = true; // Enable form to capture key events
@@ -82,8 +82,8 @@ namespace CSEMMPGUI_v1
             if (!isSaved)
             {
                 DialogResult result = MessageBox.Show(
-                    text: "You have unsaved changes. Do you want to save before creating a new model?",
-                    caption: "Confirm New Model",
+                    text: "You have unsaved changes. Do you want to save before creating a new MT model?",
+                    caption: "Confirm New MT Model",
                     buttons: MessageBoxButtons.YesNoCancel,
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
@@ -225,7 +225,7 @@ namespace CSEMMPGUI_v1
             var ofd = new OpenFileDialog
             {
                 Title = "Select Model File",
-                Filter = "DFSU (*.dfsu)|*.dfsu;DFS2 (*.dfs2)|*.dfs2;DFS3 (*.dfs3)|*.dfs3",
+                Filter = "DFSU (*.dfsu)|*.dfsu",
                 Multiselect = false,
                 InitialDirectory = _project.GetSetting(settingName: "Directory"),
             };

@@ -30,13 +30,13 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VesselMountedADCPPlot));
             tableMain = new TableLayoutPanel();
-            lblPlotType = new Label();
-            comboPlotType = new ComboBox();
             boxProperties = new GroupBox();
             tableProp = new TableLayoutPanel();
             tablePlotButton = new TableLayoutPanel();
             btnPlot = new Button();
             tableInitialSetup = new TableLayoutPanel();
+            comboPlotType = new ComboBox();
+            lblPlotType = new Label();
             tableMain.SuspendLayout();
             boxProperties.SuspendLayout();
             tablePlotButton.SuspendLayout();
@@ -60,29 +60,6 @@
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableMain.Size = new Size(800, 450);
             tableMain.TabIndex = 0;
-            // 
-            // lblPlotType
-            // 
-            lblPlotType.AutoSize = true;
-            lblPlotType.Dock = DockStyle.Fill;
-            lblPlotType.Location = new Point(3, 0);
-            lblPlotType.Name = "lblPlotType";
-            lblPlotType.Size = new Size(232, 34);
-            lblPlotType.TabIndex = 0;
-            lblPlotType.Text = "Plot Type";
-            lblPlotType.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboPlotType
-            // 
-            comboPlotType.Dock = DockStyle.Fill;
-            comboPlotType.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboPlotType.FormattingEnabled = true;
-            comboPlotType.Items.AddRange(new object[] { "Platform Orientation", "Four Beam Flood Plot", "Single Beam Flood Plot", "Plot Transect Velocities", "Beam Geometry Animation", "Transect Animation" });
-            comboPlotType.Location = new Point(241, 3);
-            comboPlotType.Name = "comboPlotType";
-            comboPlotType.Size = new Size(550, 23);
-            comboPlotType.TabIndex = 1;
-            comboPlotType.SelectedIndexChanged += comboPlotType_SelectedIndexChanged;
             // 
             // boxProperties
             // 
@@ -151,6 +128,29 @@
             tableInitialSetup.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableInitialSetup.Size = new Size(794, 34);
             tableInitialSetup.TabIndex = 5;
+            // 
+            // comboPlotType
+            // 
+            comboPlotType.Dock = DockStyle.Fill;
+            comboPlotType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboPlotType.FormattingEnabled = true;
+            comboPlotType.Items.AddRange(new object[] { "Platform Orientation", "Four Beam Flood Plot", "Single Beam Flood Plot", "Plot Transect Velocities", "Beam Geometry Animation", "Transect Animation" });
+            comboPlotType.Location = new Point(241, 3);
+            comboPlotType.Name = "comboPlotType";
+            comboPlotType.Size = new Size(550, 23);
+            comboPlotType.TabIndex = 1;
+            comboPlotType.SelectedIndexChanged += comboPlotType_SelectedIndexChanged;
+            // 
+            // lblPlotType
+            // 
+            lblPlotType.AutoSize = true;
+            lblPlotType.Dock = DockStyle.Fill;
+            lblPlotType.Location = new Point(3, 0);
+            lblPlotType.Name = "lblPlotType";
+            lblPlotType.Size = new Size(232, 34);
+            lblPlotType.TabIndex = 0;
+            lblPlotType.Text = "Plot Type";
+            lblPlotType.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // VesselMountedADCPPlot
             // 

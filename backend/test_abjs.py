@@ -32,7 +32,10 @@ def LoadPd0(filepath):
 
 def Extern2CSVSingle(filepath):
     result = Utils.extern_to_csv_single(filepath)
-    return {"Result": result} # 1: already converted, 0: success, -1: failed
+    if not result:
+        return {"Error": result} # 1: already converted, 0: success, -1: failed
+    else:
+        return {"Result": "Success"}
     
 def Extern2CSVBatch(folderpath):
     result = Utils.extern_to_csv_batch(folderpath)
@@ -40,6 +43,13 @@ def Extern2CSVBatch(folderpath):
     n_failed = result[1]
     n_already_converted = result[2]
     return {"NSuccess": n_success, "NFailed": n_failed, "NAlreadyConverted": n_already_converted}
+
+def Dfs2ToDfsu(in_path, out_path):
+    result = Utils.Dfs2ToDfsu(in_path, out_path)
+    if isinstance(result, str):
+        return {"Error": result}
+    else:
+        return {"Result": "Success"}
 
 def ViSeaSample2CSV(filepath):
     try:
@@ -284,21 +294,28 @@ def BKS2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
         if len(df_water_inst) == 0:
             return {"Error": "No valid water samples found for SSC calibration"}
         vals = df_data[col_name].to_numpy()
-        
+        plt.scatter(vals, ssc)
         X = vals.reshape(-1, 1)
         Y = ssc.reshape(-1, 1)
         dt = (df_water_inst["datetime"] - df_water["datetime"]).dt.total_seconds().abs()
         reg = LinearRegression(fit_intercept=True).fit(X, Y, sample_weight=1/(dt+1))  # add 1 to avoid division by zero
-        B = reg.coef_[0]
+        B = reg.coef_
         if isinstance(B, list) or isinstance(B, np.ndarray):
             B = B[0]
+        
         A = reg.intercept_
+        xxx = np.linspace(np.min(vals), np.max(vals), 100)
+        plt.plot(xxx, xxx*B + A, 'r-')
+        plt.show()
+        if isinstance(A, list) or isinstance(A, np.ndarray):
+            A = A[0]
         ssc_params['A'] = A
         ssc_params['B'] = B
         ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
         ssc_params['R2'] = reg.score(X, Y)
         ssc_params["AbsoluteBackscatter"] = vals
         ssc_params["SSC"] = ssc
+        print(df_water_inst[["id_src", "type_src", "id_tgt", "type_tgt"]])
         pairs = (
         df_water_inst[["id_src", "type_src", "id_tgt", "type_tgt"]]
             .drop_duplicates()
@@ -362,6 +379,8 @@ def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
         if isinstance(B, list) or isinstance(B, np.ndarray):
             B = B[0]
         A = reg.intercept_
+        if isinstance(A, list) or isinstance(A, np.ndarray):
+            A = A[0]
         ssc_params['A'] = A
         ssc_params['B'] = B
         ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
@@ -820,11 +839,90 @@ def nearest_merge_depth_first(
 
     return out, matched_src, pairs
 
+def PlotBKS2SSC(sscmodel: ET.Element):
+    from plotting import PlottingShell
+    A = float(sscmodel.find("A").text)
+    B = float(sscmodel.find("B").text)
+    RMSE = float(sscmodel.find("RMSE").text)
+    R2 = float(sscmodel.find("R2").text)
 
+    # Extract data points
+    ssc = []
+    bks = []
+    for pt in sscmodel.find("Data").findall("Point"):
+        ssc.append(float(pt.find("SSC").text))
+        bks.append(float(pt.find("AbsoluteBackscatter").text))
+    ssc = 10 ** (np.array(ssc))
+    bks = np.array(bks)
+
+    fig, ax = PlottingShell.subplots(figheight=8, figwidth=8)
+    ax.scatter(ssc, bks, label="Data Points", color=PlottingShell.red2)
+    x = np.linspace(0.9*min(ssc), 1.1*max(ssc), 100)
+    y = (np.log10(x) - A) / B
+    ax.plot(x, y, label='Fitted Regression', color=PlottingShell.blue3)
+    ax.set_xscale('log')
+    ax.set_xlim(min(ssc)*0.9, max(ssc)*1.1)
+    ax.set_ylim(np.floor(min(bks)*1.1), np.ceil(max(bks)*0.9))
+    ax.legend()
+    ax.set_xlabel('SSC')
+    ax.set_ylabel('Absolute Backscatter')
+    equation = r"$\log_{10}(\mathrm{SSC}) = A + B \times \mathrm{BKS}$"
+    textstr = f"{equation}\nA = {A:.3f}\nB = {B:.3f}\nRMSE = {RMSE:.2f}\nR² = {R2:.3f}"
+    ax.text(0.05, 0.95, textstr, transform=ax.transAxes,
+            fontsize=10, verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
+    ax.grid(True, alpha=0.5)
+    plt.show()
+
+
+
+def PlotNTU2SSC(sscmodel: ET.Element):
+    from plotting import PlottingShell
+    A = float(sscmodel.find("A").text)
+    B = float(sscmodel.find("B").text)
+    RMSE = float(sscmodel.find("RMSE").text)
+    R2 = float(sscmodel.find("R2").text)
+
+    # Extract data points
+    ssc = []
+    ntu = []
+    for pt in sscmodel.find("Data").findall("Point"):
+        ssc.append(float(pt.find("SSC").text))
+        ntu.append(float(pt.find("NTU").text))
+    ssc = np.array(ssc)
+    ntu = np.array(ntu)
+
+    fig, ax = PlottingShell.subplots(figheight=8, figwidth=8)
+    ax.scatter(ssc, ntu, label="Data Points", color=PlottingShell.red2)
+    x = np.linspace(min(ssc), max(ssc), 100)
+    y = (x - A) / B
+    ax.plot(x, y, label='Fitted Regression', color=PlottingShell.blue3)
+    ax.legend()
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlabel('SSC')
+    ax.set_ylabel('NTU')
+    equation = r"$\mathrm{SSC} = A + B \times \mathrm{NTU}$"
+    textstr = f"{equation}\nA = {A:.3f}\nB = {B:.3f}\nRMSE = {RMSE:.2f}\nR² = {R2:.3f}"
+    ax.text(0.05, 0.95, textstr, transform=ax.transAxes,
+            fontsize=10, verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
+    ax.grid(True, alpha=0.5)
+    plt.show()
 
 if __name__ == "__main__":
     tree = ET.parse(source=r"C:\Users\abja\AppData\Roaming\PlumeTrack\Untitiled-Project.mtproj")
     project = tree.getroot()
-    sscmodel = find_element(project, 21, "NTU2SSC")
-    result = NTU2SSCModel(project, sscmodel)
-    print(GenerateOutputXML(result))
+    bks2sscmodel = find_element(project, 21, "BKS2SSC")
+    ntu2sscmodel = find_element(project, 22, "NTU2SSC")
+    # result = NTU2SSCModel(project, ntu2sscmodel)
+    # result = BKS2SSCModel(project, bks2sscmodel)
+    # print(result)
+    # print(GenerateOutputXML(result))
+    # PlotBKS2SSC(bks2sscmodel)
+    # PlotNTU2SSC(ntu2sscmodel)
+    for i in range(1, 17):
+        print(i)
+        adcp_cfg = CreateADCPDict(project, i, add_ssc=False)
+        adcp = ADCPDataset(adcp_cfg, name=adcp_cfg['name'])
+        print(adcp.time.ensemble_datetimes[0], adcp.time.ensemble_datetimes[-1])

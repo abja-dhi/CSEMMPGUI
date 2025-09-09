@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace CSEMMPGUI_v1
 {
@@ -25,7 +26,7 @@ namespace CSEMMPGUI_v1
 
         private void InitializeModel()
         {
-            txtModelName.Text = "New Model";
+            txtModelName.Text = "New HD Model";
             txtFilePath.Text = string.Empty;
             isSaved = true;
         }
@@ -34,7 +35,7 @@ namespace CSEMMPGUI_v1
         {
             if (modelElement == null)
             {
-                MessageBox.Show(text: "Invalid model node provided.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                MessageBox.Show(text: "Invalid HD model node provided.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -72,7 +73,7 @@ namespace CSEMMPGUI_v1
             {
                 InitializeModel();
                 mode = 0; // New model mode
-                this.Text = "Add Model";
+                this.Text = "Add HD Model";
             }
             else
             {
@@ -80,7 +81,7 @@ namespace CSEMMPGUI_v1
                 PopulateModel();
                 menuNew.Visible = false; // Hide New menu option if editing an existing model
                 mode = 1; // Edit model mode
-                this.Text = "Edit Model";
+                this.Text = "Edit HD Model";
             }
 
             this.KeyPreview = true; // Enable form to capture key events
@@ -92,8 +93,8 @@ namespace CSEMMPGUI_v1
             if (!isSaved)
             {
                 DialogResult result = MessageBox.Show(
-                    text: "You have unsaved changes. Do you want to save before creating a new model?",
-                    caption: "Confirm New Model",
+                    text: "You have unsaved changes. Do you want to save before creating a new HD model?",
+                    caption: "Confirm New HD Model",
                     buttons: MessageBoxButtons.YesNoCancel,
                     icon: MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
@@ -331,7 +332,7 @@ namespace CSEMMPGUI_v1
                     Filter = "DFSU (*.dfsu)|*.dfsu",
                     InitialDirectory = _project.GetSetting(settingName: "Directory"),
                 };
-                if (osfd.ShowDialog() != DialogResult.OK)
+                if (osfd.ShowDialog() == DialogResult.OK)
                 {
                     var input = new Dictionary<string, string>
                 {

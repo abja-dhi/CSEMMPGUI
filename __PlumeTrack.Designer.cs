@@ -42,6 +42,8 @@
             menuAddLayer = new ToolStripMenuItem();
             menuAddSurvey = new ToolStripMenuItem();
             menuAddModel = new ToolStripMenuItem();
+            menuAddHDModel = new ToolStripMenuItem();
+            menuAddMTModel = new ToolStripMenuItem();
             menuAddSSCModel = new ToolStripMenuItem();
             menuHelp = new ToolStripMenuItem();
             menuExamples = new ToolStripMenuItem();
@@ -54,11 +56,16 @@
             colorDialog1 = new ColorDialog();
             splitter = new SplitContainer();
             treeProject = new TreeView();
+            tableMap = new TableLayoutPanel();
+            map2D = new RadioButton();
+            map3D = new RadioButton();
             menuStrip1.SuspendLayout();
             cmenuNode.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitter).BeginInit();
             splitter.Panel1.SuspendLayout();
+            splitter.Panel2.SuspendLayout();
             splitter.SuspendLayout();
+            tableMap.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -117,6 +124,7 @@
             menuMapOptions.Name = "menuMapOptions";
             menuMapOptions.Size = new Size(180, 22);
             menuMapOptions.Text = "Map Options";
+            menuMapOptions.Click += menuMapOptions_Click;
             // 
             // menuExit
             // 
@@ -141,10 +149,24 @@
             // 
             // menuAddModel
             // 
+            menuAddModel.DropDownItems.AddRange(new ToolStripItem[] { menuAddHDModel, menuAddMTModel });
             menuAddModel.Name = "menuAddModel";
             menuAddModel.Size = new Size(163, 22);
             menuAddModel.Text = "Add MIKE Model";
-            menuAddModel.Click += menuAddModel_Click;
+            // 
+            // menuAddHDModel
+            // 
+            menuAddHDModel.Name = "menuAddHDModel";
+            menuAddHDModel.Size = new Size(193, 22);
+            menuAddHDModel.Text = "Add HD Model Results";
+            menuAddHDModel.Click += menuAddHDModel_Click;
+            // 
+            // menuAddMTModel
+            // 
+            menuAddMTModel.Name = "menuAddMTModel";
+            menuAddMTModel.Size = new Size(193, 22);
+            menuAddMTModel.Text = "Add MT Model Results";
+            menuAddMTModel.Click += menuAddMTModel_Click;
             // 
             // menuAddSSCModel
             // 
@@ -163,19 +185,19 @@
             // menuExamples
             // 
             menuExamples.Name = "menuExamples";
-            menuExamples.Size = new Size(180, 22);
+            menuExamples.Size = new Size(157, 22);
             menuExamples.Text = "Examples";
             // 
             // menuDocumentation
             // 
             menuDocumentation.Name = "menuDocumentation";
-            menuDocumentation.Size = new Size(180, 22);
+            menuDocumentation.Size = new Size(157, 22);
             menuDocumentation.Text = "Documentation";
             // 
             // menuAboutUs
             // 
             menuAboutUs.Name = "menuAboutUs";
-            menuAboutUs.Size = new Size(180, 22);
+            menuAboutUs.Size = new Size(157, 22);
             menuAboutUs.Text = "About us";
             menuAboutUs.Click += menuAboutUs_Click;
             // 
@@ -215,6 +237,10 @@
             // splitter.Panel1
             // 
             splitter.Panel1.Controls.Add(treeProject);
+            // 
+            // splitter.Panel2
+            // 
+            splitter.Panel2.Controls.Add(tableMap);
             splitter.Size = new Size(884, 437);
             splitter.SplitterDistance = 294;
             splitter.TabIndex = 1;
@@ -228,6 +254,50 @@
             treeProject.TabIndex = 0;
             treeProject.NodeMouseClick += treeProject_NodeMouseClick;
             treeProject.NodeMouseDoubleClick += treeProject_NodeMouseDoubleClick;
+            // 
+            // tableMap
+            // 
+            tableMap.ColumnCount = 3;
+            tableMap.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 50F));
+            tableMap.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 50F));
+            tableMap.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableMap.Controls.Add(map2D, 0, 0);
+            tableMap.Controls.Add(map3D, 1, 0);
+            tableMap.Dock = DockStyle.Fill;
+            tableMap.Location = new Point(0, 0);
+            tableMap.Name = "tableMap";
+            tableMap.RowCount = 2;
+            tableMap.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMap.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMap.Size = new Size(586, 437);
+            tableMap.TabIndex = 0;
+            // 
+            // map2D
+            // 
+            map2D.AutoSize = true;
+            map2D.Checked = true;
+            map2D.Dock = DockStyle.Fill;
+            map2D.Location = new Point(3, 3);
+            map2D.Name = "map2D";
+            map2D.Size = new Size(44, 24);
+            map2D.TabIndex = 0;
+            map2D.TabStop = true;
+            map2D.Text = "2D";
+            map2D.TextAlign = ContentAlignment.MiddleCenter;
+            map2D.UseVisualStyleBackColor = true;
+            // 
+            // map3D
+            // 
+            map3D.AutoSize = true;
+            map3D.Dock = DockStyle.Fill;
+            map3D.Location = new Point(53, 3);
+            map3D.Name = "map3D";
+            map3D.Size = new Size(44, 24);
+            map3D.TabIndex = 1;
+            map3D.TabStop = true;
+            map3D.Text = "3D";
+            map3D.TextAlign = ContentAlignment.MiddleCenter;
+            map3D.UseVisualStyleBackColor = true;
             // 
             // __PlumeTrack
             // 
@@ -247,8 +317,11 @@
             menuStrip1.PerformLayout();
             cmenuNode.ResumeLayout(false);
             splitter.Panel1.ResumeLayout(false);
+            splitter.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitter).EndInit();
             splitter.ResumeLayout(false);
+            tableMap.ResumeLayout(false);
+            tableMap.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -279,5 +352,10 @@
         private TreeView treeProject;
         private ToolStripMenuItem menuSaveAs;
         private ToolStripMenuItem menuMapOptions;
+        private ToolStripMenuItem menuAddHDModel;
+        private ToolStripMenuItem menuAddMTModel;
+        private TableLayoutPanel tableMap;
+        private RadioButton map2D;
+        private RadioButton map3D;
     }
 }
