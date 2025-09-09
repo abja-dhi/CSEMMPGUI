@@ -7,3 +7,4 @@
 *.zip
 .vs/
 obj/
+*.dll

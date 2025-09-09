@@ -110,7 +110,7 @@ class DfsuUtils:
         """
         return self._get_bottom_triangles(self.et, self.n_layers)
     element_table_2d = et_2d  # Alias for backward compatibility
-
+    
     @staticmethod
     def _get_bottom_triangles(et: np.ndarray, n_layers: int) -> np.ndarray:
         bottom_layer_elements = et[::n_layers]  # every n_layers-th element is the bottom prism

@@ -25,6 +25,9 @@
     <Compile Update="SSCModel.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="SSCModelPlot.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Survey.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -38,6 +41,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="WaterSample.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="__SplashPage.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="_AboutUs.cs">

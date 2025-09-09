@@ -1,3 +1,4 @@
+import os
 import xml.etree.ElementTree as ET
 import traceback
 import pandas as pd
@@ -7,6 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from typing import List
 from sklearn.linear_model import LinearRegression
+import matplotlib.dates as mdates
 
 # from .project import Project
 # from .survey import Survey
@@ -16,7 +18,9 @@ from .pd0 import Pd0Decoder
 from .utils import Utils, Constants
 from .obs import OBS as OBSDataset
 from .watersample import WaterSample as WaterSampleDataset
-
+from .plotting import PlottingShell
+from .mapview2D import TransectViewer2D
+from .mapview3D import TransectViewer3D
 
 def GenerateOutputXML(xml):
     result = ET.Element("Result")
@@ -44,8 +48,12 @@ def Extern2CSVBatch(folderpath):
     n_already_converted = result[2]
     return {"NSuccess": n_success, "NFailed": n_failed, "NAlreadyConverted": n_already_converted}
 
-def Dfs2ToDfsu(filepath):
-    result = Utils.dfs2_to_dfsu(filepath)
+def Dfs2ToDfsu(in_path, out_path):
+    result = Utils.Dfs2ToDfsu(in_path, out_path)
+    if isinstance(result, str):
+        return {"Error": result}
+    else:
+        return {"Result": "Success"}
 
 def ViSeaSample2CSV(filepath):
     try:
@@ -303,7 +311,7 @@ def BKS2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
             A = A[0]
         ssc_params['A'] = A
         ssc_params['B'] = B
-        ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
+        ssc_params['RMSE'] = np.sqrt(np.mean((A + vals * B - ssc) ** 2))
         ssc_params['R2'] = reg.score(X, Y)
         ssc_params["AbsoluteBackscatter"] = vals
         ssc_params["SSC"] = ssc
@@ -323,6 +331,112 @@ def BKS2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
 
         ssc_params["Pairs"] = str(typed_pairs)
         return ssc_params
+
+def PlotBKS2SSCRegression(project: ET.Element, sscmodelid: str, title: str = None):
+    sscmodel = find_element(project, sscmodelid, 'BKS2SSC')
+    if sscmodel is None:
+        return {"Error": f"No BKS2SSC model found with ID {sscmodelid}"}
+    try:
+        A = float(sscmodel.find("A").text)
+        B = float(sscmodel.find("B").text)
+        RMSE = float(sscmodel.find("RMSE").text)
+        R2 = float(sscmodel.find("R2").text)
+
+        # Extract data points
+        ssc = []
+        bks = []
+        for pt in sscmodel.find("Data").findall("Point"):
+            ssc.append(float(pt.find("SSC").text))
+            bks.append(float(pt.find("AbsoluteBackscatter").text))
+        ssc = 10 ** (np.array(ssc))
+        bks = np.array(bks)
+
+        fig, ax = PlottingShell.subplots(figheight=8, figwidth=8)
+        ax.scatter(ssc, bks, label="Data Points", color=PlottingShell.red2)
+        x = np.linspace(0.9*min(ssc), 1.1*max(ssc), 100)
+        y = (np.log10(x) - A) / B
+        ax.plot(x, y, label='Fitted Regression', color=PlottingShell.blue3)
+        ax.set_xscale('log')
+        ax.set_xlim(min(ssc)*0.9, max(ssc)*1.1)
+        ax.set_ylim(np.floor(min(bks)*1.1), np.ceil(max(bks)*0.9))
+        ax.legend()
+        ax.set_xlabel('SSC')
+        ax.set_ylabel('Absolute Backscatter')
+        equation = r"$\log_{10}(\mathrm{SSC}) = A + B \times \mathrm{BKS}$"
+        textstr = f"{equation}\nA = {A:.3f}\nB = {B:.3f}\nRMSE = {RMSE:.2f}\nR² = {R2:.3f}"
+        ax.text(0.05, 0.95, textstr, transform=ax.transAxes,
+                fontsize=10, verticalalignment="top",
+                bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
+        ax.grid(True, alpha=0.5)
+        if title is not None:
+            ax.set_title(title)
+        plt.show()
+        return {"Result": "Success"}
+    except Exception as e:
+        return {"Error": str(e)}
+
+def PlotBKS2SSCTransect(project, sscmodelid, beam_sel, field_name, yAxisMode, cmap, vmin, vmax, title, mask):
+    field_name_map = {
+        "Velocity": "velocity",
+        "Echo Intensity": "echo_intensity",
+        "Correlation Magnitude": "correlation_magnitude",
+        "Percent Good": "percent_good",
+        "Absolute Backscatter": "absolute_backscatter",
+        "Alpha S": "alpha_s",
+        "Alpha W": "alpha_w",
+        "Signal to Noise Ratio": "signal_to_noise_ratio",
+        "SSC": "suspended_solids_concentration",
+    }
+    try:
+        sscmodel = find_element(project, sscmodelid, 'BKS2SSC')
+        if sscmodel is None:
+            return {"Error": f"No BKS2SSC model found with ID {sscmodelid}"}
+        pairs = sscmodel.find("Pairs").findall("Pair")
+        for pair in pairs:
+            water_sample_id = pair.find("WaterSample").text
+            adcp_id = pair.find("VesselMountedADCP").text
+            if water_sample_id is None or adcp_id is None:
+                return {"Error": "No valid WaterSample-ADCP pairs found in the SSC model"}
+            adcp_cfg = CreateADCPDict(project, adcp_id, add_ssc=True)
+            if 'Error' in adcp_cfg.keys():
+                return adcp_cfg
+            water_sample_cfg = find_element(project, water_sample_id, "WaterSample")
+            if water_sample_cfg is None:
+                return {"Error": f"No WaterSample found with ID {water_sample_id}"}
+            adcp = ADCPDataset(adcp_cfg, name = adcp_cfg['name'])
+            water_sample = WaterSampleDataset(water_sample_cfg)
+
+            fig, (ax, ax_cbar) = adcp.plot.single_beam_flood_plot(
+                beam = beam_sel,
+                field_name = field_name_map[field_name],
+                y_axis_mode = yAxisMode.lower(),
+                cmap = cmap,
+                vmin = vmin,
+                vmax = vmax,
+                n_time_ticks = 6,
+                title = title, 
+                mask = mask
+                )
+            t_num = mdates.date2num(water_sample.data.datetime.astype("M8[ms]").astype("O"))
+            x_min, x_max = ax.get_xlim()
+            y_min, y_max = ax.get_ylim()
+            mask = (t_num >= x_min) & (t_num <= x_max) & (water_sample.data.depth >= min(y_min, y_max)) & (water_sample.data.depth <= max(y_min, y_max))
+
+            # Filter data
+            t_num = t_num[mask]
+            depth = water_sample.data.depth[mask]
+            sample = water_sample.data.sample[mask]
+            ax.scatter(t_num, depth, marker="*", zorder=3, label="Water Samples")
+            for t, d, s in zip(t_num, depth, sample):
+                ax.text(t, d, s, va="bottom", ha="center", fontsize=7,
+                        bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.7))
+            fig.canvas.draw()
+            ax.legend(loc="lower right", fontsize=8)
+            plt.show()
+        return {"Result": str(adcp._cfg)}
+    except Exception as e:
+        tb_str = traceback.format_exc()
+        return {"Error": tb_str + "\n" + str(e)}
 
 def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
     ssc_params = {}
@@ -356,7 +470,7 @@ def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
         df_water = combine_watersamples(watersamples, watersampleIDs)
 
         col_name = "ntu"
-        df_water_inst, df_water, df_data = nearest_merge_depth_first(df_water, df_obs, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance=None, depth_tolerance=None)
+        df_water_inst, df_water, df_data = nearest_merge_depth_first(df_water, df_obs, on_time="datetime", on_depth="depth", col_name=col_name, time_tolerance=None, depth_tolerance=1)
         ssc = df_data["ssc"].to_numpy()
         if len(df_water_inst) == 0:
             return {"Error": "No valid water samples found for SSC calibration"}
@@ -374,7 +488,7 @@ def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
             A = A[0]
         ssc_params['A'] = A
         ssc_params['B'] = B
-        ssc_params['RMSE'] = np.sqrt(np.mean((vals * A + B - ssc) ** 2))
+        ssc_params['RMSE'] = np.sqrt(np.mean((A + vals * B - ssc) ** 2))
         ssc_params['R2'] = reg.score(X, Y)
         ssc_params["NTU"] = vals
         ssc_params["SSC"] = ssc
@@ -394,7 +508,49 @@ def NTU2SSCModel(project: ET.Element, sscmodel: ET.Element) -> dict:
 
         ssc_params["Pairs"] = str(typed_pairs)
         return ssc_params
-   
+
+def PlotNTU2SSCRegression(project: ET.Element, sscmodelid: str, title: str = None):
+    sscmodel = find_element(project, sscmodelid, 'NTU2SSC')
+    if sscmodel is None:
+        return {"Error": f"No NTU2SSC model found with ID {sscmodelid}"}
+    try:
+        A = float(sscmodel.find("A").text)
+        B = float(sscmodel.find("B").text)
+        RMSE = float(sscmodel.find("RMSE").text)
+        R2 = float(sscmodel.find("R2").text)
+
+        # Extract data points
+        ssc = []
+        ntu = []
+        for pt in sscmodel.find("Data").findall("Point"):
+            ssc.append(float(pt.find("SSC").text))
+            ntu.append(float(pt.find("NTU").text))
+        ssc = np.array(ssc)
+        ntu = np.array(ntu)
+
+        fig, ax = PlottingShell.subplots(figheight=8, figwidth=8)
+        ax.scatter(ssc, ntu, label="Data Points", color=PlottingShell.red2)
+        x = np.linspace(min(ssc), max(ssc), 100)
+        y = (x - A) / B
+        ax.plot(x, y, label='Fitted Regression', color=PlottingShell.blue3)
+        ax.legend()
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_xlabel('SSC')
+        ax.set_ylabel('NTU')
+        equation = r"$\mathrm{SSC} = A + B \times \mathrm{NTU}$"
+        textstr = f"{equation}\nA = {A:.3f}\nB = {B:.3f}\nRMSE = {RMSE:.2f}\nR² = {R2:.3f}"
+        ax.text(0.05, 0.95, textstr, transform=ax.transAxes,
+                fontsize=10, verticalalignment="top",
+                bbox=dict(boxstyle="round", facecolor="white", alpha=0.7))
+        ax.grid(True, alpha=0.5)
+        if title is not None:
+            ax.set_title(title)
+        plt.show()
+        return {"Result": "Success"}
+    except Exception as e:
+        return {"Error": str(e)}
+
 def CreateADCPDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
     instrument = find_element(project, instrument_id, "VesselMountedADCP")
     parent_map = {child: parent for parent in project.iter() for child in parent}
@@ -559,13 +715,13 @@ def CreateADCPDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
     if add_ssc:
         sscmodel = find_element(project, sscmodelid, 'BKS2SSC')
         if sscmodel is not None:
-            A = float(get_value(sscmodel, "A", 3.5))
-            B = float(get_value(sscmodel, "B", 0.049))
+            A = float(get_value(sscmodel, "A", None))
+            B = float(get_value(sscmodel, "B", None))
             ssc_params = {'A': A, 'B': B}
         else:
-            ssc_params = {'A': 3.5, 'B':.049}
+            ssc_params = {'A': None, 'B': None}
     else:
-        ssc_params = {'A': 3.5, 'B': 0.049}
+        ssc_params = {'A': None, 'B': None}
 
     cfg = {
         'filename': filename,
@@ -678,17 +834,122 @@ def CreateOBSDict(project: ET.Element, instrument_id: str, add_ssc: bool=True):
 
     return cfg
 
-def CreateWaterSampleDict(project: ET.Element, instrument_id: str):
-    instrument = find_element(project, instrument_id, "WaterSample")
-    parent_map = {child: parent for parent in project.iter() for child in parent}
-    if instrument is not None:
-        parent = parent_map.get(instrument)
-        if parent is not None and parent.tag == "Survey":
-            water = parent.find("Water")
-            sediment = parent.find("Sediment")
-    settings = project.find("Settings")
-    epsg = settings.find("EPSG").text if settings is not None and settings.find("EPSG") is not None else "4326"
-    name = instrument.attrib.get("name", "WaterSample")
+def CallMapViewer2D(settings: ET.Element, mapSettings: ET.Element):
+    field_name_map = {
+        "Echo Intensity": "echo_intensity",
+        "Correlation Magnitude": "correlation_magnitude",
+        "Percent Good": "percent_good",
+        "Absolute Backscatter": "absolute_backscatter",
+        "Alpha S": "alpha_s",
+        "Alpha W": "alpha_w",
+        "Signal to Noise Ratio": "signal_to_noise_ratio",
+        "SSC": "suspended_solids_concentration",
+    }
+    try:
+        directory = settings.find("Directory").text
+        name = settings.find("Name").text
+        xml_path = os.path.join(directory, f"{name}.mtproj")
+        map2D = mapSettings.find("Map2D")
+        surveys = map2D.find("Surveys")
+        output_dir = os.path.join(os.environ.get("APPDATA"), "PlumeTrack")
+        os.makedirs(output_dir, exist_ok=True)
+        out_fname = os.path.join(output_dir, "MapViewer2D.html")
+        if surveys.text is None:
+            create_temp_html(out_fname)
+        else:
+            surveys_list = surveys.findall("Survey")
+            survey_names = [s.text for s in surveys_list if s.text is not None]
+            shp = []    #TODO
+            cmap = get_value(map2D, "ColorMap", "jet")
+            field_name = field_name_map[get_value(map2D, "FieldName", "Absolute Backscatter")]
+            vmin = get_value(map2D, "vmin", None)
+            vmax = get_value(map2D, "vmax", None)
+            pad_deg = get_value(map2D, "Padding", 0.03)
+            grid_lines = get_value(map2D, "NGridLines", 10)
+            grid_opacity = get_value(map2D, "GridOpacity", 0.2)
+            grid_color = get_value(map2D, "GridColor", "#000000")
+            grid_width = get_value(map2D, "GridWidth", 1)
+            bgcolor = get_value(map2D, "BackgroundColor", "#FFFFFF")
+            axis_ticks = get_value(map2D, "NAxisTicks", 5)
+            tick_fontsize = get_value(map2D, "TickFontSize", 10)
+            tick_decimals = get_value(map2D, "TickNDecimals", 2)
+            axis_label_fontsize = get_value(map2D, "AxisLabelFontSize", 12)
+            axis_label_color = get_value(map2D, "AxisLabelColor", "#000000")
+            hover_fontsize = get_value(map2D, "HoverFontSize", 10)
+            transect_line_width = get_value(map2D, "TransectLineWidth", 2)
+            bin_method = get_value(map2D, "VerticalAggBinItem", "bin").lower()
+            bin_value = str(get_value(map2D, "VerticalAggBinTarget", 1)).lower()
+            beam_value = str(get_value(map2D, "VerticalAggBeam", "Mean")).lower()
+            if bin_value != "mean":
+                bin_value = float(bin_value)
+            if beam_value != "mean":
+                beam_value = int(beam_value)
+            vertical_agg = {
+                "method": bin_method,
+                "target": bin_value,
+                "beam": beam_value
+            }
+            cfg = {
+                "xml": xml_path,
+                "surveys": survey_names,
+                "shp": shp,
+                "cmap": cmap,
+                "field_name": field_name,
+                "vmin": vmin,
+                "vmax": vmax,
+                "pad_deg": pad_deg,
+                "grid_lines": grid_lines,
+                "grid_opacity": grid_opacity,
+                "grid_color": grid_color,
+                "grid_width": grid_width,
+                "bgcolor": bgcolor,
+                "axis_ticks": axis_ticks,
+                "tick_fontsize": tick_fontsize,
+                "tick_decimals": tick_decimals,
+                "axis_label_fontsize": axis_label_fontsize,
+                "axis_label_color": axis_label_color,
+                "hover_fontsize": hover_fontsize,
+                "transect_line_width": transect_line_width,
+                "vertical_agg": vertical_agg,
+                "out_fname": out_fname
+            }
+            viewer = TransectViewer2D(cfg)
+            fig = viewer.render()
+            viewer.save_html(auto_open=False)
+
+        return {"Result": out_fname}
+    except:
+        return {"Error": "Failed to create Map Viewer. Please ensure the project is saved and try again."}
+
+def create_temp_html(out_fname: str):
+    content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Viewer</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: white;
+    }
+    .message {
+      font-size: 20px;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="message">Select surveys in the Map Settings to activate the viewer</div>
+</body>
+</html>"""
+    with open(out_fname, "w") as f:
+        f.write(content)
+
 
 def get_value(element: ET.Element, tag: str, default) -> str:
     found = element.find(tag)

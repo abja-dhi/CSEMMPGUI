@@ -27,8 +27,9 @@ def Call(XML):
         results = ViSeaSample2CSV(filepath)
 
     elif task_type == "Dfs2ToDfsu":
-        filepath = root.find("Path").text
-        results = Dfs2ToDfsu(filepath)
+        in_path = root.find("InPath").text
+        out_path = root.find("OutPath").text
+        results = Dfs2ToDfsu(in_path, out_path)
 
     elif task_type == "GetColumnsFromCSV":
         filepath = root.find("Path").text
@@ -55,10 +56,41 @@ def Call(XML):
         sscmodel = ET.fromstring(root.find("SSCModel").text)
         results = NTU2SSCModel(project, sscmodel)
 
+    elif task_type == "PlotNTU2SSCRegression":
+        project = ET.fromstring(root.find("Project").text)
+        sscmodelid = root.find("SSCModelID").text
+        title = root.find("Title").text
+        results = PlotNTU2SSCRegression(project, sscmodelid, title)
+
     elif task_type == "BKS2SSC":
         project = ET.fromstring(root.find("Project").text)
         sscmodel = ET.fromstring(root.find("SSCModel").text)
         results = BKS2SSCModel(project, sscmodel)
+
+    elif task_type == "PlotBKS2SSCRegression":
+        project = ET.fromstring(root.find("Project").text)
+        sscmodelid = root.find("SSCModelID").text
+        title = root.find("Title").text
+        results = PlotBKS2SSCRegression(project, sscmodelid, title)
+
+    elif task_type == "PlotBKS2SSCTransect":
+        project = ET.fromstring(root.find("Project").text)
+        sscmodelid = root.find("SSCModelID").text
+        beam_sel = root.find("BeamSelection").text
+        use_mean = root.find("UseMean").text.lower() == 'yes'
+        if use_mean:
+            beam_sel = "mean"
+        field_name = root.find("FieldName").text
+        yAxisMode = root.find("yAxisMode").text
+        cmap = get_value(root, "Colormap", "viridis").lower()
+        vmin = get_value(root, "vmin", None)
+        vmin = float(vmin) if vmin is not None else None
+        vmax = get_value(root, "vmax", None)
+        vmax = float(vmax) if vmax is not None else None
+        title = root.find("Title").text
+        mask = root.find("Mask").text.lower() == 'yes'
+        results = PlotBKS2SSCTransect(project, sscmodelid, beam_sel, field_name, yAxisMode, cmap, vmin, vmax, title, mask)
+
 
     elif task_type == "PlotPlatformOrientation":
         project = ET.fromstring(root.find("Project").text)
@@ -137,6 +169,12 @@ def Call(XML):
         filename = root.find("Path").text
         title = root.find("Title").text
         results = PlotModelMesh(epsg, filename, title)
+
+    elif task_type == "MapViewer2D":
+        project = ET.fromstring(root.find("Project").text)
+        settings = find_element(project, "1", "Settings")
+        mapSettings = find_element(project, "2", "MapSettings")
+        results = CallMapViewer2D(settings, mapSettings)
 
     else:
         results = {"Status": "Error", "Message": "Unknown task type"}

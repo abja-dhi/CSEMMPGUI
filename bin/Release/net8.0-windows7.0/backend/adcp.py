@@ -2617,7 +2617,6 @@ class Plotting:
             cbar.ax.tick_params(labelsize=8)
     
             plt.tight_layout(rect=[0, 0, 1, 0.93])
-            plt.show()
             return fig, (ax, ax_cbar)
 
 

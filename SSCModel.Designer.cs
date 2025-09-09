@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SSCModel));
             menuStrip1 = new MenuStrip();
             menuFile = new ToolStripMenuItem();
             menuNew = new ToolStripMenuItem();
@@ -218,6 +219,7 @@
             comboFits.Name = "comboFits";
             comboFits.Size = new Size(196, 23);
             comboFits.TabIndex = 2;
+            comboFits.Visible = false;
             comboFits.SelectedIndexChanged += input_Changed;
             // 
             // tableManual
@@ -412,6 +414,7 @@
             ClientSize = new Size(800, 450);
             Controls.Add(tableMain);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "SSCModel";
             Text = "SSC Model";

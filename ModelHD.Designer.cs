@@ -236,7 +236,7 @@
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
             Name = "ModelHD";
-            Text = "Model";
+            Text = "HD Model";
             FormClosing += HDModel_FormClosing;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
