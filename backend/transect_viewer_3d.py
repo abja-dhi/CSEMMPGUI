@@ -594,9 +594,11 @@ class TransectViewer3D:
 # ====================================================================
 if __name__ == "__main__":
     # ---- Build ADCP objects from project (example only) ----
-    xml = r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj'
-    surveys = [("20241002_F3(E)", 0)]  # (name, id)
-
+    #xml = r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj'
+    xml = r'C:/Users/anba/OneDrive - DHI/Desktop/Clean Project F3 2 Oct 2024 1.mtproj'
+    surveys = [("New Survey" ,7)]  # (name, id)
+    
+    
     project = XMLUtils(xml)
     adcps: List[ADCPDataset] = []
     survey_lookup: Dict[str, Dict[str, Any]] = {}  # optional meta for hover
@@ -637,8 +639,9 @@ if __name__ == "__main__":
     inputs = {
         "cmap": "jet",
         "field_name": "absolute_backscatter",
-        "vmin": None, "vmax": None,
-        "zscale": 3.0,
+        "vmin": None, 
+        "vmax": None,
+        "zscale": 3.2,
         "pad_deg": 0.03,
         "grid_lines": 10, "grid_opacity": 0.35, "grid_color": "#333", "grid_width": 1,
         "bgcolor": "black",

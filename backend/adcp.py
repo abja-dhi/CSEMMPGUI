@@ -2942,25 +2942,22 @@ class Plotting:
             n_time_ticks: int = 6,
             title: str | None = None,
             mask: bool = True,
-            ax=None,                              # optional target Axes
-            cax=None,                             # optional colorbar Axes
+            ax=None,
+            cax=None,
             *,
             color_scale: str = "linear",          # "linear" or "log"
-            cmap_levels: list | tuple | None = None,        # colorbar tick locations
-            cbar_tick_labels: list[str] | None = None,      # optional custom labels
-            tick_decimals: int = 2                # fixed-decimal for log ticks
+            cmap_levels: list | tuple | None = None,
+            cbar_tick_labels: list[str] | None = None,
+            tick_decimals: int = 2,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Single-beam curtain plot with optional target axes and colorbar controls.
-        Returns (fig, (ax, cax)).
-        """
         import numpy as np
         import numpy.ma as ma
         import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
         import matplotlib.gridspec as gridspec
         from matplotlib.colors import Normalize, LogNorm
-        from matplotlib.ticker import FuncFormatter
+        from matplotlib.ticker import FuncFormatter, MaxNLocator
         from scipy.ndimage import gaussian_filter1d
     
         if cmap is None:
@@ -2986,17 +2983,28 @@ class Plotting:
     
         A = self._adcp
     
-        # --- Data ---
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(A.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(A.time.ensemble_numbers, dtype=float)
+        e_num = e_num - e_num[0] + 1
+        
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
+        # --- Data ---
         beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
         data_tb   = ma.masked_invalid(ma.mean(beam_data, axis=2)) if use_mean else ma.masked_invalid(beam_data[:, :, ib])
     
         scale_mode = str(color_scale).lower()
         if scale_mode == "log":
-            data_tb = ma.masked_where(~(data_tb > 0), data_tb)  # log needs positive
+            data_tb = ma.masked_where(~(data_tb > 0), data_tb)
     
         bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
         z_rel      = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)
@@ -3039,7 +3047,7 @@ class Plotting:
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv = np.asarray(cmap_levels, dtype=float)
             if scale_mode == "log":
-                lv = lv[lv > 0]  # valid only
+                lv = lv[lv > 0]
             if lv.size > 0:
                 low, high = np.nanmin(lv), np.nanmax(lv)
                 vmin_use = min(vmin, low)
@@ -3098,8 +3106,8 @@ class Plotting:
                 divider = make_axes_locatable(ax)
                 cax = divider.append_axes("right", size="3%", pad=0.05)
     
-        # --- Time ticks ---
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        # --- X ticks ---
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # --- Colormap normalization ---
         norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
@@ -3107,7 +3115,7 @@ class Plotting:
         # --- Image ---
         im = ax.matshow(
             data_tb.T, origin="lower", aspect="auto",
-            extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
+            extent=[x0, x1, y0, y1], cmap=cmap, norm=norm
         )
     
         # --- Geometry window ---
@@ -3120,22 +3128,25 @@ class Plotting:
     
         # --- Bottom track ---
         if use_mean and (bt_top_s is not None) and (bt_bottom_s is not None):
-            ax.fill_between(t_num, bt_top_s, bt_bottom_s, facecolor="#808080", alpha=0.25, edgecolor="none")
-            ax.plot(t_num, bt_top_s,    linestyle="--", color="k", linewidth=1)
-            ax.plot(t_num, bt_bottom_s, linestyle="--", color="k", linewidth=1)
+            ax.fill_between(x, bt_top_s, bt_bottom_s, facecolor="#808080", alpha=0.25, edgecolor="none")
+            ax.plot(x, bt_top_s,    linestyle="--", color="k", linewidth=1)
+            ax.plot(x, bt_bottom_s, linestyle="--", color="k", linewidth=1)
         elif (bt_series_s is not None):
-            ax.plot(t_num, bt_series_s, linestyle="-", color="k", linewidth=1)
+            ax.plot(x, bt_series_s, linestyle="-", color="k", linewidth=1)
     
         # --- X axis formatting ---
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(xticks)
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax.set_xticklabels(lbls)
-        ax.set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax.set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax.set_xticklabels(lbls)
+        ax.set_xlabel(x_label, fontsize=8)
     
         # --- Y label and beam tag ---
         ax.set_ylabel(y_label, fontsize=8)
@@ -3146,10 +3157,10 @@ class Plotting:
     
         # --- Top distance axis ---
         dist = np.asarray(A.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax.twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
@@ -3158,7 +3169,6 @@ class Plotting:
         # --- Colorbar ---
         cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
     
-        # decide extend status before creating cbar
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv_for_ext = np.asarray(cmap_levels, dtype=float)
             if scale_mode == "log":
@@ -3173,7 +3183,6 @@ class Plotting:
         cbar.set_label(cblabel, fontsize=8)
         cbar.ax.tick_params(labelsize=8)
     
-        # User-specified ticks and labels
         if cmap_levels is not None:
             levels = list(cmap_levels)
             if scale_mode == "log":
@@ -3199,6 +3208,7 @@ class Plotting:
     
         return fig, (ax, cax)
 
+
     
 
 
@@ -3212,7 +3222,7 @@ class Plotting:
     def four_beam_flood_plot(
             self,
             field_name: str = "echo_intensity",
-            y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+            y_axis_mode: str = "depth",
             cmap=None,
             vmin: float | None = None,
             vmax: float | None = None,
@@ -3220,15 +3230,12 @@ class Plotting:
             title: str | None = None,
             mask: bool = True,
             *,
-            color_scale: str = "linear",          # "linear" or "log"
+            color_scale: str = "linear",
             cmap_levels: list | tuple | None = None,
             cbar_tick_labels: list[str] | None = None,
-            tick_decimals: int = 2
+            tick_decimals: int = 2,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Four-beam curtain plot with shared colorbar and distance top axis.
-        Returns fig, (ax_beams, ax_cbar).
-        """
         import numpy as np
         import numpy.ma as ma
         import matplotlib.pyplot as plt
@@ -3242,30 +3249,35 @@ class Plotting:
             cmap = "turbo"
     
         A = self._adcp
+        plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
+                             "xtick.labelsize": 8, "ytick.labelsize": 8})
     
-        plt.rcParams.update({
-            "axes.titlesize": 8,
-            "axes.labelsize": 8,
-            "xtick.labelsize": 8,
-            "ytick.labelsize": 8,
-        })
-    
-        # --- Data ---
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(A.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(A.time.ensemble_numbers, dtype=float)
+        e_num = e_num -e_num[0] +1
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
-        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
+        # --- Data ---
+        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))
         bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
-        z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
+        z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)
         invert_y = str(A.geometry.beam_facing).lower() == "down"
     
         _bt = getattr(A.bottom_track, "adjusted_range_to_seabed",
                       getattr(A.bottom_track, "range_to_seabed", None))
         if _bt is not None:
-            bt_range = -np.asarray(_bt, dtype=float).T  # (time,beams), negative depth
+            bt_range = -np.asarray(_bt, dtype=float).T
         else:
-            bt_range = np.full((t_num.size, int(A.geometry.n_beams)), np.nan)
+            bt_range = np.full((x.size, int(A.geometry.n_beams)), np.nan)
     
         scale_mode = str(color_scale).lower()
         if scale_mode == "log":
@@ -3285,7 +3297,6 @@ class Plotting:
             if vmax <= vmin:
                 vmax = float(np.nextafter(vmin, np.inf))
     
-        # widen by levels
         vmin_use, vmax_use = vmin, vmax
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv = np.asarray(cmap_levels, dtype=float)
@@ -3336,7 +3347,7 @@ class Plotting:
         fig.suptitle(str(title) if title is not None else str(A.name), fontsize=9, fontweight="bold")
     
         # --- Ticks ---
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # --- Norm ---
         norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
@@ -3357,7 +3368,6 @@ class Plotting:
                     z_mean = bin_dist_m
                 y0, y1 = float(z_mean[0]), float(z_mean[-1])
             else:
-                # depth with seabed sign already negative
                 z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
                 if not np.isfinite(z_mean).any():
                     z_mean = bin_dist_m
@@ -3365,7 +3375,7 @@ class Plotting:
     
             last_im = ax.matshow(
                 data_tb.T, origin="lower", aspect="auto",
-                extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
+                extent=[x0, x1, y0, y1], cmap=cmap, norm=norm
             )
     
             ymin = ymin_all
@@ -3376,7 +3386,7 @@ class Plotting:
                 ax.invert_yaxis()
     
             y_bt = gaussian_filter1d(bt_range[:, ib], sigma=1.5, mode="nearest")
-            ax.plot(t_num, y_bt, color="k", linewidth=1)
+            ax.plot(x, y_bt, color="k", linewidth=1)
     
             ax.xaxis.set_ticks_position("bottom")
             ax.xaxis.set_label_position("bottom")
@@ -3389,19 +3399,22 @@ class Plotting:
                     bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
     
         # bottom labels
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax_beams[-1].set_xticklabels(lbls)
-        ax_beams[-1].set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax_beams[-1].set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax_beams[-1].set_xticklabels(lbls)
+        ax_beams[-1].set_xlabel(x_label, fontsize=8)
     
         # top distance axis
         dist = np.asarray(A.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax_beams[0].twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
@@ -3458,27 +3471,22 @@ class Plotting:
     
         return fig, (ax_beams, ax_cbar)
 
+
         
     def velocity_flood_plot(
             self,
-            coord: str = "earth",               # "inst"/"instrument", "ship", or "earth"
-            metric: str = "speed",              # kept for backward-compatibility
-            field_name: str | None = None,      # "speed", "direction", or "error_velocity" (overrides metric if given)
-            y_axis_mode: str = "depth",         # "depth", "bin", or "z"
-            cmap=None,                          # None → "turbo"
+            coord: str = "earth",
+            metric: str = "speed",
+            field_name: str | None = None,
+            y_axis_mode: str = "depth",
+            cmap=None,
             vmin: float | None = None,
             vmax: float | None = None,
             n_time_ticks: int = 6,
             title: str | None = None,
-            mask: bool = True
+            mask: bool = True,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Velocity curtain with single-beam-flood geometry:
-          - constrained layout
-          - depth axis 0 at top, negatives downward
-          - ALWAYS plot bottom-track swath (envelope across beams) with dashed bounds + gray fill
-          - robust against NaN/Inf in BT and z
-        """
         import numpy as np
         import numpy.ma as ma
         import matplotlib.pyplot as plt
@@ -3513,48 +3521,54 @@ class Plotting:
         data = {"speed": s, "direction": d, "ev": ev}[m]
         data = ma.masked_invalid(data)
     
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(self._adcp.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(self._adcp.time.ensemble_numbers, dtype=float)
+        e_num = e_num - e_num[0] +1
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
         bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
         invert_y   = str(self._adcp.geometry.beam_facing).lower() == "down"
     
-        # ---------------- Bottom-track swath (ALWAYS if available), negative down ----------------
+        # ---------------- Bottom-track swath ----------------
         _bt = getattr(self._adcp.bottom_track, "adjusted_range_to_seabed",
                       getattr(self._adcp.bottom_track, "range_to_seabed", None))
         bt_top_s = bt_bottom_s = None
         ymin = None
         if _bt is not None:
-            bt_all = -np.asarray(_bt, float).T  # (time, beams), negative depths
+            bt_all = -np.asarray(_bt, float).T  # (time, beams)
             finite_bt = np.isfinite(bt_all)
             if finite_bt.any():
-                # Envelope across beams (per time)
-                bt_top    = np.nanmax(bt_all, axis=1)   # least negative (closest to 0)
-                bt_bottom = np.nanmin(bt_all, axis=1)   # most negative
-    
-                # Fill NaNs linearly before smoothing
+                bt_top    = np.nanmax(bt_all, axis=1)
+                bt_bottom = np.nanmin(bt_all, axis=1)
                 def _fill_nan(y):
                     y = np.asarray(y, float)
-                    m = np.isfinite(y)
-                    if not m.any():
+                    msk = np.isfinite(y)
+                    if not msk.any():
                         return y
                     idx = np.arange(y.size)
-                    y[~m] = np.interp(idx[~m], idx[m], y[m])
+                    y[~msk] = np.interp(idx[~msk], idx[msk], y[msk])
                     return y
-    
                 bt_top_s    = gaussian_filter1d(_fill_nan(bt_top),    sigma=1.5, mode="nearest")
                 bt_bottom_s = gaussian_filter1d(_fill_nan(bt_bottom), sigma=1.5, mode="nearest")
-                ymin = 1.25 * float(np.nanmin(bt_all[finite_bt]))  # deeper bound (more negative)
+                ymin = 1.25 * float(np.nanmin(bt_all[finite_bt]))
     
-        # ---------------- Y axis config for image extent (independent of final ylim) ----------------
+        # ---------------- Y axis for extent ----------------
         ymode = (y_axis_mode or "depth").lower()
         if ymode == "bin":
             y_label = "Bin distance (m)"
             y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
         else:
             y_label = "Depth (m)" if ymode == "depth" else "Mean z (m)"
-            z_mean = np.nanmean(z, axis=0)  # (bins,)
+            z_mean = np.nanmean(z, axis=0)
             if not np.isfinite(z_mean).any():
                 z_mean = bin_dist_m
             y0 = float(z_mean[0]) if np.isfinite(z_mean[0]) else 0.0
@@ -3572,7 +3586,7 @@ class Plotting:
             if vmax is None:
                 vmax = float(np.nanmax(finite_vals))
     
-        # ---------------- Layout (constrained) ----------------
+        # ---------------- Layout ----------------
         plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
                              "xtick.labelsize": 8, "ytick.labelsize": 8})
         fig = plt.figure(figsize=(8, 4.5), constrained_layout=True)
@@ -3580,20 +3594,19 @@ class Plotting:
         ax = fig.add_subplot(gs[0, 0])
         ax_cbar = fig.add_subplot(gs[0, 1])
         fig.set_constrained_layout_pads(w_pad=0.02, h_pad=0.02, wspace=0.05, hspace=0.05)
-    
         fig.suptitle(str(title) if title is not None else str(self._adcp.name),
                      fontsize=9, fontweight="bold")
     
-        # Time ticks
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        # X ticks
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # Image
         im = ax.matshow(
             data.T, origin="lower", aspect="auto",
-            extent=[t0, t1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
+            extent=[x0, x1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
         )
     
-        # ---------------- Geometry window (0 to negative; robust fallback) ----------------
+        # ---------------- Geometry window ----------------
         ymax = 0.0
         if (ymin is None) or (not np.isfinite(ymin)):
             z_min = float(np.nanmin(z)) if np.isfinite(z).any() else np.nan
@@ -3604,33 +3617,36 @@ class Plotting:
         if invert_y:
             ax.invert_yaxis()
     
-        # ---------------- BT envelope shading and dashed bounds ----------------
+        # ---------------- BT envelope ----------------
         if (bt_top_s is not None) and (bt_bottom_s is not None):
             msk = np.isfinite(bt_top_s) & np.isfinite(bt_bottom_s)
             if msk.any():
-                ax.fill_between(t_num[msk], bt_top_s[msk], bt_bottom_s[msk],
+                ax.fill_between(x[msk], bt_top_s[msk], bt_bottom_s[msk],
                                 facecolor="#808080", alpha=0.25, edgecolor="none")
-                ax.plot(t_num[msk], bt_top_s[msk],    linestyle="--", color="k", linewidth=1)
-                ax.plot(t_num[msk], bt_bottom_s[msk], linestyle="--", color="k", linewidth=1)
+                ax.plot(x[msk], bt_top_s[msk],    linestyle="--", color="k", linewidth=1)
+                ax.plot(x[msk], bt_bottom_s[msk], linestyle="--", color="k", linewidth=1)
     
         # ---------------- Axes formatting ----------------
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(xticks)
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax.set_xticklabels(lbls)
-        ax.set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax.set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax.set_xticklabels(lbls)
+        ax.set_xlabel(x_label, fontsize=8)
         ax.set_ylabel(y_label, fontsize=8)
     
-        # Top distance axis aligned to time ticks
+        # Top distance axis aligned to x ticks
         dist = np.asarray(self._adcp.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax.twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
