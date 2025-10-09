@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetTopologySuite.Geometries;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -24,6 +25,9 @@ namespace CSEMMPGUI_v1
 
         public static Label? lblFieldName;
         public static ComboBox? comboFieldName;
+
+        public static Label? lblxAxisMode;
+        public static ComboBox? comboxAxisMode;
 
         public static Label? lblyAxisMode;
         public static ComboBox? comboyAxisMode;
@@ -59,6 +63,15 @@ namespace CSEMMPGUI_v1
         public static Label? lblBeamSelection;
         public static NumericUpDown? numericNBeams;
 
+        public static Label? lblVelFieldName;
+        public static ComboBox? comboVelFieldName;
+
+        public static Label? lblCoord;
+        public static ComboBox? comboCoord;
+
+        public static Label? lblAnimationOutputFile;
+        public static TextBox? txtAnimationOutputFile;
+        public static Button? btnAnimationOutputFile;
 
         private void PropPlatformOrientation()
         {
@@ -78,7 +91,8 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Clear();
 
             tableProp.RowStyles.Clear();
-            tableProp.RowCount = 8;
+            tableProp.RowCount = 9;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
@@ -89,19 +103,58 @@ namespace CSEMMPGUI_v1
             tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
             tableProp.Controls.Add(lblFieldName, 0, 0);
-            tableProp.Controls.Add(lblyAxisMode, 0, 1);
-            tableProp.Controls.Add(lblcmap, 0, 2);
-            tableProp.Controls.Add(lblvmin, 0, 3);
-            tableProp.Controls.Add(lblvmax, 0, 4);
-            tableProp.Controls.Add(lblTitle, 0, 5);
-            tableProp.Controls.Add(lblMask, 0, 6);
+            tableProp.Controls.Add(lblxAxisMode, 0, 1);
+            tableProp.Controls.Add(lblyAxisMode, 0, 2);
+            tableProp.Controls.Add(lblcmap, 0, 3);
+            tableProp.Controls.Add(lblvmin, 0, 4);
+            tableProp.Controls.Add(lblvmax, 0, 5);
+            tableProp.Controls.Add(lblTitle, 0, 6);
+            tableProp.Controls.Add(lblMask, 0, 7);
             tableProp.Controls.Add(comboFieldName, 1, 0);
-            tableProp.Controls.Add(comboyAxisMode, 1, 1);
-            tableProp.Controls.Add(combocmap, 1, 2);
-            tableProp.Controls.Add(txtvmin, 1, 3);
-            tableProp.Controls.Add(txtvmax, 1, 4);
-            tableProp.Controls.Add(txtTitle, 1, 5);
-            tableProp.Controls.Add(comboMask, 1, 6);
+            tableProp.Controls.Add(comboxAxisMode, 1, 1);
+            tableProp.Controls.Add(comboyAxisMode, 1, 2);
+            tableProp.Controls.Add(combocmap, 1, 3);
+            tableProp.Controls.Add(txtvmin, 1, 4);
+            tableProp.Controls.Add(txtvmax, 1, 5);
+            tableProp.Controls.Add(txtTitle, 1, 6);
+            tableProp.Controls.Add(comboMask, 1, 7);
+        }
+
+        private void PropVelocityFloodPlot()
+        {
+            tableProp.Controls.Clear();
+
+            tableProp.RowStyles.Clear();
+            tableProp.RowCount = 10;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            tableProp.Controls.Add(lblVelFieldName, 0, 0);
+            tableProp.Controls.Add(lblCoord, 0, 1);
+            tableProp.Controls.Add(lblxAxisMode, 0, 2);
+            tableProp.Controls.Add(lblyAxisMode, 0, 3);
+            tableProp.Controls.Add(lblcmap, 0, 4);
+            tableProp.Controls.Add(lblvmin, 0, 5);
+            tableProp.Controls.Add(lblvmax, 0, 6);
+            tableProp.Controls.Add(lblTitle, 0, 7);
+            tableProp.Controls.Add(lblMask, 0, 8);
+            tableProp.Controls.Add(comboVelFieldName, 1, 0);
+            tableProp.Controls.Add(comboCoord, 1, 1);
+            tableProp.Controls.Add(comboxAxisMode, 1, 2);
+            tableProp.Controls.Add(comboyAxisMode, 1, 3);
+            tableProp.Controls.Add(combocmap, 1, 4);
+            tableProp.Controls.Add(txtvmin, 1, 5);
+            tableProp.Controls.Add(txtvmax, 1, 6);
+            tableProp.Controls.Add(txtTitle, 1, 7);
+            tableProp.Controls.Add(comboMask, 1, 8);
         }
 
         private void PropSingleBeamFloodPlot()
@@ -109,7 +162,8 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Clear();
 
             tableProp.RowStyles.Clear();
-            tableProp.RowCount = 9;
+            tableProp.RowCount = 10;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
@@ -122,20 +176,22 @@ namespace CSEMMPGUI_v1
 
             tableProp.Controls.Add(lblBeamSelection, 0, 0);
             tableProp.Controls.Add(lblFieldName, 0, 1);
-            tableProp.Controls.Add(lblyAxisMode, 0, 2);
-            tableProp.Controls.Add(lblcmap, 0, 3);
-            tableProp.Controls.Add(lblvmin, 0, 4);
-            tableProp.Controls.Add(lblvmax, 0, 5);
-            tableProp.Controls.Add(lblTitle, 0, 6);
-            tableProp.Controls.Add(lblMask, 0, 7);
+            tableProp.Controls.Add(lblxAxisMode, 0, 2);
+            tableProp.Controls.Add(lblyAxisMode, 0, 3);
+            tableProp.Controls.Add(lblcmap, 0, 4);
+            tableProp.Controls.Add(lblvmin, 0, 5);
+            tableProp.Controls.Add(lblvmax, 0, 6);
+            tableProp.Controls.Add(lblTitle, 0, 7);
+            tableProp.Controls.Add(lblMask, 0, 8);
             tableProp.Controls.Add(numericNBeams, 1, 0);
             tableProp.Controls.Add(comboFieldName, 1, 1);
-            tableProp.Controls.Add(comboyAxisMode, 1, 2);
-            tableProp.Controls.Add(combocmap, 1, 3);
-            tableProp.Controls.Add(txtvmin, 1, 4);
-            tableProp.Controls.Add(txtvmax, 1, 5);
-            tableProp.Controls.Add(txtTitle, 1, 6);
-            tableProp.Controls.Add(comboMask, 1, 7);
+            tableProp.Controls.Add(comboxAxisMode, 1, 2);
+            tableProp.Controls.Add(comboyAxisMode, 1, 3);
+            tableProp.Controls.Add(combocmap, 1, 4);
+            tableProp.Controls.Add(txtvmin, 1, 5);
+            tableProp.Controls.Add(txtvmax, 1, 6);
+            tableProp.Controls.Add(txtTitle, 1, 7);
+            tableProp.Controls.Add(comboMask, 1, 8);
             tableProp.Controls.Add(checkUseMean, 2, 0);
         }
 
@@ -177,13 +233,28 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Add(checkUseMean, 2, 0);
         }
 
+        private void PlotBeamGeometryAnimation()
+        {
+            tableProp.Controls.Clear();
+
+            tableProp.RowStyles.Clear();
+            tableProp.RowCount = 2;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            tableProp.Controls.Add(lblAnimationOutputFile, 0, 0);
+            tableProp.Controls.Add(txtAnimationOutputFile, 1, 0);
+            tableProp.Controls.Add(btnAnimationOutputFile, 2, 0);
+        }
+
         private void PlotTransectAnimation()
         {
             tableProp.Controls.Clear();
 
             tableProp.RowStyles.Clear();
-            tableProp.RowCount = 4;
+            tableProp.RowCount = 5;
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
@@ -191,9 +262,12 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Add(lblcmap, 0, 0);
             tableProp.Controls.Add(lblvmin, 0, 1);
             tableProp.Controls.Add(lblvmax, 0, 2);
+            tableProp.Controls.Add(lblAnimationOutputFile, 0, 3);
             tableProp.Controls.Add(combocmap, 1, 0);
             tableProp.Controls.Add(txtvmin, 1, 1);
             tableProp.Controls.Add(txtvmax, 1, 2);
+            tableProp.Controls.Add(txtAnimationOutputFile, 1, 3);
+            tableProp.Controls.Add(btnAnimationOutputFile, 2, 3);
         }
 
         private void InitializeWidgets()
@@ -234,6 +308,26 @@ namespace CSEMMPGUI_v1
             comboFieldName.Name = "comboFieldName";
             comboFieldName.TabIndex = 14;
             comboFieldName.SelectedIndex = 0;
+            // 
+            // lblxAxisMode
+            // 
+            lblxAxisMode = new Label();
+            lblxAxisMode.Dock = DockStyle.Fill;
+            lblxAxisMode.Name = "lblxAxisMode";
+            lblxAxisMode.TabIndex = 2;
+            lblxAxisMode.Text = "x Axis Mode";
+            lblxAxisMode.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // comboxAxisMode
+            // 
+            comboxAxisMode = new ComboBox();
+            comboxAxisMode.Dock = DockStyle.Fill;
+            comboxAxisMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboxAxisMode.FormattingEnabled = true;
+            comboxAxisMode.Items.AddRange(new object[] { "Ensemble", "Time" });
+            comboxAxisMode.Name = "comboxAxisMode";
+            comboxAxisMode.TabIndex = 8;
+            comboxAxisMode.SelectedIndex = 0;
             // 
             // lblyAxisMode
             // 
@@ -494,6 +588,73 @@ namespace CSEMMPGUI_v1
             numericNBeams.Name = "numericNBeams";
             numericNBeams.TabIndex = 13;
             numericNBeams.Enabled = false;
+            // 
+            // lblVelFieldName
+            // 
+            lblVelFieldName = new Label();
+            lblVelFieldName.Dock = DockStyle.Fill;
+            lblVelFieldName.Name = "lblVelFieldName";
+            lblVelFieldName.TabIndex = 0;
+            lblVelFieldName.Text = "Field Name";
+            lblVelFieldName.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // comboVelFieldName
+            // 
+            comboVelFieldName = new ComboBox();
+            comboVelFieldName.Dock = DockStyle.Fill;
+            comboVelFieldName.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboVelFieldName.FormattingEnabled = true;
+            comboVelFieldName.Items.AddRange(new object[] { "Speed", "Direction", "Error Velocity" });
+            comboVelFieldName.Name = "comboVelFieldName";
+            comboVelFieldName.TabIndex = 14;
+            comboVelFieldName.SelectedIndex = 0;
+            // 
+            // lblCoord
+            // 
+            lblCoord = new Label();
+            lblCoord.Dock = DockStyle.Fill;
+            lblCoord.Name = "lblCoord";
+            lblCoord.TabIndex = 0;
+            lblCoord.Text = "Coordinate System";
+            lblCoord.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // comboCoord
+            // 
+            comboCoord = new ComboBox();
+            comboCoord.Dock = DockStyle.Fill;
+            comboCoord.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboCoord.FormattingEnabled = true;
+            comboCoord.Items.AddRange(new object[] { "Instrument", "Ship", "Earth" });
+            comboCoord.Name = "comboCoord";
+            comboCoord.TabIndex = 14;
+            comboCoord.SelectedIndex = 0;
+            //
+            // lblAnimationOutputFile
+            //
+            lblAnimationOutputFile = new Label();
+            lblAnimationOutputFile.Dock = DockStyle.Fill;
+            lblAnimationOutputFile.Name = "lblAnimationOutputFile";
+            lblAnimationOutputFile.TabIndex = 0;
+            lblAnimationOutputFile.Text = "Animation Output File";
+            lblAnimationOutputFile.TextAlign = ContentAlignment.MiddleLeft;
+            //
+            // txtAnimationOutputFile
+            //
+            txtAnimationOutputFile = new TextBox();
+            txtAnimationOutputFile.Dock = DockStyle.Fill;
+            txtAnimationOutputFile.Name = "txtAnimationOutputFile";
+            txtAnimationOutputFile.TabIndex = 1;
+            txtAnimationOutputFile.Text = "";
+            //
+            // btnAnimationOutputFile
+            //
+            btnAnimationOutputFile = new Button();
+            btnAnimationOutputFile.Dock = DockStyle.Fill;
+            btnAnimationOutputFile.Name = "btnAnimationOutputFile";
+            btnAnimationOutputFile.TabIndex = 2;
+            btnAnimationOutputFile.Text = "...";
+            btnAnimationOutputFile.Click += BtnAnimationOutputFile_Click;
+
         }
 
         public VesselMountedADCPPlot(string? _id)
@@ -506,7 +667,7 @@ namespace CSEMMPGUI_v1
             adcp = _project.GetObject(type: "VesselMountedADCP", id: id);
             XmlElement? pd0 = adcp?.SelectSingleNode("Pd0") as XmlElement;
             XmlElement? sscModelID = pd0?.SelectSingleNode("SSCModelID") as XmlElement;
-            
+
             if (sscModelID == null || string.IsNullOrEmpty(sscModelID.InnerText))
             {
                 comboFieldName.Items.Remove("SSC");
@@ -530,7 +691,7 @@ namespace CSEMMPGUI_v1
                     { "Project", _Globals.Config.OuterXml.ToString() },
                     { "InstrumentID", id },
                     { "Type", type },
-                    { "Title", txtTitle.Text },    
+                    { "Title", txtTitle.Text },
                 };
             }
             else if (comboPlotType.SelectedItem.ToString() == "Four Beam Flood Plot")
@@ -542,6 +703,7 @@ namespace CSEMMPGUI_v1
                     { "InstrumentID", id },
                     { "Type", type },
                     { "FieldName", comboFieldName.SelectedItem.ToString()},
+                    { "xAxisMode", comboxAxisMode.SelectedItem.ToString()},
                     { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
                     { "Colormap", combocmap.SelectedItem.ToString()},
                     { "vmin", txtvmin.Text},
@@ -561,6 +723,26 @@ namespace CSEMMPGUI_v1
                     { "BeamSelection", numericNBeams.Value.ToString()},
                     { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
                     { "FieldName", comboFieldName.SelectedItem.ToString()},
+                    { "xAxisMode", comboxAxisMode.SelectedItem.ToString()},
+                    { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
+                    { "Colormap", combocmap.SelectedItem.ToString()},
+                    { "vmin", txtvmin.Text},
+                    { "vmax", txtvmax.Text},
+                    { "Title", txtTitle.Text},
+                    { "Mask", comboMask.SelectedItem.ToString()}
+                };
+            }
+            else if (comboPlotType.SelectedItem.ToString() == "Velocity Flood Plot")
+            {
+                inputs = new Dictionary<string, string>
+                {
+                    { "Task", "PlotVelocityFlood" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                    { "InstrumentID", id },
+                    { "Type", type },
+                    { "FieldName", comboVelFieldName.SelectedItem.ToString()},
+                    { "Coord", comboCoord.SelectedItem.ToString()},
+                    { "xAxisMode", comboxAxisMode.SelectedItem.ToString()},
                     { "yAxisMode", comboyAxisMode.SelectedItem.ToString()},
                     { "Colormap", combocmap.SelectedItem.ToString()},
                     { "vmin", txtvmin.Text},
@@ -597,6 +779,7 @@ namespace CSEMMPGUI_v1
                     { "Project", _Globals.Config.OuterXml.ToString() },
                     { "InstrumentID", id },
                     { "Type", type },
+                    { "AnimationOutputFile", txtAnimationOutputFile.Text}
                 };
             }
             else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
@@ -609,14 +792,15 @@ namespace CSEMMPGUI_v1
                     { "Type", type },
                     { "Colormap", combocmap.SelectedItem.ToString()},
                     { "vmin", txtvmin.Text},
-                    { "vmax", txtvmax.Text}
+                    { "vmax", txtvmax.Text},
+                    { "AnimationOutputFile", txtAnimationOutputFile.Text}
                 };
             }
             else
             {
                 return;
             }
-            
+
             string xmlInput = _Tools.GenerateInput(inputs);
             XmlDocument result = _Tools.CallPython(xmlInput);
             Dictionary<string, string> outputs = _Tools.ParseOutput(result);
@@ -641,13 +825,17 @@ namespace CSEMMPGUI_v1
             {
                 PropSingleBeamFloodPlot();
             }
+            else if (comboPlotType.SelectedItem.ToString() == "Velocity Flood Plot")
+            {
+                PropVelocityFloodPlot();
+            }
             else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
             {
                 PlotTransectVelocities();
             }
             else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
             {
-                tableProp.Controls.Clear();
+                PlotBeamGeometryAnimation();
             }
             else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
             {
@@ -666,6 +854,18 @@ namespace CSEMMPGUI_v1
             {
                 numericNBins.Enabled = true;
                 numericNBeams.Enabled = true;
+            }
+        }
+
+        private void BtnAnimationOutputFile_Click(object? sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "gif files (*.fig)|*.gif";
+            saveFileDialog.DefaultExt = "gif";
+            saveFileDialog.Title = "Select Animation Output File";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                txtAnimationOutputFile.Text = saveFileDialog.FileName;
             }
         }
     }

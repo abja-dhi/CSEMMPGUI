@@ -87,6 +87,8 @@
             txtPdbw = new TextBox();
             txtEr = new TextBox();
             lblPdbw = new Label();
+            lblEnsAveInterval = new Label();
+            txtEnsAveInterval = new TextBox();
             txtFirstEnsemble = new NumericUpDown();
             txtLastEnsemble = new NumericUpDown();
             tablePosition = new TableLayoutPanel();
@@ -308,8 +310,8 @@
             // tableConfig
             // 
             tableConfig.ColumnCount = 2;
-            tableConfig.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableConfig.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableConfig.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55F));
+            tableConfig.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
             tableConfig.Controls.Add(lblCRPOffsets, 0, 4);
             tableConfig.Controls.Add(lblRotationAngle, 0, 3);
             tableConfig.Controls.Add(lblUTCOffset, 0, 2);
@@ -330,22 +332,24 @@
             tableConfig.Controls.Add(txtPdbw, 1, 8);
             tableConfig.Controls.Add(txtEr, 1, 9);
             tableConfig.Controls.Add(lblPdbw, 0, 8);
+            tableConfig.Controls.Add(lblEnsAveInterval, 0, 10);
+            tableConfig.Controls.Add(txtEnsAveInterval, 1, 10);
             tableConfig.Dock = DockStyle.Fill;
             tableConfig.Location = new Point(3, 19);
             tableConfig.Name = "tableConfig";
             tableConfig.RowCount = 12;
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 7F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 15F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 1F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 110F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 110F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableConfig.Size = new Size(315, 551);
             tableConfig.TabIndex = 7;
             // 
@@ -353,33 +357,35 @@
             // 
             lblCRPOffsets.AutoSize = true;
             lblCRPOffsets.Dock = DockStyle.Fill;
-            lblCRPOffsets.Location = new Point(3, 130);
+            lblCRPOffsets.Location = new Point(3, 116);
             lblCRPOffsets.Name = "lblCRPOffsets";
-            lblCRPOffsets.Size = new Size(151, 82);
+            lblCRPOffsets.Size = new Size(167, 80);
             lblCRPOffsets.TabIndex = 8;
             lblCRPOffsets.Text = "CRP Offsets (m)";
             lblCRPOffsets.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblCRPOffsets, "Offset of ADCP from platform CRP");
             // 
             // lblRotationAngle
             // 
             lblRotationAngle.AutoSize = true;
             lblRotationAngle.Dock = DockStyle.Fill;
-            lblRotationAngle.Location = new Point(3, 92);
+            lblRotationAngle.Location = new Point(3, 86);
             lblRotationAngle.Name = "lblRotationAngle";
-            lblRotationAngle.Size = new Size(151, 38);
+            lblRotationAngle.Size = new Size(167, 30);
             lblRotationAngle.TabIndex = 7;
             lblRotationAngle.Text = "Rotation Angle (deg Clockwise)";
             lblRotationAngle.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRotationAngle, "CCW rotation of ADCP in casing (degrees)");
             // 
             // lblUTCOffset
             // 
             lblUTCOffset.AutoSize = true;
             lblUTCOffset.Dock = DockStyle.Fill;
-            lblUTCOffset.Location = new Point(3, 65);
+            lblUTCOffset.Location = new Point(3, 58);
             lblUTCOffset.Name = "lblUTCOffset";
-            lblUTCOffset.Size = new Size(151, 27);
+            lblUTCOffset.Size = new Size(167, 28);
             lblUTCOffset.TabIndex = 4;
-            lblUTCOffset.Text = "UTC Offset (hour)";
+            lblUTCOffset.Text = "UTC Offset (hr)";
             lblUTCOffset.TextAlign = ContentAlignment.MiddleLeft;
             toolTip.SetToolTip(lblUTCOffset, "Hours to shift ensemble datetimes to account for UTC offset");
             // 
@@ -387,9 +393,9 @@
             // 
             lblMagneticDeclination.AutoSize = true;
             lblMagneticDeclination.Dock = DockStyle.Fill;
-            lblMagneticDeclination.Location = new Point(3, 27);
+            lblMagneticDeclination.Location = new Point(3, 28);
             lblMagneticDeclination.Name = "lblMagneticDeclination";
-            lblMagneticDeclination.Size = new Size(151, 38);
+            lblMagneticDeclination.Size = new Size(167, 30);
             lblMagneticDeclination.TabIndex = 2;
             lblMagneticDeclination.Text = "Magnetic Declination (deg From N)";
             lblMagneticDeclination.TextAlign = ContentAlignment.MiddleLeft;
@@ -401,7 +407,7 @@
             lblName.Dock = DockStyle.Fill;
             lblName.Location = new Point(3, 0);
             lblName.Name = "lblName";
-            lblName.Size = new Size(151, 27);
+            lblName.Size = new Size(167, 28);
             lblName.TabIndex = 0;
             lblName.Text = "Name";
             lblName.TextAlign = ContentAlignment.MiddleLeft;
@@ -418,36 +424,38 @@
             tableCRPOffsets.Controls.Add(txtCRPY, 1, 1);
             tableCRPOffsets.Controls.Add(txtCRPZ, 1, 2);
             tableCRPOffsets.Dock = DockStyle.Fill;
-            tableCRPOffsets.Location = new Point(160, 133);
+            tableCRPOffsets.Location = new Point(176, 119);
             tableCRPOffsets.Name = "tableCRPOffsets";
             tableCRPOffsets.RowCount = 3;
             tableCRPOffsets.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
             tableCRPOffsets.RowStyles.Add(new RowStyle(SizeType.Percent, 33F));
             tableCRPOffsets.RowStyles.Add(new RowStyle(SizeType.Percent, 34F));
-            tableCRPOffsets.Size = new Size(152, 76);
+            tableCRPOffsets.Size = new Size(136, 74);
             tableCRPOffsets.TabIndex = 9;
             // 
             // lblCRPZ
             // 
             lblCRPZ.AutoSize = true;
             lblCRPZ.Dock = DockStyle.Fill;
-            lblCRPZ.Location = new Point(3, 50);
+            lblCRPZ.Location = new Point(3, 48);
             lblCRPZ.Name = "lblCRPZ";
-            lblCRPZ.Size = new Size(70, 26);
+            lblCRPZ.Size = new Size(62, 26);
             lblCRPZ.TabIndex = 4;
-            lblCRPZ.Text = "+Z";
+            lblCRPZ.Text = "+Z (m)";
             lblCRPZ.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblCRPZ, "Offset of ADCP from platform CRP (Z axis, meters)");
             // 
             // lblCRPY
             // 
             lblCRPY.AutoSize = true;
             lblCRPY.Dock = DockStyle.Fill;
-            lblCRPY.Location = new Point(3, 25);
+            lblCRPY.Location = new Point(3, 24);
             lblCRPY.Name = "lblCRPY";
-            lblCRPY.Size = new Size(70, 25);
+            lblCRPY.Size = new Size(62, 24);
             lblCRPY.TabIndex = 2;
-            lblCRPY.Text = "+Y";
+            lblCRPY.Text = "+Y (m)";
             lblCRPY.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblCRPY, "Offset of ADCP from platform CRP (Y axis, meters)");
             // 
             // lblCRPX
             // 
@@ -455,51 +463,56 @@
             lblCRPX.Dock = DockStyle.Fill;
             lblCRPX.Location = new Point(3, 0);
             lblCRPX.Name = "lblCRPX";
-            lblCRPX.Size = new Size(70, 25);
+            lblCRPX.Size = new Size(62, 24);
             lblCRPX.TabIndex = 0;
-            lblCRPX.Text = "+X";
+            lblCRPX.Text = "+X (m)";
             lblCRPX.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblCRPX, "Offset of ADCP from platform CRP (X axis, meters)");
             // 
             // txtCRPX
             // 
             txtCRPX.Dock = DockStyle.Fill;
-            txtCRPX.Location = new Point(79, 3);
+            txtCRPX.Location = new Point(71, 3);
             txtCRPX.Name = "txtCRPX";
-            txtCRPX.Size = new Size(70, 23);
+            txtCRPX.Size = new Size(62, 23);
             txtCRPX.TabIndex = 5;
             txtCRPX.Text = "0";
+            toolTip.SetToolTip(txtCRPX, "Offset of ADCP from platform CRP (X axis, meters)");
             txtCRPX.TextChanged += input_Changed;
             // 
             // txtCRPY
             // 
             txtCRPY.Dock = DockStyle.Fill;
-            txtCRPY.Location = new Point(79, 28);
+            txtCRPY.Location = new Point(71, 27);
             txtCRPY.Name = "txtCRPY";
-            txtCRPY.Size = new Size(70, 23);
+            txtCRPY.Size = new Size(62, 23);
             txtCRPY.TabIndex = 6;
             txtCRPY.Text = "0";
+            toolTip.SetToolTip(txtCRPY, "Offset of ADCP from platform CRP (Y axis, meters)");
             txtCRPY.TextChanged += input_Changed;
             // 
             // txtCRPZ
             // 
             txtCRPZ.Dock = DockStyle.Fill;
-            txtCRPZ.Location = new Point(79, 53);
+            txtCRPZ.Location = new Point(71, 51);
             txtCRPZ.Name = "txtCRPZ";
-            txtCRPZ.Size = new Size(70, 23);
+            txtCRPZ.Size = new Size(62, 23);
             txtCRPZ.TabIndex = 7;
             txtCRPZ.Text = "0";
+            toolTip.SetToolTip(txtCRPZ, "Offset of ADCP from platform CRP (Z axis, meters)");
             txtCRPZ.TextChanged += input_Changed;
             // 
             // lblRSSICoefficients
             // 
             lblRSSICoefficients.AutoSize = true;
             lblRSSICoefficients.Dock = DockStyle.Fill;
-            lblRSSICoefficients.Location = new Point(3, 212);
+            lblRSSICoefficients.Location = new Point(3, 196);
             lblRSSICoefficients.Name = "lblRSSICoefficients";
-            lblRSSICoefficients.Size = new Size(151, 110);
+            lblRSSICoefficients.Size = new Size(167, 110);
             lblRSSICoefficients.TabIndex = 10;
             lblRSSICoefficients.Text = "RSSI Coefficients";
             lblRSSICoefficients.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRSSICoefficients, "RSSI scaling factors (counts to decibals) per beam");
             // 
             // tableRSSI
             // 
@@ -515,14 +528,14 @@
             tableRSSI.Controls.Add(lblRSSI3, 0, 2);
             tableRSSI.Controls.Add(lblRSSI4, 0, 3);
             tableRSSI.Dock = DockStyle.Fill;
-            tableRSSI.Location = new Point(160, 215);
+            tableRSSI.Location = new Point(176, 199);
             tableRSSI.Name = "tableRSSI";
             tableRSSI.RowCount = 4;
             tableRSSI.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableRSSI.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableRSSI.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableRSSI.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            tableRSSI.Size = new Size(152, 104);
+            tableRSSI.Size = new Size(136, 104);
             tableRSSI.TabIndex = 11;
             // 
             // lblRSSI1
@@ -531,45 +544,50 @@
             lblRSSI1.Dock = DockStyle.Fill;
             lblRSSI1.Location = new Point(3, 0);
             lblRSSI1.Name = "lblRSSI1";
-            lblRSSI1.Size = new Size(70, 26);
+            lblRSSI1.Size = new Size(62, 26);
             lblRSSI1.TabIndex = 0;
             lblRSSI1.Text = "Beam 1";
             lblRSSI1.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRSSI1, "RSSI scaling factor (counts to decibals) for Beam 1");
             // 
             // txtRSSI1
             // 
             txtRSSI1.Dock = DockStyle.Fill;
-            txtRSSI1.Location = new Point(79, 3);
+            txtRSSI1.Location = new Point(71, 3);
             txtRSSI1.Name = "txtRSSI1";
-            txtRSSI1.Size = new Size(70, 23);
+            txtRSSI1.Size = new Size(62, 23);
             txtRSSI1.TabIndex = 1;
+            toolTip.SetToolTip(txtRSSI1, "RSSI scaling factor (counts to decibals) for Beam 1");
             txtRSSI1.TextChanged += input_Changed;
             // 
             // txtRSSI2
             // 
             txtRSSI2.Dock = DockStyle.Fill;
-            txtRSSI2.Location = new Point(79, 29);
+            txtRSSI2.Location = new Point(71, 29);
             txtRSSI2.Name = "txtRSSI2";
-            txtRSSI2.Size = new Size(70, 23);
+            txtRSSI2.Size = new Size(62, 23);
             txtRSSI2.TabIndex = 2;
+            toolTip.SetToolTip(txtRSSI2, "RSSI scaling factor (counts to decibals) for Beam 2");
             txtRSSI2.TextChanged += input_Changed;
             // 
             // txtRSSI3
             // 
             txtRSSI3.Dock = DockStyle.Fill;
-            txtRSSI3.Location = new Point(79, 55);
+            txtRSSI3.Location = new Point(71, 55);
             txtRSSI3.Name = "txtRSSI3";
-            txtRSSI3.Size = new Size(70, 23);
+            txtRSSI3.Size = new Size(62, 23);
             txtRSSI3.TabIndex = 3;
+            toolTip.SetToolTip(txtRSSI3, "RSSI scaling factor (counts to decibals) for Beam 3");
             txtRSSI3.TextChanged += input_Changed;
             // 
             // txtRSSI4
             // 
             txtRSSI4.Dock = DockStyle.Fill;
-            txtRSSI4.Location = new Point(79, 81);
+            txtRSSI4.Location = new Point(71, 81);
             txtRSSI4.Name = "txtRSSI4";
-            txtRSSI4.Size = new Size(70, 23);
+            txtRSSI4.Size = new Size(62, 23);
             txtRSSI4.TabIndex = 4;
+            toolTip.SetToolTip(txtRSSI4, "RSSI scaling factor (counts to decibals) for Beam 4");
             txtRSSI4.TextChanged += input_Changed;
             // 
             // lblRSSI2
@@ -578,10 +596,11 @@
             lblRSSI2.Dock = DockStyle.Fill;
             lblRSSI2.Location = new Point(3, 26);
             lblRSSI2.Name = "lblRSSI2";
-            lblRSSI2.Size = new Size(70, 26);
+            lblRSSI2.Size = new Size(62, 26);
             lblRSSI2.TabIndex = 5;
             lblRSSI2.Text = "Beam 2";
             lblRSSI2.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRSSI2, "RSSI scaling factor (counts to decibals) for Beam 2");
             // 
             // lblRSSI3
             // 
@@ -589,10 +608,11 @@
             lblRSSI3.Dock = DockStyle.Fill;
             lblRSSI3.Location = new Point(3, 52);
             lblRSSI3.Name = "lblRSSI3";
-            lblRSSI3.Size = new Size(70, 26);
+            lblRSSI3.Size = new Size(62, 26);
             lblRSSI3.TabIndex = 6;
             lblRSSI3.Text = "Beam 3";
             lblRSSI3.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRSSI3, "RSSI scaling factor (counts to decibals) for Beam 3");
             // 
             // lblRSSI4
             // 
@@ -600,57 +620,61 @@
             lblRSSI4.Dock = DockStyle.Fill;
             lblRSSI4.Location = new Point(3, 78);
             lblRSSI4.Name = "lblRSSI4";
-            lblRSSI4.Size = new Size(70, 26);
+            lblRSSI4.Size = new Size(62, 26);
             lblRSSI4.TabIndex = 7;
             lblRSSI4.Text = "Beam 4";
             lblRSSI4.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblRSSI4, "RSSI scaling factor (counts to decibals) for Beam 4");
             // 
             // txtName
             // 
             txtName.Dock = DockStyle.Fill;
-            txtName.Location = new Point(160, 3);
+            txtName.Location = new Point(176, 3);
             txtName.Name = "txtName";
-            txtName.Size = new Size(152, 23);
+            txtName.Size = new Size(136, 23);
             txtName.TabIndex = 12;
             txtName.TextChanged += input_Changed;
             // 
             // txtMagneticDeclination
             // 
             txtMagneticDeclination.Dock = DockStyle.Fill;
-            txtMagneticDeclination.Location = new Point(160, 30);
+            txtMagneticDeclination.Location = new Point(176, 31);
             txtMagneticDeclination.Name = "txtMagneticDeclination";
-            txtMagneticDeclination.Size = new Size(152, 23);
+            txtMagneticDeclination.Size = new Size(136, 23);
             txtMagneticDeclination.TabIndex = 13;
             txtMagneticDeclination.Text = "0";
+            toolTip.SetToolTip(txtMagneticDeclination, "Degrees CCW to rotate velocity data to account for magnetic declination");
             txtMagneticDeclination.TextChanged += input_Changed;
             // 
             // txtUTCOffset
             // 
             txtUTCOffset.Dock = DockStyle.Fill;
-            txtUTCOffset.Location = new Point(160, 68);
+            txtUTCOffset.Location = new Point(176, 61);
             txtUTCOffset.Name = "txtUTCOffset";
-            txtUTCOffset.Size = new Size(152, 23);
+            txtUTCOffset.Size = new Size(136, 23);
             txtUTCOffset.TabIndex = 14;
             txtUTCOffset.Text = "0";
+            toolTip.SetToolTip(txtUTCOffset, "Hours to shift ensemble datetimes to account for UTC offset");
             txtUTCOffset.TextChanged += input_Changed;
             // 
             // txtRotationAngle
             // 
             txtRotationAngle.Dock = DockStyle.Fill;
-            txtRotationAngle.Location = new Point(160, 95);
+            txtRotationAngle.Location = new Point(176, 89);
             txtRotationAngle.Name = "txtRotationAngle";
-            txtRotationAngle.Size = new Size(152, 23);
+            txtRotationAngle.Size = new Size(136, 23);
             txtRotationAngle.TabIndex = 15;
             txtRotationAngle.Text = "0";
+            toolTip.SetToolTip(txtRotationAngle, "CCW rotation of ADCP in casing (degrees)");
             txtRotationAngle.TextChanged += input_Changed;
             // 
             // lblTransectShift
             // 
             lblTransectShift.AutoSize = true;
             lblTransectShift.Dock = DockStyle.Fill;
-            lblTransectShift.Location = new Point(3, 322);
+            lblTransectShift.Location = new Point(3, 306);
             lblTransectShift.Name = "lblTransectShift";
-            lblTransectShift.Size = new Size(151, 110);
+            lblTransectShift.Size = new Size(167, 110);
             lblTransectShift.TabIndex = 16;
             lblTransectShift.Text = "Transect Shift";
             lblTransectShift.TextAlign = ContentAlignment.MiddleLeft;
@@ -670,14 +694,14 @@
             tableTransectShift.Controls.Add(txtTransectShiftZ, 1, 2);
             tableTransectShift.Controls.Add(txtTransectShiftT, 1, 3);
             tableTransectShift.Dock = DockStyle.Fill;
-            tableTransectShift.Location = new Point(160, 325);
+            tableTransectShift.Location = new Point(176, 309);
             tableTransectShift.Name = "tableTransectShift";
             tableTransectShift.RowCount = 4;
             tableTransectShift.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableTransectShift.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableTransectShift.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableTransectShift.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            tableTransectShift.Size = new Size(152, 104);
+            tableTransectShift.Size = new Size(136, 104);
             tableTransectShift.TabIndex = 17;
             // 
             // lblTransectShiftX
@@ -686,9 +710,9 @@
             lblTransectShiftX.Dock = DockStyle.Fill;
             lblTransectShiftX.Location = new Point(3, 0);
             lblTransectShiftX.Name = "lblTransectShiftX";
-            lblTransectShiftX.Size = new Size(70, 26);
+            lblTransectShiftX.Size = new Size(62, 26);
             lblTransectShiftX.TabIndex = 0;
-            lblTransectShiftX.Text = "+X";
+            lblTransectShiftX.Text = "+X (m)";
             lblTransectShiftX.TextAlign = ContentAlignment.MiddleLeft;
             toolTip.SetToolTip(lblTransectShiftX, "Shifting distance of entire ADCP transect for model calibration (X axis, meters)");
             // 
@@ -698,9 +722,9 @@
             lblTransectShiftY.Dock = DockStyle.Fill;
             lblTransectShiftY.Location = new Point(3, 26);
             lblTransectShiftY.Name = "lblTransectShiftY";
-            lblTransectShiftY.Size = new Size(70, 26);
+            lblTransectShiftY.Size = new Size(62, 26);
             lblTransectShiftY.TabIndex = 1;
-            lblTransectShiftY.Text = "+Y";
+            lblTransectShiftY.Text = "+Y (m)";
             lblTransectShiftY.TextAlign = ContentAlignment.MiddleLeft;
             toolTip.SetToolTip(lblTransectShiftY, "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)");
             // 
@@ -710,9 +734,9 @@
             lblTransectShiftZ.Dock = DockStyle.Fill;
             lblTransectShiftZ.Location = new Point(3, 52);
             lblTransectShiftZ.Name = "lblTransectShiftZ";
-            lblTransectShiftZ.Size = new Size(70, 26);
+            lblTransectShiftZ.Size = new Size(62, 26);
             lblTransectShiftZ.TabIndex = 2;
-            lblTransectShiftZ.Text = "+Z";
+            lblTransectShiftZ.Text = "+Z (m)";
             lblTransectShiftZ.TextAlign = ContentAlignment.MiddleLeft;
             toolTip.SetToolTip(lblTransectShiftZ, "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)");
             // 
@@ -722,7 +746,7 @@
             lblTransectShiftT.Dock = DockStyle.Fill;
             lblTransectShiftT.Location = new Point(3, 78);
             lblTransectShiftT.Name = "lblTransectShiftT";
-            lblTransectShiftT.Size = new Size(70, 26);
+            lblTransectShiftT.Size = new Size(62, 26);
             lblTransectShiftT.TabIndex = 3;
             lblTransectShiftT.Text = "Time (hr)";
             lblTransectShiftT.TextAlign = ContentAlignment.MiddleLeft;
@@ -731,98 +755,132 @@
             // txtTransectShiftX
             // 
             txtTransectShiftX.Dock = DockStyle.Fill;
-            txtTransectShiftX.Location = new Point(79, 3);
+            txtTransectShiftX.Location = new Point(71, 3);
             txtTransectShiftX.Name = "txtTransectShiftX";
-            txtTransectShiftX.Size = new Size(70, 23);
+            txtTransectShiftX.Size = new Size(62, 23);
             txtTransectShiftX.TabIndex = 4;
+            toolTip.SetToolTip(txtTransectShiftX, "Shifting distance of entire ADCP transect for model calibration (X axis, meters)");
             txtTransectShiftX.TextChanged += input_Changed;
             // 
             // txtTransectShiftY
             // 
             txtTransectShiftY.Dock = DockStyle.Fill;
-            txtTransectShiftY.Location = new Point(79, 29);
+            txtTransectShiftY.Location = new Point(71, 29);
             txtTransectShiftY.Name = "txtTransectShiftY";
-            txtTransectShiftY.Size = new Size(70, 23);
+            txtTransectShiftY.Size = new Size(62, 23);
             txtTransectShiftY.TabIndex = 5;
+            toolTip.SetToolTip(txtTransectShiftY, "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)");
             txtTransectShiftY.TextChanged += input_Changed;
             // 
             // txtTransectShiftZ
             // 
             txtTransectShiftZ.Dock = DockStyle.Fill;
-            txtTransectShiftZ.Location = new Point(79, 55);
+            txtTransectShiftZ.Location = new Point(71, 55);
             txtTransectShiftZ.Name = "txtTransectShiftZ";
-            txtTransectShiftZ.Size = new Size(70, 23);
+            txtTransectShiftZ.Size = new Size(62, 23);
             txtTransectShiftZ.TabIndex = 6;
+            toolTip.SetToolTip(txtTransectShiftZ, "Shifting distance of entire ADCP transect for model calibration (Z axis, meters)");
             txtTransectShiftZ.TextChanged += input_Changed;
             // 
             // txtTransectShiftT
             // 
             txtTransectShiftT.Dock = DockStyle.Fill;
-            txtTransectShiftT.Location = new Point(79, 81);
+            txtTransectShiftT.Location = new Point(71, 81);
             txtTransectShiftT.Name = "txtTransectShiftT";
-            txtTransectShiftT.Size = new Size(70, 23);
+            txtTransectShiftT.Size = new Size(62, 23);
             txtTransectShiftT.TabIndex = 7;
+            toolTip.SetToolTip(txtTransectShiftT, "Shifting time of entire ADCP transect for model calibration (time axis, hours)");
             txtTransectShiftT.TextChanged += input_Changed;
             // 
             // lblC
             // 
             lblC.AutoSize = true;
             lblC.Dock = DockStyle.Fill;
-            lblC.Location = new Point(3, 432);
+            lblC.Location = new Point(3, 416);
             lblC.Name = "lblC";
-            lblC.Size = new Size(151, 27);
+            lblC.Size = new Size(167, 28);
             lblC.TabIndex = 18;
-            lblC.Text = "C";
+            lblC.Text = "C (dB)";
             lblC.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblC, "System-specific calibration constant");
             // 
             // lblEr
             // 
             lblEr.AutoSize = true;
             lblEr.Dock = DockStyle.Fill;
-            lblEr.Location = new Point(3, 486);
+            lblEr.Location = new Point(3, 472);
             lblEr.Name = "lblEr";
-            lblEr.Size = new Size(151, 27);
+            lblEr.Size = new Size(167, 28);
             lblEr.TabIndex = 20;
-            lblEr.Text = "E_r";
+            lblEr.Text = "E_r (Counts)";
             lblEr.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblEr, "Noise floor");
             // 
             // txtC
             // 
             txtC.Dock = DockStyle.Fill;
-            txtC.Location = new Point(160, 435);
+            txtC.Location = new Point(176, 419);
             txtC.Name = "txtC";
-            txtC.Size = new Size(152, 23);
+            txtC.Size = new Size(136, 23);
             txtC.TabIndex = 21;
+            toolTip.SetToolTip(txtC, "System-specific calibration constant");
             txtC.TextChanged += input_Changed;
             // 
             // txtPdbw
             // 
             txtPdbw.Dock = DockStyle.Fill;
-            txtPdbw.Location = new Point(160, 462);
+            txtPdbw.Location = new Point(176, 447);
             txtPdbw.Name = "txtPdbw";
-            txtPdbw.Size = new Size(152, 23);
+            txtPdbw.Size = new Size(136, 23);
             txtPdbw.TabIndex = 22;
+            toolTip.SetToolTip(txtPdbw, "Transmit power");
             txtPdbw.TextChanged += input_Changed;
             // 
             // txtEr
             // 
             txtEr.Dock = DockStyle.Fill;
-            txtEr.Location = new Point(160, 489);
+            txtEr.Location = new Point(176, 475);
             txtEr.Name = "txtEr";
-            txtEr.Size = new Size(152, 23);
+            txtEr.Size = new Size(136, 23);
             txtEr.TabIndex = 23;
+            txtEr.Text = "39.0";
+            toolTip.SetToolTip(txtEr, "Noise floor");
             txtEr.TextChanged += input_Changed;
             // 
             // lblPdbw
             // 
             lblPdbw.AutoSize = true;
             lblPdbw.Dock = DockStyle.Fill;
-            lblPdbw.Location = new Point(3, 459);
+            lblPdbw.Location = new Point(3, 444);
             lblPdbw.Name = "lblPdbw";
-            lblPdbw.Size = new Size(151, 27);
+            lblPdbw.Size = new Size(167, 28);
             lblPdbw.TabIndex = 24;
-            lblPdbw.Text = "P_dbw";
+            lblPdbw.Text = "P (dBW)";
             lblPdbw.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblPdbw, "Transmit power");
+            // 
+            // lblEnsAveInterval
+            // 
+            lblEnsAveInterval.AutoSize = true;
+            lblEnsAveInterval.Dock = DockStyle.Fill;
+            lblEnsAveInterval.Font = new Font("Segoe UI", 9F);
+            lblEnsAveInterval.Location = new Point(3, 500);
+            lblEnsAveInterval.Name = "lblEnsAveInterval";
+            lblEnsAveInterval.Size = new Size(167, 30);
+            lblEnsAveInterval.TabIndex = 25;
+            lblEnsAveInterval.Text = "Ensemble Averaging Interval";
+            lblEnsAveInterval.TextAlign = ContentAlignment.MiddleLeft;
+            toolTip.SetToolTip(lblEnsAveInterval, "Number of ensembles to average (via rolling window) for velocity data");
+            // 
+            // txtEnsAveInterval
+            // 
+            txtEnsAveInterval.Dock = DockStyle.Fill;
+            txtEnsAveInterval.Location = new Point(176, 503);
+            txtEnsAveInterval.Name = "txtEnsAveInterval";
+            txtEnsAveInterval.Size = new Size(136, 23);
+            txtEnsAveInterval.TabIndex = 26;
+            toolTip.SetToolTip(txtEnsAveInterval, "Number of ensembles to average (via rolling window) for velocity data");
+            txtEnsAveInterval.TextChanged += input_Changed;
             // 
             // txtFirstEnsemble
             // 
@@ -830,11 +888,10 @@
             txtFirstEnsemble.Enabled = false;
             txtFirstEnsemble.Font = new Font("Segoe UI", 8F);
             txtFirstEnsemble.Location = new Point(157, 3);
-            txtFirstEnsemble.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             txtFirstEnsemble.Name = "txtFirstEnsemble";
             txtFirstEnsemble.Size = new Size(149, 22);
             txtFirstEnsemble.TabIndex = 13;
-            txtFirstEnsemble.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            toolTip.SetToolTip(txtFirstEnsemble, "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data.");
             txtFirstEnsemble.ValueChanged += input_Changed;
             // 
             // txtLastEnsemble
@@ -848,6 +905,7 @@
             txtLastEnsemble.Name = "txtLastEnsemble";
             txtLastEnsemble.Size = new Size(149, 22);
             txtLastEnsemble.TabIndex = 15;
+            toolTip.SetToolTip(txtLastEnsemble, "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data.");
             txtLastEnsemble.Value = new decimal(new int[] { 9999, 0, 0, 0 });
             txtLastEnsemble.ValueChanged += input_Changed;
             // 
@@ -1206,6 +1264,7 @@
             lblMaxErrorVelocity.TabIndex = 2;
             lblMaxErrorVelocity.Text = "Maximum";
             lblMaxErrorVelocity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMaxErrorVelocity, "Maximum accepted absolute value of error velocity (m/s).If 'auto' then. Applies to masks for velocity data only.");
             // 
             // checkMaskingErrorVelocity
             // 
@@ -1234,6 +1293,7 @@
             lblMinErrorVelocity.TabIndex = 1;
             lblMinErrorVelocity.Text = "Minimum";
             lblMinErrorVelocity.TextAlign = ContentAlignment.MiddleCenter;
+            lblMinErrorVelocity.Visible = false;
             // 
             // txtMinErrorVelocity
             // 
@@ -1244,6 +1304,7 @@
             txtMinErrorVelocity.Name = "txtMinErrorVelocity";
             txtMinErrorVelocity.Size = new Size(95, 22);
             txtMinErrorVelocity.TabIndex = 3;
+            txtMinErrorVelocity.Visible = false;
             txtMinErrorVelocity.TextChanged += input_Changed;
             // 
             // txtMaxErrorVelocity
@@ -1255,6 +1316,7 @@
             txtMaxErrorVelocity.Name = "txtMaxErrorVelocity";
             txtMaxErrorVelocity.Size = new Size(97, 22);
             txtMaxErrorVelocity.TabIndex = 4;
+            toolTip.SetToolTip(txtMaxErrorVelocity, "Maximum accepted absolute value of error velocity (m/s).If 'auto' then. Applies to masks for velocity data only.");
             txtMaxErrorVelocity.TextChanged += input_Changed;
             // 
             // tableMaskingCorrelationMagnitude
@@ -1289,6 +1351,7 @@
             lblMaxCorrelationMagnitude.TabIndex = 2;
             lblMaxCorrelationMagnitude.Text = "Maximum";
             lblMaxCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMaxCorrelationMagnitude, "Maximum correlation magnitude accepted. Applies to masks for beam data only.");
             // 
             // checkMaskCorrelationMagnitude
             // 
@@ -1302,7 +1365,6 @@
             checkMaskCorrelationMagnitude.TabIndex = 0;
             checkMaskCorrelationMagnitude.Text = "Mask Correlation Magnitude (-)";
             checkMaskCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
-            toolTip.SetToolTip(checkMaskCorrelationMagnitude, "Correlation magnitude from each beam, used as a data quality metric.");
             checkMaskCorrelationMagnitude.UseVisualStyleBackColor = true;
             checkMaskCorrelationMagnitude.CheckedChanged += checkMaskCorrelationMagnitude_CheckedChanged;
             // 
@@ -1318,6 +1380,7 @@
             lblMinCorrelationMagnitude.TabIndex = 1;
             lblMinCorrelationMagnitude.Text = "Minimum";
             lblMinCorrelationMagnitude.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMinCorrelationMagnitude, "Minimum correlation magnitude accepted. Applies to masks for beam data only.");
             // 
             // txtMinCorrelationMagnitude
             // 
@@ -1329,6 +1392,7 @@
             txtMinCorrelationMagnitude.Size = new Size(95, 22);
             txtMinCorrelationMagnitude.TabIndex = 3;
             txtMinCorrelationMagnitude.Text = "0";
+            toolTip.SetToolTip(txtMinCorrelationMagnitude, "Minimum correlation magnitude accepted. Applies to masks for beam data only.");
             txtMinCorrelationMagnitude.TextChanged += input_Changed;
             // 
             // txtMaxCorrelationMagnitude
@@ -1341,6 +1405,7 @@
             txtMaxCorrelationMagnitude.Size = new Size(97, 22);
             txtMaxCorrelationMagnitude.TabIndex = 4;
             txtMaxCorrelationMagnitude.Text = "255";
+            toolTip.SetToolTip(txtMaxCorrelationMagnitude, "Maximum correlation magnitude accepted. Applies to masks for beam data only.");
             txtMaxCorrelationMagnitude.TextChanged += input_Changed;
             // 
             // tableMaskingVelocity
@@ -1375,6 +1440,7 @@
             lblMaxVelocity.TabIndex = 2;
             lblMaxVelocity.Text = "Maximum";
             lblMaxVelocity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMaxVelocity, "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only.");
             // 
             // checkMaskingVelocity
             // 
@@ -1403,6 +1469,7 @@
             lblMinVelocity.TabIndex = 1;
             lblMinVelocity.Text = "Minimum";
             lblMinVelocity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMinVelocity, "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only.");
             // 
             // txtMinVelocity
             // 
@@ -1413,6 +1480,7 @@
             txtMinVelocity.Name = "txtMinVelocity";
             txtMinVelocity.Size = new Size(95, 22);
             txtMinVelocity.TabIndex = 3;
+            toolTip.SetToolTip(txtMinVelocity, "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only.");
             txtMinVelocity.TextChanged += input_Changed;
             // 
             // txtMaxVelocity
@@ -1424,6 +1492,7 @@
             txtMaxVelocity.Name = "txtMaxVelocity";
             txtMaxVelocity.Size = new Size(97, 22);
             txtMaxVelocity.TabIndex = 4;
+            toolTip.SetToolTip(txtMaxVelocity, "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only.");
             txtMaxVelocity.TextChanged += input_Changed;
             // 
             // tableMaskingPercentGood
@@ -1472,6 +1541,7 @@
             lblMinPercentGood.TabIndex = 1;
             lblMinPercentGood.Text = "Minimum";
             lblMinPercentGood.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMinPercentGood, "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only.");
             // 
             // txtMinPercentGood
             // 
@@ -1483,6 +1553,7 @@
             txtMinPercentGood.Size = new Size(95, 22);
             txtMinPercentGood.TabIndex = 3;
             txtMinPercentGood.Text = "0";
+            toolTip.SetToolTip(txtMinPercentGood, "Minimum 'percent good' threshold below which data is masked. Reflects the combined percentage of viable 3 and 4 beam velocity solutions PG1 + PG3. Applies to masks for velocity data only.");
             txtMinPercentGood.TextChanged += input_Changed;
             // 
             // tableMaskingEchoIntensity
@@ -1517,6 +1588,7 @@
             lblMaxEchoIntensity.TabIndex = 2;
             lblMaxEchoIntensity.Text = "Maximum";
             lblMaxEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMaxEchoIntensity, "Maximum echo intensity threshold accepted. Applies to masks for beam data only.");
             // 
             // checkMaskEchoIntensity
             // 
@@ -1546,6 +1618,7 @@
             lblMinEchoIntensity.TabIndex = 1;
             lblMinEchoIntensity.Text = "Minimum";
             lblMinEchoIntensity.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMinEchoIntensity, "Minimum echo intensity threshold accepted. Applies to masks for beam data only.");
             // 
             // txtMinEchoIntensity
             // 
@@ -1557,6 +1630,7 @@
             txtMinEchoIntensity.Size = new Size(95, 22);
             txtMinEchoIntensity.TabIndex = 3;
             txtMinEchoIntensity.Text = "0";
+            toolTip.SetToolTip(txtMinEchoIntensity, "Minimum echo intensity threshold accepted. Applies to masks for beam data only.");
             txtMinEchoIntensity.TextChanged += input_Changed;
             // 
             // txtMaxEchoIntensity
@@ -1569,6 +1643,7 @@
             txtMaxEchoIntensity.Size = new Size(97, 22);
             txtMaxEchoIntensity.TabIndex = 4;
             txtMaxEchoIntensity.Text = "255";
+            toolTip.SetToolTip(txtMaxEchoIntensity, "Maximum echo intensity threshold accepted. Applies to masks for beam data only.");
             txtMaxEchoIntensity.TextChanged += input_Changed;
             // 
             // tableMaskingEnsembles
@@ -1599,6 +1674,7 @@
             checkFirstEnsemble.Size = new Size(148, 24);
             checkFirstEnsemble.TabIndex = 16;
             checkFirstEnsemble.Text = "First Ensemble";
+            toolTip.SetToolTip(checkFirstEnsemble, "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data.");
             checkFirstEnsemble.UseVisualStyleBackColor = true;
             checkFirstEnsemble.CheckedChanged += checkFirstEnsemble_CheckedChanged;
             // 
@@ -1612,6 +1688,7 @@
             checkLastEnsemble.Size = new Size(148, 24);
             checkLastEnsemble.TabIndex = 17;
             checkLastEnsemble.Text = "Last Ensemble";
+            toolTip.SetToolTip(checkLastEnsemble, "Index of last ensemble to retain. Zero based index. Applies to masks for velocity and beam data.");
             checkLastEnsemble.UseVisualStyleBackColor = true;
             checkLastEnsemble.CheckedChanged += checkLastEnsemble_CheckedChanged;
             // 
@@ -1662,6 +1739,7 @@
             lblMinAbs.TabIndex = 1;
             lblMinAbs.Text = "Minimum";
             lblMinAbs.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMinAbs, "Minimum absolute backscatter intensity threshold accepted. Applies to masks for beam data only.");
             // 
             // lblMaxAbs
             // 
@@ -1675,6 +1753,7 @@
             lblMaxAbs.TabIndex = 2;
             lblMaxAbs.Text = "Maximum";
             lblMaxAbs.TextAlign = ContentAlignment.MiddleCenter;
+            toolTip.SetToolTip(lblMaxAbs, "Maximum absolute backscatter intensity threshold accepted. Applies to masks for beam data only.");
             // 
             // txtMinAbs
             // 
@@ -1685,6 +1764,7 @@
             txtMinAbs.Name = "txtMinAbs";
             txtMinAbs.Size = new Size(95, 22);
             txtMinAbs.TabIndex = 3;
+            toolTip.SetToolTip(txtMinAbs, "Minimum absolute backscatter intensity threshold accepted. Applies to masks for beam data only.");
             txtMinAbs.TextChanged += input_Changed;
             // 
             // txtMaxAbs
@@ -1696,6 +1776,7 @@
             txtMaxAbs.Name = "txtMaxAbs";
             txtMaxAbs.Size = new Size(97, 22);
             txtMaxAbs.TabIndex = 4;
+            toolTip.SetToolTip(txtMaxAbs, "Maximum absolute backscatter intensity threshold accepted. Applies to masks for beam data only.");
             txtMaxAbs.TextChanged += input_Changed;
             // 
             // tableLayoutPanel1
@@ -1726,6 +1807,7 @@
             checkStartDatetime.Size = new Size(148, 24);
             checkStartDatetime.TabIndex = 0;
             checkStartDatetime.Text = "Start Datetime";
+            toolTip.SetToolTip(checkStartDatetime, "Start time for valid ensemble masking window. Applies to masks for velocity and beam data.");
             checkStartDatetime.UseVisualStyleBackColor = true;
             checkStartDatetime.CheckedChanged += checkStartDatetime_CheckedChanged;
             // 
@@ -1739,6 +1821,7 @@
             checkEndDatetime.Size = new Size(148, 24);
             checkEndDatetime.TabIndex = 1;
             checkEndDatetime.Text = "End Datetime";
+            toolTip.SetToolTip(checkEndDatetime, "End time for valid ensemble masking window. Applies to masks for velocity and beam data.");
             checkEndDatetime.UseVisualStyleBackColor = true;
             checkEndDatetime.CheckedChanged += checkEndDatetime_CheckedChanged;
             // 
@@ -1751,6 +1834,7 @@
             txtStartDatetime.Name = "txtStartDatetime";
             txtStartDatetime.Size = new Size(149, 22);
             txtStartDatetime.TabIndex = 2;
+            toolTip.SetToolTip(txtStartDatetime, "Start time for valid ensemble masking window. Applies to masks for velocity and beam data.");
             txtStartDatetime.TextChanged += input_Changed;
             // 
             // txtEndDatetime
@@ -1762,6 +1846,7 @@
             txtEndDatetime.Name = "txtEndDatetime";
             txtEndDatetime.Size = new Size(149, 22);
             txtEndDatetime.TabIndex = 3;
+            toolTip.SetToolTip(txtEndDatetime, "End time for valid ensemble masking window. Applies to masks for velocity and beam data.");
             txtEndDatetime.TextChanged += input_Changed;
             // 
             // tableMode
@@ -1990,5 +2075,7 @@
         private ToolStripMenuItem utilitiesToolStripMenuItem;
         private ToolStripMenuItem menuExtern2CSV;
         private ToolStripMenuItem menuBatchExtern2CSV;
+        private Label lblEnsAveInterval;
+        private TextBox txtEnsAveInterval;
     }
 }

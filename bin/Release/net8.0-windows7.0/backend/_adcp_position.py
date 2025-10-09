@@ -1,13 +1,8 @@
-from pathlib import Path
-from typing import Union, Dict, Any, Tuple
-import pyproj
+from typing import Dict, Any
 import pandas as pd
-from matplotlib.axes import Axes
-import matplotlib.dates as mdates
 import numpy as np
 
-from .utils import Utils, Constants, XYZ
-from .plotting import PlottingShell
+from .utils import Utils, Constants
 
 class ADCPPosition:
     _Vars = ["X", "Y", "Depth", "Pitch", "Roll", "Heading", "DateTime"]
@@ -105,9 +100,7 @@ class ADCPPosition:
         }, index=pd.to_datetime(self._t))
 
         df_resampled = df.reindex(new_times, method='nearest', tolerance=pd.Timedelta("30s"))
-        # if df_resampled.isnull().any().any():
-        #     raise ValueError("Resampling failed for some timestamps. Consider adjusting tolerance.")
-
+        
         self.x = df_resampled['x'].values
         self.y = df_resampled['y'].values
         self.z = df_resampled['z'].values

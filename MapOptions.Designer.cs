@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MapOptions));
             menu = new MenuStrip();
             menuFile = new ToolStripMenuItem();
@@ -36,7 +37,7 @@
             tabControl = new TabControl();
             tab2D = new TabPage();
             split2D = new SplitContainer();
-            list2DSurveys = new CheckedListBox();
+            treeSurveys2D = new TreeView();
             table2D = new TableLayoutPanel();
             lbl2DBackColor = new Label();
             lbl2DFieldName = new Label();
@@ -85,7 +86,7 @@
             check2DBeams = new CheckBox();
             tab3D = new TabPage();
             split3D = new SplitContainer();
-            list3DSurveys = new CheckedListBox();
+            treeSurveys3D = new TreeView();
             table3D = new TableLayoutPanel();
             lbl3DBackColor = new Label();
             lbl3DFieldName = new Label();
@@ -126,26 +127,10 @@
             combo3Dcmap = new ComboBox();
             tabShp = new TabPage();
             splitShp = new SplitContainer();
-            tableLayoutPanel2 = new TableLayoutPanel();
+            tableTreeShp = new TableLayoutPanel();
             btnShpAddShapefile = new Button();
-            listShapefiles = new CheckedListBox();
-            tableLayoutPanel1 = new TableLayoutPanel();
-            lblShpFilename = new Label();
-            lblShpType = new Label();
-            txtShpFilename = new TextBox();
-            txtShpType = new TextBox();
-            lblShpColor = new Label();
-            pnlShpColor = new Panel();
-            btnShpColor = new Button();
-            lblShpSize = new Label();
-            lblShpLabel = new Label();
-            lblShpLabelFontSize = new Label();
-            lblShpLabelColor = new Label();
-            pnlShpLabelColor = new Panel();
-            btnShpLabelColor = new Button();
-            numShpLabelFontSize = new NumericUpDown();
-            txtShpLabel = new TextBox();
-            txtShpSize = new TextBox();
+            treeShapefiles = new TreeView();
+            toolTip1 = new ToolTip(components);
             menu.SuspendLayout();
             tabControl.SuspendLayout();
             tab2D.SuspendLayout();
@@ -177,11 +162,8 @@
             tabShp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitShp).BeginInit();
             splitShp.Panel1.SuspendLayout();
-            splitShp.Panel2.SuspendLayout();
             splitShp.SuspendLayout();
-            tableLayoutPanel2.SuspendLayout();
-            tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numShpLabelFontSize).BeginInit();
+            tableTreeShp.SuspendLayout();
             SuspendLayout();
             // 
             // menu
@@ -245,7 +227,7 @@
             // 
             // split2D.Panel1
             // 
-            split2D.Panel1.Controls.Add(list2DSurveys);
+            split2D.Panel1.Controls.Add(treeSurveys2D);
             // 
             // split2D.Panel2
             // 
@@ -255,14 +237,13 @@
             split2D.SplitterDistance = 261;
             split2D.TabIndex = 0;
             // 
-            // list2DSurveys
+            // treeSurveys2D
             // 
-            list2DSurveys.Dock = DockStyle.Fill;
-            list2DSurveys.FormattingEnabled = true;
-            list2DSurveys.Location = new Point(0, 0);
-            list2DSurveys.Name = "list2DSurveys";
-            list2DSurveys.Size = new Size(261, 707);
-            list2DSurveys.TabIndex = 0;
+            treeSurveys2D.Dock = DockStyle.Fill;
+            treeSurveys2D.Location = new Point(0, 0);
+            treeSurveys2D.Name = "treeSurveys2D";
+            treeSurveys2D.Size = new Size(261, 707);
+            treeSurveys2D.TabIndex = 0;
             // 
             // table2D
             // 
@@ -548,6 +529,7 @@
             txt2Dvmin.Name = "txt2Dvmin";
             txt2Dvmin.Size = new Size(205, 23);
             txt2Dvmin.TabIndex = 19;
+            txt2Dvmin.TextChanged += input_Changed;
             // 
             // txt2Dvmax
             // 
@@ -556,6 +538,7 @@
             txt2Dvmax.Name = "txt2Dvmax";
             txt2Dvmax.Size = new Size(205, 23);
             txt2Dvmax.TabIndex = 20;
+            txt2Dvmax.TextChanged += input_Changed;
             // 
             // txt2DPagDeg
             // 
@@ -565,6 +548,7 @@
             txt2DPagDeg.Size = new Size(205, 23);
             txt2DPagDeg.TabIndex = 21;
             txt2DPagDeg.Text = "0.03";
+            txt2DPagDeg.TextChanged += input_Changed;
             // 
             // txt2DGridOpacity
             // 
@@ -574,6 +558,7 @@
             txt2DGridOpacity.Size = new Size(205, 23);
             txt2DGridOpacity.TabIndex = 23;
             txt2DGridOpacity.Text = "0.35";
+            txt2DGridOpacity.TextChanged += input_Changed;
             // 
             // txt2DGridWidth
             // 
@@ -582,6 +567,7 @@
             txt2DGridWidth.Name = "txt2DGridWidth";
             txt2DGridWidth.Size = new Size(205, 23);
             txt2DGridWidth.TabIndex = 24;
+            txt2DGridWidth.TextChanged += input_Changed;
             // 
             // txt2DTransectLineWidth
             // 
@@ -591,6 +577,7 @@
             txt2DTransectLineWidth.Size = new Size(205, 23);
             txt2DTransectLineWidth.TabIndex = 25;
             txt2DTransectLineWidth.Text = "3.0";
+            txt2DTransectLineWidth.TextChanged += input_Changed;
             // 
             // num2DNGridLines
             // 
@@ -601,6 +588,7 @@
             num2DNGridLines.Size = new Size(205, 23);
             num2DNGridLines.TabIndex = 26;
             num2DNGridLines.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            num2DNGridLines.ValueChanged += input_Changed;
             // 
             // num2DNAxisTicks
             // 
@@ -611,6 +599,7 @@
             num2DNAxisTicks.Size = new Size(205, 23);
             num2DNAxisTicks.TabIndex = 27;
             num2DNAxisTicks.Value = new decimal(new int[] { 7, 0, 0, 0 });
+            num2DNAxisTicks.ValueChanged += input_Changed;
             // 
             // num2DTickFontSize
             // 
@@ -622,6 +611,7 @@
             num2DTickFontSize.Size = new Size(205, 23);
             num2DTickFontSize.TabIndex = 28;
             num2DTickFontSize.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            num2DTickFontSize.ValueChanged += input_Changed;
             // 
             // num2DNTicksDecimals
             // 
@@ -632,6 +622,7 @@
             num2DNTicksDecimals.Size = new Size(205, 23);
             num2DNTicksDecimals.TabIndex = 29;
             num2DNTicksDecimals.Value = new decimal(new int[] { 4, 0, 0, 0 });
+            num2DNTicksDecimals.ValueChanged += input_Changed;
             // 
             // num2DAxisLabelFontSize
             // 
@@ -643,6 +634,7 @@
             num2DAxisLabelFontSize.Size = new Size(205, 23);
             num2DAxisLabelFontSize.TabIndex = 30;
             num2DAxisLabelFontSize.Value = new decimal(new int[] { 12, 0, 0, 0 });
+            num2DAxisLabelFontSize.ValueChanged += input_Changed;
             // 
             // num2DHoverFontSize
             // 
@@ -654,6 +646,7 @@
             num2DHoverFontSize.Size = new Size(205, 23);
             num2DHoverFontSize.TabIndex = 31;
             num2DHoverFontSize.Value = new decimal(new int[] { 9, 0, 0, 0 });
+            num2DHoverFontSize.ValueChanged += input_Changed;
             // 
             // num2DBins
             // 
@@ -664,6 +657,7 @@
             num2DBins.Size = new Size(64, 23);
             num2DBins.TabIndex = 32;
             num2DBins.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            num2DBins.ValueChanged += input_Changed;
             // 
             // txt2DDepth
             // 
@@ -672,6 +666,7 @@
             txt2DDepth.Name = "txt2DDepth";
             txt2DDepth.Size = new Size(64, 23);
             txt2DDepth.TabIndex = 32;
+            txt2DDepth.TextChanged += input_Changed;
             // 
             // num2DBeams
             // 
@@ -683,6 +678,7 @@
             num2DBeams.Size = new Size(64, 23);
             num2DBeams.TabIndex = 33;
             num2DBeams.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            num2DBeams.ValueChanged += input_Changed;
             // 
             // combo2DFieldName
             // 
@@ -694,6 +690,7 @@
             combo2DFieldName.Name = "combo2DFieldName";
             combo2DFieldName.Size = new Size(205, 23);
             combo2DFieldName.TabIndex = 34;
+            combo2DFieldName.SelectedIndexChanged += input_Changed;
             // 
             // pnl2DGridColor
             // 
@@ -703,6 +700,7 @@
             pnl2DGridColor.Name = "pnl2DGridColor";
             pnl2DGridColor.Size = new Size(205, 24);
             pnl2DGridColor.TabIndex = 35;
+            pnl2DGridColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // pnl2DAxisLabelColor
             // 
@@ -712,6 +710,7 @@
             pnl2DAxisLabelColor.Name = "pnl2DAxisLabelColor";
             pnl2DAxisLabelColor.Size = new Size(205, 24);
             pnl2DAxisLabelColor.TabIndex = 36;
+            pnl2DAxisLabelColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // combo2DBins
             // 
@@ -734,7 +733,7 @@
             btn2DBackColor.TabIndex = 38;
             btn2DBackColor.Text = "...";
             btn2DBackColor.UseVisualStyleBackColor = true;
-            btn2DBackColor.Click += btn2DBackColor_Click;
+            btn2DBackColor.Click += colorButton_Click;
             // 
             // btn2DGridColor
             // 
@@ -745,7 +744,7 @@
             btn2DGridColor.TabIndex = 39;
             btn2DGridColor.Text = "...";
             btn2DGridColor.UseVisualStyleBackColor = true;
-            btn2DGridColor.Click += btn2DGridColor_Click;
+            btn2DGridColor.Click += colorButton_Click;
             // 
             // btn2DAxisLabelColor
             // 
@@ -756,7 +755,7 @@
             btn2DAxisLabelColor.TabIndex = 40;
             btn2DAxisLabelColor.Text = "...";
             btn2DAxisLabelColor.UseVisualStyleBackColor = true;
-            btn2DAxisLabelColor.Click += btn2DAxisLabelColor_Click;
+            btn2DAxisLabelColor.Click += colorButton_Click;
             // 
             // pnl2DBackColor
             // 
@@ -766,6 +765,7 @@
             pnl2DBackColor.Name = "pnl2DBackColor";
             pnl2DBackColor.Size = new Size(205, 24);
             pnl2DBackColor.TabIndex = 41;
+            pnl2DBackColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // lbl2Dcmap
             // 
@@ -789,6 +789,7 @@
             combo2Dcmap.Name = "combo2Dcmap";
             combo2Dcmap.Size = new Size(205, 30);
             combo2Dcmap.TabIndex = 9;
+            combo2Dcmap.SelectedIndexChanged += input_Changed;
             // 
             // check2DBins
             // 
@@ -833,7 +834,7 @@
             // 
             // split3D.Panel1
             // 
-            split3D.Panel1.Controls.Add(list3DSurveys);
+            split3D.Panel1.Controls.Add(treeSurveys3D);
             // 
             // split3D.Panel2
             // 
@@ -843,14 +844,13 @@
             split3D.SplitterDistance = 261;
             split3D.TabIndex = 0;
             // 
-            // list3DSurveys
+            // treeSurveys3D
             // 
-            list3DSurveys.Dock = DockStyle.Fill;
-            list3DSurveys.FormattingEnabled = true;
-            list3DSurveys.Location = new Point(0, 0);
-            list3DSurveys.Name = "list3DSurveys";
-            list3DSurveys.Size = new Size(261, 707);
-            list3DSurveys.TabIndex = 0;
+            treeSurveys3D.Dock = DockStyle.Fill;
+            treeSurveys3D.Location = new Point(0, 0);
+            treeSurveys3D.Name = "treeSurveys3D";
+            treeSurveys3D.Size = new Size(261, 707);
+            treeSurveys3D.TabIndex = 0;
             // 
             // table3D
             // 
@@ -1106,6 +1106,7 @@
             txt3Dvmin.Name = "txt3Dvmin";
             txt3Dvmin.Size = new Size(205, 23);
             txt3Dvmin.TabIndex = 19;
+            txt3Dvmin.TextChanged += input_Changed;
             // 
             // txt3Dvmax
             // 
@@ -1114,6 +1115,7 @@
             txt3Dvmax.Name = "txt3Dvmax";
             txt3Dvmax.Size = new Size(205, 23);
             txt3Dvmax.TabIndex = 20;
+            txt3Dvmax.TextChanged += input_Changed;
             // 
             // txt3DPagDeg
             // 
@@ -1123,6 +1125,7 @@
             txt3DPagDeg.Size = new Size(205, 23);
             txt3DPagDeg.TabIndex = 21;
             txt3DPagDeg.Text = "0.03";
+            txt3DPagDeg.TextChanged += input_Changed;
             // 
             // txt3DGridOpacity
             // 
@@ -1132,6 +1135,7 @@
             txt3DGridOpacity.Size = new Size(205, 23);
             txt3DGridOpacity.TabIndex = 23;
             txt3DGridOpacity.Text = "0.35";
+            txt3DGridOpacity.TextChanged += input_Changed;
             // 
             // txt3DGridWidth
             // 
@@ -1141,6 +1145,7 @@
             txt3DGridWidth.Size = new Size(205, 23);
             txt3DGridWidth.TabIndex = 24;
             txt3DGridWidth.Text = "1";
+            txt3DGridWidth.TextChanged += input_Changed;
             // 
             // txt3DZScale
             // 
@@ -1150,6 +1155,7 @@
             txt3DZScale.Size = new Size(205, 23);
             txt3DZScale.TabIndex = 25;
             txt3DZScale.Text = "3.0";
+            txt3DZScale.TextChanged += input_Changed;
             // 
             // num3DNGridLines
             // 
@@ -1160,6 +1166,7 @@
             num3DNGridLines.Size = new Size(205, 23);
             num3DNGridLines.TabIndex = 26;
             num3DNGridLines.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            num3DNGridLines.ValueChanged += input_Changed;
             // 
             // num3DNAxisTicks
             // 
@@ -1170,6 +1177,7 @@
             num3DNAxisTicks.Size = new Size(205, 23);
             num3DNAxisTicks.TabIndex = 27;
             num3DNAxisTicks.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            num3DNAxisTicks.ValueChanged += input_Changed;
             // 
             // num3DTickFontSize
             // 
@@ -1181,6 +1189,7 @@
             num3DTickFontSize.Size = new Size(205, 23);
             num3DTickFontSize.TabIndex = 28;
             num3DTickFontSize.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            num3DTickFontSize.ValueChanged += input_Changed;
             // 
             // num3DNTicksDecimals
             // 
@@ -1192,6 +1201,7 @@
             num3DNTicksDecimals.Size = new Size(205, 23);
             num3DNTicksDecimals.TabIndex = 29;
             num3DNTicksDecimals.Value = new decimal(new int[] { 4, 0, 0, 0 });
+            num3DNTicksDecimals.ValueChanged += input_Changed;
             // 
             // num3DAxisLabelFontSize
             // 
@@ -1203,6 +1213,7 @@
             num3DAxisLabelFontSize.Size = new Size(205, 23);
             num3DAxisLabelFontSize.TabIndex = 30;
             num3DAxisLabelFontSize.Value = new decimal(new int[] { 12, 0, 0, 0 });
+            num3DAxisLabelFontSize.ValueChanged += input_Changed;
             // 
             // num3DHoverFontSize
             // 
@@ -1214,6 +1225,7 @@
             num3DHoverFontSize.Size = new Size(205, 23);
             num3DHoverFontSize.TabIndex = 31;
             num3DHoverFontSize.Value = new decimal(new int[] { 9, 0, 0, 0 });
+            num3DHoverFontSize.ValueChanged += input_Changed;
             // 
             // combo3DFieldName
             // 
@@ -1225,6 +1237,7 @@
             combo3DFieldName.Name = "combo3DFieldName";
             combo3DFieldName.Size = new Size(205, 23);
             combo3DFieldName.TabIndex = 34;
+            combo3DFieldName.SelectedIndexChanged += input_Changed;
             // 
             // pnl3DGridColor
             // 
@@ -1234,6 +1247,7 @@
             pnl3DGridColor.Name = "pnl3DGridColor";
             pnl3DGridColor.Size = new Size(205, 24);
             pnl3DGridColor.TabIndex = 35;
+            pnl3DGridColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // pnl3DAxisLabelColor
             // 
@@ -1243,6 +1257,7 @@
             pnl3DAxisLabelColor.Name = "pnl3DAxisLabelColor";
             pnl3DAxisLabelColor.Size = new Size(205, 24);
             pnl3DAxisLabelColor.TabIndex = 36;
+            pnl3DAxisLabelColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // btn3DBackColor
             // 
@@ -1253,7 +1268,7 @@
             btn3DBackColor.TabIndex = 38;
             btn3DBackColor.Text = "...";
             btn3DBackColor.UseVisualStyleBackColor = true;
-            btn3DBackColor.Click += btn3DBackColor_Click;
+            btn3DBackColor.Click += colorButton_Click;
             // 
             // btn3DGridColor
             // 
@@ -1264,7 +1279,7 @@
             btn3DGridColor.TabIndex = 39;
             btn3DGridColor.Text = "...";
             btn3DGridColor.UseVisualStyleBackColor = true;
-            btn3DGridColor.Click += btn3DGridColor_Click;
+            btn3DGridColor.Click += colorButton_Click;
             // 
             // btn3DAxisLabelColor
             // 
@@ -1275,7 +1290,7 @@
             btn3DAxisLabelColor.TabIndex = 40;
             btn3DAxisLabelColor.Text = "...";
             btn3DAxisLabelColor.UseVisualStyleBackColor = true;
-            btn3DAxisLabelColor.Click += btn3DAxisLabelColor_Click;
+            btn3DAxisLabelColor.Click += colorButton_Click;
             // 
             // pnl3DBackColor
             // 
@@ -1285,6 +1300,7 @@
             pnl3DBackColor.Name = "pnl3DBackColor";
             pnl3DBackColor.Size = new Size(205, 24);
             pnl3DBackColor.TabIndex = 41;
+            pnl3DBackColor.BackColorChanged += pnlBackColor_Changed;
             // 
             // lbl3Dcmap
             // 
@@ -1308,6 +1324,7 @@
             combo3Dcmap.Name = "combo3Dcmap";
             combo3Dcmap.Size = new Size(205, 30);
             combo3Dcmap.TabIndex = 43;
+            combo3Dcmap.SelectedIndexChanged += input_Changed;
             // 
             // tabShp
             // 
@@ -1328,29 +1345,25 @@
             // 
             // splitShp.Panel1
             // 
-            splitShp.Panel1.Controls.Add(tableLayoutPanel2);
-            // 
-            // splitShp.Panel2
-            // 
-            splitShp.Panel2.Controls.Add(tableLayoutPanel1);
+            splitShp.Panel1.Controls.Add(tableTreeShp);
             splitShp.Size = new Size(786, 707);
             splitShp.SplitterDistance = 262;
             splitShp.TabIndex = 0;
             // 
-            // tableLayoutPanel2
+            // tableTreeShp
             // 
-            tableLayoutPanel2.ColumnCount = 1;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Controls.Add(btnShpAddShapefile, 0, 0);
-            tableLayoutPanel2.Controls.Add(listShapefiles, 0, 1);
-            tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(0, 0);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 2;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Size = new Size(262, 707);
-            tableLayoutPanel2.TabIndex = 0;
+            tableTreeShp.ColumnCount = 1;
+            tableTreeShp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableTreeShp.Controls.Add(btnShpAddShapefile, 0, 0);
+            tableTreeShp.Controls.Add(treeShapefiles, 0, 1);
+            tableTreeShp.Dock = DockStyle.Fill;
+            tableTreeShp.Location = new Point(0, 0);
+            tableTreeShp.Name = "tableTreeShp";
+            tableTreeShp.RowCount = 2;
+            tableTreeShp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableTreeShp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableTreeShp.Size = new Size(262, 707);
+            tableTreeShp.TabIndex = 0;
             // 
             // btnShpAddShapefile
             // 
@@ -1363,216 +1376,15 @@
             btnShpAddShapefile.UseVisualStyleBackColor = true;
             btnShpAddShapefile.Click += btnShpAddShapefile_Click;
             // 
-            // listShapefiles
+            // treeShapefiles
             // 
-            listShapefiles.Dock = DockStyle.Fill;
-            listShapefiles.FormattingEnabled = true;
-            listShapefiles.Location = new Point(3, 33);
-            listShapefiles.Name = "listShapefiles";
-            listShapefiles.Size = new Size(256, 671);
-            listShapefiles.TabIndex = 1;
-            listShapefiles.MouseClick += listShapefiles_MouseClick;
-            listShapefiles.SelectedIndexChanged += listShapefiles_SelectedIndexChanged;
-            // 
-            // tableLayoutPanel1
-            // 
-            tableLayoutPanel1.ColumnCount = 3;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 170F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 70F));
-            tableLayoutPanel1.Controls.Add(lblShpFilename, 0, 0);
-            tableLayoutPanel1.Controls.Add(lblShpType, 0, 1);
-            tableLayoutPanel1.Controls.Add(txtShpFilename, 1, 0);
-            tableLayoutPanel1.Controls.Add(txtShpType, 1, 1);
-            tableLayoutPanel1.Controls.Add(lblShpColor, 0, 2);
-            tableLayoutPanel1.Controls.Add(pnlShpColor, 1, 2);
-            tableLayoutPanel1.Controls.Add(btnShpColor, 2, 2);
-            tableLayoutPanel1.Controls.Add(lblShpSize, 0, 3);
-            tableLayoutPanel1.Controls.Add(lblShpLabel, 0, 4);
-            tableLayoutPanel1.Controls.Add(lblShpLabelFontSize, 0, 5);
-            tableLayoutPanel1.Controls.Add(lblShpLabelColor, 0, 6);
-            tableLayoutPanel1.Controls.Add(pnlShpLabelColor, 1, 6);
-            tableLayoutPanel1.Controls.Add(btnShpLabelColor, 2, 6);
-            tableLayoutPanel1.Controls.Add(numShpLabelFontSize, 1, 5);
-            tableLayoutPanel1.Controls.Add(txtShpLabel, 1, 4);
-            tableLayoutPanel1.Controls.Add(txtShpSize, 1, 3);
-            tableLayoutPanel1.Dock = DockStyle.Fill;
-            tableLayoutPanel1.Location = new Point(0, 0);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 8;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(520, 707);
-            tableLayoutPanel1.TabIndex = 0;
-            // 
-            // lblShpFilename
-            // 
-            lblShpFilename.AutoSize = true;
-            lblShpFilename.Dock = DockStyle.Fill;
-            lblShpFilename.Location = new Point(3, 0);
-            lblShpFilename.Name = "lblShpFilename";
-            lblShpFilename.Size = new Size(164, 30);
-            lblShpFilename.TabIndex = 0;
-            lblShpFilename.Text = "Path";
-            lblShpFilename.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblShpType
-            // 
-            lblShpType.AutoSize = true;
-            lblShpType.Dock = DockStyle.Fill;
-            lblShpType.Location = new Point(3, 30);
-            lblShpType.Name = "lblShpType";
-            lblShpType.Size = new Size(164, 30);
-            lblShpType.TabIndex = 1;
-            lblShpType.Text = "Shapefile Type";
-            lblShpType.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtShpFilename
-            // 
-            txtShpFilename.Dock = DockStyle.Fill;
-            txtShpFilename.Enabled = false;
-            txtShpFilename.Location = new Point(173, 3);
-            txtShpFilename.Name = "txtShpFilename";
-            txtShpFilename.Size = new Size(274, 23);
-            txtShpFilename.TabIndex = 2;
-            // 
-            // txtShpType
-            // 
-            txtShpType.Dock = DockStyle.Fill;
-            txtShpType.Enabled = false;
-            txtShpType.Location = new Point(173, 33);
-            txtShpType.Name = "txtShpType";
-            txtShpType.Size = new Size(274, 23);
-            txtShpType.TabIndex = 3;
-            // 
-            // lblShpColor
-            // 
-            lblShpColor.AutoSize = true;
-            lblShpColor.Dock = DockStyle.Fill;
-            lblShpColor.Location = new Point(3, 60);
-            lblShpColor.Name = "lblShpColor";
-            lblShpColor.Size = new Size(164, 30);
-            lblShpColor.TabIndex = 4;
-            lblShpColor.Text = "Color";
-            lblShpColor.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // pnlShpColor
-            // 
-            pnlShpColor.Dock = DockStyle.Fill;
-            pnlShpColor.Location = new Point(173, 63);
-            pnlShpColor.Name = "pnlShpColor";
-            pnlShpColor.Size = new Size(274, 24);
-            pnlShpColor.TabIndex = 5;
-            // 
-            // btnShpColor
-            // 
-            btnShpColor.Dock = DockStyle.Fill;
-            btnShpColor.Location = new Point(453, 63);
-            btnShpColor.Name = "btnShpColor";
-            btnShpColor.Size = new Size(64, 24);
-            btnShpColor.TabIndex = 6;
-            btnShpColor.Text = "...";
-            btnShpColor.UseVisualStyleBackColor = true;
-            btnShpColor.Click += btnShpColor_Click;
-            // 
-            // lblShpSize
-            // 
-            lblShpSize.AutoSize = true;
-            lblShpSize.Dock = DockStyle.Fill;
-            lblShpSize.Location = new Point(3, 90);
-            lblShpSize.Name = "lblShpSize";
-            lblShpSize.Size = new Size(164, 30);
-            lblShpSize.TabIndex = 7;
-            lblShpSize.Text = "Width";
-            lblShpSize.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblShpLabel
-            // 
-            lblShpLabel.AutoSize = true;
-            lblShpLabel.Dock = DockStyle.Fill;
-            lblShpLabel.Location = new Point(3, 120);
-            lblShpLabel.Name = "lblShpLabel";
-            lblShpLabel.Size = new Size(164, 30);
-            lblShpLabel.TabIndex = 8;
-            lblShpLabel.Text = "Label";
-            lblShpLabel.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblShpLabelFontSize
-            // 
-            lblShpLabelFontSize.AutoSize = true;
-            lblShpLabelFontSize.Dock = DockStyle.Fill;
-            lblShpLabelFontSize.Location = new Point(3, 150);
-            lblShpLabelFontSize.Name = "lblShpLabelFontSize";
-            lblShpLabelFontSize.Size = new Size(164, 30);
-            lblShpLabelFontSize.TabIndex = 9;
-            lblShpLabelFontSize.Text = "Label Font Size";
-            lblShpLabelFontSize.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lblShpLabelColor
-            // 
-            lblShpLabelColor.AutoSize = true;
-            lblShpLabelColor.Dock = DockStyle.Fill;
-            lblShpLabelColor.Location = new Point(3, 180);
-            lblShpLabelColor.Name = "lblShpLabelColor";
-            lblShpLabelColor.Size = new Size(164, 30);
-            lblShpLabelColor.TabIndex = 10;
-            lblShpLabelColor.Text = "Label Color";
-            lblShpLabelColor.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // pnlShpLabelColor
-            // 
-            pnlShpLabelColor.Dock = DockStyle.Fill;
-            pnlShpLabelColor.Location = new Point(173, 183);
-            pnlShpLabelColor.Name = "pnlShpLabelColor";
-            pnlShpLabelColor.Size = new Size(274, 24);
-            pnlShpLabelColor.TabIndex = 11;
-            // 
-            // btnShpLabelColor
-            // 
-            btnShpLabelColor.Dock = DockStyle.Fill;
-            btnShpLabelColor.Location = new Point(453, 183);
-            btnShpLabelColor.Name = "btnShpLabelColor";
-            btnShpLabelColor.Size = new Size(64, 24);
-            btnShpLabelColor.TabIndex = 12;
-            btnShpLabelColor.Text = "...";
-            btnShpLabelColor.UseVisualStyleBackColor = true;
-            btnShpLabelColor.Click += btnShpLabelColor_Click;
-            // 
-            // numShpLabelFontSize
-            // 
-            numShpLabelFontSize.Dock = DockStyle.Fill;
-            numShpLabelFontSize.Location = new Point(173, 153);
-            numShpLabelFontSize.Maximum = new decimal(new int[] { 20, 0, 0, 0 });
-            numShpLabelFontSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            numShpLabelFontSize.Name = "numShpLabelFontSize";
-            numShpLabelFontSize.Size = new Size(274, 23);
-            numShpLabelFontSize.TabIndex = 13;
-            numShpLabelFontSize.Value = new decimal(new int[] { 1, 0, 0, 0 });
-            numShpLabelFontSize.ValueChanged += numShpLabelFontSize_ValueChanged;
-            // 
-            // txtShpLabel
-            // 
-            txtShpLabel.Dock = DockStyle.Fill;
-            txtShpLabel.Location = new Point(173, 123);
-            txtShpLabel.Name = "txtShpLabel";
-            txtShpLabel.Size = new Size(274, 23);
-            txtShpLabel.TabIndex = 14;
-            txtShpLabel.TextChanged += txtShpLabel_TextChanged;
-            // 
-            // txtShpSize
-            // 
-            txtShpSize.Dock = DockStyle.Fill;
-            txtShpSize.Location = new Point(173, 93);
-            txtShpSize.Name = "txtShpSize";
-            txtShpSize.Size = new Size(274, 23);
-            txtShpSize.TabIndex = 15;
-            txtShpSize.TextChanged += txtShpSize_TextChanged;
+            treeShapefiles.Dock = DockStyle.Fill;
+            treeShapefiles.Location = new Point(3, 33);
+            treeShapefiles.Name = "treeShapefiles";
+            treeShapefiles.Size = new Size(256, 671);
+            treeShapefiles.TabIndex = 1;
+            treeShapefiles.AfterSelect += treeShapefiles_AfterSelect;
+            treeShapefiles.NodeMouseClick += treeShapefiles_NodeMouseClick;
             // 
             // MapOptions
             // 
@@ -1618,13 +1430,9 @@
             ((System.ComponentModel.ISupportInitialize)num3DHoverFontSize).EndInit();
             tabShp.ResumeLayout(false);
             splitShp.Panel1.ResumeLayout(false);
-            splitShp.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitShp).EndInit();
             splitShp.ResumeLayout(false);
-            tableLayoutPanel2.ResumeLayout(false);
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numShpLabelFontSize).EndInit();
+            tableTreeShp.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1638,7 +1446,6 @@
         private TabControl tabControl;
         private TabPage tab2D;
         private SplitContainer split2D;
-        private CheckedListBox list2DSurveys;
         private TableLayoutPanel table2D;
         private Label lbl2DBackColor;
         private Label lbl2DFieldName;
@@ -1687,7 +1494,6 @@
         private CheckBox check2DBeams;
         private TabPage tab3D;
         private SplitContainer split3D;
-        private CheckedListBox list3DSurveys;
         private TableLayoutPanel table3D;
         private Label lbl3DBackColor;
         private Label lbl3DFieldName;
@@ -1728,25 +1534,15 @@
         private Panel pnl3DBackColor;
         private TabPage tabShp;
         private SplitContainer splitShp;
-        private TableLayoutPanel tableLayoutPanel1;
-        private Label lblShpFilename;
-        private Label lblShpType;
-        private TextBox txtShpFilename;
-        private TextBox txtShpType;
-        private Label lblShpColor;
-        private Panel pnlShpColor;
-        private Button btnShpColor;
-        private Label lblShpSize;
-        private Label lblShpLabel;
-        private Label lblShpLabelFontSize;
-        private Label lblShpLabelColor;
-        private Panel pnlShpLabelColor;
-        private Button btnShpLabelColor;
-        private NumericUpDown numShpLabelFontSize;
-        private TextBox txtShpLabel;
-        private TextBox txtShpSize;
-        private TableLayoutPanel tableLayoutPanel2;
+        
+        
+        
+        private TableLayoutPanel tableTreeShp;
         private Button btnShpAddShapefile;
-        private CheckedListBox listShapefiles;
+        private TreeView treeSurveys2D;
+        private TreeView treeSurveys3D;
+        private TreeView treeShapefiles;
+        private ToolTip toolTip1;
+        
     }
 }

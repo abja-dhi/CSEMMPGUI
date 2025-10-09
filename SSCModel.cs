@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetTopologySuite.Operation.Valid;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -25,8 +26,6 @@ namespace CSEMMPGUI_v1
         public _ClassConfigurationManager _project = new();
 
         public bool _updatingChecks;
-
-
         private void Tree_AfterCheck(object sender, TreeViewEventArgs e)
         {
             if (_updatingChecks) return;
@@ -79,6 +78,7 @@ namespace CSEMMPGUI_v1
 
         private void FillTree(TreeView tree, string elements)
         {
+            bool isBKS2NTU = tree.Name == "treeBKS2NTU";
             tree.Nodes.Clear();
             foreach (XmlElement survey in _Globals.Config.SelectNodes("//Survey"))
             {
@@ -89,6 +89,18 @@ namespace CSEMMPGUI_v1
                 {
                     string elementName = element.GetAttribute("name");
                     string elementID = element.GetAttribute("id");
+                    string elementType = element.GetAttribute("type");
+                    bool isValid = true;
+                    if (isBKS2NTU && elementType == "OBSVerticalProfile")
+                    {
+                        XmlNode elementFileInfo = element.SelectSingleNode("FileInfo");
+                        XmlNode elementSSCModel = elementFileInfo.SelectSingleNode("SSCModelID");
+                        if (elementSSCModel == null || string.IsNullOrEmpty(elementSSCModel.InnerText))
+                        {
+                            isValid = false; // No SSC model associated
+                        }
+                    }
+                    if (!isValid) continue; // Skip invalid elements
                     TreeNode elementNode = new TreeNode(elementName);
                     elementNode.Tag = element;
                     surveyNode.Nodes.Add(elementNode);
@@ -105,10 +117,21 @@ namespace CSEMMPGUI_v1
         {
             FillTree(treeNTU2SSC, "OBSVerticalProfile | WaterSample");
             FillTree(treeBKS2SSC, "VesselMountedADCP | WaterSample");
+            FillTree(treeBKS2NTU, "VesselMountedADCP | OBSVerticalProfile");
         }
 
         private void SetCheck(TreeView tree)
         {
+            XmlNodeList instrument = sscElement.SelectNodes($"Instrument");
+            List<string> instrumentIds = new List<string>();
+            foreach (XmlNode inst in instrument)
+            {
+                if (inst is XmlElement instElem)
+                {
+                    string ID = instElem.SelectSingleNode("ID")?.InnerText;
+                    instrumentIds.Add(ID);
+                }
+            }
             foreach (TreeNode surveyNode in tree.Nodes)
             {
                 foreach (TreeNode instrumentNode in surveyNode.Nodes)
@@ -117,8 +140,7 @@ namespace CSEMMPGUI_v1
                     if (node is XmlElement elem)
                     {
                         string id = elem.GetAttribute("id");
-                        XmlNode instrument = sscElement.SelectSingleNode($"Instrument[text()='{id}']") ?? null;
-                        if (instrument != null)
+                        if (instrumentIds.Contains(id))
                         {
                             instrumentNode.Checked = true;
                         }
@@ -135,7 +157,9 @@ namespace CSEMMPGUI_v1
         {
             if (modelType == "NTU2SSC")
                 SetCheck(treeNTU2SSC);
-            else
+            else if (modelType == "BKS2NTU")
+                SetCheck(treeBKS2NTU);
+            else if (modelType == "BKS2SSC")
                 SetCheck(treeBKS2SSC);
 
         }
@@ -145,7 +169,7 @@ namespace CSEMMPGUI_v1
             txtModelName.Text = "New SSC Model";
             txtA.Text = string.Empty;
             txtB.Text = string.Empty;
-            //txtC.Text = string.Empty;
+            txtC.Text = string.Empty;
             comboFits.SelectedIndex = 0;
             FillTrees();
             isSaved = true;
@@ -167,7 +191,6 @@ namespace CSEMMPGUI_v1
                 rbAuto.Checked = true;
             txtA.Text = sscElement.SelectSingleNode("A")?.InnerText ?? string.Empty;
             txtB.Text = sscElement.SelectSingleNode("B")?.InnerText ?? string.Empty;
-            //txtC.Text = sscElement.SelectSingleNode("C")?.InnerText ?? string.Empty;
             comboFits.SelectedItem = sscElement.SelectSingleNode("Fit")?.InnerText ?? "Linear";
             FillTrees();
             SetChecks();
@@ -179,8 +202,10 @@ namespace CSEMMPGUI_v1
             InitializeComponent();
             treeNTU2SSC.CheckBoxes = true;
             treeBKS2SSC.CheckBoxes = true;
+            treeBKS2NTU.CheckBoxes = true;
             treeNTU2SSC.AfterCheck += Tree_AfterCheck;
             treeBKS2SSC.AfterCheck += Tree_AfterCheck;
+            treeBKS2NTU.AfterCheck += Tree_AfterCheck;
             if (sscModelNode == null)
             {
                 InitializeSSCModel();
@@ -197,14 +222,27 @@ namespace CSEMMPGUI_v1
                 {
                     rbNTU2SSC.Checked = true;
                     rbBKS2SSC.Enabled = false;
+                    rbBKS2NTU.Enabled = false;
+                    treeBKS2SSC.Enabled = false;
+                    treeBKS2NTU.Enabled = false;
+                }
+                else if (modelType == "BKS2SSC")
+                {
+                    rbBKS2SSC.Checked = true;
+                    rbNTU2SSC.Enabled = false;
+                    rbBKS2NTU.Enabled = false;
+                    treeNTU2SSC.Enabled = false;
+                    treeBKS2NTU.Enabled = false;
+                }
+                else if (modelType == "BKS2NTU")
+                {
+                    rbBKS2NTU.Checked = true;
+                    rbBKS2SSC.Enabled = false;
+                    rbNTU2SSC.Enabled = false;
+                    treeNTU2SSC.Enabled = false;
                     treeBKS2SSC.Enabled = false;
                 }
-                else
-                {
-                    rbNTU2SSC.Enabled = false;
-                    rbBKS2SSC.Checked = true;
-                    treeNTU2SSC.Enabled = false;
-                }
+
                 mode = 1; // Edit SSC model mode
                 this.Text = "Edit SSC Model";
             }
@@ -317,11 +355,29 @@ namespace CSEMMPGUI_v1
             {
                 treeNTU2SSC.Enabled = true;
                 treeBKS2SSC.Enabled = false;
+                treeBKS2NTU.Enabled = false;
             }
-            else
+            isSaved = false; // Mark as unsaved changes
+        }
+
+        private void rbBKS2SSC_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbBKS2SSC.Checked)
             {
-                treeNTU2SSC.Enabled = false;
                 treeBKS2SSC.Enabled = true;
+                treeNTU2SSC.Enabled = false;
+                treeBKS2NTU.Enabled = false;
+            }
+            isSaved = false; // Mark as unsaved changes
+        }
+
+        private void rbBKS2NTU_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbBKS2NTU.Checked)
+            {
+                treeBKS2NTU.Enabled = true;
+                treeNTU2SSC.Enabled = false;
+                treeBKS2SSC.Enabled = false;
             }
             isSaved = false; // Mark as unsaved changes
         }
@@ -344,19 +400,17 @@ namespace CSEMMPGUI_v1
         private bool ValidateSelection()
         {
             TreeView tree;
-            if (rbNTU2SSC.Checked)
-            {
-                tree = treeNTU2SSC;
-            }
-            else
-            {
-                tree = treeBKS2SSC;
-            }
+            tree = rbNTU2SSC.Checked ? treeNTU2SSC
+                : rbBKS2SSC.Checked ? treeBKS2SSC
+                : treeBKS2NTU;
             if (rbManual.Checked)
                 return true; // Manual mode, no selection needed
             else
             {
                 int counter = 0;
+                int waterSamples = 0;
+                int obss = 0;
+                int adcps = 0;
                 foreach (TreeNode surveyNode in tree.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
@@ -364,16 +418,38 @@ namespace CSEMMPGUI_v1
                         XmlElement element = instrumentNode.Tag as XmlElement;
                         if (instrumentNode.Checked && element != null)
                         {
+                            if (element.GetAttribute("type") == "WaterSample")
+                                waterSamples++;
+                            if (element.GetAttribute("type") == "OBSVerticalProfile")
+                                obss++;
+                            if (element.GetAttribute("type") == "VesselMountedADCP")
+                                adcps++;
                             counter++;
                         }
                     }
                 }
                 if (counter == 0)
                 {
+                    MessageBox.Show(text: "At least one instrument must be selected in Auto mode.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                     return false; // No instruments selected, return failure
                 }
                 else
                 {
+                    if (rbNTU2SSC.Checked && (obss == 0 || waterSamples == 0))
+                    {
+                        MessageBox.Show(text: "At least one OBS and one Water Sample must be selected for NTU to SSC model.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                        return false; // Instruments selection invalid
+                    }
+                    if (rbBKS2SSC.Checked && (adcps == 0 || waterSamples == 0))
+                    {
+                        MessageBox.Show(text: "At least one ADCP and one Water Sample must be selected for BKS to SSC model.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                        return false; // Instruments selection invalid
+                    }
+                    if (rbBKS2NTU.Checked && (adcps == 0 || obss == 0))
+                    {
+                        MessageBox.Show(text: "At least one ADCP and one OBS must be selected for BKS to NTU model.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                        return false; // Instruments selection invalid
+                    }
                     return true; // Instruments added successfully
                 }
             }
@@ -393,7 +469,6 @@ namespace CSEMMPGUI_v1
             }
             if (!ValidateSelection())
             {
-                MessageBox.Show(text: "Please select at least one instrument in Auto mode.", caption: "Error", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
                 return 0;
             }
             if (mode == 0)
@@ -407,20 +482,31 @@ namespace CSEMMPGUI_v1
         private void CreateSSCModel()
         {
             TreeView tree;
-            string label;
+            string label1;
+            string label2;
             if (rbNTU2SSC.Checked)
             {
                 sscElement = _Globals.Config.CreateElement("NTU2SSC");
                 modelType = "NTU2SSC";
                 tree = treeNTU2SSC;
-                label = "NTU";
+                label1 = "NTU";
+                label2 = "SSC";
             }
-            else
+            else if (rbBKS2SSC.Checked)
             {
                 sscElement = _Globals.Config.CreateElement("BKS2SSC");
                 modelType = "BKS2SSC";
                 tree = treeBKS2SSC;
-                label = "AbsoluteBackscatter";
+                label1 = "AbsoluteBackscatter";
+                label2 = "SSC";
+            }
+            else
+            {
+                sscElement = _Globals.Config.CreateElement("BKS2NTU");
+                modelType = "BKS2NTU";
+                tree = treeBKS2NTU;
+                label1 = "AbsoluteBackscatter";
+                label2 = "SSC";
             }
             sscElement.SetAttribute("name", txtModelName.Text);
             sscElement.SetAttribute("type", modelType);
@@ -488,17 +574,17 @@ namespace CSEMMPGUI_v1
                 r2Element.InnerText = outputs["R2"];
                 sscElement.AppendChild(r2Element);
                 XmlElement Data = _Globals.Config.CreateElement("Data");
-                double[] sscs = ParseArray(outputs["SSC"]);
-                double[] data = ParseArray(outputs[label]);
-                for (int i = 0; i < sscs.Length; i++)
+                double[] data1 = ParseArray(outputs[label1]);
+                double[] data2 = ParseArray(outputs[label2]);
+                for (int i = 0; i < data1.Length; i++)
                 {
                     XmlElement point = _Globals.Config.CreateElement("Point");
-                    XmlElement sscValue = _Globals.Config.CreateElement("SSC");
-                    sscValue.InnerText = sscs[i].ToString();
-                    point.AppendChild(sscValue);
-                    XmlElement dataValue = _Globals.Config.CreateElement(label);
-                    dataValue.InnerText = data[i].ToString();
-                    point.AppendChild(dataValue);
+                    XmlElement dataValue1 = _Globals.Config.CreateElement(label1);
+                    dataValue1.InnerText = data1[i].ToString();
+                    point.AppendChild(dataValue1);
+                    XmlElement dataValue2 = _Globals.Config.CreateElement(label2);
+                    dataValue2.InnerText = data2[i].ToString();
+                    point.AppendChild(dataValue2);
                     Data.AppendChild(point);
                 }
                 sscElement.AppendChild(Data);
@@ -546,18 +632,28 @@ namespace CSEMMPGUI_v1
         private void UPDATE()
         {
             TreeView tree;
-            string label;
+            string label1;
+            string label2;
             if (rbNTU2SSC.Checked)
             {
                 modelType = "NTU2SSC";
                 tree = treeNTU2SSC;
-                label = "NTU";
+                label1 = "NTU";
+                label2 = "SSC";
             }
-            else
+            else if (rbBKS2SSC.Checked)
             {
                 modelType = "BKS2SSC";
                 tree = treeBKS2SSC;
-                label = "AbsoluteBackscatter";
+                label1 = "AbsoluteBackscatter";
+                label2 = "SSC";
+            }
+            else
+            {
+                modelType = "BKS2NTU";
+                tree = treeBKS2NTU;
+                label1 = "AbsoluteBackscatter";
+                label2 = "SSC";
             }
             sscElement.SetAttribute("name", txtModelName.Text);
             XmlNode? modeNode = sscElement.SelectSingleNode("Mode");
@@ -571,6 +667,18 @@ namespace CSEMMPGUI_v1
             XmlNode? bNode = sscElement.SelectSingleNode("B");
             if (bNode != null)
                 sscElement.RemoveChild(bNode);
+            XmlNode? r2Node = sscElement.SelectSingleNode("R2");
+            if (r2Node != null)
+                sscElement.RemoveChild(r2Node);
+            XmlNode? rmseNode = sscElement.SelectSingleNode("RMSE");
+            if (rmseNode != null)
+                sscElement.RemoveChild(rmseNode);
+            XmlNode? dataNode = sscElement.SelectSingleNode("Data");
+            if (dataNode != null)
+                sscElement.RemoveChild(dataNode);
+            XmlNode? pairsNode = sscElement.SelectSingleNode("Pairs");
+            if (pairsNode != null)
+                sscElement.RemoveChild(pairsNode);
             // Clear existing instruments before adding new ones
             XmlNodeList existingInstruments = sscElement.SelectNodes("Instrument");
             foreach (XmlNode instrument in existingInstruments)
@@ -596,14 +704,19 @@ namespace CSEMMPGUI_v1
                         if (instrumentNode.Checked && element != null)
                         {
                             XmlElement instrumentElement = _Globals.Config.CreateElement("Instrument");
-                            instrumentElement.InnerText = element.GetAttribute("id");
+                            XmlElement instrumentID = _Globals.Config.CreateElement("ID");
+                            instrumentID.InnerText = element.GetAttribute("id");
+                            instrumentElement.AppendChild(instrumentID);
+                            XmlElement instrumentType = _Globals.Config.CreateElement("Type");
+                            instrumentType.InnerText = element.GetAttribute("type");
+                            instrumentElement.AppendChild(instrumentType);
                             sscElement.AppendChild(instrumentElement);
                         }
                     }
                 }
-                
+
                 Dictionary<string, string> inputs = null;
-                
+
                 inputs = new Dictionary<string, string>
                 {
                     { "Task", modelType },
@@ -631,17 +744,17 @@ namespace CSEMMPGUI_v1
                 r2Element.InnerText = outputs["R2"];
                 sscElement.AppendChild(r2Element);
                 XmlElement Data = _Globals.Config.CreateElement("Data");
-                double[] sscs = ParseArray(outputs["SSC"]);
-                double[] data = ParseArray(outputs[label]);
-                for (int i = 0; i < sscs.Length; i++)
+                double[] data1 = ParseArray(outputs[label1]);
+                double[] data2 = ParseArray(outputs[label2]);
+                for (int i = 0; i < data1.Length; i++)
                 {
                     XmlElement point = _Globals.Config.CreateElement("Point");
-                    XmlElement sscValue = _Globals.Config.CreateElement("SSC");
-                    sscValue.InnerText = sscs[i].ToString();
-                    point.AppendChild(sscValue);
-                    XmlElement dataValue = _Globals.Config.CreateElement(label);
-                    dataValue.InnerText = data[i].ToString();
-                    point.AppendChild(dataValue);
+                    XmlElement dataValue1 = _Globals.Config.CreateElement(label1);
+                    dataValue1.InnerText = data1[i].ToString();
+                    point.AppendChild(dataValue1);
+                    XmlElement dataValue2 = _Globals.Config.CreateElement(label2);
+                    dataValue2.InnerText = data2[i].ToString();
+                    point.AppendChild(dataValue2);
                     Data.AppendChild(point);
                 }
                 sscElement.AppendChild(Data);
@@ -664,6 +777,6 @@ namespace CSEMMPGUI_v1
                 sscElement.AppendChild(root);
             }
             _project.SaveConfig(saveMode: 1);
-        }
+        }  
     }
 }

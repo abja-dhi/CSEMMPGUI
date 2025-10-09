@@ -1,4 +1,3 @@
-# utils_shapefile.py
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional, Tuple, Union
@@ -22,7 +21,6 @@ class ShapefileLayer:
       2) Try geometry repair (buffer(0), explode, drop empties) and recompute.
       3) Fallback: compute raw bounds in source CRS and reproject that bbox to project CRS.
     """
-
     # required
     path: str
     kind: str                    # 'point' | 'line' | 'polygon'

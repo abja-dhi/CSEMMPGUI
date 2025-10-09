@@ -1,9 +1,8 @@
 
-# -*- coding: utf-8 -*-
 """
 CRS utilities 
 - define single project CRS
--  helpers for coordinate transforms.
+- helpers for coordinate transforms.
 - Works with scalars, arrays/series, and bounding boxes.
 - Shapefile/GeoDataFrame reprojection helpers.
 - Local UTM CRS lookup for meter-based calculations.
@@ -23,7 +22,6 @@ import geopandas as gpd
 
 ArrayLike = Union[Sequence[float], np.ndarray]
 BBox = Tuple[float, float, float, float]  # (xmin, ymin, xmax, ymax)
-
 
 def _as_np(a: ArrayLike) -> np.ndarray:
     """Convert scalars/sequences to 1D numpy array of float64."""

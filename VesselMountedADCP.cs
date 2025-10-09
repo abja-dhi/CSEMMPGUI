@@ -51,6 +51,7 @@ namespace CSEMMPGUI_v1
             txtC.Text = "-139.0";
             txtPdbw.Text = "9";
             txtEr.Text = "39";
+            txtEnsAveInterval.Text = "3";
             checkFirstEnsemble.Checked = false;
             txtFirstEnsemble.Text = "1";
             txtFirstEnsemble.Enabled = false;
@@ -119,7 +120,11 @@ namespace CSEMMPGUI_v1
             // Pd0 related attributes
             XmlNode pd0Node = adcpElement.SelectSingleNode("Pd0");
             txtPD0Path.Text = pd0Node?.SelectSingleNode("Path")?.InnerText ?? string.Empty;
-            XmlNodeList sscModels = _project.GetObjects("BKS2SSC");
+            XmlNodeList bks2sscModels = _project.GetObjects("BKS2SSC");
+            XmlNodeList bks2ntuModels = _project.GetObjects("BKS2NTU");
+            var sscModels = bks2sscModels.Cast<XmlNode>()
+                      .Concat(bks2ntuModels.Cast<XmlNode>())
+                      .ToList();
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
@@ -151,6 +156,10 @@ namespace CSEMMPGUI_v1
             }
             else
             {
+                MessageBox.Show(Text = "No SSC model found. Please add one and update the setting later",
+                    "Warning",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 comboSSCModel.Items.Clear();
                 comboSSCModel.Enabled = false; // Disable if no models are available
                 lblSSCModel.Enabled = false; // Disable label if no models are available
@@ -176,6 +185,7 @@ namespace CSEMMPGUI_v1
             txtC.Text = configurationNode?.SelectSingleNode("C")?.InnerText ?? string.Empty;
             txtPdbw.Text = configurationNode?.SelectSingleNode("Pdbw")?.InnerText ?? string.Empty;
             txtEr.Text = configurationNode?.SelectSingleNode("Er")?.InnerText ?? string.Empty;
+            txtEnsAveInterval.Text = configurationNode?.SelectSingleNode("EnsembleAverageInterval")?.InnerText ?? string.Empty;
             XmlNode maskingNode = pd0Node?.SelectSingleNode("Masking");
             XmlNode maskFirstEnsemble = maskingNode?.SelectSingleNode("FirstEnsemble");
             checkFirstEnsemble.Checked = (maskFirstEnsemble as XmlElement)?.GetAttribute("Enabled") == "true";
@@ -652,7 +662,11 @@ namespace CSEMMPGUI_v1
             updateCombo(comboX, columns, 1);
             updateCombo(comboY, columns, 2);
             updateCombo(comboHeading, columns, 3);
-            XmlNodeList sscModels = _project.GetObjects(type: "BKS2SSC");
+            XmlNodeList bks2sscModels = _project.GetObjects(type: "BKS2SSC");
+            XmlNodeList bks2ntuModels = _project.GetObjects(type: "BKS2NTU");
+            var sscModels = bks2sscModels.Cast<XmlNode>()
+                      .Concat(bks2ntuModels.Cast<XmlNode>())
+                      .ToList();
             if (sscModels.Count > 0)
             {
                 comboSSCModel.Items.Clear();
@@ -923,7 +937,11 @@ namespace CSEMMPGUI_v1
             pd0Path.InnerText = pd0FilePath;
             pd0.AppendChild(pd0Path);
             XmlElement sscModel = project.CreateElement("SSCModelID");
-            XmlNodeList sscModels = _project.GetObjects(type: "BKS2SSC");
+            XmlNodeList bks2sscModels = _project.GetObjects(type: "BKS2SSC");
+            XmlNodeList bks2ntuModels = _project.GetObjects(type: "BKS2NTU");
+            var sscModels = bks2sscModels.Cast<XmlNode>()
+                      .Concat(bks2ntuModels.Cast<XmlNode>())
+                      .ToList();
             if (sscModels.Count == 0)
             {
                 sscModel.InnerText = string.Empty;
@@ -998,6 +1016,10 @@ namespace CSEMMPGUI_v1
             XmlElement er = project.CreateElement("Er");
             er.InnerText = txtEr.Text.Trim();
             configuration.AppendChild(er);
+
+            XmlElement ensAveInterval = project.CreateElement("EnsembleAverageInterval");
+            ensAveInterval.InnerText = txtEnsAveInterval.Text.Trim();
+            configuration.AppendChild(ensAveInterval);
 
             pd0.AppendChild(configuration);
 
@@ -1218,6 +1240,8 @@ namespace CSEMMPGUI_v1
             pdbwNode.InnerText = txtPdbw.Text.Trim();
             XmlNode? erNode = configurationElement?.SelectSingleNode("Er");
             erNode.InnerText = txtEr.Text.Trim();
+            XmlNode? ensAveIntervalNode = configurationElement?.SelectSingleNode("EnsembleAverageInterval");
+            ensAveIntervalNode.InnerText = txtEnsAveInterval.Text.Trim();
             XmlElement maskingElement = pd0Element?.SelectSingleNode("Masking") as XmlElement;
             XmlElement? firstEnsembleNode = maskingElement.SelectSingleNode("FirstEnsemble") as XmlElement;
             firstEnsembleNode.SetAttribute("Enabled", checkFirstEnsemble.Checked.ToString().ToLower());

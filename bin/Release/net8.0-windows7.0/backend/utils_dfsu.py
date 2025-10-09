@@ -1,7 +1,6 @@
 from mikecore.DfsuFile import DfsuFile
 import numpy as np
 from matplotlib.tri import Triangulation
-import warnings
 
 from .utils import Utils, Constants
 

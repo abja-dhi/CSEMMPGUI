@@ -448,15 +448,15 @@ namespace CSEMMPGUI_v1
             type = _type;
             sscmodel = _project.GetObject(type: type, id: id);
             comboPlotType.Items.Clear();
-            if (type == "BKS2SSC")
+            if (type == "NTU2SSC")
             {
                 comboPlotType.Items.Add("Regression Plot");
-                comboPlotType.Items.Add("Transect Plot");
                 comboPlotType.SelectedIndex = 0;
             }
             else
             {
                 comboPlotType.Items.Add("Regression Plot");
+                comboPlotType.Items.Add("Transect Plot");
                 comboPlotType.SelectedIndex = 0;
             }
         }
@@ -473,8 +473,10 @@ namespace CSEMMPGUI_v1
                 string task;
                 if (type == "BKS2SSC")
                     task = "PlotBKS2SSCRegression";
-                else
+                else if (type == "NTU2SSC")
                     task = "PlotNTU2SSCRegression";
+                else
+                    task = "PlotBKS2NTURegression";
                 //string title = txtTitle.Text ?? "";
                 inputs = new Dictionary<string, string>
                 {
@@ -503,9 +505,14 @@ namespace CSEMMPGUI_v1
             //}
             else if (comboPlotType.SelectedItem.ToString() == "Transect Plot")
             {
+                string task;
+                if (type == "BKS2SSC")
+                    task = "PlotBKS2SSCTransect";
+                else
+                    task = "PlotBKS2NTUTransect";
                 inputs = new Dictionary<string, string>
                 {
-                    { "Task", "PlotBKS2SSCTransect" },
+                    { "Task", task },
                     { "Project", _Globals.Config.OuterXml.ToString() },
                     { "SSCModelID", id },
                     { "BeamSelection", numericNBeams.Value.ToString()},

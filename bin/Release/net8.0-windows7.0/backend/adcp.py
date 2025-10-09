@@ -1,52 +1,33 @@
-# Standard library
 from pathlib import Path
 from typing import List, Tuple, Dict, Optional, Union
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-import warnings
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-
-# Third-party
 import numpy as np
 import numpy.ma as ma
 from numpy.typing import NDArray
 from dateutil import parser
-
-
-from pyproj import CRS, Transformer
-
-
-import cmocean.cm as cmo
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 from matplotlib.animation import FuncAnimation, PillowWriter
-from matplotlib.axes import Axes
 from matplotlib.collections import LineCollection
-from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
-import matplotlib.ticker as mticker
-from matplotlib.ticker import AutoLocator, ScalarFormatter
+from matplotlib.ticker import ScalarFormatter, FuncFormatter
 from matplotlib import colors as mcolors
+from matplotlib.colors import Normalize, LogNorm
 from scipy.ndimage import gaussian_filter1d
 
-# Local
 from .utils import Utils, Constants, XYZ
-from .pd0 import Pd0Decoder, FixedLeader, VariableLeader
+from .pd0 import Pd0Decoder
 from ._adcp_position import ADCPPosition
 from .plotting import PlottingShell
 
-
-
-        
 class ADCP():
     def __init__(self, cfg: str | Path, name: str) -> None:
 
-        self._cfg = cfg #Utils._parse_kv_file(self._config_path)
+        self._cfg = cfg 
         self._pd0_path = self._cfg.get("filename", None)
-        self.name = self._cfg.get("name", 'MyADCP') #self._cfg.get("name", self._config_path.stem)
+        self.name = self._cfg.get("name", 'MyADCP')
         
 
         if self._pd0_path is not None:
@@ -95,9 +76,6 @@ class ADCP():
             transect_shift_t=float(get_valid(self._cfg, 'transect_shift_t', 0)),
             velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 5))
         )
-        
-     
-        
         
         ## Time class
         @dataclass    
@@ -151,9 +129,6 @@ class ADCP():
                 metadata={"desc": "Roll standard deviation (°), scaled from 0.1°. Range: 0.0–20.0°. Requires internal tilt sensor."}
             )
 
-            
-
-        
         self.aux_sensor_data = ADCPAuxSensorData(
             pressure=self._pd0.get_variable_leader_attr("pressure") * 0.001,  # decapascal → dbar
             pressure_var=self._pd0.get_variable_leader_attr("pressure_sensor_variance") * 0.001,
@@ -169,14 +144,9 @@ class ADCP():
             roll_std=self._pd0.get_variable_leader_attr("roll_std_dev") * 0.1,
         )
         
-        
         ## Platform Position class
         self.position = ADCPPosition(self._cfg['pos_cfg'])
         self.position._resample_to(self.time.ensemble_datetimes)
-        
-
-        
-        
         
         if np.all(self.position.heading ==0):
             self.position.heading = self.aux_sensor_data.heading
@@ -204,11 +174,8 @@ class ADCP():
             relative_beam_origin: NDArray[np.float64] = field (metadata = {"desc": "Relative XYZ position of the beams with respect to CRP"})
             relative_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": "XYZ position of each beam/bin/ensemble pair relative to centroid of transducer faces (meters, pos above, neg below)"})
             geographic_beam_midpoint_positions: NDArray[np.float64] = field(metadata={"desc": f"geographic XYZ position of each beam/bin/ensemble pair (meters) , EPSG {self.position.epsg}"})
-            HAB_beam_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from seabed to bin centers (m)"})        
-                
-        
-        #vh_list = self._pd0._get_variable_leader()  
-        
+            HAB_beam_midpoint_distances: NDArray[np.float64] = field(metadata={"desc": "Array of distances from seabed to bin centers (m)"})
+
         self.geometry = ADCPGeometry(
             beam_facing=self._pd0.fixed_leaders[0].system_configuration.beam_facing.lower(),
             n_bins=self._pd0.fixed_leaders[0].number_of_cells_wn,
@@ -235,7 +202,6 @@ class ADCP():
         self.geometry.geographic_beam_midpoint_positions = geographic_bmp
         self.geometry.relative_beam_origin  = relative_org  
         
-        
         # Beam data (unmasked)
         @dataclass
         class ADCPBeamData:
@@ -256,7 +222,6 @@ class ADCP():
             signal_to_noise_ratio = None, # placeholder until compute
             sediment_attenuation = None,  # placeholder until compute
             )
-        
         
         # Bottom Track data (unmasked)
         @dataclass
@@ -295,9 +260,6 @@ class ADCP():
                
 
         bt_list = self._pd0.get_bottom_track()
-        
-        
-        
         if bt_list:
             self._bt_mode_active = True
             self.bottom_track = ADCPBottomTrack(
@@ -343,22 +305,6 @@ class ADCP():
             self._bt_mode_active = False
             
        
-        
-        
-        
-        # @dataclass
-        # class ADCPVelocityData:
-        #     """
-        #     Container for ADCP velocity-derived quantities in Earth coordinates.
-        #     """
-        #     u: np.ndarray = field(default=None, metadata={"desc": "Eastward (u) velocity component [m/s]"})
-        #     v: np.ndarray = field(default=None, metadata={"desc": "Northward (v) velocity component [m/s]"})
-        #     z: np.ndarray = field(default=None, metadata={"desc": "Vertical (z/upward) velocity component [m/s]"})
-        #     speed: np.ndarray = field(default=None, metadata={"desc": "Horizontal current speed [m/s] = sqrt(u^2 + v^2)"})
-        #     direction: np.ndarray = field(default=None, metadata={"desc": "Current direction in degrees from North (0°–360°)"})
-        #     error_velocity: np.ndarray = field(default=None, metadata={"desc": "Error velocity component from ADCP [m/s]"})
-        
-            
         @dataclass
         class BeamVel:
             b1: np.ndarray
@@ -369,9 +315,9 @@ class ADCP():
         
         @dataclass
         class InstVel:
-            X: np.ndarray
-            Y: np.ndarray
-            Z: np.ndarray
+            x: np.ndarray
+            y: np.ndarray
+            z: np.ndarray
             ev: np.ndarray
             speed: np.ndarray
             direction: np.ndarray
@@ -418,10 +364,6 @@ class ADCP():
             Populate self.velocity using native frame and forward transforms only.
             Uses class methods; no re-derivations.
             """
-    
-    
-                
-                
             frame = self._pd0.fixed_leaders[0].coordinate_transform.frame.lower()
         
             # Attitude and corrections (length T)
@@ -527,31 +469,9 @@ class ADCP():
                 self.velocity.from_earth = EarthVel(u, v, z, ev, speed,direction)
         
             else:
-                raise ValueError(f"Unknown native frame '{frame}'")            
-            
-            
-            
-                    
-                    # u,v,z,ev = self._get_velocity()
-                    # speed = np.sqrt(u**2 + v**2)
-                    # direction = (np.degrees(np.arctan2(u, v)) + 360) % 360
-                    
-                    # self.velocity_data = ADCPVelocityData(
-                    #     u=u,
-                    #     v=v,
-                    #     z=z,
-                    #     speed=speed,  # Can be calculated later as sqrt(u^2 + v^2)
-                    #     direction=direction,  # Can be calculated later with arctan2(v, u)
-                    #     error_velocity=ev
-                    # )
-            
+                raise ValueError(f"Unknown native frame '{frame}'")
+
         _populate_velocity()       
-        
-
-        
-
-
-
                  
         ## water properties class
         @dataclass
@@ -590,7 +510,6 @@ class ADCP():
             pressure=pressure,
             pH=np.array(get_valid(wp_cfg, 'pH', [8.1]), dtype=np.float64),
         )
-                    
         
         ## Sediment properties class
         @dataclass
@@ -617,8 +536,6 @@ class ADCP():
             B=get_valid(sscpar_cfg,'B', 5)
         )
                 
-        
-        
         ## absolute backscatter params class
         abs_cfg = self._cfg.get('abs_params', {})
         @dataclass
@@ -634,8 +551,6 @@ class ADCP():
             frequency: float = field(default=None, metadata={"desc": "System frequency"})
             tx_pulse_length: float = field(default=None, metadata={"desc": "Transmit pule length (m)"})
             
-            
-        
         # set default Absolute Backscatter params 
         n_beams = self.geometry.n_beams
         n_bins = self.geometry.n_bins
@@ -648,7 +563,6 @@ class ADCP():
         # set default sediment attenuation coefficient  (all zeros)
         alpha_s = np.zeros((n_ens,n_bins,n_beams), dtype = float)
         
-
         # compute water attenuation coefficient
         pulse_lengths = self._pd0.get_fixed_leader_attr('xmit_pulse_length_based_on_wt')*.01#_get_sensor_transmit_pulse_length()
         bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
@@ -660,15 +574,8 @@ class ADCP():
         salinity = self.water_properties.salinity
         density = self.water_properties.density
         pH = self.water_properties.pH
-        
-        #temp = temperature * np.ones((n_ens, n_bins,n_beams))
-
-        #salinity = salinity * np.ones((n_ens, n_bins,n_beams))
         water_density = density * np.ones((n_ens, n_bins, n_beams))
-        
-        #pulse_lengths = np.outer(pulse_lengths, np.ones(n_bins))
         bin_distances = np.outer(bin_distances, np.ones(n_ens)).T
-        
         alpha_w = self._water_absorption_coeff(
                           T = self.water_properties.temperature,
                           S = self.water_properties.salinity,
@@ -686,7 +593,6 @@ class ADCP():
         
         # Override with config if provided
         C = abs_cfg.get("C", C)
-        #alpha = self._cfg.get("absolute_backscatter_alpha", default_alpha)
         P_dbw = abs_cfg.get("P_dbw", P_dbw)
         E_r = abs_cfg.get("E_r", 39.0)
     
@@ -712,12 +618,6 @@ class ADCP():
         self.beam_data.absolute_backscatter = ABS
         self.beam_data.signal_to_noise_ratio = StN
         
-
-        #self.abs_params = self._gen_abs_backscatter_params_from_adcp()
-        
-        
-
-        
         ## masking attributres class
         @dataclass
         class MaskParams:
@@ -731,7 +631,7 @@ class ADCP():
             vel_min: float = field(metadata={"desc": "Minimum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
             vel_max: float = field(metadata={"desc": "Maximum accepted velocity magnitude (m/s). Applies to masks for velocity data only."})
             bt_bin_offset: int = field(metadata={"desc": "Number of additional cells to mask above bottom track range to seabed mask."})
-            err_vel_max: Union[float,str] = field(metadata={"desc": "Maximum accepted absolute value of error velocity (m/s).If 'auto' then  .Applies to masks for velocity data only." })
+            err_vel_max: Union[float,str] = field(metadata={"desc": "Maximum accepted absolute value of error velocity (m/s).If 'auto' then. Applies to masks for velocity data only." })
             start_datetime: datetime = field(metadata={"desc": "Start time for valid ensemble masking window. Applies to masks for velocity and beam data."})
             end_datetime: datetime = field(metadata={"desc": "End time for valid ensemble masking window. Applies to masks for velocity and beam data."})
             first_good_ensemble: int = field(metadata={"desc": "Index of first ensemble to retain. Zero based index. Applies to masks for velocity and beam data."})
@@ -764,40 +664,10 @@ class ADCP():
         )
 
         
-        
-        
-        
-        #% create bottom track mask 
-        #self._generate_bottom_track_mask()
-        
-        ## TO-DO 
-        # Apply masking to beam data and velocity data separately
-        # apply bottom track masking 
-        # apply bottom track current velocity corrections
-        # SSC estimation, with ability to handle Nan values
-        # accept SSC conversion parameters A and B
-        # add the instrument configuration summary as a method 
-        #
-    
-
         self._generate_velocity_data_masks()
         self._generate_beam_data_masks()
-        #ABS,SSC,Alpha_s = self._calculate_ssc()
-        #ABS,SSC,Alpha_s = self._calculate_ssc()
-        # self.beam_data.absolute_backscatter = ABS
         self.beam_data.suspended_solids_concentration = self._calculate_ssc()
-        # self.beam_data.sediment_attenuation = Alpha_s
-
         
-        # self.plot = Plotting(self)
-        
-        # fig,ax = PlottingShell.subplots()
-        
-        # ax.imshow(self.beam_data.suspended_sediments_concentration[0])
-        # plt.imshow(self.beam_data.suspended_sediments_concentration[0], cmap = 'turbo_r')
-        
-
-
     def _get_bin_midpoints(self) -> np.ndarray:
         """
         Get the midpoints of the bins as function of distance from the transducer. 
@@ -990,10 +860,6 @@ class ADCP():
         return out, meta
 
 
-
-
-
-    
     def get_velocity_data(self,
                           coord_sys: str = "earth",
                           mask: bool = True,):
@@ -1043,7 +909,7 @@ class ADCP():
             v1, v2, v3 = np.array(src.x, float), np.array(src.y, float), np.array(src.z, float)
         elif coord_sys == "ship":
             src = self.velocity.from_ship
-            v1, v2, v3 = np.array(src.S, float), np.array(src.F, float), np.array(src.U, float)
+            v1, v2, v3 = np.array(src.s, float), np.array(src.f, float), np.array(src.u, float)
         else:  # earth
             src = self.velocity.from_earth
             v1, v2, v3 = np.array(src.u, float), np.array(src.v, float), np.array(src.z, float)
@@ -1286,8 +1152,6 @@ class ADCP():
         out[~np.isfinite(out)] = np.nan
         return out, meta
 
-    
-    
     def _generate_velocity_data_masks(self) ->None:
     
         # speed
@@ -1330,39 +1194,16 @@ class ADCP():
         dt_mask = (dt > self.masking.end_datetime) | (dt < self.masking.start_datetime)
         dt_mask = dt_mask[:, np.newaxis]
         dt_mask = np.broadcast_to(dt_mask, (self.time.n_ensembles, self.geometry.n_bins))
-
-        # print(f"EV IQR fences [{lo:.3f}, {hi:.3f}]  cap={err_vel_max:.3f}  "
-        #       f"masked={np.count_nonzero(ev_mask)}/{ev_mask.size}")
-        
         # consolidated summary at the bottom
         total = speed_mask.size
-        # print(
-        #     f"mask totals — "
-        #     f"speed:{np.count_nonzero(speed_mask)}/{total}, "
-        #     f"ev:{np.count_nonzero(ev_mask)}/{total}, "
-        #     f"ens:{np.count_nonzero(ens_mask)}/{total}, "
-        #     f"dt:{np.count_nonzero(dt_mask)}/{total}"
-        # )
         if self._bt_mode_active:
             bt_mask = self._generate_bottom_track_mask(cell_offset = self.masking.bt_bin_offset)[:,:,0]
             master_mask = np.logical_or.reduce([speed_mask, ev_mask,pg_mask, ens_mask, dt_mask, ~bt_mask])
         else: 
             master_mask = np.logical_or.reduce([speed_mask, ev_mask,pg_mask, ens_mask, dt_mask])
-        
-        
-        
-        
         self.masking.velocity_data_mask = master_mask
-        #master_mask = np.logical_or.reduce([sv_mask])
-        
-        #self.masking.beam_data_mask = master_mask           
-           
-        
-                       
                        
     def _generate_beam_data_masks(self) -> None:
-        
-        
         # correlation magnitude
         cmag = self.beam_data.correlation_magnitude
         cmag_mask = (cmag > self.masking.cormag_max) | (cmag < self.masking.cormag_min)
@@ -1387,30 +1228,14 @@ class ADCP():
         dt_mask = dt_mask[:, np.newaxis, np.newaxis]
         dt_mask = np.broadcast_to(dt_mask, (self.time.n_ensembles, self.geometry.n_bins, self.geometry.n_beams))
 
-        # print(f"cmag_mask has unmasked values: {np.any(~cmag_mask)}")
-        # print(f"echo_mask has unmasked values: {np.any(~echo_mask)}")
-        # print(f"sv_mask has unmasked values: {np.any(~sv_mask)}")
-        # print(f"ens_mask has unmasked values: {np.any(~ens_mask)}")
-        # print(f"dt_mask has unmasked values: {np.any(~dt_mask)}")
-        
         if self._bt_mode_active:
             bt_mask = self._generate_bottom_track_mask(cell_offset = self.masking.bt_bin_offset)
             master_mask = np.logical_or.reduce([cmag_mask, echo_mask, sv_mask, ens_mask, dt_mask, ~bt_mask])
         else:
            master_mask = np.logical_or.reduce([cmag_mask, echo_mask, sv_mask, ens_mask, dt_mask])
 
-
-        
-        
-        #master_mask = np.logical_or.reduce([sv_mask])
-        
         self.masking.beam_data_mask = master_mask
         
- 
-        
-        
-        
-
     def _generate_bottom_track_mask(self, cell_offset: int = 0, incl_sidelobe = True) -> None:
         """
         Masks beam data below the seabed based on bottom track range.
@@ -1426,15 +1251,11 @@ class ADCP():
             
             An additional d*cos(beam_angle) of depth to seabed removed (~6% for 20 degree beam angle).
         """
-        
-        
         # Get bottom track range (in meters)
         bt_range = self.bottom_track.range_to_seabed  # shape: (n_beams, n_ensembles)
         
-        
         if incl_sidelobe:
             bt_range = bt_range*np.cos(self.geometry.beam_angle*np.pi/180)
-            
             
         # Expand bottom track range to match beam data shape: (n_beams, n_bins, n_ensembles)
         bt_range_expanded = np.repeat(bt_range[:, np.newaxis, :], self.geometry.n_bins, axis=1)
@@ -1450,21 +1271,9 @@ class ADCP():
         mask = bin_centers < bt_range_expanded
         mask = mask.T
         
-        
-        
-        
-        
-        # # Apply mask to beam data fields
-        # for attr in ['echo_intensity', 'correlation_magnitude', 'percent_good']:
-        #     data = getattr(self.beam_data, attr)
-        #     masked_data = np.where(mask, data, np.nan)
-        #     setattr(self.beam_data, attr, masked_data)
-    
         return mask
         
         
-        
-
     def _get_datetimes(self, apply_corrections: bool = True) -> List[datetime]:
         """
         Get the datetimes for each ensemble in the PD0 file.
@@ -1531,10 +1340,6 @@ class ADCP():
         I =  B @ M.T
         return I
   
-  
-    
-        
-    
     def _inst_to_earth_coords(self,I, heading_deg, pitch_deg, roll_deg,
                       declination_deg=0.0, heading_bias_deg=0.0, use_tilts=True):
         """
@@ -1652,8 +1457,6 @@ class ADCP():
             I4 = self._beam_to_inst_coords(raw)     # (T,K,4)
             err = I4[..., 3]
             I = I4[..., :3]
-     
-     
             if target_frame == "instrument":
                 return I[..., 0], I[..., 1], I[..., 2], err
             if target_frame == "ship":
@@ -1700,10 +1503,6 @@ class ADCP():
             f"Transformation from native '{frame}' to '{target_frame}' not supported."
         )
 
-    
-    
-    
-
         
     def _get_bt_velocity(
         self, target_frame: str = "earth"
@@ -1740,7 +1539,6 @@ class ADCP():
         # Already in requested frame
         if frame == target_frame:
             return raw[:, 0], raw[:, 1], raw[:, 2], raw[:, 3]
-        
            
         # Beam/instrument → ship/earth, split error BEFORE rotation
         if frame in ("beam", "instrument"):
@@ -1825,9 +1623,6 @@ class ADCP():
     
         return hab
 
-
- 
-    
     def _calculate_beam_geometry(self):
             
             crp_theta = self.geometry.crp_rotation_angle
@@ -2039,14 +1834,9 @@ class ADCP():
                 gy[e, b] = yb + base_e[1, b] + u[1] * r
                 gz[e, b] = zb + base_e[2, b] + u[2] * r
     
-
-    
-
         seabed_points = XYZ(x=gx, y=gy, z=gz)
     
         return adjusted, seabed_points
-
-
 
     def _counts_to_absolute_backscatter(self, E,E_r, k_c, alpha, C, R, Tx_T, Tx_PL, P_dbw):
         """
@@ -2143,47 +1933,6 @@ class ADCP():
         
         return X, StN
 
- 
- 
-    # def _water_absorption_coeff(self,T, S, z, f, pH):
-        
-    #     print(f"""
-    #     T mean: {np.mean(T)}
-    #     S mean: {np.mean(S)}
-    #     z mean: {np.mean(z)}
-    #     f mean: {np.mean(f)}
-    #     pH mean: {np.mean(pH)}
-    #     """)
-        
-    #     c = 1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 + (0.0134 * T) * (S - 35) + 0.016 * z
-    
-    #     A1 = (8.68 / c) * 10**(0.78 * pH - 5)
-    #     P1 = 1
-    #     f1 = 2.8 * np.sqrt(S / 35) * 10**(4 - (1245 / (273 + T)))
-    
-    #     A2 = 21.44 * (S / c) * (1 + 0.025 * T)
-    #     P2 = 1 - 1.37e-4 * z + 6.2e-9 * z**2
-    #     f2 = (8.17 * 10**(8 - (1990 / (273 + T)))) / (1 + 0.0018 * (S - 35))
-    
-    #     A3 = np.where(
-    #         T <= 20,
-    #         4.937e-4 - 2.59e-5 * T + 9.11e-7 * T**2 - 1.5e-8 * T**3,
-    #         3.964e-4 - 1.146e-5 * T + 1.45e-7 * T**2 - 6.5e-8 * T**3,
-    #     )
-    #     P3 = 1 - 3.83e-5 * z + 4.9e-10 * z**2
-    
-    #     alpha_w = (
-    #         A1 * P1 * f1 * f**2 / (f**2 + f1**2) +
-    #         A2 * P2 * f2 * f**2 / (f**2 + f2**2) +
-    #         A3 * P3 * f**2
-    #     )
-        
-    #     print(f"A3 mean: {np.mean(A3)}, min: {np.min(A3)}")
-    #     print(f"P3 mean: {np.mean(P3)}")
-    #     print(f"Contribution 3 mean: {np.mean(A3 * P3 * f**2)}")
-                
-    #     return alpha_w / 1000  # dB/m
-    
     def _water_absorption_coeff(self, T, S, z, f, pH):
         """
         Compute acoustic absorption in seawater using the Francois & Garrison (1982) model.
@@ -2257,67 +2006,6 @@ class ADCP():
     
         return term1 + term2 + term3
         
-    # def _sediment_absorption_coeff(self, ps, pw, d, SSC, T, S, f, z):
-    #     """
-    #     Calculate sediment-induced acoustic attenuation (alpha_s) [dB/m] using
-    #     visco-inertial absorption and scattering theory for spherical particles.
-        
-    #     Parameters
-    #     ----------
-    #     ps : float
-    #         Particle density [kg/m³]
-    #     pw : array_like
-    #         Water density [kg/m³]
-    #     d : float
-    #         Particle diameter [m]
-    #     SSC : array_like
-    #         Suspended sediment concentration [mg/L]
-    #     T : array_like
-    #         Temperature [°C]
-    #     S : array_like
-    #         Salinity [PSU]
-    #     f : float
-    #         Acoustic frequency [Hz]
-    #     z : array_like
-    #         Depth [m]
-        
-    #     Returns
-    #     -------
-    #     alpha_s : array_like
-    #         Sediment-induced attenuation coefficient [dB/m]
-    #     """
-    #     import numpy as np
-    
-    #     # Convert SSC from mg/L to g/L
-    #     SSC_gL = SSC #/ 1000.0
-    
-    #     # Speed of sound [m/s] — Mackenzie (1981) approximation
-    #     c = (1449.2 + 4.6 * T - 0.055 * T**2 + 0.00029 * T**3 +
-    #          (0.0134 * T) * (S - 35) + 0.016 * z)
-    
-    #     # Kinematic viscosity [m²/s]
-    #     nu = (40e-6) / (20 + T)
-    
-    #     # Wave number [rad/m]
-    #     k = 2 * np.pi * f / c
-    
-    #     # Inertial term
-    #     B = 0.5 * np.pi * f / nu
-    #     delta = 0.5 * (1 + 9 / (B * d))
-    #     sigma = ps / pw
-    #     s = (9 / (2 * B * d)) * (1 + 2 / (B * d))
-    
-    #     # Scattering and inertial damping terms
-    #     term1 = (k**4 * d**3) / (96 * ps)                        # Scattering loss
-    #     term2 = (k * (sigma - 1)**2) / (2 * ps)                  # Inertial loss
-    
-    #     # Viscous absorption term
-    #     viscous_term = (s / (s**2 + (sigma + delta)**2))
-    #     term3 = viscous_term * (20 / np.log(10)) * SSC_gL       # dB/m
-
-    #     return term1 + term2 + term3
-        
- 
     def _backscatter_to_ssc(self,backscatter):
         return 10**(self.ssc_params.A + backscatter*self.ssc_params.B)
     
@@ -2335,173 +2023,16 @@ class ADCP():
         A2 : float
             Coefficient for NTU to SSC conversion.
         """
-        #self.mask.set_mask_status(False)
         bks = self.beam_data.absolute_backscatter
-        
-        
-
         return self._backscatter_to_ssc(bks)
 
 
-
-        # # ---------- Instrument + CTD data ----------
-        # E_r = self.abs_params.E_r
-        # WB = self._pd0.fixed.system_bandwidth_wb
-        # C = self.abs_params.C
-        
-        # k_c = {
-        #     1: self.abs_params.rssi[1],
-        #     2: self.abs_params.rssi[2],
-        #     3: self.abs_params.rssi[3],
-        #     4: self.abs_params.rssi[4]
-        # }
-        
-        # P_dbw = self.abs_params.P_dbw
-        
-        # bin_distances = self.geometry.bin_midpoint_distances
-        # pulse_lengths = self._pd0._get_sensor_transmit_pulse_length()
-        # bin_depths = abs(self.geometry.geographic_beam_midpoint_positions.z)
-        # instrument_freq = self.abs_params.frequency*1000 # in hZ
-        
-        # temperature = self.water_properties.temperature
-        # pressure = self.aux_sensor_data.pressure
-        # salinity = self.water_properties.salinity
-        # density = self.water_properties.density
-        
-        # nc = self.geometry.n_bins
-        # ne = self.time.n_ensembles
-        
-        # temp = temperature * np.ones((ne, nc)).T
-        # pressure = np.outer(pressure, np.ones(nc)).T
-        # salinity = salinity * np.ones((ne, nc)).T
-        # water_density = density * np.ones((ne, nc)).T
-        
-        # pulse_lengths = np.outer(pulse_lengths, np.ones(nc)).T
-        # bin_distances = np.outer(bin_distances, np.ones(ne))
-        
-
-        
-        # if self.geometry.beam_facing.lower() == 'down':
-        #     pressure += bin_distances * 0.98
-        # else:
-        #     pressure -= bin_distances * 0.98
-        
-        # alpha_w = self._water_absorption_coeff(
-        #     T=temp, S=salinity, z=pressure, f=instrument_freq, pH=7.5)
-        
-        # E = self.beam_data.echo_intensity.T
-        
-        # ABS = self.beam_data.absolute_backscatter.T
-        # SSC = np.full_like(E, np.nan, dtype=float)
-        # Alpha_s = np.zeros_like(E, dtype=float)
-        
-
-        
-        # for bm in range(self.geometry.n_beams):
-        #     for bn in range(self.geometry.n_bins):
-        #         if bn == 0:
-        #             ssc_beam_bin = self._backscatter_to_SSC(ABS)[bm, bn]
-        
-        #             for _ in range(100):
-        #                 alpha_s = self._sediment_absorption_coeff(
-        #                     ps=self.sediment_properties.particle_density,
-        #                     pw=water_density[bn],
-        #                     z=pressure[bn],
-        #                     d=self.sediment_properties.particle_diameter,
-        #                     SSC=ssc_beam_bin,
-        #                     T=temp[bn],
-        #                     S=salinity[bn],
-        #                     f=instrument_freq
-        #                 )
-        #                 sv, _ = self._counts_to_absolute_backscatter(
-        #                     E=E[bm, bn],
-        #                     E_r=E_r,
-        #                     k_c=k_c[bm + 1],
-        #                     alpha=alpha_w[bn] + alpha_s,
-        #                     C=C,
-        #                     R=bin_distances[bn],
-        #                     Tx_T=temp[bn],
-        #                     Tx_PL=pulse_lengths[bn],
-        #                     P_dbw=P_dbw
-        #                 )
-        #                 ssc_new = self._backscatter_to_SSC(sv)
-        #                 if np.allclose(ssc_new, ssc_beam_bin, rtol=0, atol=1e-6, equal_nan=True):
-
-        #                     break
-        #                 ssc_beam_bin = ssc_new
-        
-        #             ABS[bm, bn] = sv
-        #             SSC[bm, bn] = ssc_beam_bin
-        #             Alpha_s[bm, bn] = alpha_s
-        
-        #         else:
-        #             ssc_beam_bin = np.nanmean(SSC[bm, :bn], axis=0)
-        #             alpha_s = self._sediment_absorption_coeff(
-        #                 ps=self.sediment_properties.particle_density,
-        #                 pw=water_density[bn],
-        #                 z=pressure[bn],
-        #                 d=self.sediment_properties.particle_diameter,
-        #                 SSC=ssc_beam_bin,
-        #                 T=temp[bn],
-        #                 S=salinity[bn],
-        #                 f=instrument_freq
-        #             )
-        #             sv, _ = self._counts_to_absolute_backscatter(
-        #                 E=E[bm, bn],
-        #                 E_r=E_r,
-        #                 k_c=k_c[bm + 1],
-        #                 alpha=alpha_w[bn] + alpha_s,
-        #                 C=C,
-        #                 R=bin_distances[bn],
-        #                 Tx_T=temp[bn],
-        #                 Tx_PL=pulse_lengths[bn],
-        #                 P_dbw=P_dbw
-        #             )
-        #             ABS[bm, bn] = sv
-        #             SSC[bm, bn] = self._backscatter_to_SSC(sv)
-        #             Alpha_s[bm, bn] = alpha_s
-        
-                
-        # return ABS,SSC,Alpha_s
-    
-
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-            
-           
-
-
-
 class Plotting:
-
     def __init__(self, adcp: ADCP) -> None:
         self._adcp = adcp
 
-    
-    def platform_orientation(self):
+    def platform_orientation(self, title=None):
         pos = self._adcp.geometry.relative_beam_origin
-        
-        
         fig, (ax, ax2) = PlottingShell.subplots(
             figheight=6, figwidth=4, nrow=2, height_ratios = [3,1]
         )
@@ -2525,18 +2056,7 @@ class Plotting:
             y = pos[1, b]
 
             ax.scatter(x, y, s=25, c='black', zorder=3, marker = rf'${str(b+1)}$')
-        
-            # if x != 0 or y != 0:
-            #     norm = np.hypot(x, y)
-            #     dx = (x / norm) * r_offset
-            #     dy = (y / norm) * r_offset
-            # else:
-            # dx, dy = 0, 0
-        
-            # ax.annotate(f"{b+1}", (x + dx, y + dy),
-            #             ha='center', va='center', fontsize=8,
-            #             bbox=dict(boxstyle="round,pad=0.2", fc="none", ec="none", alpha=0.6))
-        
+
         limit = max(max(map(abs, ax.get_xlim())), max(map(abs, ax.get_ylim()))) * 1.2
         ax.set_xlim(-limit, limit)
         ax.set_ylim(-limit, limit)
@@ -2573,7 +2093,9 @@ class Plotting:
         
         ax.set_xlabel('Δx (m)')
         ax.set_ylabel('Δy (m)')
-        ax.set_title(f'{self._adcp.name} Platform Orientation')
+        if title is None:
+            title = f'{self._adcp.name} Platform Orientation'
+        ax.set_title(title)
         
         # --- Bottom plot: Z-offset relative to CRP ---
         y = np.mean(pos[1,:])
@@ -2599,12 +2121,7 @@ class Plotting:
         ax2.set_xlabel("Δy (m)")
         
         fig.tight_layout()
-        plt.show()
-
-    
-
-
-    
+        
     def transect_animation(
         self,
         figheight: float = 5,
@@ -2621,8 +2138,6 @@ class Plotting:
         save_gif: bool = False,
         gif_name: str | None = None
     ) -> FuncAnimation:
-        
-        
         adcp = self._adcp
         
         t = np.asarray(adcp.time.ensemble_datetimes)
@@ -2754,17 +2269,12 @@ class Plotting:
                 gif_name = f"{adcp.name} transect animation.gif"
             ani.save(gif_name, dpi=120, fps=1000/interval_ms)
         
-        #plt.show()
         return fig,ani
-
-
- 
 
     def beam_geometry_animation(self, figheight: float = 6,
                                 figwidth: float = 7,
                                 interval: int = 50,
                                 blit: bool = False,
-                                show: bool = True,
                                 export_gif: bool = False,
                                 gif_path: str = None,
                                 show_heading: bool = True,
@@ -2800,7 +2310,6 @@ class Plotting:
         ax : matplotlib.axes._subplots.Axes3DSubplot
             The 3D axes used for plotting.
         """
-
 
         adcp = self._adcp
 
@@ -2927,8 +2436,6 @@ class Plotting:
                 gif_path = f"{adcp.name} beam geometry animation.gif"
             ani.save(gif_path, writer=PillowWriter(fps=max(1, 1000 // interval)))
 
-
-
         return fig,ani
                 
     def single_beam_flood_plot(
@@ -2942,27 +2449,15 @@ class Plotting:
             n_time_ticks: int = 6,
             title: str | None = None,
             mask: bool = True,
-            ax=None,                              # optional target Axes
-            cax=None,                             # optional colorbar Axes
+            ax=None,
+            cax=None,
             *,
             color_scale: str = "linear",          # "linear" or "log"
-            cmap_levels: list | tuple | None = None,        # colorbar tick locations
-            cbar_tick_labels: list[str] | None = None,      # optional custom labels
-            tick_decimals: int = 2                # fixed-decimal for log ticks
+            cmap_levels: list | tuple | None = None,
+            cbar_tick_labels: list[str] | None = None,
+            tick_decimals: int = 2,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Single-beam curtain plot with optional target axes and colorbar controls.
-        Returns (fig, (ax, cax)).
-        """
-        import numpy as np
-        import numpy.ma as ma
-        import matplotlib.pyplot as plt
-        import matplotlib.dates as mdates
-        import matplotlib.gridspec as gridspec
-        from matplotlib.colors import Normalize, LogNorm
-        from matplotlib.ticker import FuncFormatter
-        from scipy.ndimage import gaussian_filter1d
-    
         if cmap is None:
             cmap = "turbo"
     
@@ -2986,22 +2481,32 @@ class Plotting:
     
         A = self._adcp
     
-        # --- Data ---
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(A.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(A.time.ensemble_numbers, dtype=float)
+        e_num = e_num - e_num[0] + 1
+        
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
+        # --- Data ---
         beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
         data_tb   = ma.masked_invalid(ma.mean(beam_data, axis=2)) if use_mean else ma.masked_invalid(beam_data[:, :, ib])
     
         scale_mode = str(color_scale).lower()
         if scale_mode == "log":
-            data_tb = ma.masked_where(~(data_tb > 0), data_tb)  # log needs positive
+            data_tb = ma.masked_where(~(data_tb > 0), data_tb)
     
         bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
         z_rel      = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)
-        invert_y   = str(A.geometry.beam_facing).lower() == "down"
-    
+        
         # Bottom track envelope
         _bt = getattr(A.bottom_track, "adjusted_range_to_seabed",
                       getattr(A.bottom_track, "range_to_seabed", None))
@@ -3039,7 +2544,7 @@ class Plotting:
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv = np.asarray(cmap_levels, dtype=float)
             if scale_mode == "log":
-                lv = lv[lv > 0]  # valid only
+                lv = lv[lv > 0]
             if lv.size > 0:
                 low, high = np.nanmin(lv), np.nanmax(lv)
                 vmin_use = min(vmin, low)
@@ -3064,9 +2569,14 @@ class Plotting:
     
         # --- Y axis extent ---
         ymode = (y_axis_mode or "depth").lower()
+        ymin = None
         if ymode == "bin":
             y_label = "Bin distance (m)"
-            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            y1, y0 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            ymin = 0
+            ymax = y0
+            origin = "upper"
+            invert_y = False
         else:
             y_label = "Depth (m)" if ymode == "depth" else "Mean z (m)"
             if use_mean:
@@ -3076,7 +2586,11 @@ class Plotting:
             if not np.isfinite(z_mean).any():
                 z_mean = bin_dist_m
             y0, y1 = float(z_mean[0]), float(z_mean[-1])
-    
+            ymax = 0.0
+            ymin = 1.25 * float(np.nanmin(z_rel)) if np.isfinite(z_rel).any() else float(-np.nanmax(bin_dist_m))
+            origin = "lower"
+            invert_y = True
+            
         # --- Axes / Layout ---
         if ax is None:
             fig = plt.figure(figsize=(8, 4.5), constrained_layout=True)
@@ -3098,20 +2612,20 @@ class Plotting:
                 divider = make_axes_locatable(ax)
                 cax = divider.append_axes("right", size="3%", pad=0.05)
     
-        # --- Time ticks ---
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        # --- X ticks ---
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # --- Colormap normalization ---
         norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
     
         # --- Image ---
         im = ax.matshow(
-            data_tb.T, origin="lower", aspect="auto",
-            extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
+            data_tb.T, origin=origin, aspect="auto",
+            extent=[x0, x1, y0, y1], cmap=cmap, norm=norm
         )
     
         # --- Geometry window ---
-        ymax = 0.0
+        
         if ymin is None:
             ymin = 1.25 * float(np.nanmin(z_rel)) if np.isfinite(z_rel).any() else float(-np.nanmax(bin_dist_m))
         ax.set_ylim(ymax, ymin)
@@ -3119,23 +2633,27 @@ class Plotting:
             ax.invert_yaxis()
     
         # --- Bottom track ---
-        if use_mean and (bt_top_s is not None) and (bt_bottom_s is not None):
-            ax.fill_between(t_num, bt_top_s, bt_bottom_s, facecolor="#808080", alpha=0.25, edgecolor="none")
-            ax.plot(t_num, bt_top_s,    linestyle="--", color="k", linewidth=1)
-            ax.plot(t_num, bt_bottom_s, linestyle="--", color="k", linewidth=1)
-        elif (bt_series_s is not None):
-            ax.plot(t_num, bt_series_s, linestyle="-", color="k", linewidth=1)
+        if y_axis_mode != "bin":
+            if use_mean and (bt_top_s is not None) and (bt_bottom_s is not None):
+                ax.fill_between(x, bt_top_s, bt_bottom_s, facecolor="#808080", alpha=0.25, edgecolor="none")
+                ax.plot(x, bt_top_s,    linestyle="--", color="k", linewidth=1)
+                ax.plot(x, bt_bottom_s, linestyle="--", color="k", linewidth=1)
+            elif (bt_series_s is not None):
+                ax.plot(x, bt_series_s, linestyle="-", color="k", linewidth=1)
     
         # --- X axis formatting ---
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(xticks)
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax.set_xticklabels(lbls)
-        ax.set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax.set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax.set_xticklabels(lbls)
+        ax.set_xlabel(x_label, fontsize=8)
     
         # --- Y label and beam tag ---
         ax.set_ylabel(y_label, fontsize=8)
@@ -3146,10 +2664,10 @@ class Plotting:
     
         # --- Top distance axis ---
         dist = np.asarray(A.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax.twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
@@ -3158,7 +2676,6 @@ class Plotting:
         # --- Colorbar ---
         cblabel = f"{pretty(field_name)}" + (f" ({units_map.get(field_name, '')})" if units_map.get(field_name, "") else "")
     
-        # decide extend status before creating cbar
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv_for_ext = np.asarray(cmap_levels, dtype=float)
             if scale_mode == "log":
@@ -3173,7 +2690,6 @@ class Plotting:
         cbar.set_label(cblabel, fontsize=8)
         cbar.ax.tick_params(labelsize=8)
     
-        # User-specified ticks and labels
         if cmap_levels is not None:
             levels = list(cmap_levels)
             if scale_mode == "log":
@@ -3199,20 +2715,10 @@ class Plotting:
     
         return fig, (ax, cax)
 
-    
-
-
-
-
-
-
-
-
-    
     def four_beam_flood_plot(
             self,
             field_name: str = "echo_intensity",
-            y_axis_mode: str = "depth",          # "depth", "bin", or "z"
+            y_axis_mode: str = "depth",
             cmap=None,
             vmin: float | None = None,
             vmax: float | None = None,
@@ -3220,53 +2726,52 @@ class Plotting:
             title: str | None = None,
             mask: bool = True,
             *,
-            color_scale: str = "linear",          # "linear" or "log"
+            color_scale: str = "linear",
             cmap_levels: list | tuple | None = None,
             cbar_tick_labels: list[str] | None = None,
-            tick_decimals: int = 2
+            tick_decimals: int = 2,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Four-beam curtain plot with shared colorbar and distance top axis.
-        Returns fig, (ax_beams, ax_cbar).
-        """
-        import numpy as np
-        import numpy.ma as ma
-        import matplotlib.pyplot as plt
-        import matplotlib.dates as mdates
-        import matplotlib.gridspec as gridspec
-        from matplotlib.colors import Normalize, LogNorm
-        from matplotlib.ticker import FuncFormatter
-        from scipy.ndimage import gaussian_filter1d
-    
+        
         if cmap is None:
             cmap = "turbo"
     
         A = self._adcp
+        plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
+                             "xtick.labelsize": 8, "ytick.labelsize": 8})
     
-        plt.rcParams.update({
-            "axes.titlesize": 8,
-            "axes.labelsize": 8,
-            "xtick.labelsize": 8,
-            "ytick.labelsize": 8,
-        })
-    
-        # --- Data ---
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(A.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(A.time.ensemble_numbers, dtype=float)
+        e_num = e_num -e_num[0] +1
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
-        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))  # (time,bins,beams)
+        # --- Data ---
+        beam_data = ma.masked_invalid(A.get_beam_data(field_name=field_name, mask=mask))
         bin_dist_m = np.asarray(A.geometry.bin_midpoint_distances, dtype=float)
-        z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)    # (time,bins,beams)
-        invert_y = str(A.geometry.beam_facing).lower() == "down"
+        z_rel = np.asarray(A.geometry.relative_beam_midpoint_positions.z, dtype=float)
+        # invert_y = str(A.geometry.beam_facing).lower() == "down"
     
         _bt = getattr(A.bottom_track, "adjusted_range_to_seabed",
                       getattr(A.bottom_track, "range_to_seabed", None))
         if _bt is not None:
-            bt_range = -np.asarray(_bt, dtype=float).T  # (time,beams), negative depth
+            if y_axis_mode == "bin":
+                bt_range = np.asarray(_bt, dtype=float).T
+            else:
+                bt_range = -np.asarray(_bt, dtype=float).T
         else:
-            bt_range = np.full((t_num.size, int(A.geometry.n_beams)), np.nan)
-    
+            bt_range = np.full((x.size, int(A.geometry.n_beams)), np.nan)
+
+        
+
         scale_mode = str(color_scale).lower()
         if scale_mode == "log":
             beam_data = ma.masked_where(~(beam_data > 0), beam_data)
@@ -3285,7 +2790,6 @@ class Plotting:
             if vmax <= vmin:
                 vmax = float(np.nextafter(vmin, np.inf))
     
-        # widen by levels
         vmin_use, vmax_use = vmin, vmax
         if cmap_levels is not None and len(cmap_levels) > 0:
             lv = np.asarray(cmap_levels, dtype=float)
@@ -3336,47 +2840,55 @@ class Plotting:
         fig.suptitle(str(title) if title is not None else str(A.name), fontsize=9, fontweight="bold")
     
         # --- Ticks ---
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # --- Norm ---
         norm = LogNorm(vmin=vmin_use, vmax=vmax_use) if scale_mode == "log" else Normalize(vmin=vmin_use, vmax=vmax_use)
     
         # --- Plot beams ---
         last_im = None
-        ymin_all = 1.25 * np.nanmin(bt_range) if np.isfinite(bt_range).any() else None
+        ymin = None
         ymax = 0.0
     
         for ib, ax in enumerate(ax_beams):
             data_tb = ma.masked_invalid(beam_data[:, :, ib])
     
             if ymode == "bin":
-                y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+                y1, y0 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+                ymin = 0
+                ymax = y0
+                origin = "upper"
+                invert_y = False
             elif ymode == "z":
+                origin = "lower"
+                invert_y = True
+                ymin = 1.25 * np.nanmin(bt_range) if np.isfinite(bt_range).any() else None
                 z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
                 if not np.isfinite(z_mean).any():
                     z_mean = bin_dist_m
                 y0, y1 = float(z_mean[0]), float(z_mean[-1])
             else:
-                # depth with seabed sign already negative
+                origin = "lower"
+                invert_y = True
+                ymin = 1.25 * float(np.nanmin(z_rel)) if np.isfinite(z_rel).any() else None
                 z_mean = np.nanmean(z_rel[:, :, ib], axis=0)
                 if not np.isfinite(z_mean).any():
                     z_mean = bin_dist_m
                 y0, y1 = float(z_mean[0]), float(z_mean[-1])
     
             last_im = ax.matshow(
-                data_tb.T, origin="lower", aspect="auto",
-                extent=[t0, t1, y0, y1], cmap=cmap, norm=norm
+                data_tb.T, origin=origin, aspect="auto",
+                extent=[x0, x1, y0, y1], cmap=cmap, norm=norm
             )
-    
-            ymin = ymin_all
             if ymin is None:
                 ymin = 1.25 * float(np.nanmin(z_rel[:, :, ib])) if np.isfinite(z_rel[:, :, ib]).any() else float(-np.nanmax(bin_dist_m))
             ax.set_ylim(ymax, ymin)
             if invert_y:
                 ax.invert_yaxis()
-    
-            y_bt = gaussian_filter1d(bt_range[:, ib], sigma=1.5, mode="nearest")
-            ax.plot(t_num, y_bt, color="k", linewidth=1)
+
+            if ymode == "z" or ymode == "depth":
+                y_bt = gaussian_filter1d(bt_range[:, ib], sigma=1.5, mode="nearest")
+                ax.plot(x, y_bt, color="k", linewidth=1)
     
             ax.xaxis.set_ticks_position("bottom")
             ax.xaxis.set_label_position("bottom")
@@ -3389,19 +2901,22 @@ class Plotting:
                     bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
     
         # bottom labels
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax_beams[-1].set_xticklabels(lbls)
-        ax_beams[-1].set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax_beams[-1].set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax_beams[-1].set_xticklabels(lbls)
+        ax_beams[-1].set_xlabel(x_label, fontsize=8)
     
         # top distance axis
         dist = np.asarray(A.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax_beams[0].twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
@@ -3457,42 +2972,29 @@ class Plotting:
                  fontsize=8, transform=fig.transFigure)
     
         return fig, (ax_beams, ax_cbar)
-
-        
+      
     def velocity_flood_plot(
             self,
-            coord: str = "earth",               # "inst"/"instrument", "ship", or "earth"
-            metric: str = "speed",              # kept for backward-compatibility
-            field_name: str | None = None,      # "speed", "direction", or "error_velocity" (overrides metric if given)
-            y_axis_mode: str = "depth",         # "depth", "bin", or "z"
-            cmap=None,                          # None → "turbo"
+            coord: str = "earth",
+            metric: str = "speed",
+            field_name: str | None = None,
+            y_axis_mode: str = "depth",
+            cmap=None,
             vmin: float | None = None,
             vmax: float | None = None,
             n_time_ticks: int = 6,
             title: str | None = None,
-            mask: bool = True
+            mask: bool = True,
+            x_axis_mode: str = "time",            # "time" or "ensemble"
         ):
-        """
-        Velocity curtain with single-beam-flood geometry:
-          - constrained layout
-          - depth axis 0 at top, negatives downward
-          - ALWAYS plot bottom-track swath (envelope across beams) with dashed bounds + gray fill
-          - robust against NaN/Inf in BT and z
-        """
-        import numpy as np
-        import numpy.ma as ma
-        import matplotlib.pyplot as plt
-        import matplotlib.dates as mdates
-        import matplotlib.gridspec as gridspec
-        from scipy.ndimage import gaussian_filter1d
-    
+        
         if cmap is None:
             cmap = "turbo"
     
         # ---------------- Field selection ----------------
         c = str(coord).lower()
         if c in {"instrument", "inst"}:
-            c = "inst"
+            c = "instrument"
     
         name_map = {
             None: None,
@@ -3513,53 +3015,68 @@ class Plotting:
         data = {"speed": s, "direction": d, "ev": ev}[m]
         data = ma.masked_invalid(data)
     
+        # --- X axis selection ---
+        xmode = str(x_axis_mode).lower()
         t_dt  = np.asarray(self._adcp.time.ensemble_datetimes)
         t_num = mdates.date2num(t_dt).astype(float)
-        t0, t1 = float(t_num[0]), float(t_num[-1])
+        e_num = np.asarray(self._adcp.time.ensemble_numbers, dtype=float)
+        e_num = e_num - e_num[0] +1
+        if xmode == "ensemble":
+            x = e_num
+            x_label = "Ensemble"
+        else:
+            x = t_num
+            x_label = "Time"
+        x0, x1 = float(x[0]), float(x[-1])
     
         bin_dist_m = np.asarray(self._adcp.geometry.bin_midpoint_distances, dtype=float)
         invert_y   = str(self._adcp.geometry.beam_facing).lower() == "down"
     
-        # ---------------- Bottom-track swath (ALWAYS if available), negative down ----------------
+        # ---------------- Bottom-track swath ----------------
         _bt = getattr(self._adcp.bottom_track, "adjusted_range_to_seabed",
                       getattr(self._adcp.bottom_track, "range_to_seabed", None))
         bt_top_s = bt_bottom_s = None
         ymin = None
         if _bt is not None:
-            bt_all = -np.asarray(_bt, float).T  # (time, beams), negative depths
+            bt_all = -np.asarray(_bt, float).T  # (time, beams)
             finite_bt = np.isfinite(bt_all)
             if finite_bt.any():
-                # Envelope across beams (per time)
-                bt_top    = np.nanmax(bt_all, axis=1)   # least negative (closest to 0)
-                bt_bottom = np.nanmin(bt_all, axis=1)   # most negative
-    
-                # Fill NaNs linearly before smoothing
+                bt_top    = np.nanmax(bt_all, axis=1)
+                bt_bottom = np.nanmin(bt_all, axis=1)
                 def _fill_nan(y):
                     y = np.asarray(y, float)
-                    m = np.isfinite(y)
-                    if not m.any():
+                    msk = np.isfinite(y)
+                    if not msk.any():
                         return y
                     idx = np.arange(y.size)
-                    y[~m] = np.interp(idx[~m], idx[m], y[m])
+                    y[~msk] = np.interp(idx[~msk], idx[msk], y[msk])
                     return y
-    
                 bt_top_s    = gaussian_filter1d(_fill_nan(bt_top),    sigma=1.5, mode="nearest")
                 bt_bottom_s = gaussian_filter1d(_fill_nan(bt_bottom), sigma=1.5, mode="nearest")
-                ymin = 1.25 * float(np.nanmin(bt_all[finite_bt]))  # deeper bound (more negative)
+                ymin = 1.25 * float(np.nanmin(bt_all[finite_bt]))
     
-        # ---------------- Y axis config for image extent (independent of final ylim) ----------------
+        # ---------------- Y axis for extent ----------------
         ymode = (y_axis_mode or "depth").lower()
         if ymode == "bin":
             y_label = "Bin distance (m)"
-            y0, y1 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            y1, y0 = float(bin_dist_m[0]), float(bin_dist_m[-1])
+            ymin = 0
+            ymax = y0
+            origin = "upper"
+            invert_y = False
         else:
             y_label = "Depth (m)" if ymode == "depth" else "Mean z (m)"
-            z_mean = np.nanmean(z, axis=0)  # (bins,)
+            z_mean = np.nanmean(z, axis=0)
             if not np.isfinite(z_mean).any():
                 z_mean = bin_dist_m
             y0 = float(z_mean[0]) if np.isfinite(z_mean[0]) else 0.0
             y1 = float(z_mean[-1]) if np.isfinite(z_mean[-1]) else -float(np.nanmax(bin_dist_m) or 1.0)
-    
+            ymax = 0.0
+            if ymin is None:
+                ymin = 1.25 * float(np.nanmin(z)) if np.isfinite(z).any() else float(-np.nanmax(bin_dist_m))
+            origin = "lower"
+            invert_y = True
+
         # ---------------- Color limits ----------------
         if m == "direction" and vmin is None and vmax is None:
             vmin, vmax = 0.0, 360.0
@@ -3572,7 +3089,7 @@ class Plotting:
             if vmax is None:
                 vmax = float(np.nanmax(finite_vals))
     
-        # ---------------- Layout (constrained) ----------------
+        # ---------------- Layout ----------------
         plt.rcParams.update({"axes.titlesize": 8, "axes.labelsize": 8,
                              "xtick.labelsize": 8, "ytick.labelsize": 8})
         fig = plt.figure(figsize=(8, 4.5), constrained_layout=True)
@@ -3580,57 +3097,59 @@ class Plotting:
         ax = fig.add_subplot(gs[0, 0])
         ax_cbar = fig.add_subplot(gs[0, 1])
         fig.set_constrained_layout_pads(w_pad=0.02, h_pad=0.02, wspace=0.05, hspace=0.05)
-    
         fig.suptitle(str(title) if title is not None else str(self._adcp.name),
                      fontsize=9, fontweight="bold")
     
-        # Time ticks
-        xticks = np.linspace(t0, t1, n_time_ticks)
+        # X ticks
+        xticks = np.linspace(x0, x1, n_time_ticks)
     
         # Image
         im = ax.matshow(
-            data.T, origin="lower", aspect="auto",
-            extent=[t0, t1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
+            data.T, origin=origin, aspect="auto",
+            extent=[x0, x1, y0, y1], vmin=vmin, vmax=vmax, cmap=cmap
         )
     
-        # ---------------- Geometry window (0 to negative; robust fallback) ----------------
-        ymax = 0.0
-        if (ymin is None) or (not np.isfinite(ymin)):
-            z_min = float(np.nanmin(z)) if np.isfinite(z).any() else np.nan
-            if not np.isfinite(z_min):
-                z_min = -float(np.nanmax(bin_dist_m) or 1.0)
-            ymin = 1.25 * z_min
+        # ---------------- Geometry window ----------------
+        # ymax = 0.0
+        # if (ymin is None) or (not np.isfinite(ymin)):
+        #     z_min = float(np.nanmin(z)) if np.isfinite(z).any() else np.nan
+        #     if not np.isfinite(z_min):
+        #         z_min = -float(np.nanmax(bin_dist_m) or 1.0)
+        #     ymin = 1.25 * z_min
         ax.set_ylim(ymax, ymin)
         if invert_y:
             ax.invert_yaxis()
     
-        # ---------------- BT envelope shading and dashed bounds ----------------
+        # ---------------- BT envelope ----------------
         if (bt_top_s is not None) and (bt_bottom_s is not None):
             msk = np.isfinite(bt_top_s) & np.isfinite(bt_bottom_s)
             if msk.any():
-                ax.fill_between(t_num[msk], bt_top_s[msk], bt_bottom_s[msk],
+                ax.fill_between(x[msk], bt_top_s[msk], bt_bottom_s[msk],
                                 facecolor="#808080", alpha=0.25, edgecolor="none")
-                ax.plot(t_num[msk], bt_top_s[msk],    linestyle="--", color="k", linewidth=1)
-                ax.plot(t_num[msk], bt_bottom_s[msk], linestyle="--", color="k", linewidth=1)
+                ax.plot(x[msk], bt_top_s[msk],    linestyle="--", color="k", linewidth=1)
+                ax.plot(x[msk], bt_bottom_s[msk], linestyle="--", color="k", linewidth=1)
     
         # ---------------- Axes formatting ----------------
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(xticks)
-        lbls = []
-        for i, x in enumerate(xticks):
-            dt = mdates.num2date(x)
-            lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
-        ax.set_xticklabels(lbls)
-        ax.set_xlabel("Time", fontsize=8)
+        if xmode == "ensemble":
+            ax.set_xticklabels([f"{int(round(v))}" for v in xticks])
+        else:
+            lbls = []
+            for i, xv in enumerate(xticks):
+                dt = mdates.num2date(xv)
+                lbls.append(dt.strftime("%Y-%m-%d\n%H:%M:%S") if i in (0, len(xticks)-1) else dt.strftime("%H:%M:%S"))
+            ax.set_xticklabels(lbls)
+        ax.set_xlabel(x_label, fontsize=8)
         ax.set_ylabel(y_label, fontsize=8)
     
-        # Top distance axis aligned to time ticks
+        # Top distance axis aligned to x ticks
         dist = np.asarray(self._adcp.position.distance, dtype=float)
-        idx = np.abs(t_num[:, None] - xticks[None, :]).argmin(axis=0)
+        idx = np.abs(x[:, None] - xticks[None, :]).argmin(axis=0)
         dist_ticks = dist[idx]
         ax_top = ax.twiny()
-        ax_top.set_xlim(t0, t1)
+        ax_top.set_xlim(x0, x1)
         ax_top.set_xticks(xticks)
         ax_top.set_xticklabels([f"{d:.0f}" for d in dist_ticks])
         ax_top.set_xlabel("Distance along transect (m)", fontsize=8)
@@ -3647,7 +3166,6 @@ class Plotting:
     
         return fig, (ax, ax_cbar)
 
-
     def transect_velocities(self,
                             bin_sel=15,
                             every_n=1,
@@ -3660,11 +3178,6 @@ class Plotting:
                             line_alpha=0.9,
                             hist_bins=20,
                             figsize=(5, 5)):
-        import numpy as np
-        import matplotlib.pyplot as plt
-        from matplotlib.collections import LineCollection
-        from matplotlib.colors import Normalize
-    
         cmap = plt.cm.get_cmap(cmap) if isinstance(cmap, str) else cmap
     
         u,v,z,ev,spd,dirn = self._adcp.get_velocity_data(coord_sys = 'earth', mask = True)
@@ -3740,7 +3253,4 @@ class Plotting:
         axin.spines['left'].set_visible(False)
         axin.patch.set_alpha(0.0)
     
-        plt.show()
         return fig, ax
-
-

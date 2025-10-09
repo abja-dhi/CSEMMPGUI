@@ -134,7 +134,7 @@
             comboPlotType.Dock = DockStyle.Fill;
             comboPlotType.DropDownStyle = ComboBoxStyle.DropDownList;
             comboPlotType.FormattingEnabled = true;
-            comboPlotType.Items.AddRange(new object[] { "Platform Orientation", "Four Beam Flood Plot", "Single Beam Flood Plot", "Plot Transect Velocities", "Beam Geometry Animation", "Transect Animation" });
+            comboPlotType.Items.AddRange(new object[] { "Platform Orientation", "Four Beam Flood Plot", "Single Beam Flood Plot", "Velocity Flood Plot", "Plot Transect Velocities", "Beam Geometry Animation", "Transect Animation" });
             comboPlotType.Location = new Point(241, 3);
             comboPlotType.Name = "comboPlotType";
             comboPlotType.Size = new Size(550, 23);

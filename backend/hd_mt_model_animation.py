@@ -418,29 +418,37 @@ if __name__ == "__main__":
     fig, ani = make_ssc_currents_animation(
         mt_model=mt_model,
         hd_model=hd_model,
-        crs_helper=crs_helper,
-        bbox_layer=bbox_layer,
-        shapefile_layers=overlays,
-
-        ssc_item_number=1,
-        ssc_pixel_size_m=25,
         ssc_scale="log",
-        ssc_levels=(0.001, 0.01, 0.1, 1.0,),
+        ssc_cmap_name=cmo.cm.turbid,
         ssc_vmin=None,
         ssc_vmax=None,
-        ssc_cmap_name=cmo.cm.turbid,
         ssc_bottom_thresh=0.001,
-
-        u_item_number=4,
-        v_item_number=5,
+        ssc_pixel_size_m=25,
+        tick_decimal_precision=3,
         field_pixel_size_m=200.0,
         field_quiver_stride_n=3,
         quiver_scale=12.0,
+        quiver_color="white",
+        time_start_idx=0,
+        time_end_idx=None,
+        time_step=1,
+        interval_ms=.1,
+
+        
+        
+        crs_helper=crs_helper,
+        bbox_layer=bbox_layer,
+        shapefile_layers=overlays,
+        ssc_levels=(0.001, 0.01, 0.1, 1.0, 10.0),
+        
+        ssc_item_number=1,
+        u_item_number=4,
+        v_item_number=5,
+        
         quiver_width=0.001,
         quiver_headwidth=2.0,
         quiver_headlength=2.5,
-        quiver_color="white",
-
+        
         fig_width=4.0,
         fig_height=4.0,
         left=0.08, 
@@ -449,14 +457,9 @@ if __name__ == "__main__":
         bottom=0.10,
         cb_width=0.012, 
         cb_gap=0.008,
-        tick_decimal_precision=3,
-
-        time_start_idx=0,
-        time_end_idx=None,
-        time_step=1,
         dpi=150,
-        interval_ms=.1,
-
+        
+        
         save_output=True,               # set False to preview only
         out_path="ssc_currents.gif",
         writer_kind="gif",

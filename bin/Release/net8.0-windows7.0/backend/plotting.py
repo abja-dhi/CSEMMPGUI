@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
-from mikecore.DfsuFile import DfsuFile
-from matplotlib.tri import Triangulation, TriFinder
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import matplotlib.patheffects as mpl_path_effects
 import os
 from matplotlib.figure import Figure
@@ -13,8 +10,6 @@ from datetime import datetime
 import matplotlib as mpl
 import cycler
 
-from .utils import CSVParser
-from .utils_dfsu import DfsuUtils
 
 mpl.rcParams['font.size'] = 7
 mpl.rcParams['lines.linewidth'] = 0.75
@@ -60,8 +55,6 @@ class PlottingShell:
 
     def __init__(self):
         # rcParams
-
-
         # color + linestyle cycle with alpha preserved
         base_colors = 2 * ['#283747', '#0051a2', '#41ab5d', '#feb24c', '#93003a']  # 10
         line_styles = 5 * ['-'] + 5 * ['--']                                       # 10
@@ -137,12 +130,6 @@ class PlottingShell:
             sharex=sharex,
             sharey=sharey
         )
-
-        # if nrow == 1 and ncol == 1:
-        #     ax.grid(alpha=0.25)
-        # else:
-        #     for a in np.ravel(ax):
-        #         a.grid(alpha=0.25)
 
         return fig, ax
 

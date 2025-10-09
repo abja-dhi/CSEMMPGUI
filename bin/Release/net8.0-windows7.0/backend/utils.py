@@ -1,10 +1,7 @@
 import os
-from mikecore.DfsuFile import DfsuFile
 import numpy as np
 import pandas as pd
-import warnings
-from typing import Union, Dict, Any, List, Tuple, Sequence
-from matplotlib.tri import Triangulation, TriFinder
+from typing import Dict, Any, Sequence
 import pickle
 from pathlib import Path
 
@@ -268,9 +265,6 @@ class ColumnSelectorGUI:
                     return pd.read_csv(self.filepath, encoding='latin1', skiprows=self.skiprows, sep=self.sep, index_col=False, header=self.header)
         elif self.filepath.suffix in ['.xls', '.xlsx']:
             return pd.read_excel(self.filepath, skiprows=self.skiprows, index_col=False, header=self.header, sheet_name=self.sheet_name)
-        
-
-    
 
     def _process(self):
         if self.selections is None:

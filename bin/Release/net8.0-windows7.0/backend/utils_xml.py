@@ -1,5 +1,4 @@
 
-# -*- coding: utf-8 -*-
 """
 XMLUtils — single-XML initializer with clear, minimal helpers.
 
@@ -22,7 +21,8 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 
 from .utils import Constants  # expects FAR_PAST/FUTURE and LOW/HIGH sentinels
-
+from .utils_shapefile import ShapefileLayer
+from .utils_crs import CRSHelper
 
 class XMLUtils:
     """Parse a project XML and build instrument configuration dicts."""
@@ -39,8 +39,14 @@ class XMLUtils:
         xml_file : str
             Filesystem path to the project XML.
         """
-        self.tree = ET.parse(xml_file)
-        self.project: ET.Element = self.tree.getroot()
+        if isinstance(xml_file, str):
+            try:
+                self.tree = ET.parse(xml_file)
+                self.project: ET.Element = self.tree.getroot()
+            except:
+                self.project = ET.fromstring(xml_file)
+        else:
+            self.project = xml_file  # assume already an ET.Element
         # Lazy-built map for parent lookup; populated on first use
         self._parent_map: Optional[dict[ET.Element, ET.Element]] = None
 
@@ -352,6 +358,7 @@ class XMLUtils:
 
         # Configuration and coordinate parameters
         magnetic_declination = float(self._get_value(configuration, "MagneticDeclination", 0))
+        velocity_average_window_len = float(self._get_value(configuration, "EnsembleAverageInterval", 5))
         utc_offset = self._get_value(configuration, "UTCOffset", None)
         utc_offset = float(utc_offset) if utc_offset is not None else None
         crp_rotation_angle = float(self._get_value(configuration, "RotationAngle", 0.0))
@@ -412,7 +419,7 @@ class XMLUtils:
 
         # SSC model parameters (from linked model id if available)
         if add_ssc and sscmodelid:
-            sscmodel = self.find_element(elem_id=sscmodelid, _type="BKS2SSC")
+            sscmodel = self.find_element(elem_id=sscmodelid)
             A = float(self._get_value(sscmodel, "A", None)) 
             B = float(self._get_value(sscmodel, "B", None)) 
         else:
@@ -431,7 +438,7 @@ class XMLUtils:
             'start_datetime': start_datetime, 'end_datetime': end_datetime,
             'first_good_ensemble': first_good_ensemble, 'last_good_ensemble': last_good_ensemble,
             'abs_min': absback_min, 'abs_max': absback_max,
-            'magnetic_declination': magnetic_declination, 'utc_offset': utc_offset,
+            'magnetic_declination': magnetic_declination, 'velocity_average_window_len': velocity_average_window_len, 'utc_offset': utc_offset,
             'crp_rotation_angle': crp_rotation_angle,
             'crp_offset_x': crp_offset_x, 'crp_offset_y': crp_offset_y, 'crp_offset_z': crp_offset_z,
             'transect_shift_x': transect_shift_x, 'transect_shift_y': transect_shift_y,
@@ -646,7 +653,152 @@ class XMLUtils:
             },
         }
 
-    
+    def parse_settings(self) -> Dict[str, Any]:
+        """
+        Parse the <Settings> and <MapSettings> sections.
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of settings with sensible defaults.
+        """
+        settings = self.find_element(elem_id="1", _type="Settings")
+        mapSettings = self.find_element(elem_id="2", _type="MapSettings")
+
+        # Settings
+        name = self._get_value(settings, "Name", "Unnamed Project")
+        directory = self._get_value(settings, "Directory", ".")
+        epsg = self._get_value(settings, "EPSG", "4326")
+        description = self._get_value(settings, "Description", "")
+        settings_dict = {
+            "name": name,
+            "directory": directory,
+            "epsg": epsg,
+            "description": description,
+        }
+        crs_helper = CRSHelper(epsg)
+
+        # MapSettings
+        # Map2D
+        map2D = mapSettings.find("Map2D")
+        map3D = mapSettings.find("Map3D")
+        mapShapefiles = mapSettings.find("MapShapefiles")
+        
+        map2D_dict = self.__parse_map_settings(map2D)
+        map2D_dict["transect_line_width"] = int(self._get_value(map2D, "TransectLineWidth", "2"))
+        bin_method = self._get_value(map2D, "VerticalAggBinItem", "bin").lower()
+        bin_value = str(self._get_value(map2D, "VerticalAggBinTarget", "Mean")).lower()
+        if bin_value != "mean":
+            bin_value = float(bin_value)
+        beam_value = str(self._get_value(map2D, "VerticalAggBeam", "Mean")).lower()
+        if beam_value != "mean":
+            beam_value = int(beam_value)
+        map2D_dict["vertical_agg"] = {
+            "method": bin_method,
+            "target": bin_value,
+            "beam": beam_value
+        }
+        
+        map3D_dict = self.__parse_map_settings(map3D)
+        map3D_dict["z_scale"] = float(self._get_value(map3D, "ZScale", "3.0"))
+
+        shapefiles = self.find_elements(tag="Shapefile", root=mapShapefiles)
+        shp_list = []
+        for shp in shapefiles:
+            if shp.attrib.get("visible", "").lower() != "true":
+                continue
+            shp_path = shp.find("Path").text
+            shp_kind = shp.find("Kind").text
+            shp_label_text = self._get_value(shp, "LabelText", None)
+            shp_label_fontsize = int(self._get_value(shp, "LabelFontSize", 8))
+            shp_label_color = self._get_value(shp, "LabelColor", "#000000")
+            shp_label_ha = self._get_value(shp, "LabelHA", "left").lower()
+            shp_label_va = self._get_value(shp, "LabelVA", "center").lower()
+            shp_label_offset_points_x = float(self._get_value(shp, "LabelOffsetPointsX", 0.0))
+            shp_label_offset_points_y = float(self._get_value(shp, "LabelOffsetPointsY", 0.0))
+            shp_label_offset_points = (shp_label_offset_points_x, shp_label_offset_points_y)
+            shp_label_offset_data_x = float(self._get_value(shp, "LabelOffsetDataX", 0.0))
+            shp_label_offset_data_y = float(self._get_value(shp, "LabelOffsetDataY", 0.0))
+            shp_label_offset_data = (shp_label_offset_data_x, shp_label_offset_data_y)
+            if shp_kind.lower() == "polygon":
+                poly_edgecolor = self._get_value(shp, "PolyEdgeColor", "#000000")
+                poly_linewidth = float(self._get_value(shp, "PolyLineWidth", 0.8))
+                poly_facecolor = self._get_value(shp, "PolyFaceColor", "none")
+                poly_alpha = float(self._get_value(shp, "PolyAlpha", 1.0))
+                shp_object = ShapefileLayer(path=shp_path, kind=shp_kind, crs_helper=crs_helper,
+                                            poly_edgecolor=poly_edgecolor, poly_linewidth=poly_linewidth, poly_facecolor=poly_facecolor, alpha=poly_alpha,
+                                            label_text=shp_label_text, label_fontsize=shp_label_fontsize, label_color=shp_label_color, label_ha=shp_label_ha, label_va=shp_label_va, label_offset_pts=shp_label_offset_points, label_offset_data=shp_label_offset_data)
+                shp_list.append(shp_object)
+            elif shp_kind.lower() == "point":
+                point_color = self._get_value(shp, "PointColor", "#000000")
+                point_marker = self._get_value(shp, "PointMarker", "o")
+                point_markersize = float(self._get_value(shp, "PointMarkerSize", 12))
+                point_alpha = float(self._get_value(shp, "PointAlpha", 1.0))
+                shp_object = ShapefileLayer(path=shp_path, kind=shp_kind, crs_helper=crs_helper,
+                                            point_color=point_color, point_marker=point_marker, point_markersize=point_markersize, alpha=point_alpha,
+                                            label_text=shp_label_text, label_fontsize=shp_label_fontsize, label_color=shp_label_color, label_ha=shp_label_ha, label_va=shp_label_va, label_offset_pts=shp_label_offset_points, label_offset_data=shp_label_offset_data)
+                shp_list.append(shp_object)
+            elif shp_kind.lower() == "line":
+                line_color = self._get_value(shp, "LineColor", "#000000")
+                line_width = float(self._get_value(shp, "LineLineWidth", 1.0))
+                line_alpha = float(self._get_value(shp, "LineAlpha", 1.0))
+                shp_object = ShapefileLayer(path=shp_path, kind=shp_kind, crs_helper=crs_helper,
+                                            line_color=line_color, line_width=line_width, alpha=line_alpha,
+                                            label_text=shp_label_text, label_fontsize=shp_label_fontsize, label_color=shp_label_color, label_ha=shp_label_ha, label_va=shp_label_va, label_offset_pts=shp_label_offset_points, label_offset_data=shp_label_offset_data)
+                shp_list.append(shp_object)
+        map_settings_dict = {
+            "Map2D": map2D_dict,
+            "Map3D": map3D_dict,
+            "Shapefiles": shp_list
+        }
+
+        return settings_dict, map_settings_dict
+        
+    def __parse_map_settings(self, map: ET.Element) -> Dict[str, Any]:
+        """
+        Helper to parse common settings between Map2D and Map3D settings.
+        """
+        if map is None:
+            return {}
+        vmin = self._get_value(map, "vmin", None)
+        vmax = self._get_value(map, "vmax", None)
+        if vmin is not None:
+            try:
+                vmin = float(vmin)
+            except ValueError:
+                vmin = None
+        if vmax is not None:
+            try:
+                vmax = float(vmax)
+            except ValueError:
+                vmax = None
+        surveys = map.find("Surveys")
+        surveys_list = surveys.findall("Survey")
+        survey_ids = []
+        for s in surveys_list:
+            sid = s.find("ID").text
+            if sid:
+                survey_ids.append(sid)
+        return {
+            "bgcolor": self._get_value(map, "BackgroundColor", "#000000"),
+            "field_name": self._get_value(map, "FieldName", "Echo Intensity"),
+            "cmap": self._get_value(map, "ColorMap", "jet"),
+            "vmin": vmin,
+            "vmax": vmax,
+            "pad_deg": float(self._get_value(map, "Padding", "0.03")),
+            "grid_lines": int(self._get_value(map, "NGridLines", "5")),
+            "grid_opacity": float(self._get_value(map, "GridOpacity", "0.2")),
+            "grid_color": self._get_value(map, "GridColor", "#000000").lower(),
+            "grid_width": int(self._get_value(map, "GridWidth", "1")),
+            "bgcolor": self._get_value(map, "BackgroundColor", "#FFFFFF").lower(),
+            "axis_ticks": int(self._get_value(map, "NAxisTicks", "5")),
+            "tick_fontsize": int(self._get_value(map, "TickFontSize", "10")),
+            "tick_decimals": int(self._get_value(map, "TickNDecimals", "2")),
+            "axis_label_fontsize": int(self._get_value(map, "AxisLabelFontSize", "12")),
+            "axis_label_color": self._get_value(map, "AxisLabelColor", "#000000").lower(),
+            "hover_fontsize": int(self._get_value(map, "HoverFontSize", "10")),
+            "surveys": survey_ids
+        }
+
     def project_info(self) -> Dict[str, Any]:
         """
         Aggregate overview of the project.
@@ -822,4 +974,3 @@ if __name__ == '__main__':
     # get individual instrument configs by name and ID
     cfg1 = project.get_cfg_by_instrument("VesselMountedADCP",instrument_name = '20241002_F3(E)_006r', instrument_id=5)
     cfg2 = project.get_cfg_by_instrument("OBSVerticalProfile", instrument_name="OBS1",instrument_id=18)
-

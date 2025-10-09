@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from typing import Optional, Tuple, List, Dict, Any, Union
@@ -13,7 +12,6 @@ from .utils_crs import CRSHelper
 # ---------------- helpers ----------------
 def _has_geo_origin_and_orientation(P) -> bool:
     return all(hasattr(P, a) for a in ("Longitude", "Latitude", "Orientation"))
-
 
 def _crs_from_token_or_wkt(s: str) -> CRS:
     """
@@ -485,25 +483,11 @@ class DfsuUtils2D:
         return (Z_si, extent)
 
 
-#%%
 if __name__ == "__main__":
     
     
     crs_helper = CRSHelper(project_crs = 4326)
 
-    # model_fpath = r"C:/Users/anba/OneDrive - DHI/Desktop/Documents/GitHub/PlumeTrack/tests/Model Files/MT20241002.dfsu"
-    # fm_model = DfsuUtils2D(model_fpath)  # provides extract_transect_idw(...)
-
     model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/test2.dfsu'
     mt_model = DfsuUtils2D(model_fpath, crs_helper)  
     mt_model.items_summary()
-    
-    # model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/HD/test1.dfsu'
-    # hd_model = DfsuUtils2D(model_fpath, crs_helper)  
-    # hd_model.items_summary()
-
-    # cx,cy = hd_model.get_centroids()
-
-    # model_fpath = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/CESS/2025/07. Jul/HD/HD2D_20250709_0600.dfsu'
-    # hd_model = DfsuUtils2D(model_fpath, crs_helper)  
-    # hd_model.items_summary()

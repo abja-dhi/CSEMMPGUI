@@ -1,13 +1,12 @@
-import xml.etree.ElementTree as ET
 import pandas as pd
 from numpy.typing import NDArray
 from dataclasses import dataclass, field
 from datetime import datetime
 import numpy as np
 from dateutil import parser
-from plotting import PlottingShell
+
+from .plotting import PlottingShell
 from .utils import Constants
-import matplotlib.pyplot as plt
 
 class OBS():
     def __init__(self, cfg: str) -> None:
@@ -96,9 +95,6 @@ class OBS():
         if (self.ssc_params.B):
             self._calculate_SSC()
             
-            
-        
-        
     def _calculate_SSC(self):
         self.data.ssc = self.data.ntu*self.ssc_params.B + self.ssc_params.A
 
@@ -115,16 +111,10 @@ class OBS():
         master_mask = np.logical_or.reduce([datetime_mask, depth_mask, ntu_mask])
         self.masking.OBSMask = master_mask
         
-        
-
-
 class Plotting:
-
     def __init__(self, obs: OBS) -> None:
         self._obs = obs
-        
-        
-        
+
     def depth_profile(self,
                      plot_field: str = "ntu",
                      use_spline: bool = False,
@@ -200,6 +190,4 @@ class Plotting:
         ax.set_ylabel("Depth (m)")
         ax.set_title(f"{getattr(self._obs,'name','OBS')} Depth Profile")
         
-        plt.show()
         return fig, ax
-    

@@ -271,6 +271,7 @@
             boxWater.TabIndex = 3;
             boxWater.TabStop = false;
             boxWater.Text = "Water Properties";
+            boxWater.Visible = false;
             // 
             // tableWater
             // 
@@ -390,6 +391,7 @@
             boxSediment.TabIndex = 4;
             boxSediment.TabStop = false;
             boxSediment.Text = "Sediment Properties";
+            boxSediment.Visible = false;
             // 
             // tableSediment
             // 

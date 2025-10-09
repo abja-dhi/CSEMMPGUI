@@ -34,6 +34,8 @@
             menuNew = new ToolStripMenuItem();
             menuSave = new ToolStripMenuItem();
             menuExit = new ToolStripMenuItem();
+            utilitiesToolStripMenuItem = new ToolStripMenuItem();
+            menuDfs22Dfsu = new ToolStripMenuItem();
             btnLoad = new Button();
             lblFile = new Label();
             txtFilePath = new TextBox();
@@ -42,8 +44,6 @@
             txtModelName = new TextBox();
             lblModelItem = new Label();
             comboModelItem = new ComboBox();
-            utilitiesToolStripMenuItem = new ToolStripMenuItem();
-            menuDfs22Dfsu = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -84,6 +84,20 @@
             menuExit.Size = new Size(107, 22);
             menuExit.Text = "Exit";
             menuExit.Click += menuExit_Click;
+            // 
+            // utilitiesToolStripMenuItem
+            // 
+            utilitiesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuDfs22Dfsu });
+            utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
+            utilitiesToolStripMenuItem.Size = new Size(61, 20);
+            utilitiesToolStripMenuItem.Text = "Utilities ";
+            // 
+            // menuDfs22Dfsu
+            // 
+            menuDfs22Dfsu.Name = "menuDfs22Dfsu";
+            menuDfs22Dfsu.Size = new Size(193, 22);
+            menuDfs22Dfsu.Text = "Dfs2 to Dfsu Converter";
+            menuDfs22Dfsu.Click += menuDfs22Dfsu_Click;
             // 
             // btnLoad
             // 
@@ -184,21 +198,7 @@
             comboModelItem.Size = new Size(544, 23);
             comboModelItem.TabIndex = 8;
             // 
-            // utilitiesToolStripMenuItem
-            // 
-            utilitiesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuDfs22Dfsu });
-            utilitiesToolStripMenuItem.Name = "utilitiesToolStripMenuItem";
-            utilitiesToolStripMenuItem.Size = new Size(61, 20);
-            utilitiesToolStripMenuItem.Text = "Utilities ";
-            // 
-            // menuDfs22Dfsu
-            // 
-            menuDfs22Dfsu.Name = "menuDfs22Dfsu";
-            menuDfs22Dfsu.Size = new Size(193, 22);
-            menuDfs22Dfsu.Text = "Dfs2 to Dfsu Converter";
-            menuDfs22Dfsu.Click += menuDfs22Dfsu_Click;
-            // 
-            // MTModel
+            // ModelMT
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -208,7 +208,7 @@
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            Name = "MTModel";
+            Name = "ModelMT";
             Text = "Model";
             FormClosing += Model_FormClosing;
             menuStrip1.ResumeLayout(false);

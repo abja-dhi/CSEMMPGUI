@@ -5,6 +5,7 @@ using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Wpf;
 using Python.Runtime;
 using System.Xml;
+using System.Xml.Linq;
 
 
 namespace CSEMMPGUI_v1
@@ -195,7 +196,7 @@ namespace CSEMMPGUI_v1
                     int status = SaveProject(); // Save the current project
                     if (status == 1)
                     {
-                        this.Close();
+                        Application.Exit();
                         return;
                     }
                     else
@@ -207,7 +208,7 @@ namespace CSEMMPGUI_v1
                 }
                 else if (result == DialogResult.No)
                 {
-                    this.Close(); // Exit without saving
+                    Application.Exit(); // Exit without saving
                 }
             }
         }
@@ -284,7 +285,7 @@ namespace CSEMMPGUI_v1
                     string? type = xmlNode.Attributes?["type"]?.Value ?? string.Empty;
                     itemDelete.Visible = type != "Project"; // Disable delete for the root project node
 
-                    if (type == "NTU2SSC" || type == "BKS2SSC")
+                    if (type == "NTU2SSC" || type == "BKS2SSC" || type == "BKS2NTU")
                     {
                         XmlNode? modeNode = xmlNode.SelectSingleNode("Mode");
                         string mode = modeNode?.InnerText ?? string.Empty;
@@ -337,6 +338,7 @@ namespace CSEMMPGUI_v1
                         break;
                     case "NTU2SSC":
                     case "BKS2SSC":
+                    case "BKS2NTU":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -385,6 +387,7 @@ namespace CSEMMPGUI_v1
                         break;
                     case "NTU2SSC":
                     case "BKS2SSC":
+                    case "BKS2NTU":
                         SSCModel editSSCModel = new SSCModel(xmlNode);
                         editSSCModel.ShowDialog();
                         break;
@@ -406,14 +409,15 @@ namespace CSEMMPGUI_v1
                 switch (type)
                 {
                     case "Project":
-                        MessageBox.Show($"Plotting project: {name}", "Open Project", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        ProjectPlot projectPlot = new ProjectPlot();
+                        projectPlot.Show();
                         break;
                     case "Survey":
                         MessageBox.Show($"Plotting survey: {name}", "Open Survey", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         // Implement survey opening logic here
                         break;
                     case "HDModel":
-                        ModelMTPlot modelHDPlot = new ModelMTPlot(id);
+                        ModelHDPlot modelHDPlot = new ModelHDPlot(id);
                         modelHDPlot.Show();
                         break;
                     case "MTModel":
@@ -439,6 +443,10 @@ namespace CSEMMPGUI_v1
                     case "BKS2SSC":
                         SSCModelPlot bks2sscModelPlot = new SSCModelPlot(id, "BKS2SSC");
                         bks2sscModelPlot.Show();
+                        break;
+                    case "BKS2NTU":
+                        SSCModelPlot sSCModelPlot = new SSCModelPlot(id, "BKS2NTU");
+                        sSCModelPlot.Show();
                         break;
                 }
             }
@@ -504,6 +512,13 @@ namespace CSEMMPGUI_v1
                             _project.DeleteNode(type: "BKS2SSC", id: id);
                         }
                         break;
+                    case "BKS2NTU":
+                        DialogResult resultBKS2NTUModel = MessageBox.Show($"Are you sure you want to delete the Absolute Backscatter to NTU model: {name}?", "Delete Absolute Backscatter to NTU Model", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (resultBKS2NTUModel == DialogResult.Yes)
+                        {
+                            _project.DeleteNode(type: "BKS2NTU", id: id);
+                        }
+                        break;
                 }
             }
             isSaved = false; // Mark the project as unsaved after deletion
@@ -512,16 +527,6 @@ namespace CSEMMPGUI_v1
 
         private int SaveProject()
         {
-            //string oldtName = _project.GetSetting(settingName: "Name");
-            //string oldPath = _project.GetProjectPath();
-            //string currentName = txtName.Text.Trim();
-            //if (string.IsNullOrEmpty(txtName.Text.Trim()))
-            //{
-            //    MessageBox.Show("Project name cannot be empty. Please enter a valid project name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return 0; // Indicate failure
-            //}
-            //_project.SetSetting(settingName: "Name", value: currentName);
-            //string projectPath = _project.GetProjectPath();
             if (!_Globals.isSaved)
             {
                 string directory = _project.GetSetting(settingName: "Directory");
@@ -580,8 +585,16 @@ namespace CSEMMPGUI_v1
 
         private void map2D_CheckedChanged(object sender, EventArgs e)
         {
+            string name = _project.GetSetting("Name");
+            string mapViewer2DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer2D_{name}.html");
+            string mapViewer3DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer3D_{name}.html");
             if (map2D.Checked)
             {
+                if (File.Exists(mapViewer2DPath))
+                {
+                    webView.Source = new Uri(mapViewer2DPath);
+                    return;
+                }
                 Dictionary<string, string> inputs2D = new Dictionary<string, string>
                 {
                     { "Task", "MapViewer2D" },
@@ -598,7 +611,82 @@ namespace CSEMMPGUI_v1
 
                 webView.Source = new Uri(outputs2D["Result"]);
             }
+            else if (map3D.Checked)
+            {
+                if (File.Exists(mapViewer3DPath))
+                {
+                    webView.Source = new Uri(mapViewer3DPath);
+                    return;
+                }
+                Dictionary<string, string> inputs3D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer3D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+                string xmlInput3D = _Tools.GenerateInput(inputs3D);
+                XmlDocument result3D = _Tools.CallPython(xmlInput3D);
+                Dictionary<string, string> outputs3D = _Tools.ParseOutput(result3D);
+                if (outputs3D.ContainsKey("Error"))
+                {
+                    MessageBox.Show(outputs3D["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                webView.Source = new Uri(outputs3D["Result"]);
+            }
 
+        }
+
+        private void map2D_Click(object sender, EventArgs e)
+        {
+            string name = _project.GetSetting("Name");
+            string mapViewer2DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer2D_{name}.html");
+            string mapViewer3DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer3D_{name}.html");
+            if (File.Exists(mapViewer2DPath))
+            {
+                webView.Source = new Uri(mapViewer2DPath);
+                return;
+            }
+            Dictionary<string, string> inputs2D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer2D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+            string xmlInput2D = _Tools.GenerateInput(inputs2D);
+            XmlDocument result2D = _Tools.CallPython(xmlInput2D);
+            Dictionary<string, string> outputs2D = _Tools.ParseOutput(result2D);
+            if (outputs2D.ContainsKey("Error"))
+            {
+                MessageBox.Show(outputs2D["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            webView.Source = new Uri(outputs2D["Result"]);
+        }
+
+        private void map3D_Click(object sender, EventArgs e)
+        {
+            string name = _project.GetSetting("Name");
+            string mapViewer2DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer2D_{name}.html");
+            string mapViewer3DPath = Path.Combine(_Globals.dataPath, "PlumeTrack", $"MapViewer3D_{name}.html");
+            if (File.Exists(mapViewer3DPath))
+            {
+                webView.Source = new Uri(mapViewer3DPath);
+                return;
+            }
+            Dictionary<string, string> inputs3D = new Dictionary<string, string>
+                {
+                    { "Task", "MapViewer3D" },
+                    { "Project", _Globals.Config.OuterXml.ToString() },
+                };
+            string xmlInput3D = _Tools.GenerateInput(inputs3D);
+            XmlDocument result3D = _Tools.CallPython(xmlInput3D);
+            Dictionary<string, string> outputs3D = _Tools.ParseOutput(result3D);
+            if (outputs3D.ContainsKey("Error"))
+            {
+                MessageBox.Show(outputs3D["Error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            webView.Source = new Uri(outputs3D["Result"]);
         }
     }
 }

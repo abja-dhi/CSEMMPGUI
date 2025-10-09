@@ -286,7 +286,7 @@
             map2D.Text = "2D";
             map2D.TextAlign = ContentAlignment.MiddleCenter;
             map2D.UseVisualStyleBackColor = true;
-            map2D.CheckedChanged += map2D_CheckedChanged;
+            map2D.Click += map2D_Click;
             // 
             // map3D
             // 
@@ -299,6 +299,7 @@
             map3D.Text = "3D";
             map3D.TextAlign = ContentAlignment.MiddleCenter;
             map3D.UseVisualStyleBackColor = true;
+            map3D.Click += map3D_Click;
             // 
             // webView
             // 

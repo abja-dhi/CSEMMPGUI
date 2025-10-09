@@ -1,15 +1,25 @@
+# -*- coding: utf-8 -*-
+"""
+TransectViewer2D — injected dependencies version
+
+- Pass in: adcps (list[ADCPDataset]) and crs_helper (CRSHelper)
+- Optional survey name lookup via survey_map={adcp.name: "Survey XYZ"}
+- Everything else stays the same (cmap, field_name, vmin/vmax, shp_layers, etc.)
+"""
+
 from __future__ import annotations
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, List, Tuple
 import numpy as np
 import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.colors import sample_colorscale
 
-# Your project types
+
 from .adcp import ADCP as ADCPDataset
 from .utils_crs import CRSHelper
 from .utils_shapefile import ShapefileLayer
-
+from .utils_xml import XMLUtils  # only for example construction
+from .adcp import ADCP as ADCPDataset
 pio.renderers.default = "browser"
 
 
@@ -464,3 +474,97 @@ class TransectViewer2D:
 })();
 </script>
 """
+
+def create_temp_html(out_fname: str):
+    content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Viewer</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: white;
+    }
+    .message {
+      font-size: 20px;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="message">Select surveys in the Map Settings to activate the viewer</div>
+</body>
+</html>"""
+    with open(out_fname, "w") as f:
+        f.write(content)
+
+# ---------------- Example ----------------
+if __name__ == "__main__":
+    project = XMLUtils(r'//usden1-stor.dhi.dk/Projects/61803553-05/Projects/Clean Project F3 2 Oct 2024.mtproj')
+    adcps = []
+    for acfg in project.get_cfgs_from_survey(survey_name="20241002_F3(E)", survey_id=0, instrument_type="VesselMountedADCP"):
+        adcps.append(ADCPDataset(acfg, name=acfg["name"]))
+
+    # CRS + optional shapefile overlays
+    crs_helper = CRSHelper(project_crs=4326)
+    shp_layers = [
+        ShapefileLayer(
+            path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\SG Coastline\RD7550_CEx_SG_v20250509.shp",
+            kind="polygon",
+            crs_helper=crs_helper,
+            poly_edgecolor="lime",
+            poly_linewidth=0.6,
+            poly_facecolor="none",
+            alpha=1.0,
+            zorder=10,
+        ),
+        ShapefileLayer(
+            path=r"\\usden1-stor.dhi.dk\Projects\61803553-05\GIS\F3\example point layer\points_labels.shp",
+            kind="point",
+            crs_helper=crs_helper,
+            point_color="magenta",
+            point_marker="o",
+            point_markersize=10,
+            alpha=1.0,
+            zorder=14,
+            label_text="Source Location",
+            label_offset_pts=(1, 1),
+            label_fontsize=8,
+            label_color="black",
+            label_ha="left",
+            label_va="center",
+        ),
+    ]  
+
+    cfg = {
+        "survey_map": {a.name: "Survey 1" for a in adcps},  # optional
+        "shp_layers": shp_layers,
+        "cmap": "Jet",
+        "field_name": "suspended_solids_concentration",
+        "vmin": None,
+        "vmax": None,
+        "pad_deg": 0.03,
+        "grid_lines": 10,
+        "grid_opacity": 0.35,
+        "grid_color": "#333",
+        "grid_width": 1,
+        "bgcolor": "black",
+        "axis_ticks": 7,
+        "tick_fontsize": 10,
+        "tick_decimals": 4,
+        "axis_label_fontsize": 12,
+        "axis_label_color": "#cccccc",
+        "hover_fontsize": 9,
+        "transect_line_width": 3.0,
+        "vertical_agg": {"method": "mean", "beam": "mean"},
+    }
+
+    viewer = TransectViewer2D(adcps=adcps, crs_helper=crs_helper, inputs=cfg)
+    fig = viewer.render()
+    viewer.save_html(r"C:\Users\anba\OneDrive - DHI\Desktop\Documents\GitHub\PlumeTrack\backend\2d_transect_view.html", auto_open=False)
