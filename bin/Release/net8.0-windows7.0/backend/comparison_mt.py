@@ -11,6 +11,7 @@ from matplotlib import ticker as mticker
 from matplotlib.colors import LogNorm, Normalize
 from matplotlib.ticker import FixedLocator
 import cmocean as cmo
+from typing import Tuple, List, Optional, Sequence
 
 from .utils_dfsu2d import DfsuUtils2D
 from .utils_xml import XMLUtils
@@ -24,27 +25,31 @@ def mt_model_transect_comparison(
     mt_model: DfsuUtils2D,
     adcp: ADCPDataset,
     crs_helper: CRSHelper,
-        
+    shapefile_layers: Optional[Sequence[ShapefileLayer]] = None,
 
-    *,
-    # ---- Basic plot options ----
-    mt_model_item_number: int = 1,
-    scale: str = "log",                           # "log" or "normal"
-    vmin: float | None = None,                    # mg/L
-    vmax: float | None = None,                    # mg/L
-    levels: list[float] = (0.01, 0.1, 1.0, 10.0, 100.0),
-    cmap_name: str = "turbo",
-    tick_decimals: int = 2,
-    tick_decimal_precision: int = 3,
-    pad_m: float = 2000.0,
-    pixel_size_m: float = 10.0,
-    cmap_bottom_thresh: float = 0.01,
-    adcp_transect_color: str = "magenta",
-    distance_bin_m: float = 50.0,
-    bar_width_scale: float = 0.15,
+    # --- ADCP ---
     adcp_series_mode: str = "bin",                # "bin" | "depth" | "hab"
     adcp_series_target: str = "mean",             # "mean" | "pXX"
-    shapefile_layers: list | None = None,
+    adcp_transect_color: str = "magenta",
+    
+
+    # --- SSC ---
+    ssc_item_number: int = 1,
+    ssc_scale: str = "log",                           # "log" or "normal"
+    ssc_levels: list[float] = (0.01, 0.1, 1.0, 10.0, 100.0),
+    ssc_vmin: float | None = None,                    # mg/L
+    ssc_vmax: float | None = None,                    # mg/L
+    ssc_cmap_name: str = "turbo",
+    ssc_bottom_thresh: float = 0.01,
+    ssc_pixel_size_m: float = 10.0,                   # Raster resolution
+    
+    # --- Layout ---
+    cbar_tick_decimals: int = 2,
+    axis_tick_decimals: int = 3,
+    pad_m: float = 2000.0,
+    distance_bin_m: float = 50.0,
+    bar_width_scale: float = 0.15,
+    
 ):
     """
     Plot MT model vs. ADCP transect comparison with three stacked subplots:
@@ -68,25 +73,25 @@ def mt_model_transect_comparison(
         Must provide:
         - bbox_from_coords(x, y, pad_m, from_crs) -> [xmin, xmax, ymin, ymax]
         - axis_labels() -> (x_label, y_label)
-    mt_model_item_number : int, optional
+    ssc_item_number : int, optional
         DFSU item number for SSC extraction.
-    scale : {"log","normal"}, optional
+    ssc_scale : {"log","normal"}, optional
         Color and y-axis scale for SSC.
-    vmin, vmax : float | None, optional
+    ssc_vmin, ssc_vmax : float | None, optional
         Colorbar min/max in mg/L. Defaults derive from `levels` or data.
-    levels : list[float], optional
+    ssc_levels : list[float], optional
         Colorbar ticks in mg/L. Always includes the lower bound tick.
-    cmap_name : str, optional
+    ssc_cmap_name : str, optional
         Matplotlib colormap name.
-    tick_decimals : int, optional
+    cbar_tick_decimals : int, optional
         Colorbar tick label precision.
-    tick_decimal_precision : int, optional
+    axis_tick_decimals : int, optional
         X/Y tick label precision for map and middle plot.
     pad_m : float, optional
         Padding in meters for the bbox around the transect.
-    pixel_size_m : float, optional
+    ssc_pixel_size_m : float, optional
         Rasterization resolution in meters.
-    cmap_bottom_thresh : float, optional
+    ssc_bottom_thresh : float, optional
         Values below this are transparent on the map. Also the lower bound for log plots.
     adcp_transect_color : str, optional
         Line color for the ADCP transect on the map.
@@ -151,7 +156,7 @@ def mt_model_transect_comparison(
     # ======================================================================
     bbox = crs_helper.bbox_from_coords(xq, yq, pad_m=pad_m, from_crs=adcp.position.epsg)
     model_img = mt_model.rasterize_idw_bbox(
-        item_number=mt_model_item_number, bbox=bbox, t=t, pixel_size_m=pixel_size_m
+        item_number=ssc_item_number, bbox=bbox, t=t, pixel_size_m=ssc_pixel_size_m
     )
     model_ssc_img = _np.asarray(model_img[0], dtype=float) * 1000.0  # mg/L
     model_extent = model_img[1]
@@ -162,15 +167,15 @@ def mt_model_transect_comparison(
 
     auto_min = float(_np.nanmin(model_ssc_img[finite]))
     auto_max = float(_np.nanmax(model_ssc_img[finite]))
-    cbar_min = vmin if vmin is not None else (min(levels) if levels else max(cmap_bottom_thresh, auto_min))
-    cbar_max = vmax if vmax is not None else (max(levels) if levels else auto_max)
-    cbar_min = max(cmap_bottom_thresh, cbar_min)
+    cbar_min = ssc_vmin if ssc_vmin is not None else (min(ssc_levels) if ssc_levels else max(ssc_bottom_thresh, auto_min))
+    cbar_max = ssc_vmax if ssc_vmax is not None else (max(ssc_levels) if ssc_levels else auto_max)
+    cbar_min = max(ssc_bottom_thresh, cbar_min)
     if (not _np.isfinite(cbar_min)) or (not _np.isfinite(cbar_max)) or (cbar_min >= cbar_max):
-        cbar_min, cbar_max = max(cmap_bottom_thresh, 0.01), max(cmap_bottom_thresh * 100.0, 100.0)
+        cbar_min, cbar_max = max(ssc_bottom_thresh, 0.01), max(ssc_bottom_thresh * 100.0, 100.0)
 
-    cmap = _plt.get_cmap(cmap_name).copy()
+    cmap = _plt.get_cmap(ssc_cmap_name).copy()
     cmap.set_under(alpha=0.0)
-    norm = _LogNorm(vmin=cbar_min, vmax=cbar_max, clip=True) if scale.lower() == "log" \
+    norm = _LogNorm(vmin=cbar_min, vmax=cbar_max, clip=True) if ssc_scale.lower() == "log" \
         else _Normalize(vmin=cbar_min, vmax=cbar_max, clip=True)
 
     im = ax0.imshow(
@@ -195,7 +200,7 @@ def mt_model_transect_comparison(
     ax0.set_aspect("equal", adjustable="box")
     ax0.set_title(f"Model Comparison to ADCP Transect {adcp.name}", fontsize=8)
 
-    xy_fmt = _mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimal_precision}f}")
+    xy_fmt = _mticker.FuncFormatter(lambda v, pos: f"{v:.{axis_tick_decimals}f}")
     ax0.xaxis.set_major_formatter(xy_fmt)
     ax0.yaxis.set_major_formatter(xy_fmt)
 
@@ -214,16 +219,16 @@ def mt_model_transect_comparison(
     def _fmt_num(val: float, nd: int) -> str:
         return f"{val:.{nd}f}"
 
-    tick_list = sorted(set(list(levels) + [cbar_min])) if levels else [cbar_min]
+    tick_list = sorted(set(list(ssc_levels) + [cbar_min])) if ssc_levels else [cbar_min]
     tick_list = [v for v in tick_list if cbar_min <= v <= cbar_max]
     if tick_list:
         cb.set_ticks(tick_list)
-        cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in tick_list])
+        cb.set_ticklabels([_fmt_num(v, cbar_tick_decimals) for v in tick_list])
     else:
         cb_ticks = _np.linspace(cbar_min, cbar_max, 5)
         cb.set_ticks(cb_ticks)
-        cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in cb_ticks])
-        
+        cb.set_ticklabels([_fmt_num(v, cbar_tick_decimals) for v in cb_ticks])
+
     # Legend for ADCP track (solid white background, on top)
     from matplotlib.lines import Line2D
     
@@ -240,7 +245,7 @@ def mt_model_transect_comparison(
     # ======================================================================
     # MIDDLE — Distance-binned SSC (Model vs ADCP)
     # ======================================================================
-    model_transect = mt_model.extract_transect(xq, yq, t, item_number=mt_model_item_number)
+    model_transect = mt_model.extract_transect(xq, yq, t, item_number=ssc_item_number)
     model_ssc_ts = _np.asarray(model_transect[0], dtype=float) * 1000.0  # mg/L
 
     adcp_series = adcp.get_beam_series(
@@ -287,7 +292,7 @@ def mt_model_transect_comparison(
 
     bar_w = max(0.5, distance_bin_m * bar_width_scale)
 
-    if scale.lower() == "log":
+    if ssc_scale.lower() == "log":
         m_plot = _np.where(_np.isfinite(model_bin_mean) & (model_bin_mean > 0.0), model_bin_mean, _np.nan)
         a_plot = _np.where(_np.isfinite(adcp_bin_mean) & (adcp_bin_mean > 0.0), adcp_bin_mean, _np.nan)
         m_plot = _np.where(m_plot < cbar_min, cbar_min, m_plot)
@@ -344,7 +349,7 @@ def mt_model_transect_comparison(
     ax1.set_position([p0.x0, p1.y0, p0.width, p1.height])
 
     # Middle y-limit matches colorbar max for comparability
-    if scale.lower() == "log":
+    if ssc_scale.lower() == "log":
         ax1.set_yscale("log")
         ax1.set_ylim(cbar_min, cbar_max)
     else:
@@ -353,14 +358,14 @@ def mt_model_transect_comparison(
     from matplotlib.ticker import FixedLocator, FuncFormatter
     
     # choose ticks from your colorbar 'levels' and clip to [cbar_min, cbar_max]
-    _y_ticks = [v for v in levels if (v > 0) and (cbar_min <= v <= cbar_max)]
+    _y_ticks = [v for v in ssc_levels if (v > 0) and (cbar_min <= v <= cbar_max)]
     if not _y_ticks:
-        _y_ticks = np.geomspace(cbar_min, cbar_max, 5) if scale.lower() == "log" else np.linspace(cbar_min, cbar_max, 5)
+        _y_ticks = np.geomspace(cbar_min, cbar_max, 5) if ssc_scale.lower() == "log" else np.linspace(cbar_min, cbar_max, 5)
     
     # apply AFTER ax1.set_yscale(...) and ax1.set_ylim(...)
     ax1.yaxis.set_major_locator(FixedLocator(_y_ticks))
     ax1.yaxis.set_minor_locator(FixedLocator([]))  # no minor ticks
-    ax1.yaxis.set_major_formatter(FuncFormatter(lambda v, pos: f"{v:.{tick_decimals}f}"))
+    ax1.yaxis.set_major_formatter(FuncFormatter(lambda v, pos: f"{v:.{cbar_tick_decimals}f}"))
     
     
     # ======================================================================
@@ -431,11 +436,11 @@ def mt_model_transect_comparison(
     y = y0_ax
     _H(x, y, "Model Fit")
     y -= sec
-    _I(x, y, "Mean error", f"{mean_err:.{tick_decimals}f} mg/L")
+    _I(x, y, "Mean error", f"{mean_err:.{cbar_tick_decimals}f} mg/L")
     y -= line
-    _I(x, y, "Mean observed", f"{mean_obs:.{tick_decimals}f} mg/L")
+    _I(x, y, "Mean observed", f"{mean_obs:.{cbar_tick_decimals}f} mg/L")
     y -= line
-    _I(x, y, "Mean simulated", f"{mean_model:.{tick_decimals}f} mg/L")
+    _I(x, y, "Mean simulated", f"{mean_model:.{cbar_tick_decimals}f} mg/L")
 
     return fig, (ax0, ax1, ax2)
 
@@ -493,17 +498,17 @@ if __name__ == '__main__':
         mt_model=mt_model,
         adcp=adcp,
         crs_helper=crs_helper,
-        mt_model_item_number=1,
-        scale="log",
-        vmin=None,
-        vmax=None,
-        levels=[.01,0.1, 1, 10,50],
-        cmap_name='jet',
-        tick_decimals=2,
-        tick_decimal_precision=3,
+        ssc_item_number=1,
+        ssc_scale="log",
+        ssc_vmin=None,
+        ssc_vmax=None,
+        ssc_levels=[.01,0.1, 1, 10,50],
+        ssc_cmap_name='jet',
+        cbar_tick_decimals=2,
+        axis_tick_decimals=3,
         pad_m=2500,
-        pixel_size_m=10,
-        cmap_bottom_thresh=0.001,
+        ssc_pixel_size_m=10,
+        ssc_bottom_thresh=0.001,
         adcp_transect_color=PlottingShell.red1,
         distance_bin_m=50,
         bar_width_scale=0.15,

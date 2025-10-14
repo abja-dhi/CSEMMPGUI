@@ -14,6 +14,7 @@ from matplotlib.ticker import FixedLocator
 from matplotlib.patches import FancyArrowPatch
 from matplotlib.legend_handler import HandlerPatch
 import cmocean as cmo
+from typing import Tuple, List, Optional, Sequence
 
 from .utils_dfsu2d import DfsuUtils2D
 from .utils_xml import XMLUtils
@@ -27,47 +28,49 @@ def plot_hd_vs_adcp_transect(
     hd_model: DfsuUtils2D,
     adcp: ADCPDataset,
     crs_helper: CRSHelper,
-        
-
-    xq,
-    yq,
-    t,
-    # ------------------ Inputs (defaults from current block)
-    levels = [0.0, .1, .2, .3, .4, .5],
-    vmin: float | None = None,
-    vmax: float | None = None,
-    cmap_name = cmo.cm.speed,
-    tick_decimals: int = 2,
-    tick_decimal_precision: int = 3,
-    pad_m: float = 2000,
-    pixel_size_m: float = 20,
-    speed_bottom_thresh: float = 0.001,
-    u_item_number: int = 4,
-    v_item_number: int = 5,
+    shapefile_layers: Optional[Sequence[ShapefileLayer]] = None,
+    
+    # --- ADCP ---
     adcp_series_mode: str = "bin",          # 'bin' | 'range' | 'hab'
     adcp_series_target: str | float = "mean",
-    quiver_every_n: int = 5,
+    adcp_transect_color: str = PlottingShell.red1,
     adcp_quiver_scale: float = 3,
+    adcp_quiver_width: float = 0.002,
+    adcp_quiver_headwidth: float = 2,
+    adcp_quiver_headlength: float = 2.5,
+    adcp_quiver_color: str = PlottingShell.red1,
+    
+    
+    # --- Currents (field) ---
+    u_item_number: int = 4,
+    v_item_number: int = 5,
+    model_field_pixel_size_m: float = 100,
+    model_field_quiver_stride_n: int = 3,
     model_quiver_scale: float = 3,
-    quiver_color_model: str = "black",
-    quiver_color_adcp: str = PlottingShell.red1,
+    model_quiver_width: float = 0.002,
+    model_quiver_headwidth: float = 2,
+    model_quiver_headlength: float = 2.5,
+    model_quiver_color: str = "black",
+    
     model_quiver_mode: str = "field",       # 'transect' | 'field'
-    field_pixel_size_m: float = 100,
-    field_quiver_stride_n: int = 3,
+    
+    model_levels = [0.0, .1, .2, .3, .4, .5],
+    model_vmin: float | None = None,
+    model_vmax: float | None = None,
+    model_cmap_name = cmo.cm.speed,
+    model_bottom_thresh: float = 0.001,
+    
+    pixel_size_m: float = 20,
+    quiver_every_n: int = 5,
+    
+    # --- Layout ---
+    cbar_tick_decimals: int = 2,
+    axis_tick_decimals: int = 3,
+    pad_m: float = 2000,
     distance_bin_m: float = 50,
     bar_width_scale: float = 0.15,
-    shapefile_layers = None,
-    # ------------------ Layout
-    FIG_W: float = 6.5, FIG_H: float = 9.0,
-    LEFT: float = 0.06, RIGHT: float = 0.9,
-    TOP: float = 0.98, BOTTOM: float = 0.05,
-    HSPACE: float = 0.22,
-    CB_WIDTH: float = 0.012, CB_GAP: float = 0.008,
-    META_TOP_Y: float = 0.95,
-    META_SECTION_GAP: float = 0.20,
-    META_LINE_GAP: float = 0.16,
-    META_COL_X = (0.02, 0.43, 0.84),
-    META_LEFT_OVERSHOOT: float = 0.10,
+    
+    
 ):
     """
     Packaged HD vs ADCP transect plot (map + distance bins + metadata).
@@ -80,6 +83,24 @@ def plot_hd_vs_adcp_transect(
     from matplotlib.ticker import FixedLocator
     from matplotlib.patches import FancyArrowPatch
     from matplotlib.legend_handler import HandlerPatch
+    FIG_W: float = 6.5
+    FIG_H: float = 9.0
+    LEFT: float = 0.06
+    RIGHT: float = 0.9
+    TOP: float = 0.98
+    BOTTOM: float = 0.05
+    HSPACE: float = 0.22
+    CB_WIDTH: float = 0.012
+    CB_GAP: float = 0.008
+    META_TOP_Y: float = 0.95
+    META_SECTION_GAP: float = 0.20
+    META_LINE_GAP: float = 0.16
+    META_COL_X = (0.02, 0.43, 0.84)
+    META_LEFT_OVERSHOOT: float = 0.10
+    # Transect coordinates and times from ADCP
+    xq = np.asarray(adcp.position.x).ravel()
+    yq = np.asarray(adcp.position.y).ravel()
+    t  = adcp.time.ensemble_datetimes
 
     if shapefile_layers is None:
         x_label, y_label = crs_helper.axis_labels()
@@ -116,13 +137,13 @@ def plot_hd_vs_adcp_transect(
 
     auto_min = float(np.nanmin(data[finite]))
     auto_max = float(np.nanmax(data[finite]))
-    cbar_min = vmin if vmin is not None else (min(levels) if levels else max(speed_bottom_thresh, auto_min))
-    cbar_max = vmax if vmax is not None else (max(levels) if levels else auto_max)
-    cbar_min = max(speed_bottom_thresh, cbar_min)
+    cbar_min = model_vmin if model_vmin is not None else (min(model_levels) if model_levels else max(model_bottom_thresh, auto_min))
+    cbar_max = model_vmax if model_vmax is not None else (max(model_levels) if model_levels else auto_max)
+    cbar_min = max(model_bottom_thresh, cbar_min)
     if (not np.isfinite(cbar_min)) or (not np.isfinite(cbar_max)) or (cbar_min >= cbar_max):
-        cbar_min, cbar_max = max(speed_bottom_thresh, 0.001), max(1.0, auto_max)
+        cbar_min, cbar_max = max(model_bottom_thresh, 0.001), max(1.0, auto_max)
 
-    cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
+    cmap = plt.get_cmap(model_cmap_name) if isinstance(model_cmap_name, str) else model_cmap_name
     cmap = cmap.copy()
     cmap.set_under(alpha=0.0)
     norm = Normalize(vmin=cbar_min, vmax=cbar_max, clip=True)
@@ -143,11 +164,11 @@ def plot_hd_vs_adcp_transect(
     if model_quiver_mode.lower() == "transect":
         idx = np.arange(0, xq.size, max(1, int(quiver_every_n)))
         ax0.quiver(xq[idx], yq[idx], model_u_ts[idx], model_v_ts[idx],
-                   color=quiver_color_model, scale=model_quiver_scale, width=0.002,
+                   color=model_quiver_color, scale=model_quiver_scale, width=model_quiver_width, headwidth=model_quiver_headwidth, headlength=model_quiver_headlength,
                    alpha=0.9, zorder=20, label="Model")
     elif model_quiver_mode.lower() == "field":
-        Uc, extent_c  = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
-        Vc, extent_cv = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
+        Uc, extent_c  = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=model_field_pixel_size_m)
+        Vc, extent_cv = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=model_field_pixel_size_m)
         if extent_c != extent_cv:
             raise RuntimeError("Coarse U and V raster extents differ in field mode.")
         xmin, xmax, ymin, ymax = extent_c
@@ -157,10 +178,10 @@ def plot_hd_vs_adcp_transect(
         xs = np.linspace(xmin + dx * 0.5, xmax - dx * 0.5, nx)
         ys = np.linspace(ymin + dy * 0.5, ymax - dy * 0.5, ny)
         XX, YY = np.meshgrid(xs, ys)
-        stride = max(1, int(field_quiver_stride_n))
+        stride = max(1, int(model_field_quiver_stride_n))
         ax0.quiver(XX[::stride, ::stride], YY[::stride, ::stride],
                    Uc[::stride, ::stride], Vc[::stride, ::stride],
-                   color=quiver_color_model, scale=model_quiver_scale, width=0.002,
+                   color=model_quiver_color, scale=model_quiver_scale, width=model_quiver_width, headwidth=model_quiver_headwidth, headlength=model_quiver_headlength,
                    alpha=0.85, zorder=19, label="Model (field)")
     else:
         raise ValueError("model_quiver_mode must be 'transect' or 'field'.")
@@ -168,11 +189,11 @@ def plot_hd_vs_adcp_transect(
     # ADCP quivers
     idx = np.arange(0, xq.size, max(1, int(quiver_every_n)))
     ax0.quiver(xq[idx], yq[idx], adcp_u_ts[idx], adcp_v_ts[idx],
-               color=quiver_color_adcp, scale=adcp_quiver_scale, width=0.002,
+               color=adcp_quiver_color, scale=adcp_quiver_scale, width=adcp_quiver_width, headwidth=adcp_quiver_headwidth, headlength=adcp_quiver_headlength,
                alpha=0.9, zorder=21, label="ADCP")
 
     # Track
-    ax0.plot(xq, yq, color="k", lw=0.7, alpha=0.5, zorder=9)
+    ax0.plot(xq, yq, color=adcp_transect_color, lw=0.7, alpha=0.5, zorder=9)
 
     # Axes
     ax0.set_xlabel(x_label)
@@ -182,7 +203,7 @@ def plot_hd_vs_adcp_transect(
     ax0.set_ylim(ymin, ymax)
     ax0.set_aspect("equal", adjustable="box")
     ax0.set_title(f"HD Current Speed vs ADCP Transect {adcp.name}", fontsize=8)
-    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimal_precision}f}")
+    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{axis_tick_decimals}f}")
     ax0.xaxis.set_major_formatter(xy_fmt)
     ax0.yaxis.set_major_formatter(xy_fmt)
 
@@ -200,15 +221,15 @@ def plot_hd_vs_adcp_transect(
     def _fmt_num(v: float, nd: int) -> str:
         return f"{v:.{nd}f}"
 
-    _ticks = sorted(set((levels or []) + [cbar_min]))
+    _ticks = sorted(set((model_levels or []) + [cbar_min]))
     _ticks = [v for v in _ticks if cbar_min <= v <= cbar_max]
     if _ticks:
         cb.set_ticks(_ticks)
-        cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in _ticks])
+        cb.set_ticklabels([_fmt_num(v, cbar_tick_decimals) for v in _ticks])
     else:
         _cb_ticks = np.linspace(cbar_min, cbar_max, 5)
         cb.set_ticks(_cb_ticks)
-        cb.set_ticklabels([_fmt_num(v, tick_decimals) for v in _cb_ticks])
+        cb.set_ticklabels([_fmt_num(v, cbar_tick_decimals) for v in _cb_ticks])
 
     # Legend proxies with solid white background on top
     def _legend_arrow(color, edge="black", lw=0.8, scale=14):
@@ -216,8 +237,8 @@ def plot_hd_vs_adcp_transect(
                                arrowstyle='-|>', mutation_scale=scale,
                                facecolor=color, edgecolor=edge, linewidth=lw)
 
-    h_adcp  = _legend_arrow(quiver_color_adcp,  edge="black")
-    h_model = _legend_arrow(quiver_color_model, edge="black")
+    h_adcp  = _legend_arrow(adcp_quiver_color,  edge="black")
+    h_model = _legend_arrow(model_quiver_color, edge="black")
 
     leg = ax0.legend([h_adcp, h_model], ["ADCP", "Model"],
                      handler_map={FancyArrowPatch: HandlerPatch()},
@@ -305,11 +326,11 @@ def plot_hd_vs_adcp_transect(
 
     # proxies using your plot colors
     h_model = FancyArrowPatch((0, 0), (1, 0),
-                              facecolor=quiver_color_model, edgecolor="black", linewidth=EDGE_LW)
+                              facecolor=model_quiver_color, edgecolor="black", linewidth=EDGE_LW)
     h_adcp  = FancyArrowPatch((0, 0), (1, 0),
-                              facecolor=quiver_color_adcp, edgecolor="black", linewidth=EDGE_LW)
-    h_trk   = Line2D([0], [0], color=quiver_color_adcp, lw=.5)
-    
+                              facecolor=adcp_quiver_color, edgecolor="black", linewidth=EDGE_LW)
+    h_trk   = Line2D([0], [0], color=adcp_quiver_color, lw=.5)
+
     leg = ax0.legend(
         [h_model, h_adcp, h_trk],
         ["Model vectors", "ADCP vectors", "ADCP track"],
@@ -320,12 +341,12 @@ def plot_hd_vs_adcp_transect(
 
 
     ax1.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, pos: f"{v:.1f}"))
-    _y_ticks = [v for v in levels if (v >= cbar_min) and (v <= cbar_max)]
+    _y_ticks = [v for v in model_levels if (v >= cbar_min) and (v <= cbar_max)]
     if not _y_ticks:
         _y_ticks = np.linspace(cbar_min, cbar_max, 5).tolist()
     ax1.yaxis.set_major_locator(FixedLocator(_y_ticks))
     ax1.yaxis.set_minor_locator(FixedLocator([]))
-    ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimals}f}"))
+    ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, pos: f"{v:.{cbar_tick_decimals}f}"))
 
     fig.canvas.draw()
     p0 = ax0.get_position()
@@ -399,12 +420,12 @@ def plot_hd_vs_adcp_transect(
     # Col 3
     x = cols_x[2]; y = y0
     H(x, y, "Model vs ADCP (Velocity)"); y -= sec
-    I(x, y, "Mean speed error",  f"{mean_speed_err:.{tick_decimals}f} m/s"); y -= line
-    I(x, y, "Mean speed (obs)",  f"{mean_speed_obs:.{tick_decimals}f} m/s"); y -= line
-    I(x, y, "Mean speed (model)", f"{mean_speed_model:.{tick_decimals}f} m/s"); y -= line
-    I(x, y, "Mean direction error", f"{mean_dir_err:.{tick_decimals}f}°"); y -= line
-    I(x, y, "Mean direction (obs)",  f"{mean_dir_obs:.{tick_decimals}f}°"); y -= line
-    I(x, y, "Mean direction (model)", f"{mean_dir_model:.{tick_decimals}f}°")
+    I(x, y, "Mean speed error",  f"{mean_speed_err:.{cbar_tick_decimals}f} m/s"); y -= line
+    I(x, y, "Mean speed (obs)",  f"{mean_speed_obs:.{cbar_tick_decimals}f} m/s"); y -= line
+    I(x, y, "Mean speed (model)", f"{mean_speed_model:.{cbar_tick_decimals}f} m/s"); y -= line
+    I(x, y, "Mean direction error", f"{mean_dir_err:.{cbar_tick_decimals}f}°"); y -= line
+    I(x, y, "Mean direction (obs)",  f"{mean_dir_obs:.{cbar_tick_decimals}f}°"); y -= line
+    I(x, y, "Mean direction (model)", f"{mean_dir_model:.{cbar_tick_decimals}f}°")
 
     return fig, (ax0, ax1, ax2)
 
@@ -427,11 +448,7 @@ if __name__ == "__main__":
     hd_model = DfsuUtils2D(model_fpath, crs_helper=crs_helper)
     adcp     = ADCPDataset(adcp_cfg, name=adcp_cfg["name"])
 
-    # Transect coordinates and times from ADCP
-    xq = np.asarray(adcp.position.x).ravel()
-    yq = np.asarray(adcp.position.y).ravel()
-    t  = adcp.time.ensemble_datetimes
-
+    
     # Optional coastline overlay
     shapefile_layers = [
         ShapefileLayer(
@@ -449,16 +466,15 @@ if __name__ == "__main__":
     fig, axes = plot_hd_vs_adcp_transect(
         hd_model=hd_model,
         adcp=adcp,
-        xq=xq, yq=yq, t=t,
         crs_helper=crs_helper,
         # common tweaks
         u_item_number = 4,
         v_item_number = 5,
         model_quiver_mode="field",
-        field_pixel_size_m=100,
-        field_quiver_stride_n=3,
-        levels=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5],
-        cmap_name=cmo.cm.speed,
+        model_field_pixel_size_m=100,
+        model_field_quiver_stride_n=3,
+        model_levels=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5],
+        model_cmap_name=cmo.cm.speed,
         shapefile_layers=shapefile_layers,
     )
 

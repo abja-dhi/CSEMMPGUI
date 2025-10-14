@@ -154,7 +154,7 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Clear();
 
             tableProp.RowStyles.Clear();
-            tableProp.RowCount = 7;
+            tableProp.RowCount = 10;
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
@@ -167,14 +167,16 @@ namespace CSEMMPGUI_v1
             tableProp.Controls.Add(comboHDModel, 1, 0);
             tableProp.Controls.Add(lblADCP, 0, 1);
             tableProp.Controls.Add(comboADCP, 1, 1);
+            tableProp.Controls.Add(lblcmap, 0, 5);
+            tableProp.Controls.Add(combocmap, 1, 5);
+            tableProp
             tableProp.Controls.Add(lblModelQuiverMode, 0, 2);
             tableProp.Controls.Add(comboModelQuiverMode, 1, 2);
             tableProp.Controls.Add(lblFieldPixelSize, 0, 3);
             tableProp.Controls.Add(txtFieldPixelSize, 1, 3);
             tableProp.Controls.Add(lblFieldQuiverStrideN, 0, 4);
             tableProp.Controls.Add(numFieldQuiverStrideN, 1, 4);
-            tableProp.Controls.Add(lblcmap, 0, 5);
-            tableProp.Controls.Add(combocmap, 1, 5);
+            
         }
 
         private void PropMTModelComparison()

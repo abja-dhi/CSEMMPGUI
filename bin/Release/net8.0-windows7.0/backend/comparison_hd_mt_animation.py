@@ -46,48 +46,43 @@ def make_ssc_currents_animation(
     hd_model: DfsuUtils2D,
     crs_helper: CRSHelper,
     
-    
-    # --- Required ---
-    bbox_layer: ShapefileLayer,
+    bbox_layer: ShapefileLayer,     #TODO: To be checked against other functions
     shapefile_layers: Optional[Sequence[ShapefileLayer]] = None,
+    
 
     # --- SSC ---
     ssc_item_number: int = 1,                 # kg/m³ → ×100 to mg/L
-    ssc_pixel_size_m: float = 10.0,
     ssc_scale: str = "log",                   # "log" | "normal"
     ssc_levels: Optional[Sequence[float]] = (0.001, 0.01, 0.1, 1.0, 10.0),  # mg/L
     ssc_vmin: Optional[float] = None,
     ssc_vmax: Optional[float] = None,
     ssc_cmap_name: str = "turbo",
-    ssc_bottom_thresh: float = 0.001,         # mg/L; lower = WHITE
-
+    ssc_bottom_thresh: float = 0.01,         # mg/L; lower = WHITE
+    ssc_pixel_size_m: float = 10.0,           # Raster resolution
+    
     # --- Currents (field) ---
     u_item_number: int = 4,
     v_item_number: int = 5,
-    field_pixel_size_m: float = 100.0,
-    field_quiver_stride_n: int = 3,
-    quiver_scale: float = 10.0,
-    quiver_width: float = 0.002,
-    quiver_headwidth: float = 2.0,
-    quiver_headlength: float = 2.5,
-    quiver_color: str = "white",
-
-    # --- Layout ---
-    fig_width: float = 4.0,
-    fig_height: float = 4.0,
-    left: float = 0.08, right: float = 0.90, top: float = 0.97, bottom: float = 0.10,
-    cb_width: float = 0.012, cb_gap: float = 0.008,
-    tick_decimal_precision: int = 3,
+    model_field_pixel_size_m: float = 100.0,
+    model_field_quiver_stride_n: int = 3,
+    model_quiver_scale: float = 10.0,
+    model_quiver_width: float = 0.002,
+    model_quiver_headwidth: float = 2.0,
+    model_quiver_headlength: float = 2.5,
+    model_quiver_color: str = "white",
 
     # --- Time / animation ---
     time_start_idx: int = 0,
     time_end_idx: Optional[int] = None,
     time_step: int = 1,
-    dpi: int = 150,
     interval_ms: int = 1,
     save_output: bool = True,
     out_path: Union[str, Path] = "ssc_currents.gif",
     writer_kind: str = "gif",                 # "gif" | "mp4"
+
+    # --- Layout ---
+    axis_tick_decimals: int = 3,
+    cbar_tick_decimals: int = 3,
 
     # --- UI ---
     use_qt_progress: bool = True,
@@ -146,7 +141,15 @@ def make_ssc_currents_animation(
                 self.dlg.close()
 
     PROG = _Progress(use_qt_progress)
-
+    fig_width: float = 4.0
+    fig_height: float = 4.0
+    left: float = 0.08
+    right: float = 0.90
+    top: float = 0.97
+    bottom: float = 0.10
+    cb_width: float = 0.012
+    cb_gap: float = 0.008
+    dpi: int = 150
     # ---------- Stage: Bbox ----------
     PROG.set(3, "Reading bbox from shapefile…")
     b = bbox_layer.bounds()
@@ -198,8 +201,8 @@ def make_ssc_currents_animation(
     norm = LogNorm(vmin=cbar_min, vmax=cbar_max, clip=False) if ssc_scale.lower() == "log" else Normalize(vmin=cbar_min, vmax=cbar_max, clip=False)
 
     # Precompute U/V extent
-    U0, ext_u = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t0, pixel_size_m=field_pixel_size_m)
-    V0, ext_v = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t0, pixel_size_m=field_pixel_size_m)
+    U0, ext_u = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t0, pixel_size_m=model_field_pixel_size_m)
+    V0, ext_v = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t0, pixel_size_m=model_field_pixel_size_m)
     if ext_u != ext_v:
         PROG.close()
         raise RuntimeError("U and V raster extents differ.")
@@ -222,10 +225,10 @@ def make_ssc_currents_animation(
             item_number=ssc_item_number, bbox=bbox, t=ti, pixel_size_m=ssc_pixel_size_m
         )
         U_frame, _ = hd_model.rasterize_idw_bbox(
-            item_number=u_item_number, bbox=bbox, t=ti, pixel_size_m=field_pixel_size_m
+            item_number=u_item_number, bbox=bbox, t=ti, pixel_size_m=model_field_pixel_size_m
         )
         V_frame, _ = hd_model.rasterize_idw_bbox(
-            item_number=v_item_number, bbox=bbox, t=ti, pixel_size_m=field_pixel_size_m
+            item_number=v_item_number, bbox=bbox, t=ti, pixel_size_m=model_field_pixel_size_m
         )
 
         ssc_cache.append(np.asarray(ssc_frame, float) * 100.0)
@@ -244,7 +247,7 @@ def make_ssc_currents_animation(
     xs = np.linspace(uxmin + 0.5 * dx, uxmax - 0.5 * dx, nx)
     ys = np.linspace(uymin + 0.5 * dy, uymax - 0.5 * dy, ny)
     XX, YY = np.meshgrid(xs, ys)
-    stride = max(1, int(field_quiver_stride_n))
+    stride = max(1, int(model_field_quiver_stride_n))
 
     PROG.set(80, "Building figure & artists…")
     fig, axes = PlottingShell.subplots(figheight=fig_height, figwidth=fig_width, nrow=1, ncol=1)
@@ -255,7 +258,7 @@ def make_ssc_currents_animation(
     ax.set_xlim(xmin, xmax); ax.set_ylim(ymin, ymax)
     x_label, y_label = crs_helper.axis_labels()
     ax.set_xlabel(x_label); ax.set_ylabel(y_label)
-    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimal_precision}f}")
+    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{axis_tick_decimals}f}")
     ax.xaxis.set_major_formatter(xy_fmt); ax.yaxis.set_major_formatter(xy_fmt)
     ax.set_title("SSC (mg/L) with HD Currents", fontsize=8, pad=2)
 
@@ -270,8 +273,8 @@ def make_ssc_currents_animation(
     quiv = ax.quiver(
         XX[::stride, ::stride], YY[::stride, ::stride],
         U_cache[0][::stride, ::stride], V_cache[0][::stride, ::stride],
-        color=quiver_color, scale=quiver_scale, width=quiver_width,
-        headwidth=quiver_headwidth, headlength=quiver_headlength, pivot="tail",
+        color=model_quiver_color, scale=model_quiver_scale, width=model_quiver_width,
+        headwidth=model_quiver_headwidth, headlength=model_quiver_headlength, pivot="tail",
         alpha=0.9, zorder=12
     )
 
@@ -293,7 +296,7 @@ def make_ssc_currents_animation(
                   else np.linspace(cbar_min, cbar_max, 6))
     cb.locator = FixedLocator(_ticks)
     cb.set_ticks(_ticks)
-    cb.formatter = mticker.FuncFormatter(lambda v, pos: f"{v:g}")
+    cb.formatter = mticker.FuncFormatter(lambda v, pos: f"{v:.{cbar_tick_decimals}}")
     cb.update_ticks()
 
     # Time overlay
@@ -426,11 +429,11 @@ if __name__ == "__main__":
         ssc_vmax=None,                  # txtvmax
         ssc_bottom_thresh=0.001,        # txtCMapBottomThreshold
         ssc_pixel_size_m=25,            # txtPixelSizeM
-        tick_decimal_precision=3,       # numAxisTickDecimals (or numColorBarTickDecimals)
-        field_pixel_size_m=200.0,       # txtFieldPixelSize
-        field_quiver_stride_n=3,        # numFieldQuiverStrideN
-        quiver_scale=12.0,              # txtQuiverScale
-        quiver_color="white",           # pnlQuiverColor and btnQuiverColor
+        axis_tick_decimals=3,           # numAxisTickDecimals
+        model_field_pixel_size_m=200.0,       # txtFieldPixelSize
+        model_field_quiver_stride_n=3,        # numFieldQuiverStrideN
+        model_quiver_scale=12.0,              # txtQuiverScale
+        model_quiver_color="white",           # pnlQuiverColor and btnQuiverColor
         time_start_idx=0,               # numericAnimationStartIndex and checkAnimationStartIndex
         time_end_idx=None,              # numericAnimationEndIndex and checkAnimationEndIndex
         time_step=1,                    # numericAnimationTimeStep
@@ -451,22 +454,9 @@ if __name__ == "__main__":
         writer_kind="gif",
         use_qt_progress=True,
 
-        quiver_width=0.001,             # txtQuiverWidth
-        quiver_headwidth=2.0,           # txtQuiverHeadWidth
-        quiver_headlength=2.5,          # txtQuiverHeadLength
-        
-        fig_width=4.0,
-        fig_height=4.0,
-        left=0.08, 
-        right=0.90,
-        top=0.97, 
-        bottom=0.10,
-        cb_width=0.012, 
-        cb_gap=0.008,
-        dpi=150,
-        
-        
-        
+        model_quiver_width=0.001,             # txtQuiverWidth
+        model_quiver_headwidth=2.0,           # txtQuiverHeadWidth
+        model_quiver_headlength=2.5,          # txtQuiverHeadLength
     )
 
     plt.show()

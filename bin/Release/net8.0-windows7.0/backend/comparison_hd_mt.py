@@ -1,5 +1,5 @@
 # ===== Imports =====
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -26,52 +26,47 @@ def plot_mixed_mt_hd_transect(
     hd_model: DfsuUtils2D,
     adcp: ADCPDataset,
     crs_helper: CRSHelper,
-        
-
-    *,
-    # ----- SSC map options -----
-    mt_item_number: int = 1,
-    scale: str = "log",                               # "log" | "normal"
-    levels: Tuple[float, ...] = (0.01, 0.1, 1, 10, 100),
-    vmin: Optional[float] = None,
-    vmax: Optional[float] = None,                     # mg/L; None → auto
-    cmap_name="turbo",                                # or a Colormap object
-    cmap_bottom_thresh: float = 0.01,                 # mg/L; transparent below
-    pixel_size_m: int = 10,                           # MT raster resolution
-    pad_m: float = 2000,                              # bbox padding
-    tick_decimals: int = 2,                           # colorbar tick precision
-    tick_decimal_precision: int = 3,                  # map axis tick precision
-    # ----- Currents (HD) -----
-    u_item_number: int = 4,
-    v_item_number: int = 5,
-    model_quiver_mode: str = "field",                 # "transect" | "field"
-    quiver_every_n: int = 20,                         # along-track thinning
-    quiver_scale: float = 3,                          # both layers
-    quiver_color_model: str = "black",
+    shapefile_layers: Optional[Sequence[ShapefileLayer]] = None,
+    
+    # --- ADCP ---
     adcp_transect_lw: float = 1.8,
-    field_pixel_size_m: int = 100,                    # coarse field res (field mode)
-    field_quiver_stride_n: int = 3,                   # stride for field vectors
-    # ----- ADCP aggregation (SSC coloring + vectors) -----
     adcp_series_mode: str = "bin",                    # "bin" | "range" | "hab"
     adcp_series_target="mean",                        # numeric or "mean"/"pXX"
-    # ----- Shapefiles (optional) -----
-    shapefile_layers: Optional[List[ShapefileLayer]] = None,
+    adcp_quiver_every_n: int = 20,                         # along-track thinning
+    adcp_quiver_width: float = 0.002,
+    adcp_quiver_headwidth: float = 2,
+    adcp_quiver_headlength: float = 2.5,
+    adcp_quiver_scale: float = 3,                          # both layers
+    
+
+    # --- SSC ---
+    ssc_item_number: int = 1,
+    ssc_scale: str = "log",                               # "log" | "normal"
+    ssc_levels: Tuple[float, ...] = (0.01, 0.1, 1, 10, 100),
+    ssc_vmin: Optional[float] = None,
+    ssc_vmax: Optional[float] = None,                     # mg/L; None → auto
+    ssc_cmap_name="turbo",                                # or a Colormap object
+    ssc_bottom_thresh: float = 0.01,                      # mg/L; transparent below
+    ssc_pixel_size_m: int = 10,                           # Raster resolution
+    
+    # --- Currents (field) ---
+    u_item_number: int = 4,
+    v_item_number: int = 5,
+    model_field_pixel_size_m: int = 100,                    # coarse field res (field mode)
+    model_field_quiver_stride_n: int = 3,                   # stride for field vectors
+    model_quiver_scale: float = 3,                        
+    model_quiver_width: float = 0.002,
+    model_quiver_headwidth: float = 2,
+    model_quiver_headlength: float = 2.5,
+    model_quiver_color: str = "black",
+    
+    model_quiver_mode: str = "field",                 # "transect" | "field"
+    
     # ----- Layout: figure + colorbar + metadata -----
-    FIG_W: float = 6.5,
-    FIG_H: float = 9.0,
-    LEFT: float = 0.06,
-    RIGHT: float = 0.6, 
-    TOP: float = 0.98, 
-    BOTTOM: float = 0.00,
-    HSPACE: float = 0.22, 
-    CB_WIDTH: float = 0.012,
-    CB_GAP: float = 0.008,
-    META_TOP_Y: float = 0.95,
-    META_SECTION_GAP: float = 0.20,
-    META_LINE_GAP: float = 0.16,
-    META_LEFT_OVERSHOOT: float = 0.0,
-    META_COL_START: float = 0.02, 
-    META_COL_END: float = 0.70, META_COLS: int = 3,
+    cbar_tick_decimals: int = 2,                           # colorbar tick precision
+    axis_tick_decimals: int = 3,                  # map axis tick precision
+    pad_m: float = 2000,                              # bbox padding
+    
 ):
     """
     Mixed MT–HD transect plot.
@@ -87,6 +82,22 @@ def plot_mixed_mt_hd_transect(
     fig : matplotlib.figure.Figure
     (ax0, ax2) : tuple[Axes, Axes]
     """
+    FIG_W: float = 6.5
+    FIG_H: float = 9.0
+    LEFT: float = 0.06
+    RIGHT: float = 0.6 
+    TOP: float = 0.98
+    BOTTOM: float = 0.00
+    HSPACE: float = 0.22
+    CB_WIDTH: float = 0.012
+    CB_GAP: float = 0.008
+    META_TOP_Y: float = 0.95
+    META_SECTION_GAP: float = 0.20
+    META_LINE_GAP: float = 0.16
+    META_LEFT_OVERSHOOT: float = 0.0
+    META_COL_START: float = 0.02 
+    META_COL_END: float = 0.70
+    META_COLS: int = 3
     if shapefile_layers is None:
         shapefile_layers = []
 
@@ -112,7 +123,7 @@ def plot_mixed_mt_hd_transect(
 
     # ====================================================================== TOP — MT SSC raster + ADCP/Model vectors
     ssc_img, extent = mt_model.rasterize_idw_bbox(
-        item_number=mt_item_number, bbox=bbox, t=t, pixel_size_m=pixel_size_m
+        item_number=ssc_item_number, bbox=bbox, t=t, pixel_size_m=ssc_pixel_size_m
     )
     ssc_img = np.asarray(ssc_img, float) * 1000.0  # mg/L
     finite = np.isfinite(ssc_img)
@@ -121,15 +132,15 @@ def plot_mixed_mt_hd_transect(
 
     auto_min = float(np.nanmin(ssc_img[finite]))
     auto_max = float(np.nanmax(ssc_img[finite]))
-    cbar_min = vmin if vmin is not None else (min(levels) if levels else max(cmap_bottom_thresh, auto_min))
-    cbar_max = vmax if vmax is not None else (max(levels) if levels else auto_max)
-    cbar_min = max(cmap_bottom_thresh, cbar_min)
+    cbar_min = ssc_vmin if ssc_vmin is not None else (min(ssc_levels) if ssc_levels else max(ssc_bottom_thresh, auto_min))
+    cbar_max = ssc_vmax if ssc_vmax is not None else (max(ssc_levels) if ssc_levels else auto_max)
+    cbar_min = max(ssc_bottom_thresh, cbar_min)
     if (not np.isfinite(cbar_min)) or (not np.isfinite(cbar_max)) or (cbar_min >= cbar_max):
-        cbar_min, cbar_max = max(cmap_bottom_thresh, 0.01), max(cmap_bottom_thresh * 100.0, 100.0)
+        cbar_min, cbar_max = max(ssc_bottom_thresh, 0.01), max(ssc_bottom_thresh * 100.0, 100.0)
 
-    norm = LogNorm(vmin=cbar_min, vmax=cbar_max, clip=True) if str(scale).lower() == "log" \
+    norm = LogNorm(vmin=cbar_min, vmax=cbar_max, clip=True) if str(ssc_scale).lower() == "log" \
         else Normalize(vmin=cbar_min, vmax=cbar_max, clip=True)
-    cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
+    cmap = plt.get_cmap(ssc_cmap_name) if isinstance(ssc_cmap_name, str) else ssc_cmap_name
     cmap = cmap.copy()
     cmap.set_under(alpha=0.0)
 
@@ -161,13 +172,13 @@ def plot_mixed_mt_hd_transect(
     adcp_v_ts, _ = adcp.get_velocity_series(component="v", mode=adcp_series_mode, target=adcp_series_target)
     adcp_u_ts = np.asarray(adcp_u_ts, float)
     adcp_v_ts = np.asarray(adcp_v_ts, float)
-    idx = np.arange(0, xq.size, max(1, int(quiver_every_n)))
+    idx = np.arange(0, xq.size, max(1, int(adcp_quiver_every_n)))
     C_adcp = np.clip(adcp_ssc_ts[:xq.size][idx], cbar_min, cbar_max)
     ax0.quiver(
         xq[idx], yq[idx], adcp_u_ts[idx], adcp_v_ts[idx],
         C_adcp, cmap=cmap, norm=norm,
-        scale=quiver_scale, width=0.002, headwidth=3, headlength=4, pivot="tail",
-        alpha=0.95, zorder=14
+        scale=adcp_quiver_scale, width=adcp_quiver_width, headwidth=adcp_quiver_headwidth, headlength=adcp_quiver_headlength,
+        pivot="tail", alpha=0.95, zorder=14
     )
 
     # MODEL quivers: transect or coarse field
@@ -176,12 +187,12 @@ def plot_mixed_mt_hd_transect(
         mv = np.asarray(hd_model.extract_transect_idw(xq, yq, t, item_number=v_item_number)[0], float)
         ax0.quiver(
             xq[idx], yq[idx], mu[idx], mv[idx],
-            color=quiver_color_model, scale=quiver_scale, width=0.002,
-            headwidth=3, headlength=4, pivot="tail", alpha=0.9, zorder=13
+            color=model_quiver_color, scale=model_quiver_scale, width=model_quiver_width,
+            headwidth=model_quiver_headwidth, headlength=model_quiver_headlength, pivot="tail", alpha=0.9, zorder=13
         )
     elif model_quiver_mode.lower() == "field":
-        Uc, ext_u = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
-        Vc, ext_v = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=field_pixel_size_m)
+        Uc, ext_u = hd_model.rasterize_idw_bbox(item_number=u_item_number, bbox=bbox, t=t, pixel_size_m=model_field_pixel_size_m)
+        Vc, ext_v = hd_model.rasterize_idw_bbox(item_number=v_item_number, bbox=bbox, t=t, pixel_size_m=model_field_pixel_size_m)
         if ext_u != ext_v:
             raise RuntimeError("Field-mode U and V raster extents differ.")
         xmin, xmax, ymin, ymax = ext_u
@@ -191,12 +202,12 @@ def plot_mixed_mt_hd_transect(
         xs = np.linspace(xmin + dx * 0.5, xmax - dx * 0.5, nx)
         ys = np.linspace(ymin + dy * 0.5, ymax - dy * 0.5, ny)
         XX, YY = np.meshgrid(xs, ys)
-        stride = max(1, int(field_quiver_stride_n))
+        stride = max(1, int(model_field_quiver_stride_n))
         ax0.quiver(
             XX[::stride, ::stride], YY[::stride, ::stride],
             Uc[::stride, ::stride], Vc[::stride, ::stride],
-            color=quiver_color_model, scale=quiver_scale, width=0.002,
-            headwidth=3, headlength=4, pivot="tail", alpha=0.85, zorder=13
+            color=model_quiver_color, scale=model_quiver_scale, width=model_quiver_width,
+            headwidth=model_quiver_headwidth, headlength=model_quiver_headlength, pivot="tail", alpha=0.85, zorder=13
         )
     else:
         raise ValueError("model_quiver_mode must be 'transect' or 'field'.")
@@ -209,7 +220,7 @@ def plot_mixed_mt_hd_transect(
     ax0.set_ylim(ymin, ymax)
     ax0.set_aspect("equal", adjustable="box")
     ax0.set_title(f"SSC Field + Currents — {adcp.name}", fontsize=8)
-    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimal_precision}f}")
+    xy_fmt = mticker.FuncFormatter(lambda v, pos: f"{v:.{axis_tick_decimals}f}")
     ax0.xaxis.set_major_formatter(xy_fmt)
     ax0.yaxis.set_major_formatter(xy_fmt)
 
@@ -231,17 +242,17 @@ def plot_mixed_mt_hd_transect(
     cb.ax.tick_params(labelsize=6)
 
     
-    # choose ticks: prefer your `levels`, fall back if empty
-    _ticks = [v for v in (levels or []) if cbar_min <= v <= cbar_max]
+    # choose ticks: prefer your `ssc_levels`, fall back if empty
+    _ticks = [v for v in (ssc_levels or []) if cbar_min <= v <= cbar_max]
     if not _ticks:
         _ticks = (np.geomspace(cbar_min, cbar_max, 6)
-                  if scale.lower() == "log" else
+                  if ssc_scale.lower() == "log" else
                   np.linspace(cbar_min, cbar_max, 6))
     
     # force numeric labels, no sci notation
     cb.locator   = FixedLocator(_ticks)      # lock tick positions
     cb.set_ticks(_ticks)
-    cb.formatter = mticker.FuncFormatter(lambda v, pos: f"{v:.{tick_decimals}f}")
+    cb.formatter = mticker.FuncFormatter(lambda v, pos: f"{v:.{cbar_tick_decimals}f}")
     cb.update_ticks()
 
     
@@ -281,7 +292,7 @@ def plot_mixed_mt_hd_transect(
         return arr
 
     h_model = FancyArrowPatch((0, 0), (1, 0),
-                              facecolor=quiver_color_model, edgecolor="black", linewidth=EDGE_LW)
+                              facecolor=model_quiver_color, edgecolor="black", linewidth=EDGE_LW)
     h_adcp = FancyArrowPatch((0, 0), (1, 0),
                              facecolor=adcp_mean_rgba, edgecolor="black", linewidth=EDGE_LW)
     h_trk = Line2D([0], [0], color=adcp_mean_rgba, lw=adcp_transect_lw)
@@ -299,7 +310,7 @@ def plot_mixed_mt_hd_transect(
     v_ts = np.asarray(hd_model.extract_transect_idw(xq, yq, t, item_number=v_item_number)[0], float)
     spd_ts = np.hypot(u_ts, v_ts)
     model_ssc_ts = np.asarray(
-        mt_model.rasterize_idw_bbox(item_number=mt_item_number, bbox=bbox, t=t, pixel_size_m=pixel_size_m)[0],
+        mt_model.rasterize_idw_bbox(item_number=ssc_item_number, bbox=bbox, t=t, pixel_size_m=ssc_pixel_size_m)[0],
         float
     ).ravel() * 1000.0
 
@@ -372,13 +383,13 @@ def plot_mixed_mt_hd_transect(
     y = y0
     H(x, y, "Summary")
     y -= sec
-    I(x, y, "Mean SSC (obs)", f"{mean_ssc_obs:.{tick_decimals}f} mg/L")
+    I(x, y, "Mean SSC (obs)", f"{mean_ssc_obs:.{cbar_tick_decimals}f} mg/L")
     y -= line
-    I(x, y, "Mean SSC (model)", f"{mean_ssc_model:.{tick_decimals}f} mg/L")
+    I(x, y, "Mean SSC (model)", f"{mean_ssc_model:.{cbar_tick_decimals}f} mg/L")
     y -= line
-    I(x, y, "Mean SSC error", f"{mean_ssc_err:.{tick_decimals}f} mg/L")
+    I(x, y, "Mean SSC error", f"{mean_ssc_err:.{cbar_tick_decimals}f} mg/L")
     y -= line
-    I(x, y, "Mean speed (model)", f"{mean_spd:.{tick_decimals}f} m/s")
+    I(x, y, "Mean speed (model)", f"{mean_spd:.{cbar_tick_decimals}f} m/s")
 
     return fig, (ax0, ax2)
 
@@ -440,43 +451,30 @@ if __name__ == "__main__":
         hd_model,
         adcp,
         crs_helper,
-        mt_item_number=1,
-        scale="log",
-        levels=(0.01, 0.1, 1, 10, 100),
-        vmin=None,
-        vmax=None,
-        cmap_name="turbo",
-        cmap_bottom_thresh=0.01,
-        pixel_size_m=10,
+        ssc_item_number=1,
+        ssc_scale="log",
+        ssc_levels=(0.01, 0.1, 1, 10, 100),
+        ssc_vmin=None,
+        ssc_vmax=None,
+        ssc_cmap_name="turbo",
+        ssc_bottom_thresh=0.01,
+        ssc_pixel_size_m=10,
         pad_m=2000,
-        tick_decimals=2,
-        tick_decimal_precision=3,
+        cbar_tick_decimals=2,
+        axis_tick_decimals=3,
         u_item_number=4,
         v_item_number=5,
         model_quiver_mode="field",          # "transect" | "field"
-        quiver_every_n=20,
-        quiver_scale=3,
-        quiver_color_model="black",
+        adcp_quiver_every_n=20,
+        adcp_quiver_scale=3,
+        model_quiver_scale=3,
+        model_quiver_color="black",
         adcp_transect_lw=1.8,
-        field_pixel_size_m=100,
-        field_quiver_stride_n=3,
+        model_field_pixel_size_m=100,
+        model_field_quiver_stride_n=3,
         adcp_series_mode="bin",
         adcp_series_target="mean",
         shapefile_layers=shapefile_layers,
-        FIG_W=6.5,
-        FIG_H=9.0,
-        LEFT=0.06,
-        RIGHT=0.90,
-        TOP=0.98, 
-        BOTTOM=0.00,
-        HSPACE=0.22,
-        CB_WIDTH=0.012,
-        CB_GAP=0.008,
-        META_TOP_Y=0.95,
-        META_SECTION_GAP=0.20,
-        META_LINE_GAP=0.16,
-        META_LEFT_OVERSHOOT=0.0,
-        META_COL_START=0.02, META_COL_END=0.70, META_COLS=3,
     )
 
     plt.show()
