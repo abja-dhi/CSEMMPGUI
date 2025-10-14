@@ -119,6 +119,18 @@ namespace CSEMMPGUI_v1
         public static TextBox? txtAnimationOutputFile;
         public static Button? btnAnimationOutputFile;
 
+        public static Label? lblQuiverWidth;
+        public static TextBox? txtQuiverWidth;
+
+        public static Label? lblQuiverHeadWidth;
+        public static TextBox? txtQuiverHeadWidth;
+
+        public static Label? lblQuiverHeadLength;
+        public static TextBox? txtQuiverHeadLength;
+
+        public static Label? lblsscLevels;
+        public static TextBox? txtsscLevels;
+
         private void PropHDModelComparison()
         {
             XmlNodeList? hdModels = _project.GetObjects("HDModel");
@@ -1059,6 +1071,75 @@ namespace CSEMMPGUI_v1
             btnAnimationOutputFile.Text = "...";
             btnAnimationOutputFile.UseVisualStyleBackColor = true;
             btnAnimationOutputFile.Click += btnAnimationOutputFile_Click;
+            // 
+            // lblQuiverWidth
+            // 
+            lblQuiverWidth = new Label();
+            lblQuiverWidth.Dock = DockStyle.Fill;
+            lblQuiverWidth.Name = "lblQuiverWidth";
+            lblQuiverWidth.TabIndex = 0;
+            lblQuiverWidth.Text = "Quiver Width";
+            lblQuiverWidth.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // txtQuiverWidth
+            // 
+            txtQuiverWidth = new TextBox();
+            txtQuiverWidth.Dock = DockStyle.Fill;
+            txtQuiverWidth.Name = "txtQuiverWidth";
+            txtQuiverWidth.TabIndex = 1;
+            txtQuiverWidth.Text = "0.001";
+            //
+            // lblQuiverHeadWidth
+            //
+            lblQuiverHeadWidth = new Label();
+            lblQuiverHeadWidth.Dock = DockStyle.Fill;
+            lblQuiverHeadWidth.Name = "lblQuiverHeadWidth";
+            lblQuiverHeadWidth.TabIndex = 0;
+            lblQuiverHeadWidth.Text = "Quiver Head Width";
+            lblQuiverHeadWidth.TextAlign = ContentAlignment.MiddleLeft;
+            //
+            // txtQuiverHeadWidth
+            //
+            txtQuiverHeadWidth = new TextBox();
+            txtQuiverHeadWidth.Dock = DockStyle.Fill;
+            txtQuiverHeadWidth.Name = "txtQuiverHeadWidth";
+            txtQuiverHeadWidth.TabIndex = 1;
+            txtQuiverHeadWidth.Text = "2.0";
+            //
+            // lblQuiverHeadLength
+            //
+            lblQuiverHeadLength = new Label();
+            lblQuiverHeadLength.Dock = DockStyle.Fill;
+            lblQuiverHeadLength.Name = "lblQuiverHeadLength";
+            lblQuiverHeadLength.TabIndex = 0;
+            lblQuiverHeadLength.Text = "Quiver Head Length";
+            lblQuiverHeadLength.TextAlign = ContentAlignment.MiddleLeft;
+            //
+            // txtQuiverHeadLength
+            //
+            txtQuiverHeadLength = new TextBox();
+            txtQuiverHeadLength.Dock = DockStyle.Fill;
+            txtQuiverHeadLength.Name = "txtQuiverHeadLength";
+            txtQuiverHeadLength.TabIndex = 1;
+            txtQuiverHeadLength.Text = "2.5";
+            //
+            // lblsscLevels
+            //
+            lblsscLevels = new Label();
+            lblsscLevels.Dock = DockStyle.Fill;
+            lblsscLevels.Name = "lblsscLevels";
+            lblsscLevels.TabIndex = 0;
+            lblsscLevels.Text = "SSC Levels (comma separated)";
+            lblsscLevels.TextAlign = ContentAlignment.MiddleLeft;
+            //
+            // txtsscLevels
+            //
+            txtsscLevels = new TextBox();
+            txtsscLevels.Dock = DockStyle.Fill;
+            txtsscLevels.Name = "txtsscLevels";
+            txtsscLevels.TabIndex = 1;
+            txtsscLevels.Text = "0.001,0.01,0.1,1,10";
+
         }
 
         public ProjectPlot()

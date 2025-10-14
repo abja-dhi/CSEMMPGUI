@@ -21,9 +21,11 @@ from .utils_shapefile import ShapefileLayer
 
 
 def mt_model_transect_comparison(
-    mt_model,
-    adcp,
-    crs_helper,
+    mt_model: DfsuUtils2D,
+    adcp: ADCPDataset,
+    crs_helper: CRSHelper,
+        
+
     *,
     # ---- Basic plot options ----
     mt_model_item_number: int = 1,

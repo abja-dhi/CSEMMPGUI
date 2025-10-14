@@ -35,7 +35,7 @@ from PyQt5.QtWidgets import QApplication, QProgressDialog
 from PyQt5.QtCore import Qt
 
 # Project utils
-from utils_dfsu2d import DfsuUtils2D
+from utils_dfsu2D import DfsuUtils2D
 from utils_crs import CRSHelper
 from utils_shapefile import ShapefileLayer
 from plotting import PlottingShell
@@ -390,8 +390,8 @@ if __name__ == "__main__":
     crs_helper = CRSHelper(project_crs=project_crs_epsg)
 
     # Models
-    mt_model_path = r'//usden1-stor.dhi.dk/Projects/61803553-05/Models/F3/2024/10. October/MT/MTD20241002_1.dfsu'
-    hd_model_path = r'\\USDEN1-STOR.DHI.DK\\Projects\\61803553-05\\Models\\F3\\2024\\10. October\\HD\\HDD20241002.dfsu'
+    mt_model_path = r'\\usden1-stor.dhi.dk\Projects\61803553-05\Models\F3\2024\10. October\MT\MTD20241002_1.dfsu'
+    hd_model_path = r'\\USDEN1-STOR.DHI.DK\Projects\61803553-05\Models\F3\2024\10. October\HD\HDD20241002.dfsu'
     mt_model = DfsuUtils2D(mt_model_path, crs_helper=crs_helper)
     hd_model = DfsuUtils2D(hd_model_path, crs_helper=crs_helper)
 

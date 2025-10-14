@@ -24,12 +24,14 @@ from .utils_shapefile import ShapefileLayer
 
 
 def plot_hd_vs_adcp_transect(
-    hd_model,
-    adcp,
+    hd_model: DfsuUtils2D,
+    adcp: ADCPDataset,
+    crs_helper: CRSHelper,
+        
+
     xq,
     yq,
     t,
-    crs_helper,
     # ------------------ Inputs (defaults from current block)
     levels = [0.0, .1, .2, .3, .4, .5],
     vmin: float | None = None,

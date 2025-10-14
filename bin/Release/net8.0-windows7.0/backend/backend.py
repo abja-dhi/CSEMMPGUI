@@ -243,6 +243,7 @@ def Call(XML):
         field_pixel_size = float(root.find("FieldPixelSize").text)
         field_quiver_stride_n = int(root.find("FieldQuiverStrideN").text)
         cmap = XMLUtils._get_value(root, "Colormap", "viridis").lower()
+        
         results = HDComparison(project, model_id, adcp_id, model_quiver_mode, field_pixel_size, field_quiver_stride_n, cmap)
 
     elif task_type == "MTComparison":
