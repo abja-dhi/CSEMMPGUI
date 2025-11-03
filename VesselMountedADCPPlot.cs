@@ -304,7 +304,7 @@ namespace CSEMMPGUI_v1
             comboFieldName.Dock = DockStyle.Fill;
             comboFieldName.DropDownStyle = ComboBoxStyle.DropDownList;
             comboFieldName.FormattingEnabled = true;
-            comboFieldName.Items.AddRange(new object[] { "Echo Intensity", "Correlation Magnitude", "Percent Good", "Absolute Backscatter", "Alpha s", "Alpha w", "Signal to Noise Ratio", "SSC" });
+            comboFieldName.Items.AddRange(new object[] { "Echo Intensity", "Correlation Magnitude", "Percent Good", "Absolute Backscatter", "Signal to Noise Ratio", "SSC" });
             comboFieldName.Name = "comboFieldName";
             comboFieldName.TabIndex = 14;
             comboFieldName.SelectedIndex = 0;

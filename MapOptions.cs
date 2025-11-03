@@ -1991,7 +1991,6 @@ namespace CSEMMPGUI_v1
                 Title = "Select Shapefile",
                 Filter = "Shapefiles (*.shp)|*.shp",
                 Multiselect = false,
-                InitialDirectory = _project.GetSetting("Directory")
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {

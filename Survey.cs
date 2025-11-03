@@ -382,9 +382,9 @@ namespace CSEMMPGUI_v1
                 double waterPH = double.TryParse(txtPH.Text, out double pH) ? pH : 8.1; // Default to 8.1 if parsing fails
                 double sedimentDiameter = double.TryParse(txtSedimentDiameter.Text, out double diameter) ? diameter : 2.5e-4; // Default to 2.5e-4 if parsing fails
                 double sedimentDensity = double.TryParse(txtSedimentDensity.Text, out double densitySediment) ? densitySediment : 2650.0; // Default to 2650.0 if parsing fails
-                surveyManager.SaveSurvey(name: name,
-                    waterDensity: waterDensity, waterSalinity: waterSalinity, waterTemperature: waterTemperature, waterPH: waterPH,
-                    sedimentDiameter: sedimentDiameter, sedimentDensity: sedimentDensity);
+                surveyManager.SaveSurvey(name: name);
+                    //waterDensity: waterDensity, waterSalinity: waterSalinity, waterTemperature: waterTemperature, waterPH: waterPH,
+                    //sedimentDiameter: sedimentDiameter, sedimentDensity: sedimentDensity);
                 return 1;
             }
             catch (Exception ex)

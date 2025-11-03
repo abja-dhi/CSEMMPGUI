@@ -169,8 +169,7 @@ namespace CSEMMPGUI_v1
             txtModelName.Text = "New SSC Model";
             txtA.Text = string.Empty;
             txtB.Text = string.Empty;
-            txtC.Text = string.Empty;
-            comboFits.SelectedIndex = 0;
+            
             FillTrees();
             isSaved = true;
         }
@@ -191,7 +190,16 @@ namespace CSEMMPGUI_v1
                 rbAuto.Checked = true;
             txtA.Text = sscElement.SelectSingleNode("A")?.InnerText ?? string.Empty;
             txtB.Text = sscElement.SelectSingleNode("B")?.InnerText ?? string.Empty;
-            comboFits.SelectedItem = sscElement.SelectSingleNode("Fit")?.InnerText ?? "Linear";
+            if (calcMode != "Manual")
+            {
+                txtDepthThreshold.Text = sscElement.SelectSingleNode("DepthThreshold")?.InnerText ?? "";
+                txtTimeThreshold.Text = sscElement.SelectSingleNode("TimeThreshold")?.InnerText ?? "";
+                string timeUnit = sscElement.SelectSingleNode("TimeThresholdUnit")?.InnerText ?? "Second";
+                if (comboTimeThresholdUnit.Items.Contains(timeUnit))
+                    comboTimeThresholdUnit.SelectedItem = timeUnit;
+                else
+                    comboTimeThresholdUnit.SelectedIndex = 0; // Default to first item if not found
+            }
             FillTrees();
             SetChecks();
             isSaved = true;
@@ -388,11 +396,13 @@ namespace CSEMMPGUI_v1
             {
                 tableManual.Enabled = true;
                 tableTrees.Enabled = false;
+                tableThresholds.Enabled = false;
             }
             else
             {
                 tableManual.Enabled = false;
                 tableTrees.Enabled = true;
+                tableThresholds.Enabled = true;
             }
             isSaved = false; // Mark as unsaved changes
         }
@@ -514,9 +524,6 @@ namespace CSEMMPGUI_v1
             XmlElement modeElement = _Globals.Config.CreateElement("Mode");
             modeElement.InnerText = rbManual.Checked ? "Manual" : "Auto";
             sscElement.AppendChild(modeElement);
-            XmlElement fitElement = _Globals.Config.CreateElement("Fit");
-            fitElement.InnerText = comboFits.SelectedItem?.ToString() ?? "Linear";
-            sscElement.AppendChild(fitElement);
             if (rbManual.Checked)
             {
                 XmlElement aElement = _Globals.Config.CreateElement("A");
@@ -528,6 +535,15 @@ namespace CSEMMPGUI_v1
             }
             else
             {
+                XmlElement depthThreshold = _Globals.Config.CreateElement("DepthThreshold");
+                depthThreshold.InnerText = txtDepthThreshold.Text;
+                sscElement.AppendChild(depthThreshold);
+                XmlElement timeThreshold = _Globals.Config.CreateElement("TimeThreshold");
+                timeThreshold.InnerText = txtTimeThreshold.Text;
+                sscElement.AppendChild(timeThreshold);
+                XmlElement timeThresholdUnit = _Globals.Config.CreateElement("TimeThresholdUnit");
+                timeThresholdUnit.InnerText = comboTimeThresholdUnit.SelectedItem.ToString();
+                sscElement.AppendChild(timeThresholdUnit);
                 foreach (TreeNode surveyNode in tree.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
@@ -658,8 +674,6 @@ namespace CSEMMPGUI_v1
             sscElement.SetAttribute("name", txtModelName.Text);
             XmlNode? modeNode = sscElement.SelectSingleNode("Mode");
             modeNode.InnerText = rbManual.Checked ? "Manual" : "Auto";
-            XmlNode? fitNode = sscElement.SelectSingleNode("Fit");
-            fitNode.InnerText = comboFits.SelectedItem?.ToString() ?? "Linear";
             // Remove existing A and B nodes if they exist for fresh update
             XmlNode? aNode = sscElement.SelectSingleNode("A");
             if (aNode != null)
@@ -667,6 +681,15 @@ namespace CSEMMPGUI_v1
             XmlNode? bNode = sscElement.SelectSingleNode("B");
             if (bNode != null)
                 sscElement.RemoveChild(bNode);
+            XmlNode? depthThresholdNode = sscElement.SelectSingleNode("DepthThreshold");
+            if (depthThresholdNode != null)
+                sscElement.RemoveChild(depthThresholdNode);
+            XmlNode? timeThresholdNode = sscElement.SelectSingleNode("TimeThreshold");
+            if (timeThresholdNode != null)
+                sscElement.RemoveChild(timeThresholdNode);
+            XmlNode? timeThresholdUnitNode = sscElement.SelectSingleNode("TimeThresholdUnit");
+            if (timeThresholdUnitNode != null)
+                sscElement.RemoveChild(timeThresholdUnitNode);
             XmlNode? r2Node = sscElement.SelectSingleNode("R2");
             if (r2Node != null)
                 sscElement.RemoveChild(r2Node);
@@ -696,6 +719,15 @@ namespace CSEMMPGUI_v1
             }
             else
             {
+                XmlElement depthThreshold = _Globals.Config.CreateElement("DepthThreshold");
+                depthThreshold.InnerText = txtDepthThreshold.Text;
+                sscElement.AppendChild(depthThreshold);
+                XmlElement timeThreshold = _Globals.Config.CreateElement("TimeThreshold");
+                timeThreshold.InnerText = txtTimeThreshold.Text;
+                sscElement.AppendChild(timeThreshold);
+                XmlElement timeThresholdUnit = _Globals.Config.CreateElement("TimeThresholdUnit");
+                timeThresholdUnit.InnerText = comboTimeThresholdUnit.SelectedItem.ToString();
+                sscElement.AppendChild(timeThresholdUnit);
                 foreach (TreeNode surveyNode in tree.Nodes)
                 {
                     foreach (TreeNode instrumentNode in surveyNode.Nodes)
@@ -746,6 +778,7 @@ namespace CSEMMPGUI_v1
                 XmlElement Data = _Globals.Config.CreateElement("Data");
                 double[] data1 = ParseArray(outputs[label1]);
                 double[] data2 = ParseArray(outputs[label2]);
+
                 for (int i = 0; i < data1.Length; i++)
                 {
                     XmlElement point = _Globals.Config.CreateElement("Point");

@@ -162,12 +162,14 @@ namespace CSEMMPGUI_v1
         private void menuSave_Click(object sender, EventArgs e)
         {
             SaveProject();
+            FillTree(); // Refresh the tree view after saving
         }
 
         private void menuSaveAs_Click(object sender, EventArgs e)
         {
             _Globals.isSaved = false; // Force Save As dialog
             SaveProject();
+            FillTree(); // Refresh the tree view after saving
         }
 
         private void menuProperties_Click(object sender, EventArgs e)
@@ -532,27 +534,28 @@ namespace CSEMMPGUI_v1
                 string directory = _project.GetSetting(settingName: "Directory");
                 if (directory == Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
                     directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                SaveFileDialog sfd = new SaveFileDialog
+                using (SaveFileDialog sfd = new SaveFileDialog())
                 {
-                    Filter = "MT Project Files (*.mtproj)|*.mtproj",
-                    Title = "Save Project",
-                    InitialDirectory = directory,
-                    FileName = _project.GetSetting(settingName: "Name") + ".mtproj",
-                    OverwritePrompt = true
-                };
-                if (sfd.ShowDialog() == DialogResult.OK)
-                {
-                    string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sfd.FileName);
-                    string selectedDirectory = Path.GetDirectoryName(sfd.FileName);
-                    _project.SetSetting(settingName: "Name", value: fileNameWithoutExtension);
-                    _project.SetSetting(settingName: "Directory", value: selectedDirectory);
-                    _project.SaveConfig(saveMode: 1); // Save the project configuration with the new name and directory
-                    _Globals.isSaved = true;
-                    return 1;
-                }
-                else if (sfd.ShowDialog() == DialogResult.Cancel)
-                {
-                    return 0; // Indicate cancellation
+                    sfd.Filter = "MT Project Files (*.mtproj)|*.mtproj";
+                    sfd.Title = "Save Project";
+                    sfd.InitialDirectory = directory;
+                    sfd.FileName = _project.GetSetting(settingName: "Name") + ".mtproj";
+                    sfd.OverwritePrompt = true;
+                    DialogResult result = sfd.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(sfd.FileName);
+                        string selectedDirectory = Path.GetDirectoryName(sfd.FileName);
+                        _project.SetSetting(settingName: "Name", value: fileNameWithoutExtension);
+                        _project.SetSetting(settingName: "Directory", value: selectedDirectory);
+                        _project.SaveConfig(saveMode: 1); // Save the project configuration with the new name and directory
+                        _Globals.isSaved = true;
+                        return 1;
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        return 0; // Indicate cancellation
+                    }
                 }
             }
             else

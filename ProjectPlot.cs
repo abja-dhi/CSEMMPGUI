@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,11 +15,10 @@ using DHI.Generic.MikeZero.DFS;
 using DHI.Generic.MikeZero.DFS.dfs123;
 using DHI.Generic.MikeZero.DFS.dfsu;
 using DHI.Generic.MikeZero.DFS.mesh;
+using DHI.Math.Expression.Operations;
 
 namespace CSEMMPGUI_v1
 {
-
-
     public partial class ProjectPlot : Form
     {
         public XmlNodeList? hdModels;
@@ -28,578 +29,43 @@ namespace CSEMMPGUI_v1
         public XmlElement? adcp;
         public _ClassConfigurationManager _project = new();
 
-        public static Label? lblHDModel;
-        public static ComboBox? comboHDModel;
-
-        public static Label? lblMTModel;
-        public static ComboBox? comboMTModel;
-
-        public static Label? lblADCP;
-        public static ComboBox? comboADCP;
-
-        public static Label? lblModelQuiverMode;
-        public static ComboBox? comboModelQuiverMode;
-
-        public static Label? lblFieldPixelSize;
-        public static TextBox? txtFieldPixelSize;
-
-        public static Label? lblFieldQuiverStrideN;
-        public static NumericUpDown? numFieldQuiverStrideN;
-
-        public static Label? lblcmap;
-        public static ComboBox? combocmap;
-
-        public static Label? lblScale;
-        public static ComboBox? comboScale;
-
-        public static Label? lblvmin;
-        public static TextBox? txtvmin;
-
-        public static Label? lblvmax;
-        public static TextBox? txtvmax;
-
-        public static Label? lblColorBarTickDecimals;
-        public static NumericUpDown? numColorBarTickDecimals;
-
-        public static Label? lblAxisTickDecimals;
-        public static NumericUpDown? numAxisTickDecimals;
-
-        public static Label? lblPadM;
-        public static TextBox? txtPadM;
-
-        public static Label? lblPixelSizeM;
-        public static TextBox? txtPixelSizeM;
-
-        public static Label? lblCMapBottomThreshold;
-        public static TextBox? txtCMapBottomThreshold;
-
-        public static Label? lblTransectColor;
-        public static Panel? pnlTransectCOlor;
-        public static Button? btnTransectColor;
-
-        public static Label? lblBinConfiguration;
-        public static ComboBox? comboBinConfiguration;
-
-        public static Label? lblBinTarget;
-        public static TextBox? txtBinTarget;
-        public static NumericUpDown? numBinTarget;
-        public static CheckBox checkBinTarget;
-
-        public static Label? lblBeamSelection;
-        public static NumericUpDown? numericNBeams;
-
-        public static Label? lblQuiverEveryN;
-        public static NumericUpDown? numericQuiverEveryN;
-
-        public static Label? lblQuiverScale;
-        public static TextBox? txtQuiverScale;
-
-        public static Label? lblQuiverColor;
-        public static Panel? pnlQuiverColor;
-        public static Button? btnQuiverColor;
-
-        public static Label? lblTransectLineWidth;
-        public static TextBox? txtTransectLineWidth;
-
-        public static Label? lblAnimationStartIndex;
-        public static NumericUpDown? numericAnimationStartIndex;
-        public static CheckBox? checkAnimationStartIndex;
-
-        public static Label? lblAnimationEndIndex;
-        public static NumericUpDown? numericAnimationEndIndex;
-        public static CheckBox? checkAnimationEndIndex;
-
-        public static Label? lblAnimationTimeStep;
-        public static NumericUpDown? numericAnimationTimeStep;
-
-        public static Label? lblAnimationInterval;
-        public static NumericUpDown? numericAnimationInterval;
-
-        public static Label? lblAnimationOutputFile;
-        public static TextBox? txtAnimationOutputFile;
-        public static Button? btnAnimationOutputFile;
-
-        public static Label? lblQuiverWidth;
-        public static TextBox? txtQuiverWidth;
-
-        public static Label? lblQuiverHeadWidth;
-        public static TextBox? txtQuiverHeadWidth;
-
-        public static Label? lblQuiverHeadLength;
-        public static TextBox? txtQuiverHeadLength;
-
-        public static Label? lblsscLevels;
-        public static TextBox? txtsscLevels;
-
-        private void PropHDModelComparison()
+        public static Label MakeLabel(string name, string text)
         {
-            XmlNodeList? hdModels = _project.GetObjects("HDModel");
-            foreach (XmlNode node in hdModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboHDModel.Items.Add(item);
-            }
-            XmlNodeList adcps = _project.GetObjects("VesselMountedADCP");
-            foreach (XmlNode node in adcps)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboADCP.Items.Add(item);
-            }
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 10;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblHDModel, 0, 0);
-            tableProp.Controls.Add(comboHDModel, 1, 0);
-            tableProp.Controls.Add(lblADCP, 0, 1);
-            tableProp.Controls.Add(comboADCP, 1, 1);
-            tableProp.Controls.Add(lblcmap, 0, 5);
-            tableProp.Controls.Add(combocmap, 1, 5);
-            tableProp
-            tableProp.Controls.Add(lblModelQuiverMode, 0, 2);
-            tableProp.Controls.Add(comboModelQuiverMode, 1, 2);
-            tableProp.Controls.Add(lblFieldPixelSize, 0, 3);
-            tableProp.Controls.Add(txtFieldPixelSize, 1, 3);
-            tableProp.Controls.Add(lblFieldQuiverStrideN, 0, 4);
-            tableProp.Controls.Add(numFieldQuiverStrideN, 1, 4);
-            
+            Label lbl = new Label();
+            lbl.Name = name;
+            lbl.Text = text;
+            lbl.Dock = DockStyle.Fill;
+            lbl.TextAlign = ContentAlignment.MiddleLeft;
+            return lbl;
         }
 
-        private void PropMTModelComparison()
+        public static ComboBox MakeCombo(string name, string[] items)
         {
-            XmlNodeList? mtModels = _project.GetObjects("MTModel");
-            foreach (XmlNode node in mtModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboMTModel.Items.Add(item);
-            }
-            XmlNodeList? adcps = _project.GetObjects("VesselMountedADCP");
-            foreach (XmlNode node in adcps)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboADCP.Items.Add(item);
-            }
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 19;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblMTModel, 0, 0);
-            tableProp.Controls.Add(comboMTModel, 1, 0);
-            tableProp.Controls.Add(lblADCP, 0, 1);
-            tableProp.Controls.Add(comboADCP, 1, 1);
-            tableProp.Controls.Add(lblScale, 0, 2);
-            tableProp.Controls.Add(comboScale, 1, 2);
-            tableProp.Controls.Add(lblvmin, 0, 3);
-            tableProp.Controls.Add(txtvmin, 1, 3);
-            tableProp.Controls.Add(lblvmax, 0, 4);
-            tableProp.Controls.Add(txtvmax, 1, 4);
-            tableProp.Controls.Add(lblcmap, 0, 5);
-            tableProp.Controls.Add(combocmap, 1, 5);
-            tableProp.Controls.Add(lblColorBarTickDecimals, 0, 6);
-            tableProp.Controls.Add(numColorBarTickDecimals, 1, 6);
-            tableProp.Controls.Add(lblAxisTickDecimals, 0, 7);
-            tableProp.Controls.Add(numAxisTickDecimals, 1, 7);
-            tableProp.Controls.Add(lblPadM, 0, 8);
-            tableProp.Controls.Add(txtPadM, 1, 8);
-            tableProp.Controls.Add(lblPixelSizeM, 0, 9);
-            tableProp.Controls.Add(txtPixelSizeM, 1, 9);
-            tableProp.Controls.Add(lblCMapBottomThreshold, 0, 10);
-            tableProp.Controls.Add(txtCMapBottomThreshold, 1, 10);
-            tableProp.Controls.Add(lblTransectColor, 0, 11);
-            tableProp.Controls.Add(pnlTransectCOlor, 1, 11);
-            tableProp.Controls.Add(btnTransectColor, 2, 11);
-            tableProp.Controls.Add(lblBinConfiguration, 0, 12);
-            tableProp.Controls.Add(comboBinConfiguration, 1, 12);
-            tableProp.Controls.Add(lblBinTarget, 0, 13);
-            tableProp.Controls.Add(numBinTarget, 1, 13);
-            tableProp.Controls.Add(txtBinTarget, 1, 13);
-            tableProp.Controls.Add(checkBinTarget, 2, 13);
-
+            ComboBox combo = new ComboBox();
+            combo.Name = name;
+            combo.Dock = DockStyle.Fill;
+            combo.DropDownStyle = ComboBoxStyle.DropDownList;
+            combo.FormattingEnabled = true;
+            combo.Items.AddRange(items);
+            if (items.Length > 0)
+                combo.SelectedIndex = 0;
+            return combo;
         }
 
-        private void PropHDMTModelComparison()
+        public static ComboBox MakeComboCmap(string name)
         {
-            XmlNodeList? hdModels = _project.GetObjects("HDModel");
-            foreach (XmlNode node in hdModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboHDModel.Items.Add(item);
-            }
-            XmlNodeList? mtModels = _project.GetObjects("MTModel");
-            foreach (XmlNode node in mtModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboMTModel.Items.Add(item);
-            }
-            XmlNodeList? adcps = _project.GetObjects("VesselMountedADCP");
-            foreach (XmlNode node in adcps)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboADCP.Items.Add(item);
-            }
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 22;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblHDModel, 0, 0);
-            tableProp.Controls.Add(comboHDModel, 1, 0);
-            tableProp.Controls.Add(lblMTModel, 0, 1);
-            tableProp.Controls.Add(comboMTModel, 1, 1);
-            tableProp.Controls.Add(lblADCP, 0, 2);
-            tableProp.Controls.Add(comboADCP, 1, 2);
-            tableProp.Controls.Add(lblScale, 0, 3);
-            tableProp.Controls.Add(comboScale, 1, 3);
-            tableProp.Controls.Add(lblcmap, 0, 4);
-            tableProp.Controls.Add(combocmap, 1, 4);
-            tableProp.Controls.Add(lblvmin, 0, 5);
-            tableProp.Controls.Add(txtvmin, 1, 5);
-            tableProp.Controls.Add(lblvmax, 0, 6);
-            tableProp.Controls.Add(txtvmax, 1, 6);
-            tableProp.Controls.Add(lblCMapBottomThreshold, 0, 7);
-            tableProp.Controls.Add(txtCMapBottomThreshold, 1, 7);
-            tableProp.Controls.Add(lblPixelSizeM, 0, 8);
-            tableProp.Controls.Add(txtPixelSizeM, 1, 8);
-            tableProp.Controls.Add(lblPadM, 0, 9);
-            tableProp.Controls.Add(txtPadM, 1, 9);
-            tableProp.Controls.Add(lblColorBarTickDecimals, 0, 10);
-            tableProp.Controls.Add(numColorBarTickDecimals, 1, 10);
-            tableProp.Controls.Add(lblAxisTickDecimals, 0, 11);
-            tableProp.Controls.Add(numAxisTickDecimals, 1, 11);
-            tableProp.Controls.Add(lblModelQuiverMode, 0, 12);
-            tableProp.Controls.Add(comboModelQuiverMode, 1, 12);
-            tableProp.Controls.Add(lblFieldPixelSize, 0, 13);
-            tableProp.Controls.Add(txtFieldPixelSize, 1, 13);
-            tableProp.Controls.Add(lblFieldQuiverStrideN, 0, 14);
-            tableProp.Controls.Add(numFieldQuiverStrideN, 1, 14);
-            tableProp.Controls.Add(lblQuiverScale, 0, 15);
-            tableProp.Controls.Add(txtQuiverScale, 1, 15);
-            tableProp.Controls.Add(lblQuiverColor, 0, 16);
-            tableProp.Controls.Add(pnlQuiverColor, 1, 16);
-            tableProp.Controls.Add(btnQuiverColor, 2, 16);
-            tableProp.Controls.Add(lblQuiverEveryN, 0, 17);
-            tableProp.Controls.Add(numericQuiverEveryN, 1, 17);
-            tableProp.Controls.Add(lblTransectLineWidth, 0, 18);
-            tableProp.Controls.Add(txtTransectLineWidth, 1, 18);
-            tableProp.Controls.Add(lblBinConfiguration, 0, 19);
-            tableProp.Controls.Add(comboBinConfiguration, 1, 19);
-            tableProp.Controls.Add(lblBinTarget, 0, 20);
-            tableProp.Controls.Add(numBinTarget, 1, 20);
-            tableProp.Controls.Add(txtBinTarget, 1, 20);
-            tableProp.Controls.Add(checkBinTarget, 2, 20);
-
-        }
-
-        private void PropHDMTModelAnimation()
-        {
-            XmlNodeList? hdModels = _project.GetObjects("HDModel");
-            foreach (XmlNode node in hdModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboHDModel.Items.Add(item);
-            }
-            XmlNodeList? mtModels = _project.GetObjects("MTModel");
-            foreach (XmlNode node in mtModels)
-            {
-                XmlElement element = (XmlElement)node;
-                string name = element.GetAttribute("name");
-                string id = element.GetAttribute("id");
-                ComboBoxItem? item = new ComboBoxItem(name, id);
-                comboMTModel.Items.Add(item);
-            }
-            tableProp.Controls.Clear();
-
-            tableProp.RowStyles.Clear();
-            tableProp.RowCount = 19;
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            tableProp.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-
-            tableProp.Controls.Add(lblHDModel, 0, 0);
-            tableProp.Controls.Add(comboHDModel, 1, 0);
-            tableProp.Controls.Add(lblMTModel, 0, 1);
-            tableProp.Controls.Add(comboMTModel, 1, 1);
-            tableProp.Controls.Add(lblScale, 0, 2);
-            tableProp.Controls.Add(comboScale, 1, 2);
-            tableProp.Controls.Add(lblcmap, 0, 3);
-            tableProp.Controls.Add(combocmap, 1, 3);
-            tableProp.Controls.Add(lblvmin, 0, 4);
-            tableProp.Controls.Add(txtvmin, 1, 4);
-            tableProp.Controls.Add(lblvmax, 0, 5);
-            tableProp.Controls.Add(txtvmax, 1, 5);
-            tableProp.Controls.Add(lblCMapBottomThreshold, 0, 6);
-            tableProp.Controls.Add(txtCMapBottomThreshold, 1, 6);
-            tableProp.Controls.Add(lblPixelSizeM, 0, 7);
-            tableProp.Controls.Add(txtPixelSizeM, 1, 7);
-            tableProp.Controls.Add(lblAxisTickDecimals, 0, 8);
-            tableProp.Controls.Add(numAxisTickDecimals, 1, 8);
-            tableProp.Controls.Add(lblFieldPixelSize, 0, 9);
-            tableProp.Controls.Add(txtFieldPixelSize, 1, 9);
-            tableProp.Controls.Add(lblFieldQuiverStrideN, 0, 10);
-            tableProp.Controls.Add(numFieldQuiverStrideN, 1, 10);
-            tableProp.Controls.Add(lblQuiverScale, 0, 11);
-            tableProp.Controls.Add(txtQuiverScale, 1, 11);
-            tableProp.Controls.Add(lblQuiverColor, 0, 12);
-            tableProp.Controls.Add(pnlQuiverColor, 1, 12);
-            tableProp.Controls.Add(btnQuiverColor, 2, 12);
-            tableProp.Controls.Add(lblAnimationStartIndex, 0, 13);
-            tableProp.Controls.Add(numericAnimationStartIndex, 1, 13);
-            tableProp.Controls.Add(checkAnimationStartIndex, 2, 13);
-            tableProp.Controls.Add(lblAnimationEndIndex, 0, 14);
-            tableProp.Controls.Add(numericAnimationEndIndex, 1, 14);
-            tableProp.Controls.Add(checkAnimationEndIndex, 2, 14);
-            tableProp.Controls.Add(lblAnimationTimeStep, 0, 15);
-            tableProp.Controls.Add(numericAnimationTimeStep, 1, 15);
-            tableProp.Controls.Add(lblAnimationInterval, 0, 16);
-            tableProp.Controls.Add(numericAnimationInterval, 1, 16);
-            tableProp.Controls.Add(lblAnimationOutputFile, 0, 17);
-            tableProp.Controls.Add(txtAnimationOutputFile, 1, 17);
-            tableProp.Controls.Add(btnAnimationOutputFile, 2, 17);
-
-        }
-
-
-        private void InitializeWidgets()
-        {
-            //
-            // lblHDModel
-            //
-            lblHDModel = new Label();
-            lblHDModel.Dock = DockStyle.Fill;
-            lblHDModel.Name = "lblHDModel";
-            lblHDModel.TabIndex = 0;
-            lblHDModel.Text = "HD Model";
-            lblHDModel.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboHDModel
-            // 
-            comboHDModel = new ComboBox();
-            comboHDModel.Dock = DockStyle.Fill;
-            comboHDModel.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboHDModel.FormattingEnabled = true;
-            comboHDModel.Name = "comboHDModel";
-            comboHDModel.TabIndex = 14;
-            comboHDModel.DisplayMember = "name";
-            comboHDModel.ValueMember = "id";
-            //
-            // lblMTModel
-            //
-            lblMTModel = new Label();
-            lblMTModel.Dock = DockStyle.Fill;
-            lblMTModel.Name = "lblMTModel";
-            lblMTModel.TabIndex = 0;
-            lblMTModel.Text = "MT Model";
-            lblMTModel.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboMTModel
-            // 
-            comboMTModel = new ComboBox();
-            comboMTModel.Dock = DockStyle.Fill;
-            comboMTModel.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboMTModel.FormattingEnabled = true;
-            comboMTModel.Name = "comboMTModel";
-            comboMTModel.TabIndex = 14;
-            comboMTModel.DisplayMember = "name";
-            comboMTModel.ValueMember = "id";
-            //
-            // lblADCP
-            //
-            lblADCP = new Label();
-            lblADCP.Dock = DockStyle.Fill;
-            lblADCP.Name = "lblADCP";
-            lblADCP.TabIndex = 0;
-            lblADCP.Text = "ADCP";
-            lblADCP.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboADCP
-            // 
-            comboADCP = new ComboBox();
-            comboADCP.Dock = DockStyle.Fill;
-            comboADCP.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboADCP.FormattingEnabled = true;
-            comboADCP.Name = "comboADCP";
-            comboADCP.TabIndex = 14;
-            comboADCP.DisplayMember = "name";
-            comboADCP.ValueMember = "id";
-            //   
-            // lblModelQuiverMode
-            //
-            lblModelQuiverMode = new Label();
-            lblModelQuiverMode.Dock = DockStyle.Fill;
-            lblModelQuiverMode.Name = "lblModelQuiverMode ";
-            lblModelQuiverMode.TabIndex = 0;
-            lblModelQuiverMode.Text = "Model Quiver Mode";
-            lblModelQuiverMode.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboFieldName
-            // 
-            comboModelQuiverMode = new ComboBox();
-            comboModelQuiverMode.Dock = DockStyle.Fill;
-            comboModelQuiverMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboModelQuiverMode.FormattingEnabled = true;
-            comboModelQuiverMode.Items.AddRange(new object[] { "Field", "Transect" });
-            comboModelQuiverMode.Name = "comboModelQuiverMode";
-            comboModelQuiverMode.TabIndex = 14;
-            comboModelQuiverMode.SelectedIndex = 0;
-            // 
-            // lblFieldPixelSize
-            // 
-            lblFieldPixelSize = new Label();
-            lblFieldPixelSize.Dock = DockStyle.Fill;
-            lblFieldPixelSize.Name = "lblFieldPixelSize";
-            lblFieldPixelSize.TabIndex = 0;
-            lblFieldPixelSize.Text = "Field Pixel Size";
-            lblFieldPixelSize.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtFieldPixelSize
-            // 
-            txtFieldPixelSize = new TextBox();
-            txtFieldPixelSize.Dock = DockStyle.Fill;
-            txtFieldPixelSize.Name = "txtFieldPixelSize";
-            txtFieldPixelSize.TabIndex = 1;
-            txtFieldPixelSize.Text = "100";
-            //
-            // lblFieldQuiverStrideN
-            //
-            lblFieldQuiverStrideN = new Label();
-            lblFieldQuiverStrideN.Dock = DockStyle.Fill;
-            lblFieldQuiverStrideN.Name = "lblFieldQuiverStrideN";
-            lblFieldQuiverStrideN.TabIndex = 6;
-            lblFieldQuiverStrideN.Text = "Number of Field Quiver Stride";
-            lblFieldQuiverStrideN.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numFieldQuiverStrideN
-            //
-            numFieldQuiverStrideN = new NumericUpDown();
-            numFieldQuiverStrideN.Dock = DockStyle.Fill;
-            numFieldQuiverStrideN.Minimum = 1;
-            numFieldQuiverStrideN.Maximum = 10;
-            numFieldQuiverStrideN.Value = 3;
-            numFieldQuiverStrideN.Name = "numFieldQuiverStrideN";
-            numFieldQuiverStrideN.TabIndex = 13;
-            // 
-            // lblcmap
-            // 
-            lblcmap = new Label();
-            lblcmap.Dock = DockStyle.Fill;
-            lblcmap.Name = "lblcmap";
-            lblcmap.TabIndex = 3;
-            lblcmap.Text = "Colormap";
-            lblcmap.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // combocmap
-            // 
-            combocmap = new ComboBox();
+            ComboBox combocmap = new ComboBox();
             combocmap.Dock = DockStyle.Fill;
             combocmap.DropDownStyle = ComboBoxStyle.DropDownList;
             combocmap.FormattingEnabled = true;
-            combocmap.Name = "combocmap";
-            combocmap.TabIndex = 9;
+            combocmap.Name = name;
             combocmap.DrawMode = DrawMode.OwnerDrawFixed;
             combocmap.ItemHeight = 24; // more room for image
-            combocmap.Items.Add(new ColormapItem("autumn", Image.FromFile(Path.Combine(_Globals.CMapsPath, "autumn.png"))));
-            combocmap.Items.Add(new ColormapItem("cividis", Image.FromFile(Path.Combine(_Globals.CMapsPath, "cividis.png"))));
-            combocmap.Items.Add(new ColormapItem("cool", Image.FromFile(Path.Combine(_Globals.CMapsPath, "cool.png"))));
-            combocmap.Items.Add(new ColormapItem("hot", Image.FromFile(Path.Combine(_Globals.CMapsPath, "hot.png"))));
-            combocmap.Items.Add(new ColormapItem("inferno", Image.FromFile(Path.Combine(_Globals.CMapsPath, "inferno.png"))));
-            combocmap.Items.Add(new ColormapItem("jet", Image.FromFile(Path.Combine(_Globals.CMapsPath, "jet.png"))));
-            combocmap.Items.Add(new ColormapItem("magma", Image.FromFile(Path.Combine(_Globals.CMapsPath, "magma.png"))));
-            combocmap.Items.Add(new ColormapItem("plasma", Image.FromFile(Path.Combine(_Globals.CMapsPath, "plasma.png"))));
-            combocmap.Items.Add(new ColormapItem("spring", Image.FromFile(Path.Combine(_Globals.CMapsPath, "spring.png"))));
-            combocmap.Items.Add(new ColormapItem("summer", Image.FromFile(Path.Combine(_Globals.CMapsPath, "summer.png"))));
-            combocmap.Items.Add(new ColormapItem("turbo", Image.FromFile(Path.Combine(_Globals.CMapsPath, "turbo.png"))));
-            combocmap.Items.Add(new ColormapItem("viridis", Image.FromFile(Path.Combine(_Globals.CMapsPath, "viridis.png"))));
-            combocmap.Items.Add(new ColormapItem("winter", Image.FromFile(Path.Combine(_Globals.CMapsPath, "winter.png"))));
+            string[] pngs = Directory.GetFiles(_Globals.CMapsPath, "*.png");
+            foreach (string png in pngs) {
+                string cmapName = Path.GetFileNameWithoutExtension(png);
+                combocmap.Items.Add(new ColormapItem(cmapName, Image.FromFile(png)));
+            }
             combocmap.SelectedIndex = 0;
             combocmap.DrawItem += (s, e) =>
             {
@@ -635,513 +101,824 @@ namespace CSEMMPGUI_v1
 
                 e.DrawFocusRectangle();
             };
-            //   
-            // lblScale
-            //
-            lblScale = new Label();
-            lblScale.Dock = DockStyle.Fill;
-            lblScale.Name = "lblScale ";
-            lblScale.TabIndex = 0;
-            lblScale.Text = "Scale";
-            lblScale.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboScale
-            // 
-            comboScale = new ComboBox();
-            comboScale.Dock = DockStyle.Fill;
-            comboScale.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboScale.FormattingEnabled = true;
-            comboScale.Items.AddRange(new object[] { "Log", "Normal" });
-            comboScale.Name = "comboScale";
-            comboScale.TabIndex = 14;
-            comboScale.SelectedIndex = 0;
-            // 
-            // lblvmin
-            // 
-            lblvmin = new Label();
-            lblvmin.Dock = DockStyle.Fill;
-            lblvmin.Name = "lblvmin";
-            lblvmin.TabIndex = 0;
-            lblvmin.Text = "Minimum Value";
-            lblvmin.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtvmin
-            // 
-            txtvmin = new TextBox();
-            txtvmin.Dock = DockStyle.Fill;
-            txtvmin.Name = "txtvmin";
-            txtvmin.TabIndex = 1;
-            // 
-            // lblvmax
-            // 
-            lblvmax = new Label();
-            lblvmax.Dock = DockStyle.Fill;
-            lblvmax.Name = "lblvmax";
-            lblvmax.TabIndex = 0;
-            lblvmax.Text = "Maximum Value";
-            lblvmax.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtvmax
-            // 
-            txtvmax = new TextBox();
-            txtvmax.Dock = DockStyle.Fill;
-            txtvmax.Name = "txtvmax";
-            txtvmax.TabIndex = 1;
-            //
-            // lblColorBarTickDecimals
-            //
-            lblColorBarTickDecimals = new Label();
-            lblColorBarTickDecimals.Dock = DockStyle.Fill;
-            lblColorBarTickDecimals.Name = "lblColorBarTickDecimals";
-            lblColorBarTickDecimals.TabIndex = 6;
-            lblColorBarTickDecimals.Text = "Colorbar Ticks Decimal";
-            lblColorBarTickDecimals.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numColorBarTickDecimals
-            //
-            numColorBarTickDecimals = new NumericUpDown();
-            numColorBarTickDecimals.Dock = DockStyle.Fill;
-            numColorBarTickDecimals.Minimum = 1;
-            numColorBarTickDecimals.Maximum = 5;
-            numColorBarTickDecimals.Value = 2;
-            numColorBarTickDecimals.Name = "numColorBarTickDecimals";
-            numColorBarTickDecimals.TabIndex = 13;
+            return combocmap;
+        }
 
-            //
-            // lblAxisTickDecimals
-            //
-            lblAxisTickDecimals = new Label();
-            lblAxisTickDecimals.Dock = DockStyle.Fill;
-            lblAxisTickDecimals.Name = "lblAxisTickDecimals";
-            lblAxisTickDecimals.TabIndex = 6;
-            lblAxisTickDecimals.Text = "Axis Ticks Decimal";
-            lblAxisTickDecimals.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numAxisTickDecimals
-            //
-            numAxisTickDecimals = new NumericUpDown();
-            numAxisTickDecimals.Dock = DockStyle.Fill;
-            numAxisTickDecimals.Minimum = 1;
-            numAxisTickDecimals.Maximum = 5;
-            numAxisTickDecimals.Value = 3;
-            numAxisTickDecimals.Name = "numAxisTickDecimals";
-            numAxisTickDecimals.TabIndex = 13;
-            // 
-            // lblPadM
-            // 
-            lblPadM = new Label();
-            lblPadM.Dock = DockStyle.Fill;
-            lblPadM.Name = "lblPadM";
-            lblPadM.TabIndex = 0;
-            lblPadM.Text = "Pad";
-            lblPadM.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtPadM
-            // 
-            txtPadM = new TextBox();
-            txtPadM.Dock = DockStyle.Fill;
-            txtPadM.Name = "txtPadM";
-            txtPadM.TabIndex = 1;
-            txtPadM.Text = "2000";
-            // 
-            // lblPixelSizeM
-            // 
-            lblPixelSizeM = new Label();
-            lblPixelSizeM.Dock = DockStyle.Fill;
-            lblPixelSizeM.Name = "lblPixelSizeM";
-            lblPixelSizeM.TabIndex = 0;
-            lblPixelSizeM.Text = "Pixels Size";
-            lblPixelSizeM.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtPixelSizeM
-            // 
-            txtPixelSizeM = new TextBox();
-            txtPixelSizeM.Dock = DockStyle.Fill;
-            txtPixelSizeM.Name = "txtPixelSizeM";
-            txtPixelSizeM.TabIndex = 1;
-            txtPixelSizeM.Text = "10";
-            // 
-            // lblCMapBottomThreshold
-            // 
-            lblCMapBottomThreshold = new Label();
-            lblCMapBottomThreshold.Dock = DockStyle.Fill;
-            lblCMapBottomThreshold.Name = "lblCMapBottomThreshold";
-            lblCMapBottomThreshold.TabIndex = 0;
-            lblCMapBottomThreshold.Text = "Colormap Bottom Threshold";
-            lblCMapBottomThreshold.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtCMapBottomThreshold
-            // 
-            txtCMapBottomThreshold = new TextBox();
-            txtCMapBottomThreshold.Dock = DockStyle.Fill;
-            txtCMapBottomThreshold.Name = "txtCMapBottomThreshold";
-            txtCMapBottomThreshold.TabIndex = 1;
-            txtCMapBottomThreshold.Text = "0.01";
-            // 
-            // lblTransectColor
-            // 
-            lblTransectColor = new Label();
-            lblTransectColor.Dock = DockStyle.Fill;
-            lblTransectColor.Name = "lblTransectColor";
-            lblTransectColor.TabIndex = 0;
-            lblTransectColor.Text = "Transect Color";
-            lblTransectColor.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // pnlTransectCOlor
-            //
-            pnlTransectCOlor = new Panel();
-            pnlTransectCOlor.Dock = DockStyle.Fill;
-            pnlTransectCOlor.Name = "pnlTransectCOlor";
-            pnlTransectCOlor.BackColor = Color.Red;
-            pnlTransectCOlor.TabIndex = 0;
-            //
-            // btnTransectColor
-            //
-            btnTransectColor = new Button();
-            btnTransectColor.Dock = DockStyle.Left;
-            btnTransectColor.Name = "btnTransectColor";
-            btnTransectColor.TabIndex = 1;
-            btnTransectColor.Text = "...";
-            btnTransectColor.UseVisualStyleBackColor = true;
-            btnTransectColor.Click += btnChangeColor_Click;
-            //   
-            // lblBinConfiguration
-            //
-            lblBinConfiguration = new Label();
-            lblBinConfiguration.Dock = DockStyle.Fill;
-            lblBinConfiguration.Name = "lblBinConfiguration";
-            lblBinConfiguration.TabIndex = 0;
-            lblBinConfiguration.Text = "Bin Configuration";
-            lblBinConfiguration.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comboBinConfiguration
-            // 
-            comboBinConfiguration = new ComboBox();
-            comboBinConfiguration.Dock = DockStyle.Fill;
-            comboBinConfiguration.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBinConfiguration.FormattingEnabled = true;
-            comboBinConfiguration.Items.AddRange(new object[] { "Bin", "Depth", "HAB" });
-            comboBinConfiguration.Name = "comboBinConfiguration";
-            comboBinConfiguration.TabIndex = 14;
-            comboBinConfiguration.SelectedIndex = 0;
-            comboBinConfiguration.SelectedIndexChanged += comboBinConfiguration_SelectedIndexChanged;
-            //   
-            // lblBinTarget
-            //
-            lblBinTarget = new Label();
-            lblBinTarget.Dock = DockStyle.Fill;
-            lblBinTarget.Name = "lblBinTarget";
-            lblBinTarget.TabIndex = 0;
-            lblBinTarget.Text = "Bin Target";
-            lblBinTarget.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtBinTarget
-            // 
-            txtBinTarget = new TextBox();
-            txtBinTarget.Dock = DockStyle.Fill;
-            txtBinTarget.Name = "txtBinTarget";
-            txtBinTarget.TabIndex = 1;
-            txtBinTarget.Visible = false;
-            //
-            // numBinTarget
-            //
-            numBinTarget = new NumericUpDown();
-            numBinTarget.Dock = DockStyle.Fill;
-            numBinTarget.Minimum = 1;
-            numBinTarget.Maximum = 100;
-            numBinTarget.Value = 1;
-            numBinTarget.Name = "numBinTarget";
-            numBinTarget.TabIndex = 13;
-            numBinTarget.Visible = true;
-            //
-            // checkBinTarget
-            //
-            checkBinTarget = new CheckBox();
-            checkBinTarget.Dock = DockStyle.Fill;
-            checkBinTarget.Name = "checkBinTarget";
-            checkBinTarget.TabIndex = 15;
-            checkBinTarget.Text = "Use Mean";
-            checkBinTarget.TextAlign = ContentAlignment.MiddleLeft;
-            checkBinTarget.Checked = false;
-            checkBinTarget.CheckedChanged += checkBinTarget_CheckedChanged;
-            //
-            // lblQuiverEveryN
-            //
-            lblQuiverEveryN = new Label();
-            lblQuiverEveryN.Dock = DockStyle.Fill;
-            lblQuiverEveryN.Name = "lblQuiverEveryN";
-            lblQuiverEveryN.TabIndex = 0;
-            lblQuiverEveryN.Text = "Quiver Every N";
-            lblQuiverEveryN.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numericQuiverEveryN
-            //
-            numericQuiverEveryN = new NumericUpDown();
-            numericQuiverEveryN.Dock = DockStyle.Fill;
-            numericQuiverEveryN.Minimum = 1;
-            numericQuiverEveryN.Maximum = 30;
-            numericQuiverEveryN.Value = 20;
-            numericQuiverEveryN.Name = "numericQuiverEveryN";
-            numericQuiverEveryN.TabIndex = 13;
-            //
-            // lblQuiverScale
-            //
-            lblQuiverScale = new Label();
-            lblQuiverScale.Dock = DockStyle.Fill;
-            lblQuiverScale.Name = "lblQuiverScale";
-            lblQuiverScale.TabIndex = 0;
-            lblQuiverScale.Text = "Quiver Scale";
-            lblQuiverScale.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtQuiverScale
-            //
-            txtQuiverScale = new TextBox();
-            txtQuiverScale.Dock = DockStyle.Fill;
-            txtQuiverScale.Name = "txtQuiverScale";
-            txtQuiverScale.TabIndex = 1;
-            txtQuiverScale.Text = "3";
-            //
-            // lblQuiverColor
-            //
-            lblQuiverColor = new Label();
-            lblQuiverColor.Dock = DockStyle.Fill;
-            lblQuiverColor.Name = "lblQuiverColor";
-            lblQuiverColor.TabIndex = 0;
-            lblQuiverColor.Text = "Model Quiver Color";
-            lblQuiverColor.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // pnlQuiverColor
-            //
-            pnlQuiverColor = new Panel();
-            pnlQuiverColor.Dock = DockStyle.Fill;
-            pnlQuiverColor.Name = "pnlQuiverColor";
-            pnlQuiverColor.BackColor = Color.Black;
-            pnlQuiverColor.TabIndex = 0;
-            //
-            // btnQuiverColor
-            //
-            btnQuiverColor = new Button();
-            btnQuiverColor.Dock = DockStyle.Left;
-            btnQuiverColor.Name = "btnQuiverColor";
-            btnQuiverColor.TabIndex = 1;
-            btnQuiverColor.Text = "...";
-            btnQuiverColor.UseVisualStyleBackColor = true;
-            btnQuiverColor.Click += btnChangeColor_Click;
-            //
-            // lblTransectLineWidth
-            //
-            lblTransectLineWidth = new Label();
-            lblTransectLineWidth.Dock = DockStyle.Fill;
-            lblTransectLineWidth.Name = "lblTransectLineWidth";
-            lblTransectLineWidth.TabIndex = 0;
-            lblTransectLineWidth.Text = "ADCP Transect Line Width";
-            lblTransectLineWidth.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtTransectLineWidth
-            //
-            txtTransectLineWidth = new TextBox();
-            txtTransectLineWidth.Dock = DockStyle.Fill;
-            txtTransectLineWidth.Name = "txtTransectLineWidth";
-            txtTransectLineWidth.TabIndex = 1;
-            txtTransectLineWidth.Text = "1.8";
-            //
-            // lblAnimationStartIndex
-            //
-            lblAnimationStartIndex = new Label();
-            lblAnimationStartIndex.Dock = DockStyle.Fill;
-            lblAnimationStartIndex.Name = "lblAnimationStartIndex";
-            lblAnimationStartIndex.TabIndex = 0;
-            lblAnimationStartIndex.Text = "Animation Start Time Index";
-            lblAnimationStartIndex.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numAnimationStartIndex
-            //
-            numericAnimationStartIndex = new NumericUpDown();
-            numericAnimationStartIndex.Dock = DockStyle.Fill;
-            numericAnimationStartIndex.Minimum = 0;
-            numericAnimationStartIndex.Maximum = 9999;
-            numericAnimationStartIndex.Value = 0;
-            numericAnimationStartIndex.Name = "numericAnimationStartIndex";
-            numericAnimationStartIndex.TabIndex = 13;
-            numericAnimationStartIndex.Enabled = false;
-            //
-            // checkAnimationStartIndex
-            //
-            checkAnimationStartIndex = new CheckBox();
-            checkAnimationStartIndex.Dock = DockStyle.Fill;
-            checkAnimationStartIndex.Name = "checkAnimationStartIndex";
-            checkAnimationStartIndex.TabIndex = 15;
-            checkAnimationStartIndex.Text = "Use Model Start Time";
-            checkAnimationStartIndex.TextAlign = ContentAlignment.MiddleLeft;
-            checkAnimationStartIndex.Checked = true;
-            checkAnimationStartIndex.CheckedChanged += checkAnimationStartIndex_CheckedChanged;
-            //
-            // lblAnimationEndIndex
-            //
-            lblAnimationEndIndex = new Label();
-            lblAnimationEndIndex.Dock = DockStyle.Fill;
-            lblAnimationEndIndex.Name = "lblAnimationEndIndex";
-            lblAnimationEndIndex.TabIndex = 0;
-            lblAnimationEndIndex.Text = "Animation End Time Index";
-            lblAnimationEndIndex.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numAnimationEndIndex
-            //
-            numericAnimationEndIndex = new NumericUpDown();
-            numericAnimationEndIndex.Dock = DockStyle.Fill;
-            numericAnimationEndIndex.Minimum = 1;
-            numericAnimationEndIndex.Maximum = 9999;
-            numericAnimationEndIndex.Value = 1;
-            numericAnimationEndIndex.Name = "numericAnimationEndIndex";
-            numericAnimationEndIndex.TabIndex = 13;
-            numericAnimationEndIndex.Enabled = false;
-            //
-            // checkAnimationEndIndex
-            //
-            checkAnimationEndIndex = new CheckBox();
-            checkAnimationEndIndex.Dock = DockStyle.Fill;
-            checkAnimationEndIndex.Name = "checkAnimationEndIndex";
-            checkAnimationEndIndex.TabIndex = 15;
-            checkAnimationEndIndex.Text = "Use Model End Time";
-            checkAnimationEndIndex.TextAlign = ContentAlignment.MiddleLeft;
-            checkAnimationEndIndex.Checked = true;
-            checkAnimationEndIndex.CheckedChanged += checkAnimationEndIndex_CheckedChanged;
-            //
-            // lblAnimationTimeStep
-            //
-            lblAnimationTimeStep = new Label();
-            lblAnimationTimeStep.Dock = DockStyle.Fill;
-            lblAnimationTimeStep.Name = "lblAnimationTimeStep";
-            lblAnimationTimeStep.TabIndex = 0;
-            lblAnimationTimeStep.Text = "Animation Time Step (in model time steps)";
-            lblAnimationTimeStep.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numAnimationTimeStep
-            //
-            numericAnimationTimeStep = new NumericUpDown();
-            numericAnimationTimeStep.Dock = DockStyle.Fill;
-            numericAnimationTimeStep.Minimum = 1;
-            numericAnimationTimeStep.Maximum = 100;
-            numericAnimationTimeStep.Value = 1;
-            numericAnimationTimeStep.Name = "numericAnimationTimeStep";
-            numericAnimationTimeStep.TabIndex = 13;
-            //
-            // lblAnimationInterval
-            //
-            lblAnimationInterval = new Label();
-            lblAnimationInterval.Dock = DockStyle.Fill;
-            lblAnimationInterval.Name = "lblAnimationInterval";
-            lblAnimationInterval.TabIndex = 0;
-            lblAnimationInterval.Text = "Animation Interval (ms)";
-            lblAnimationInterval.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // numAnimationInterval
-            //
-            numericAnimationInterval = new NumericUpDown();
-            numericAnimationInterval.Dock = DockStyle.Fill;
-            numericAnimationInterval.Minimum = 0.1M;
-            numericAnimationInterval.Maximum = 10000;
-            numericAnimationInterval.Value = 0.1M;
-            numericAnimationInterval.Increment = 0.1M;
-            numericAnimationInterval.DecimalPlaces = 1;
-            numericAnimationInterval.Name = "numericAnimationInterval";
-            numericAnimationInterval.TabIndex = 13;
-            //
-            // lblAnimationOutputFile
-            //
-            lblAnimationOutputFile = new Label();
-            lblAnimationOutputFile.Dock = DockStyle.Fill;
-            lblAnimationOutputFile.Name = "lblAnimationOutputFile";
-            lblAnimationOutputFile.TabIndex = 0;
-            lblAnimationOutputFile.Text = "Animation Output File";
-            lblAnimationOutputFile.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtAnimationOutputFile
-            //
-            txtAnimationOutputFile = new TextBox();
-            txtAnimationOutputFile.Dock = DockStyle.Fill;
-            txtAnimationOutputFile.Name = "txtAnimationOutputFile";
-            txtAnimationOutputFile.TabIndex = 1;
-            txtAnimationOutputFile.Text = "";
-            //
-            // btnAnimationOutputFile
-            //
-            btnAnimationOutputFile = new Button();
-            btnAnimationOutputFile.Dock = DockStyle.Left;
-            btnAnimationOutputFile.Name = "btnAnimationOutputFile";
-            btnAnimationOutputFile.TabIndex = 1;
-            btnAnimationOutputFile.Text = "...";
-            btnAnimationOutputFile.UseVisualStyleBackColor = true;
+        public static TextBox MakeTextBox(string name, string text)
+        {
+            TextBox txt = new TextBox();
+            txt.Name = name;
+            txt.Dock = DockStyle.Fill;
+            txt.Text = text;
+            return txt;
+        }
+
+        public static NumericUpDown MakeNumericUpDown(string name, decimal min, decimal max, decimal value)
+        {
+            NumericUpDown num = new NumericUpDown();
+            num.Name = name;
+            num.Dock = DockStyle.Fill;
+            num.Minimum = min;
+            num.Maximum = max;
+            num.Value = value;
+            return num;
+        }
+
+        public static Button MakeButton(string name, string text)
+        {
+            Button btn = new Button();
+            btn.Name = name;
+            btn.Text = text;
+            btn.Dock = DockStyle.Fill;
+            return btn;
+        }
+
+        public static Panel MakePanel(string name, Color color)
+        {
+            Panel pnl = new Panel();
+            pnl.Name = name;
+            pnl.BackColor = color;
+            pnl.BorderStyle = BorderStyle.FixedSingle;
+            pnl.Dock = DockStyle.Fill;
+            return pnl;
+        }
+
+        public static CheckBox MakeCheckBox(string name, string text, bool isChecked)
+        {
+            CheckBox chk = new CheckBox();
+            chk.Name = name;
+            chk.Text = text;
+            chk.Dock = DockStyle.Fill;
+            chk.Checked = isChecked;
+            chk.TextAlign = ContentAlignment.MiddleCenter;
+            return chk;
+        }
+
+        public static GroupBox MakeGroupBox(string name, string text)
+        {
+            GroupBox grp = new GroupBox();
+            grp.Name = name;
+            grp.Text = text;
+            grp.Dock = DockStyle.Fill;
+            return grp;
+        }
+
+        public static TableLayoutPanel MakeTable(string name)
+        {
+            TableLayoutPanel table = new TableLayoutPanel();
+            table.Name = name;
+            table.Dock = DockStyle.Fill;
+            table.ColumnCount = 3;
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+            table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
+            return table;
+        }
+
+        public GroupBox? grpRequired = MakeGroupBox(name: "grpRequired", text: "Required Inputs");
+        public GroupBox? grpMT = MakeGroupBox(name: "grpMT", text: "MT Inputs");
+        public GroupBox? grpHD = MakeGroupBox(name: "grpHD", text: "HD Inputs");
+        public GroupBox? grpADCP = MakeGroupBox(name: "grpADCP", text: "ADCP Inputs");
+        public GroupBox? grpLayout = MakeGroupBox(name: "grpLayout", text: "Layout");
+        public GroupBox? grpAnimation = MakeGroupBox(name: "grpAnimation", text: "Animation");
+        public TableLayoutPanel? tableRequired = MakeTable(name: "tableRequired");
+        public TableLayoutPanel? tableMT = MakeTable(name: "tableMT");
+        public TableLayoutPanel? tableHD = MakeTable(name: "tableHD");
+        public TableLayoutPanel? tableADCP = MakeTable(name: "tableADCP");
+        public TableLayoutPanel? tableLayout = MakeTable(name: "tableLayout");
+        public TableLayoutPanel? tableAnimation = MakeTable(name: "tableAnimation");
+
+        // Required Inputs
+        public Label? lblHDModel = MakeLabel(name: "lblHDModel", text: "HD Model");
+        public ComboBox? comboHDModel = MakeCombo(name: "comboHDModel", items: Array.Empty<string>());
+        public Label? lblMTModel = MakeLabel(name: "lblMTModel", text: "MT Model");
+        public ComboBox? comboMTModel = MakeCombo(name: "comboMTModel", items: Array.Empty<string>());
+        public Label? lblADCP = MakeLabel(name: "lblADCP", text: "ADCP");
+        public ComboBox? comboADCP = MakeCombo(name: "comboADCP", items: Array.Empty<string>());
+        // MT Inputs
+        public Label? lblSSCScale = MakeLabel(name: "lblSSCScale", text: "SSC Scale");
+        public ComboBox? comboSSCScale = MakeCombo(name: "comboSSCScale", items: new string[] { "Normal", "Logarithmic" });
+        public Label? lblSSCLevels = MakeLabel(name: "lblSSCLevels", text: "SSC Levels");
+        public TextBox? txtSSCLevels = MakeTextBox(name: "txtSSCLevels", text: "0.01,0.1,1.0,10.0");
+        public Label? lblSSCvmin = MakeLabel(name: "lblSSCvmin", text: "vmin");
+        public TextBox? txtSSCvmin = MakeTextBox(name: "txtSSCvmin", text: "");
+        public Label? lblSSCvmax = MakeLabel(name: "lblSSCvmax", text: "vmax");
+        public TextBox? txtSSCvmax = MakeTextBox(name: "txtSSCvmax", text: "");
+        public Label? lblSSCCmap = MakeLabel(name: "lblSSCCmap", text: "SSC Colormap");
+        public ComboBox? comboSSCcmap = MakeComboCmap(name: "comboSSCcmap");
+        public Label? lblSSCBottomThreshold = MakeLabel(name: "lblSSCBottomThreshold", text: "SSC Bottom Threshold");
+        public TextBox? txtSSCBottomThreshold = MakeTextBox(name: "txtSSCBottomThreshold", text: "");
+        public Label? lblSSCPixelSizeM = MakeLabel(name: "lblSSCPixelSizeM", text: "SSC Pixel Size (m)");
+        public TextBox? txtSSCPixelSizeM = MakeTextBox(name: "txtSSCPixelSizeM", text: "10");
+        // HD Inputs
+        public Label? lblModelFieldPixelSizeM = MakeLabel(name: "lblModelFieldPixelSizeM", text: "Model Field Pixel Size (m)");
+        public TextBox? txtModelFieldPixelSizeM = MakeTextBox(name: "txtModelFieldPixelSizeM", text: "100");
+        public Label? lblModelFieldQuiverStrideN = MakeLabel(name: "lblModelFieldQuiverStrideN", text: "Model Field Quiver Stride N");
+        public NumericUpDown? numModelFieldQuiverStrideN = MakeNumericUpDown(name: "numModelFieldQuiverStrideN", min: 1, max: 20, value: 3);
+        public Label? lblModelQuiverMode = MakeLabel(name: "lblModelQuiverMode", text: "Model Quiver Mode");
+        public ComboBox? comboModelQuiverMode = MakeCombo(name: "comboModelQuiverMode", items: new string[] { "Field", "Transect" });
+        public Label? lblModelQuiverScale = MakeLabel(name: "lblModelQuiverScale", text: "Model Quiver Scale");
+        public TextBox? txtModelQuiverScale = MakeTextBox(name: "txtModelQuiverScale", text: "3");
+        public Label? lblModelQuiverWidth = MakeLabel(name: "lblModelQuiverWidth", text: "Model Quiver Width");
+        public TextBox? txtModelQuiverWidth = MakeTextBox(name: "txtModelQuiverWidth", text: "0.002");
+        public Label? lblModelQuiverHeadWidth = MakeLabel(name: "lblModelQuiverHeadWidth", text: "Model Quiver Head Width");
+        public TextBox? txtModelQuiverHeadWidth = MakeTextBox(name: "txtModelQuiverHeadWidth", text: "2");
+        public Label? lblModelQuiverHeadLength = MakeLabel(name: "lblModelQuiverHeadLength", text: "Model Quiver Head Length");
+        public TextBox? txtModelQuiverHeadLength = MakeTextBox(name: "txtModelQuiverHeadLength", text: "2.5");
+        public Label? lblModelQuiverColor = MakeLabel(name: "lblModelQuiverColor", text: "Model Quiver Color");
+        public Panel? pnlModelQuiverColor = MakePanel(name: "pnlModelQuiverColor", color: Color.Blue);
+        public Button? btnModelQuiverColor = MakeButton(name: "btnModelQuiverColor", text: "...");
+        public Label? lblModelLevels = MakeLabel(name: "lblModelLevels", text: "Model Velocity Levels");
+        public TextBox? txtModelLevels = MakeTextBox(name: "txtModelLevels", text: "0.0,0.1,0.2,0.3,0.4,0.5");
+        public Label? lblModelvmin = MakeLabel(name: "lblModelvmin", text: "vmin");
+        public TextBox? txtModelvmin = MakeTextBox(name: "txtModelvmin", text: "");
+        public Label? lblModelvmax = MakeLabel(name: "lblModelvmax", text: "vmax");
+        public TextBox? txtModelvmax = MakeTextBox(name: "txtModelvmax", text: "");
+        public Label? lblModelCmap = MakeLabel(name: "lblModelCmap", text: "Model Colormap");
+        public ComboBox? comboModelCmap = MakeComboCmap(name: "comboModelCmap");
+        public Label? lblModelCmapBottomThreshold = MakeLabel(name: "lblModelCmapBottomThreshold", text: "Model Colormap Bottom Threshold");
+        public TextBox? txtModelCmapBottomThreshold = MakeTextBox(name: "txtModelCmapBottomThreshold", text: "");
+        // ADCP
+        public Label? lblADCPSeriesMode = MakeLabel(name: "lblADCPSeriesMode", text: "ADCP Series Mode");
+        public ComboBox? comboADCPSeriesMode = MakeCombo(name: "comboADCPSeriesMode", items: new string[] { "Bin", "Depth" });
+        public Label? lblADCPSeriesTarget = MakeLabel(name: "lblADCPSeriesTarget", text: "ADCP Series Target");
+        public NumericUpDown? numADCPSeriesTarget = MakeNumericUpDown(name: "numADCPSeriesTarget", min: 1, max: 100, value: 10);
+        public TextBox? txtADCPSeriesTarget = MakeTextBox(name: "txtADCPSeriesTarget", text: "10");
+        public CheckBox? checkADCPSeriesTarget = MakeCheckBox(name: "checkADCPSeriesTarget", text: "Mean", isChecked: false);
+        public Label? lblADCPQuiverScale = MakeLabel(name: "lblADCPQuiverScale", text: "ADCP Quiver Scale");
+        public TextBox? txtADCPQuiverScale = MakeTextBox(name: "txtADCPQuiverScale", text: "3");
+        public Label? lblADCPQuiverWidth = MakeLabel(name: "lblADCPQuiverWidth", text: "ADCP Quiver Width");
+        public TextBox? txtADCPQuiverWidth = MakeTextBox(name: "txtADCPQuiverWidth", text: "0.002");
+        public Label? lblADCPQuiverHeadWidth = MakeLabel(name: "lblADCPQuiverHeadWidth", text: "ADCP Quiver Head Width");
+        public TextBox? txtADCPQuiverHeadWidth = MakeTextBox(name: "txtADCPQuiverHeadWidth", text: "2");
+        public Label? lblADCPQuiverHeadLength = MakeLabel(name: "lblADCPQuiverHeadLength", text: "ADCP Quiver Head Length");
+        public TextBox? txtADCPQuiverHeadLength = MakeTextBox(name: "txtADCPQuiverHeadLength", text: "2.5");
+        public Label? lblADCPQuiverColor = MakeLabel(name: "lblADCPQuiverColor", text: "ADCP Quiver Color");
+        public Panel? pnlADCPQuiverColor = MakePanel(name: "pnlADCPQuiverColor", color: Color.Red);
+        public Button? btnADCPQuiverColor = MakeButton(name: "btnADCPQuiverColor", text: "...");
+        public Label? lblADCPTransectColor = MakeLabel(name: "lblADCPTransectColor", text: "ADCP Transect Color");
+        public Panel? pnlADCPTransectColor = MakePanel(name: "pnlADCPTransectColor", color: Color.Green);
+        public Button? btnADCPTransectColor = MakeButton(name: "btnADCPTransectColor", text: "...");
+        public Label? lblADCPQuiverEveryN = MakeLabel(name: "lblADCPQuiverEveryN", text: "ADCP Quiver Every N");
+        public NumericUpDown? numADCPQuiverEveryN = MakeNumericUpDown(name: "numADCPQuiverEveryN", min: 1, max: 20, value: 1);
+        public Label? lblADCPTransectWidth = MakeLabel(name: "lblADCPTransectWidth", text: "ADCP Transect Line Width");
+        public TextBox? txtADCPTransectWidth = MakeTextBox(name: "txtADCPTransectWidth", text: "2");
+        // Layout
+        public Label? lblLayoutCbarTickDecimals = MakeLabel(name: "lblLayoutCbarTickDecimals", text: "Color Bar Tick Decimals");
+        public NumericUpDown? numLayoutCbarTickDecimals = MakeNumericUpDown(name: "numLayoutCbarTickDecimals", min: 0, max: 5, value: 2);
+        public Label? lblLayoutAxisTickDecimals = MakeLabel(name: "lblLayoutAxisTickDecimals", text: "Axis Tick Decimals");
+        public NumericUpDown? numLayoutAxisTickDecimals = MakeNumericUpDown(name: "numLayoutAxisTickDecimals", min: 0, max: 5, value: 2);
+        public Label? lblLayoutPadM = MakeLabel(name: "lblLayoutPadM", text: "Padding (m)");
+        public TextBox? txtLayoutPadM = MakeTextBox(name: "txtLayoutPadM", text: "2000");
+        public Label? lblLayoutDistanceBinM = MakeLabel(name: "lblLayoutDistanceBinM", text: "Distance Bin (m)");
+        public TextBox? txtLayoutDistanceBinM = MakeTextBox(name: "txtLayoutDistanceBinM", text: "50");
+        public Label? lblLayoutBarWidthScale = MakeLabel(name: "lblLayoutBarWidthScale", text: "Bar Chart Width Scale");
+        public TextBox? txtLayoutBarWidthScale = MakeTextBox(name: "txtLayoutBarWidthScale", text: "0.15");
+        // Animation
+        public Label? lblAnimationStartIndex = MakeLabel(name: "lblAnimationStartIndex", text: "First Timestep");
+        public NumericUpDown? numAnimationStartIndex = MakeNumericUpDown(name: "numAnimationStartIndex", min: 0, max: 10000, value: 0);
+        public CheckBox? checkAnimationUseStart = MakeCheckBox(name: "checkAnimationUseStart", text: "Use First Timestep", isChecked: true);
+        public Label? lblAnimationEndIndex = MakeLabel(name: "lblAnimationEndIndex", text: "Last Timestep");
+        public NumericUpDown? numAnimationEndIndex = MakeNumericUpDown(name: "numAnimationEndIndex", min: 0, max: 10000, value: 10);
+        public CheckBox? checkAnimationUseEnd = MakeCheckBox(name: "checkAnimationUseEnd", text: "Use Last Timestep", isChecked: true);
+        public Label? lblAnimationTimeStep = MakeLabel(name: "lblAnimationTimeStep", text: "Time Step");
+        public NumericUpDown? numAnimationTimeStep = MakeNumericUpDown(name: "numAnimationTimeStep", min: 1, max: 1000, value: 1);
+        public Label? lblAnimationInterval = MakeLabel(name: "lblAnimationInterval", text: "Interval (ms)");
+        public NumericUpDown? numAnimationInterval = MakeNumericUpDown(name: "numAnimationInterval", min: 100, max: 10000, value: 500);
+        public Label? lblAnimationBBox = MakeLabel(name: "lblAnimationBBox", text: "Bounding Box");
+        public TextBox? txtAnimationBBox = MakeTextBox(name: "txtAnimationBBox", text: "");
+        public Button? btnAnimationBBox = MakeButton(name: "btnAnimationBBox", text: "...");
+        public Label? lblAnimationOutputFile = MakeLabel(name: "lblAnimationOutputFile", text: "Output File");
+        public TextBox? txtAnimationOutputFile = MakeTextBox(name: "txtAnimationOutputFile", text: "");
+        public Button? btnAnimationOutputFile = MakeButton(name: "btnAnimationOutputFile", text: "...");
+
+        private void PropHDModelComparison()
+        {
+            tableProp.Controls.Clear();
+            tableProp.RowStyles.Clear();
+
+            // Required Inputs
+            XmlNodeList? hdModels = _project.GetObjects("HDModel");
+            foreach (XmlNode node in hdModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboHDModel.Items.Add(item);
+            }
+            if (comboHDModel.Items.Count > 0)
+                comboHDModel.SelectedIndex = 0;
+            XmlNodeList adcps = _project.GetObjects("VesselMountedADCP");
+            foreach (XmlNode node in adcps)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboADCP.Items.Add(item);
+            }
+            if (comboADCP.Items.Count > 0)
+                comboADCP.SelectedIndex = 0;
+            tableRequired.Controls.Clear();
+            tableRequired.RowStyles.Clear();
+            tableRequired.RowCount = 3;
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.Controls.Add(lblHDModel, 0, 0);
+            tableRequired.Controls.Add(comboHDModel, 1, 0);
+            tableRequired.Controls.Add(lblADCP, 0, 1);
+            tableRequired.Controls.Add(comboADCP, 1, 1);
+            grpRequired.Controls.Add(tableRequired);
+
+            // ADCP Inputs
+            tableADCP.Controls.Clear();
+            tableADCP.RowStyles.Clear();
+
+            tableADCP.RowCount = 9;
+            for (int i = 0; i < 9; i++)
+            {
+                tableADCP.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableADCP.Controls.Add(lblADCPSeriesMode, 0, 0);
+            tableADCP.Controls.Add(comboADCPSeriesMode, 1, 0);
+            tableADCP.Controls.Add(lblADCPSeriesTarget, 0, 1);
+            tableADCP.Controls.Add(numADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(txtADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(checkADCPSeriesTarget, 2, 1);
+            tableADCP.Controls.Add(lblADCPQuiverScale, 0, 2);
+            tableADCP.Controls.Add(txtADCPQuiverScale, 1, 2);
+            tableADCP.Controls.Add(lblADCPQuiverWidth, 0, 3);
+            tableADCP.Controls.Add(txtADCPQuiverWidth, 1, 3);
+            tableADCP.Controls.Add(lblADCPQuiverHeadWidth, 0, 4);
+            tableADCP.Controls.Add(txtADCPQuiverHeadWidth, 1, 4);
+            tableADCP.Controls.Add(lblADCPQuiverHeadLength, 0, 5);
+            tableADCP.Controls.Add(txtADCPQuiverHeadLength, 1, 5);
+            tableADCP.Controls.Add(lblADCPQuiverColor, 0, 6);
+            tableADCP.Controls.Add(pnlADCPQuiverColor, 1, 6);
+            tableADCP.Controls.Add(btnADCPQuiverColor, 2, 6);
+            tableADCP.Controls.Add(lblADCPTransectColor, 0, 7);
+            tableADCP.Controls.Add(pnlADCPTransectColor, 1, 7);
+            tableADCP.Controls.Add(btnADCPTransectColor, 2, 7);
+            grpADCP.Controls.Add(tableADCP);
+
+            comboADCPSeriesMode.SelectedIndex = 0;
+            txtADCPSeriesTarget.Visible = false;
+            checkADCPSeriesTarget.Checked = false;
+
+            // HD Inputs
+            tableHD.Controls.Clear();
+            tableHD.RowStyles.Clear();
+            tableHD.RowCount = 14;
+            for (int i = 0; i < 14; i++)
+            {
+                if (i == 13)
+                    tableHD.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+                else
+                    tableHD.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableHD.Controls.Add(lblModelFieldPixelSizeM, 0, 0);
+            tableHD.Controls.Add(txtModelFieldPixelSizeM, 1, 0);
+            tableHD.Controls.Add(lblModelFieldQuiverStrideN, 0, 1);
+            tableHD.Controls.Add(numModelFieldQuiverStrideN, 1, 1);
+            tableHD.Controls.Add(lblModelQuiverMode, 0, 2);
+            tableHD.Controls.Add(comboModelQuiverMode, 1, 2);
+            tableHD.Controls.Add(lblModelQuiverScale, 0, 3);
+            tableHD.Controls.Add(txtModelQuiverScale, 1, 3);
+            tableHD.Controls.Add(lblModelQuiverWidth, 0, 4);
+            tableHD.Controls.Add(txtModelQuiverWidth, 1, 4);
+            tableHD.Controls.Add(lblModelQuiverHeadWidth, 0, 5);
+            tableHD.Controls.Add(txtModelQuiverHeadWidth, 1, 5);
+            tableHD.Controls.Add(lblModelQuiverHeadLength, 0, 6);
+            tableHD.Controls.Add(txtModelQuiverHeadLength, 1, 6);
+            tableHD.Controls.Add(lblModelQuiverColor, 0, 7);
+            tableHD.Controls.Add(pnlModelQuiverColor, 1, 7);
+            tableHD.Controls.Add(btnModelQuiverColor, 2, 7);
+            tableHD.Controls.Add(lblModelLevels, 0, 8);
+            tableHD.Controls.Add(txtModelLevels, 1, 8);
+            tableHD.Controls.Add(lblModelvmin, 0, 9);
+            tableHD.Controls.Add(txtModelvmin, 1, 9);
+            tableHD.Controls.Add(lblModelvmax, 0, 10);
+            tableHD.Controls.Add(txtModelvmax, 1, 10);
+            tableHD.Controls.Add(lblModelCmap, 0, 11);
+            tableHD.Controls.Add(comboModelCmap, 1, 11);
+            tableHD.Controls.Add(lblModelCmapBottomThreshold, 0, 12);
+            tableHD.Controls.Add(txtModelCmapBottomThreshold, 1, 12);
+            grpHD.Controls.Add(tableHD);
+
+            // Layout
+            tableLayout.Controls.Clear();
+            tableLayout.RowStyles.Clear();
+            tableLayout.RowCount = 6;
+            for (int i = 0; i < 6; i++)
+            {
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableLayout.Controls.Add(lblLayoutCbarTickDecimals, 0, 0);
+            tableLayout.Controls.Add(numLayoutCbarTickDecimals, 1, 0);
+            tableLayout.Controls.Add(lblLayoutAxisTickDecimals, 0, 1);
+            tableLayout.Controls.Add(numLayoutAxisTickDecimals, 1, 1);
+            tableLayout.Controls.Add(lblLayoutPadM, 0, 2);
+            tableLayout.Controls.Add(txtLayoutPadM, 1, 2);
+            tableLayout.Controls.Add(lblLayoutDistanceBinM, 0, 3);
+            tableLayout.Controls.Add(txtLayoutDistanceBinM, 1, 3);
+            tableLayout.Controls.Add(lblLayoutBarWidthScale, 0, 4);
+            tableLayout.Controls.Add(txtLayoutBarWidthScale, 1, 4);
+            grpLayout.Controls.Add(tableLayout);
+
+            tableProp.RowCount = 4;
+            float requiredHeight = tableRequired.RowCount * 30F;
+            float adcpHeight = tableADCP.RowCount * 30F;
+            float hdHeight = tableHD.RowCount * 30F + 5F;
+            float layoutHeight = tableLayout.RowCount * 30F;
+            tableProp.Height = (int)(requiredHeight + adcpHeight + hdHeight + layoutHeight) + 40;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, requiredHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, adcpHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, hdHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, layoutHeight));
+            tableProp.Controls.Add(grpRequired, 0, 0);
+            tableProp.Controls.Add(grpADCP, 0, 1);
+            tableProp.Controls.Add(grpHD, 0, 2);
+            tableProp.Controls.Add(grpLayout, 0, 3);
+        }
+
+        private void PropMTModelComparison()
+        {
+            tableProp.Controls.Clear();
+            tableProp.RowStyles.Clear();
+            // Required Inputs
+            XmlNodeList? mtModels = _project.GetObjects("MTModel");
+            foreach (XmlNode node in mtModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboMTModel.Items.Add(item);
+            }
+            if (comboMTModel.Items.Count > 0)
+                comboMTModel.SelectedIndex = 0;
+            XmlNodeList? adcps = _project.GetObjects("VesselMountedADCP");
+            foreach (XmlNode node in adcps)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboADCP.Items.Add(item);
+            }
+            if (comboADCP.Items.Count > 0)
+                comboADCP.SelectedIndex = 0;
+            tableRequired.Controls.Clear();
+            tableRequired.RowStyles.Clear();
+            tableRequired.RowCount = 3;
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.Controls.Add(lblMTModel, 0, 0);
+            tableRequired.Controls.Add(comboMTModel, 1, 0);
+            tableRequired.Controls.Add(lblADCP, 0, 1);
+            tableRequired.Controls.Add(comboADCP, 1, 1);
+            grpRequired.Controls.Add(tableRequired);
+            // ADCP Inputs
+            tableADCP.Controls.Clear();
+            tableADCP.RowStyles.Clear();
+            tableADCP.RowCount = 4;
+            for (int i = 0; i < 4; i++)
+            {
+                tableADCP.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableADCP.Controls.Add(lblADCPSeriesMode, 0, 0);
+            tableADCP.Controls.Add(comboADCPSeriesMode, 1, 0);
+            tableADCP.Controls.Add(lblADCPSeriesTarget, 0, 1);
+            tableADCP.Controls.Add(numADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(txtADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(checkADCPSeriesTarget, 2, 1);
+            tableADCP.Controls.Add(lblADCPTransectColor, 0, 2);
+            tableADCP.Controls.Add(pnlADCPTransectColor, 1, 2);
+            tableADCP.Controls.Add(btnADCPTransectColor, 2, 2);
+            grpADCP.Controls.Add(tableADCP);
+
+            comboADCPSeriesMode.SelectedIndex = 0;
+            txtADCPSeriesTarget.Visible = false;
+            checkADCPSeriesTarget.Checked = false;
+            // MT Inputs
+            tableMT.Controls.Clear();
+            tableMT.RowStyles.Clear();
+            tableMT.RowCount = 8;
+            for (int i = 0; i < 8; i++)
+            {
+                if (i == 4)
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+                else
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableMT.Controls.Add(lblSSCScale, 0, 0);
+            tableMT.Controls.Add(comboSSCScale, 1, 0);
+            tableMT.Controls.Add(lblSSCLevels, 0, 1);
+            tableMT.Controls.Add(txtSSCLevels, 1, 1);
+            tableMT.Controls.Add(lblSSCvmin, 0, 2);
+            tableMT.Controls.Add(txtSSCvmin, 1, 2);
+            tableMT.Controls.Add(lblSSCvmax, 0, 3);
+            tableMT.Controls.Add(txtSSCvmax, 1, 3);
+            tableMT.Controls.Add(lblSSCCmap, 0, 4);
+            tableMT.Controls.Add(comboSSCcmap, 1, 4);
+            tableMT.Controls.Add(lblSSCBottomThreshold, 0, 5);
+            tableMT.Controls.Add(txtSSCBottomThreshold, 1, 5);
+            tableMT.Controls.Add(lblSSCPixelSizeM, 0, 6);
+            tableMT.Controls.Add(txtSSCPixelSizeM, 1, 6);
+            grpMT.Controls.Add(tableMT);
+            // Layout
+            tableLayout.Controls.Clear();
+            tableLayout.RowStyles.Clear();
+            tableLayout.RowCount = 6;
+            for (int i = 0; i < 6; i++)
+            {
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableLayout.Controls.Add(lblLayoutCbarTickDecimals, 0, 0);
+            tableLayout.Controls.Add(numLayoutCbarTickDecimals, 1, 0);
+            tableLayout.Controls.Add(lblLayoutAxisTickDecimals, 0, 1);
+            tableLayout.Controls.Add(numLayoutAxisTickDecimals, 1, 1);
+            tableLayout.Controls.Add(lblLayoutPadM, 0, 2);
+            tableLayout.Controls.Add(txtLayoutPadM, 1, 2);
+            tableLayout.Controls.Add(lblLayoutDistanceBinM, 0, 3);
+            tableLayout.Controls.Add(txtLayoutDistanceBinM, 1, 3);
+            tableLayout.Controls.Add(lblLayoutBarWidthScale, 0, 4);
+            tableLayout.Controls.Add(txtLayoutBarWidthScale, 1, 4);
+            grpLayout.Controls.Add(tableLayout);
+
+            tableProp.RowCount = 4;
+            float requiredHeight = tableRequired.RowCount * 30F;
+            float adcpHeight = tableADCP.RowCount * 30F;
+            float mtHeight = tableMT.RowCount * 30F + 5F;
+            float layoutHeight = tableLayout.RowCount * 30F;
+            tableProp.Height = (int)(requiredHeight + adcpHeight + mtHeight + layoutHeight) + 40;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, requiredHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, adcpHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, mtHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, layoutHeight));
+            tableProp.Controls.Add(grpRequired, 0, 0);
+            tableProp.Controls.Add(grpADCP, 0, 1);
+            tableProp.Controls.Add(grpMT, 0, 2);
+            tableProp.Controls.Add(grpLayout, 0, 3);
+
+        }
+
+        private void PropHDMTModelComparison()
+        {
+            tableProp.Controls.Clear();
+            tableProp.RowStyles.Clear();
+            // Required Inputs
+            XmlNodeList? hdModels = _project.GetObjects("HDModel");
+            foreach (XmlNode node in hdModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboHDModel.Items.Add(item);
+            }
+            if (comboHDModel.Items.Count > 0)
+                comboHDModel.SelectedIndex = 0;
+            XmlNodeList? mtModels = _project.GetObjects("MTModel");
+            foreach (XmlNode node in mtModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboMTModel.Items.Add(item);
+            }
+            if (comboMTModel.Items.Count > 0)
+                comboMTModel.SelectedIndex = 0;
+            XmlNodeList? adcps = _project.GetObjects("VesselMountedADCP");
+            foreach (XmlNode node in adcps)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboADCP.Items.Add(item);
+            }
+            if (comboADCP.Items.Count > 0)
+                comboADCP.SelectedIndex = 0;
+            tableRequired.Controls.Clear();
+            tableRequired.RowStyles.Clear();
+            tableRequired.RowCount = 4;
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.Controls.Add(lblHDModel, 0, 0);
+            tableRequired.Controls.Add(comboHDModel, 1, 0);
+            tableRequired.Controls.Add(lblMTModel, 0, 1);
+            tableRequired.Controls.Add(comboMTModel, 1, 1);
+            tableRequired.Controls.Add(lblADCP, 0, 2);
+            tableRequired.Controls.Add(comboADCP, 1, 2);
+            grpRequired.Controls.Add(tableRequired);
+            // ADCP Inputs
+            tableADCP.Controls.Clear();
+            tableADCP.RowStyles.Clear();
+            tableADCP.RowCount = 9;
+            for (int i = 0; i < 9; i++)
+            {
+                tableADCP.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableADCP.Controls.Add(lblADCPSeriesMode, 0, 0);
+            tableADCP.Controls.Add(comboADCPSeriesMode, 1, 0);
+            tableADCP.Controls.Add(lblADCPSeriesTarget, 0, 1);
+            tableADCP.Controls.Add(numADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(txtADCPSeriesTarget, 1, 1);
+            tableADCP.Controls.Add(checkADCPSeriesTarget, 2, 1);
+            tableADCP.Controls.Add(lblADCPQuiverScale, 0, 2);
+            tableADCP.Controls.Add(txtADCPQuiverScale, 1, 2);
+            tableADCP.Controls.Add(lblADCPQuiverWidth, 0, 3);
+            tableADCP.Controls.Add(txtADCPQuiverWidth, 1, 3);
+            tableADCP.Controls.Add(lblADCPQuiverHeadWidth, 0, 4);
+            tableADCP.Controls.Add(txtADCPQuiverHeadWidth, 1, 4);
+            tableADCP.Controls.Add(lblADCPQuiverHeadLength, 0, 5);
+            tableADCP.Controls.Add(txtADCPQuiverHeadLength, 1, 5);
+            tableADCP.Controls.Add(lblADCPQuiverEveryN, 0, 6);
+            tableADCP.Controls.Add(numADCPQuiverEveryN, 1, 6);
+            tableADCP.Controls.Add(lblADCPTransectWidth, 0, 7);
+            tableADCP.Controls.Add(txtADCPTransectWidth, 1, 7);
+            grpADCP.Controls.Add(tableADCP);
+            
+            comboADCPSeriesMode.SelectedIndex = 0;
+            txtADCPSeriesTarget.Visible = false;
+            checkADCPSeriesTarget.Checked = false;
+            // HD Inputs
+            tableHD.Controls.Clear();
+            tableHD.RowStyles.Clear();
+            tableHD.RowCount = 9;
+            for (int i = 0; i < 9; i++)
+            {
+                tableHD.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableHD.Controls.Add(lblModelFieldPixelSizeM, 0, 0);
+            tableHD.Controls.Add(txtModelFieldPixelSizeM, 1, 0);
+            tableHD.Controls.Add(lblModelFieldQuiverStrideN, 0, 1);
+            tableHD.Controls.Add(numModelFieldQuiverStrideN, 1, 1);
+            tableHD.Controls.Add(lblModelQuiverMode, 0, 2);
+            tableHD.Controls.Add(comboModelQuiverMode, 1, 2);
+            tableHD.Controls.Add(lblModelQuiverScale, 0, 3);
+            tableHD.Controls.Add(txtModelQuiverScale, 1, 3);
+            tableHD.Controls.Add(lblModelQuiverWidth, 0, 4);
+            tableHD.Controls.Add(txtModelQuiverWidth, 1, 4);
+            tableHD.Controls.Add(lblModelQuiverHeadWidth, 0, 5);
+            tableHD.Controls.Add(txtModelQuiverHeadWidth, 1, 5);
+            tableHD.Controls.Add(lblModelQuiverHeadLength, 0, 6);
+            tableHD.Controls.Add(txtModelQuiverHeadLength, 1, 6);
+            tableHD.Controls.Add(lblModelQuiverColor, 0, 7);
+            tableHD.Controls.Add(pnlModelQuiverColor, 1, 7);
+            tableHD.Controls.Add(btnModelQuiverColor, 2, 7);
+            grpHD.Controls.Add(tableHD);
+            // MT Inputs
+            tableMT.Controls.Clear();
+            tableMT.RowStyles.Clear();
+            tableMT.RowCount = 8;
+            for (int i = 0; i < 8; i++)
+            {
+                if (i == 4)
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+                else
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableMT.Controls.Add(lblSSCScale, 0, 0);
+            tableMT.Controls.Add(comboSSCScale, 1, 0);
+            tableMT.Controls.Add(lblSSCLevels, 0, 1);
+            tableMT.Controls.Add(txtSSCLevels, 1, 1);
+            tableMT.Controls.Add(lblSSCvmin, 0, 2);
+            tableMT.Controls.Add(txtSSCvmin, 1, 2);
+            tableMT.Controls.Add(lblSSCvmax, 0, 3);
+            tableMT.Controls.Add(txtSSCvmax, 1, 3);
+            tableMT.Controls.Add(lblSSCCmap, 0, 4);
+            tableMT.Controls.Add(comboSSCcmap, 1, 4);
+            tableMT.Controls.Add(lblSSCBottomThreshold, 0, 5);
+            tableMT.Controls.Add(txtSSCBottomThreshold, 1, 5);
+            tableMT.Controls.Add(lblSSCPixelSizeM, 0, 6);
+            tableMT.Controls.Add(txtSSCPixelSizeM, 1, 6);
+            grpMT.Controls.Add(tableMT);
+            // Layout
+            tableLayout.Controls.Clear();
+            tableLayout.RowStyles.Clear();
+            tableLayout.RowCount = 4;
+            for (int i = 0; i < 4; i++)
+            {
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableLayout.Controls.Add(lblLayoutCbarTickDecimals, 0, 0);
+            tableLayout.Controls.Add(numLayoutCbarTickDecimals, 1, 0);
+            tableLayout.Controls.Add(lblLayoutAxisTickDecimals, 0, 1);
+            tableLayout.Controls.Add(numLayoutAxisTickDecimals, 1, 1);
+            tableLayout.Controls.Add(lblLayoutPadM, 0, 2);
+            tableLayout.Controls.Add(txtLayoutPadM, 1, 2);
+            grpLayout.Controls.Add(tableLayout);
+
+            tableProp.RowCount = 5;
+            float requiredHeight = tableRequired.RowCount * 30F;
+            float adcpHeight = tableADCP.RowCount * 30F;
+            float hdHeight = tableHD.RowCount * 30F;
+            float mtHeight = tableMT.RowCount * 30F + 5F;
+            float layoutHeight = tableLayout.RowCount * 30F;
+            tableProp.Height = (int)(requiredHeight + adcpHeight + hdHeight + mtHeight + layoutHeight) + 40;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, requiredHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, adcpHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, hdHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, mtHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, layoutHeight));
+            tableProp.Controls.Add(grpRequired, 0, 0);
+            tableProp.Controls.Add(grpADCP, 0, 1);
+            tableProp.Controls.Add(grpHD, 0, 2);
+            tableProp.Controls.Add(grpMT, 0, 3);
+            tableProp.Controls.Add(grpLayout, 0, 4);
+        }
+
+        private void PropHDMTModelAnimation()
+        {
+            tableProp.Controls.Clear();
+            tableProp.RowStyles.Clear();
+            // Required Inputs
+            XmlNodeList? hdModels = _project.GetObjects("HDModel");
+            foreach (XmlNode node in hdModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboHDModel.Items.Add(item);
+            }
+            if (comboHDModel.Items.Count > 0)
+                comboHDModel.SelectedIndex = 0;
+            XmlNodeList? mtModels = _project.GetObjects("MTModel");
+            foreach (XmlNode node in mtModels)
+            {
+                XmlElement element = (XmlElement)node;
+                string name = element.GetAttribute("name");
+                string id = element.GetAttribute("id");
+                ComboBoxItem? item = new ComboBoxItem(name, id);
+                comboMTModel.Items.Add(item);
+            }
+            if (comboMTModel.Items.Count > 0)
+                comboMTModel.SelectedIndex = 0;
+            tableRequired.Controls.Clear();
+            tableRequired.RowStyles.Clear();
+            tableRequired.RowCount = 3;
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableRequired.Controls.Add(lblHDModel, 0, 0);
+            tableRequired.Controls.Add(comboHDModel, 1, 0);
+            tableRequired.Controls.Add(lblMTModel, 0, 1);
+            tableRequired.Controls.Add(comboMTModel, 1, 1);
+            grpRequired.Controls.Add(tableRequired);
+            // HD Inputs
+            tableHD.Controls.Clear();
+            tableHD.RowStyles.Clear();
+            tableHD.RowCount = 8;
+            for (int i = 0; i < 8; i++)
+            {
+                tableHD.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableHD.Controls.Add(lblModelFieldPixelSizeM, 0, 0);
+            tableHD.Controls.Add(txtModelFieldPixelSizeM, 1, 0);
+            tableHD.Controls.Add(lblModelFieldQuiverStrideN, 0, 1);
+            tableHD.Controls.Add(numModelFieldQuiverStrideN, 1, 1);
+            tableHD.Controls.Add(lblModelQuiverScale, 0, 2);
+            tableHD.Controls.Add(txtModelQuiverScale, 1, 2);
+            tableHD.Controls.Add(lblModelQuiverWidth, 0, 3);
+            tableHD.Controls.Add(txtModelQuiverWidth, 1, 3);
+            tableHD.Controls.Add(lblModelQuiverHeadWidth, 0, 4);
+            tableHD.Controls.Add(txtModelQuiverHeadWidth, 1, 4);
+            tableHD.Controls.Add(lblModelQuiverHeadLength, 0, 5);
+            tableHD.Controls.Add(txtModelQuiverHeadLength, 1, 5);
+            tableHD.Controls.Add(lblModelQuiverColor, 0, 6);
+            tableHD.Controls.Add(pnlModelQuiverColor, 1, 6);
+            tableHD.Controls.Add(btnModelQuiverColor, 2, 6);
+            grpHD.Controls.Add(tableHD);
+            // MT Inputs
+            tableMT.Controls.Clear();
+            tableMT.RowStyles.Clear();
+            tableMT.RowCount = 8;
+            for (int i = 0; i < 8; i++)
+            {
+                if (i == 4)
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+                else
+                    tableMT.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableMT.Controls.Add(lblSSCScale, 0, 0);
+            tableMT.Controls.Add(comboSSCScale, 1, 0);
+            tableMT.Controls.Add(lblSSCLevels, 0, 1);
+            tableMT.Controls.Add(txtSSCLevels, 1, 1);
+            tableMT.Controls.Add(lblSSCvmin, 0, 2);
+            tableMT.Controls.Add(txtSSCvmin, 1, 2);
+            tableMT.Controls.Add(lblSSCvmax, 0, 3);
+            tableMT.Controls.Add(txtSSCvmax, 1, 3);
+            tableMT.Controls.Add(lblSSCCmap, 0, 4);
+            tableMT.Controls.Add(comboSSCcmap, 1, 4);
+            tableMT.Controls.Add(lblSSCBottomThreshold, 0, 5);
+            tableMT.Controls.Add(txtSSCBottomThreshold, 1, 5);
+            tableMT.Controls.Add(lblSSCPixelSizeM, 0, 6);
+            tableMT.Controls.Add(txtSSCPixelSizeM, 1, 6);
+            grpMT.Controls.Add(tableMT);
+            // Layout
+            tableLayout.Controls.Clear();
+            tableLayout.RowStyles.Clear();
+            tableLayout.RowCount = 3;
+            for (int i = 0; i < 3; i++)
+            {
+                tableLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableLayout.Controls.Add(lblLayoutCbarTickDecimals, 0, 0);
+            tableLayout.Controls.Add(numLayoutCbarTickDecimals, 1, 0);
+            tableLayout.Controls.Add(lblLayoutAxisTickDecimals, 0, 1);
+            tableLayout.Controls.Add(numLayoutAxisTickDecimals, 1, 1);
+            grpLayout.Controls.Add(tableLayout);
+            // Animation
+            tableAnimation.Controls.Clear();
+            tableAnimation.RowStyles.Clear();
+            tableAnimation.RowCount = 7;
+            for (int i = 0; i < 7; i++)
+            {
+                tableAnimation.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            }
+            tableAnimation.Controls.Add(lblAnimationStartIndex, 0, 0);
+            tableAnimation.Controls.Add(numAnimationStartIndex, 1, 0);
+            tableAnimation.Controls.Add(checkAnimationUseStart, 2, 0);
+            tableAnimation.Controls.Add(lblAnimationEndIndex, 0, 1);
+            tableAnimation.Controls.Add(numAnimationEndIndex, 1, 1);
+            tableAnimation.Controls.Add(checkAnimationUseEnd, 2, 1);
+            tableAnimation.Controls.Add(lblAnimationTimeStep, 0, 2);
+            tableAnimation.Controls.Add(numAnimationTimeStep, 1, 2);
+            tableAnimation.Controls.Add(lblAnimationInterval, 0, 3);
+            tableAnimation.Controls.Add(numAnimationInterval, 1, 3);
+            tableAnimation.Controls.Add(lblAnimationBBox, 0, 4);
+            tableAnimation.Controls.Add(txtAnimationBBox, 1, 4);
+            tableAnimation.Controls.Add(btnAnimationBBox, 2, 4);
+            tableAnimation.Controls.Add(lblAnimationOutputFile, 0, 5);
+            tableAnimation.Controls.Add(txtAnimationOutputFile, 1, 5);
+            tableAnimation.Controls.Add(btnAnimationOutputFile, 2, 5);
+
+            grpAnimation.Controls.Add(tableAnimation);
+            // Final Layout
+            tableProp.RowCount = 5;
+            float requiredHeight = tableRequired.RowCount * 30F;
+            float hdHeight = tableHD.RowCount * 30F;
+            float mtHeight = tableMT.RowCount * 30F + 5F;
+            float layoutHeight = tableLayout.RowCount * 30F;
+            float animationHeight = tableAnimation.RowCount * 30F;
+            tableProp.Height = (int)(requiredHeight + hdHeight + mtHeight + layoutHeight + animationHeight) + 40;
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, requiredHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, hdHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, mtHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, layoutHeight));
+            tableProp.RowStyles.Add(new RowStyle(SizeType.Absolute, animationHeight));
+            tableProp.Controls.Add(grpRequired, 0, 0);
+            tableProp.Controls.Add(grpHD, 0, 1);
+            tableProp.Controls.Add(grpMT, 0, 2);
+            tableProp.Controls.Add(grpLayout, 0, 3);
+            tableProp.Controls.Add(grpAnimation, 0, 4);
+
+        }
+
+        private void InitializeWidgets()
+        {
+            comboHDModel.DisplayMember = "name";
+            comboHDModel.ValueMember = "id";
+            comboMTModel.DisplayMember = "name";
+            comboMTModel.ValueMember = "id";
+            comboADCP.DisplayMember = "name";
+            comboADCP.ValueMember = "id";
+            comboPlotType.SelectedIndex = 0;
+            checkADCPSeriesTarget.CheckedChanged += checkADCPSeriesTarget_CheckedChanged;
+            comboSSCScale.SelectedIndex = 1;
+            // Set comboSSCcmap to "turbo" if available
+            for (int i = 0; i < comboSSCcmap.Items.Count; i++)
+            {
+                if (comboSSCcmap.Items[i] is ColormapItem item && item.Name.Equals("turbo", StringComparison.OrdinalIgnoreCase))
+                {
+                    comboSSCcmap.SelectedIndex = i;
+                    break;
+                }
+            }
+            // Set comboModelCmap to "turbo" if available
+            for (int i = 0; i < comboModelCmap.Items.Count; i++)
+            {
+                if (comboModelCmap.Items[i] is ColormapItem item && item.Name.Equals("turbo", StringComparison.OrdinalIgnoreCase))
+                {
+                    comboModelCmap.SelectedIndex = i;
+                    break;
+                }
+            }
+            comboModelQuiverMode.SelectedIndex = 0;
+            btnModelQuiverColor.Click += btnChangeColor_Click;
+            btnADCPQuiverColor.Click += btnChangeColor_Click;
+            btnADCPTransectColor.Click += btnChangeColor_Click;
+            checkAnimationUseStart.CheckedChanged += checkAnimationUseStart_CheckedChanged;
+            checkAnimationUseEnd.CheckedChanged += checkAnimationUseEnd_CheckedChanged;
+            btnAnimationBBox.Click += btnAnimatiobBBox_Click;
             btnAnimationOutputFile.Click += btnAnimationOutputFile_Click;
-            // 
-            // lblQuiverWidth
-            // 
-            lblQuiverWidth = new Label();
-            lblQuiverWidth.Dock = DockStyle.Fill;
-            lblQuiverWidth.Name = "lblQuiverWidth";
-            lblQuiverWidth.TabIndex = 0;
-            lblQuiverWidth.Text = "Quiver Width";
-            lblQuiverWidth.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtQuiverWidth
-            // 
-            txtQuiverWidth = new TextBox();
-            txtQuiverWidth.Dock = DockStyle.Fill;
-            txtQuiverWidth.Name = "txtQuiverWidth";
-            txtQuiverWidth.TabIndex = 1;
-            txtQuiverWidth.Text = "0.001";
-            //
-            // lblQuiverHeadWidth
-            //
-            lblQuiverHeadWidth = new Label();
-            lblQuiverHeadWidth.Dock = DockStyle.Fill;
-            lblQuiverHeadWidth.Name = "lblQuiverHeadWidth";
-            lblQuiverHeadWidth.TabIndex = 0;
-            lblQuiverHeadWidth.Text = "Quiver Head Width";
-            lblQuiverHeadWidth.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtQuiverHeadWidth
-            //
-            txtQuiverHeadWidth = new TextBox();
-            txtQuiverHeadWidth.Dock = DockStyle.Fill;
-            txtQuiverHeadWidth.Name = "txtQuiverHeadWidth";
-            txtQuiverHeadWidth.TabIndex = 1;
-            txtQuiverHeadWidth.Text = "2.0";
-            //
-            // lblQuiverHeadLength
-            //
-            lblQuiverHeadLength = new Label();
-            lblQuiverHeadLength.Dock = DockStyle.Fill;
-            lblQuiverHeadLength.Name = "lblQuiverHeadLength";
-            lblQuiverHeadLength.TabIndex = 0;
-            lblQuiverHeadLength.Text = "Quiver Head Length";
-            lblQuiverHeadLength.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtQuiverHeadLength
-            //
-            txtQuiverHeadLength = new TextBox();
-            txtQuiverHeadLength.Dock = DockStyle.Fill;
-            txtQuiverHeadLength.Name = "txtQuiverHeadLength";
-            txtQuiverHeadLength.TabIndex = 1;
-            txtQuiverHeadLength.Text = "2.5";
-            //
-            // lblsscLevels
-            //
-            lblsscLevels = new Label();
-            lblsscLevels.Dock = DockStyle.Fill;
-            lblsscLevels.Name = "lblsscLevels";
-            lblsscLevels.TabIndex = 0;
-            lblsscLevels.Text = "SSC Levels (comma separated)";
-            lblsscLevels.TextAlign = ContentAlignment.MiddleLeft;
-            //
-            // txtsscLevels
-            //
-            txtsscLevels = new TextBox();
-            txtsscLevels.Dock = DockStyle.Fill;
-            txtsscLevels.Name = "txtsscLevels";
-            txtsscLevels.TabIndex = 1;
-            txtsscLevels.Text = "0.001,0.01,0.1,1,10";
-
+            numAnimationStartIndex.Enabled = false;
+            numAnimationEndIndex.Enabled = false;
         }
 
         public ProjectPlot()
@@ -1150,146 +927,229 @@ namespace CSEMMPGUI_v1
             InitializeWidgets();
         }
 
+        private bool ValidInputs(string type)
+        {
+            if (type == "HD")
+            {
+
+                return true;
+            }
+            else if (type == "MT")
+            {
+                return true;
+            }
+            else if (type == "HDMT")
+            {
+                return true;
+            }
+            else if (type == "Animation")
+            {
+                return true;
+            }
+            return true;
+        }
+
         private void btnPlot_Click(object sender, EventArgs e)
         {
             Dictionary<string, string> inputs = null;
             if (comboPlotType.SelectedItem.ToString() == "HD Comparison")
             {
-                var selectedHDModel = comboHDModel.SelectedItem as ComboBoxItem;
-                var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
-                inputs = new Dictionary<string, string>
+                if (ValidInputs(type: "HD"))
                 {
-                    { "Task", "HDComparison" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "ModelID", selectedHDModel.ID},
-                    { "ADCPID", selectedADCP.ID},
-                    { "ModelQuiverMode", comboModelQuiverMode.SelectedItem.ToString()},
-                    { "FieldPixelSize", txtFieldPixelSize.Text},
-                    { "FieldQuiverStrideN", numFieldQuiverStrideN.Value.ToString()},
-                    { "Colormap", combocmap.SelectedItem.ToString()},
-
-                };
+                    var selectedHDModel = comboHDModel.SelectedItem as ComboBoxItem;
+                    var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
+                    string adcpSeriesTarget;
+                    if (comboADCPSeriesMode.SelectedItem.ToString().Equals("Bin", StringComparison.OrdinalIgnoreCase))
+                        adcpSeriesTarget = numADCPSeriesTarget.Value.ToString();
+                    else
+                        adcpSeriesTarget = txtADCPSeriesTarget.Text;
+                    inputs = new Dictionary<string, string>
+                    {
+                        { "Task", "HDComparison" },
+                        { "Project", _Globals.Config.OuterXml.ToString() },
+                        { "ModelID", selectedHDModel.ID},
+                        { "ADCPID", selectedADCP.ID},
+                        { "ADCPSeriesMode", comboADCPSeriesMode.SelectedItem.ToString() },
+                        { "ADCPSeriesTarget", adcpSeriesTarget },
+                        { "UseMean", checkADCPSeriesTarget.Checked ? "Yes":"No" },
+                        { "ADCPTransectColor", ColorTranslator.ToHtml(pnlADCPTransectColor.BackColor) },
+                        { "ADCPQuiverScale", txtADCPQuiverScale.Text },
+                        { "ADCPQuiverWidth", txtADCPQuiverWidth.Text },
+                        { "ADCPQuiverHeadWidth", txtADCPQuiverHeadWidth.Text },
+                        { "ADCPQuiverHeadLength", txtADCPQuiverHeadLength.Text },
+                        { "ADCPQuiverColor", ColorTranslator.ToHtml(pnlADCPQuiverColor.BackColor) },
+                        { "ModelFieldPixelSizeM", txtModelFieldPixelSizeM.Text },
+                        { "ModelFieldQuiverStrideN", numModelFieldQuiverStrideN.Value.ToString() },
+                        { "ModelQuiverScale", txtModelQuiverScale.Text },
+                        { "ModelQuiverWidth", txtModelQuiverWidth.Text },
+                        { "ModelQuiverHeadWidth", txtModelQuiverHeadWidth.Text },
+                        { "ModelQuiverHeadLength", txtModelQuiverHeadLength.Text },
+                        { "ModelQuiverColor", ColorTranslator.ToHtml(pnlModelQuiverColor.BackColor) },
+                        { "ModelQuiverMode", comboModelQuiverMode.SelectedItem.ToString() },
+                        { "ModelLevels", txtModelLevels.Text },
+                        { "Modelvmin", txtModelvmin.Text },
+                        { "Modelvmax", txtModelvmax.Text },
+                        { "ModelCmapName", comboModelCmap.SelectedItem.ToString() },
+                        { "ModelBottomThreshold", txtModelCmapBottomThreshold.Text },
+                        { "LayoutCbarTickDecimals", numLayoutCbarTickDecimals.Value.ToString() },
+                        { "LayoutAxisTickDecimals", numLayoutAxisTickDecimals.Value.ToString() },
+                        { "LayoutPadM", txtLayoutPadM.Text },
+                        { "LayoutDistanceBinM", txtLayoutDistanceBinM.Text },
+                        { "LayoutBarWidthScale", txtLayoutBarWidthScale.Text }
+                    };
+                }
+                else
+                {
+                    MessageBox.Show("Worng Input! Please check the inputs and try again!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
             else if (comboPlotType.SelectedItem.ToString() == "MT Comparison")
             {
-                var selectedMTModel = comboMTModel.SelectedItem as ComboBoxItem;
-                var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
-                string binTarget;
-                if (comboBinConfiguration.SelectedIndex == 0)
-                    binTarget = numBinTarget.Value.ToString();
-                else
-                    binTarget = txtBinTarget.Text;
-                inputs = new Dictionary<string, string>
+                if (ValidInputs(type: "MT"))
                 {
-                    { "Task", "MTComparison" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "ModelID", selectedMTModel.ID },
-                    { "ADCPID", selectedADCP.ID },
-                    { "Scale", comboScale.SelectedItem.ToString() },
-                    { "vmin", txtvmin.Text },
-                    { "vmax", txtvmax.Text },
-                    { "Colormap", combocmap.SelectedItem.ToString() },
-                    { "ColorBarTickDecimals", numColorBarTickDecimals.Value.ToString() },
-                    { "AxisTickDecimals", numAxisTickDecimals.Value.ToString() },
-                    { "PadM", txtPadM.Text },
-                    { "PixelSizeM", txtPixelSizeM.Text },
-                    { "CMapBottomThreshold", txtCMapBottomThreshold.Text },
-                    { "TransectColor", ColorTranslator.ToHtml(pnlTransectCOlor.BackColor) },
-                    { "BinConfiguration", comboBinConfiguration.SelectedItem.ToString() },
-                    { "BinTarget", binTarget },
-                    { "UseMean", checkBinTarget.Checked ? "Yes" : "No" }
-                };
+                    var selectedMTModel = comboMTModel.SelectedItem as ComboBoxItem;
+                    var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
+                    string adcpSeriesTarget;
+                    if (comboADCPSeriesMode.SelectedItem.ToString().Equals("Bin", StringComparison.OrdinalIgnoreCase))
+                        adcpSeriesTarget = numADCPSeriesTarget.Value.ToString();
+                    else
+                        adcpSeriesTarget = txtADCPSeriesTarget.Text;
+                    inputs = new Dictionary<string, string>
+                    {
+                        { "Task", "MTComparison" },
+                        { "Project", _Globals.Config.OuterXml.ToString() },
+                        { "ModelID", selectedMTModel.ID },
+                        { "ADCPID", selectedADCP.ID },
+                        { "ADCPSeriesMode", comboADCPSeriesMode.SelectedItem.ToString() },
+                        { "ADCPSeriesTarget", adcpSeriesTarget },
+                        { "UseMean", checkADCPSeriesTarget.Checked ? "Yes":"No" },
+                        { "ADCPTransectColor", ColorTranslator.ToHtml(pnlADCPTransectColor.BackColor) },
+                        { "SSCScale", comboSSCScale.SelectedItem.ToString() },
+                        { "SSCLevels", txtSSCLevels.Text },
+                        { "SSCvmin", txtSSCvmin.Text },
+                        { "SSCvmax", txtSSCvmax.Text },
+                        { "SSCCmapName", comboSSCcmap.SelectedItem.ToString() },
+                        { "SSCBottomThreshold", txtSSCBottomThreshold.Text },
+                        { "SSCPixelSizeM", txtSSCPixelSizeM.Text },
+                        { "LayoutCbarTickDecimals", numLayoutCbarTickDecimals.Value.ToString() },
+                        { "LayoutAxisTickDecimals", numLayoutAxisTickDecimals.Value.ToString() },
+                        { "LayoutPadM", txtLayoutPadM.Text },
+                        { "LayoutDistanceBinM", txtLayoutDistanceBinM.Text },
+                        { "LayoutBarWidthScale", txtLayoutBarWidthScale.Text }
+                    };
+                }
+                else
+                {
+                    MessageBox.Show("Worng Input! Please check the inputs and try again!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
             }
             else if (comboPlotType.SelectedItem.ToString() == "MT and HD Comparison")
             {
-                var selectedMTModel = comboMTModel.SelectedItem as ComboBoxItem;
-                var selectedHDModel = comboHDModel.SelectedItem as ComboBoxItem;
-                var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
-                string binTarget;
-                if (comboBinConfiguration.SelectedIndex == 0)
-                    binTarget = numBinTarget.Value.ToString();
-                else
-                    binTarget = txtBinTarget.Text;
-                inputs = new Dictionary<string, string>
+                if (ValidInputs(type: "HDMT"))
                 {
-                    { "Task", "HDMTComparison" },
-                    { "Project", _Globals.Config.OuterXml.ToString() },
-                    { "MTModelID", selectedMTModel.ID },
-                    { "HDModelID", selectedHDModel.ID },
-                    { "ADCPID", selectedADCP.ID },
-                    { "Scale", comboScale.SelectedItem.ToString() },
-                    { "vmin", txtvmin.Text },
-                    { "vmax", txtvmax.Text },
-                    { "Colormap", combocmap.SelectedItem.ToString() },
-                    { "CMapBottomThreshold", txtCMapBottomThreshold.Text },
-                    { "PixelSizeM", txtPixelSizeM.Text },
-                    { "PadM", txtPadM.Text },
-                    { "ColorBarTickDecimals", numColorBarTickDecimals.Value.ToString() },
-                    { "AxisTickDecimals", numAxisTickDecimals.Value.ToString() },
-                    { "ModelQuiverMode", comboModelQuiverMode.SelectedItem.ToString()},
-                    { "QuiverEveryN", numericQuiverEveryN.Value.ToString() },
-                    { "QuiverScale", txtQuiverScale.Text},
-                    { "QuiverColorModel", ColorTranslator.ToHtml(pnlQuiverColor.BackColor) },
-                    { "TransectLineWidth", txtTransectLineWidth.Text },
-                    { "FieldPixelSize", txtFieldPixelSize.Text},
-                    { "FieldQuiverStrideN", numFieldQuiverStrideN.Value.ToString()},
-                    { "BinConfiguration", comboBinConfiguration.SelectedItem.ToString() },
-                    { "BinTarget", binTarget },
-                    { "UseMean", checkBinTarget.Checked ? "Yes" : "No" },
-
-                };
+                    var selectedMTModel = comboMTModel.SelectedItem as ComboBoxItem;
+                    var selectedHDModel = comboHDModel.SelectedItem as ComboBoxItem;
+                    var selectedADCP = comboADCP.SelectedItem as ComboBoxItem;
+                    string adcpSeriesTarget;
+                    if (comboADCPSeriesMode.SelectedItem.ToString().Equals("Bin", StringComparison.OrdinalIgnoreCase))
+                        adcpSeriesTarget = numADCPSeriesTarget.Value.ToString();
+                    else
+                        adcpSeriesTarget = txtADCPSeriesTarget.Text;
+                    inputs = new Dictionary<string, string>
+                    {
+                        { "Task", "HDMTComparison" },
+                        { "Project", _Globals.Config.OuterXml.ToString() },
+                        { "MTModelID", selectedMTModel.ID },
+                        { "HDModelID", selectedHDModel.ID },
+                        { "ADCPID", selectedADCP.ID },
+                        { "ADCPTransectLineWidth", txtADCPTransectWidth.Text },
+                        { "ADCPSeriesMode", comboADCPSeriesMode.SelectedItem.ToString() },
+                        { "ADCPSeriesTarget", adcpSeriesTarget },
+                        { "UseMean", checkADCPSeriesTarget.Checked ? "Yes":"No" },
+                        { "ADCPQuiverEveryN", numADCPQuiverEveryN.Value.ToString() },
+                        { "ADCPQuiverWidth", txtADCPQuiverWidth.Text },
+                        { "ADCPQuiverHeadWidth", txtADCPQuiverHeadWidth.Text },
+                        { "ADCPQuiverHeadLength", txtADCPQuiverHeadLength.Text },
+                        { "ADCPQuiverScale", txtADCPQuiverScale.Text },
+                        { "SSCScale", comboSSCScale.SelectedItem.ToString() },
+                        { "SSCLevels", txtSSCLevels.Text },
+                        { "SSCvmin", txtSSCvmin.Text },
+                        { "SSCvmax", txtSSCvmax.Text },
+                        { "SSCCmapName", comboSSCcmap.SelectedItem.ToString() },
+                        { "SSCBottomThreshold", txtSSCBottomThreshold.Text },
+                        { "SSCPixelSizeM", txtSSCPixelSizeM.Text },
+                        { "ModelFieldPixelSizeM", txtModelFieldPixelSizeM.Text },
+                        { "ModelFieldQuiverStrideN", numModelFieldQuiverStrideN.Value.ToString() },
+                        { "ModelQuiverScale", txtModelQuiverScale.Text },
+                        { "ModelQuiverWidth", txtModelQuiverWidth.Text },
+                        { "ModelQuiverHeadWidth", txtModelQuiverHeadWidth.Text },
+                        { "ModelQuiverHeadLength", txtModelQuiverHeadLength.Text },
+                        { "ModelQuiverColor", ColorTranslator.ToHtml(pnlModelQuiverColor.BackColor) },
+                        { "ModelQuiverMode", comboModelQuiverMode.SelectedItem.ToString() },
+                        { "LayoutCbarTickDecimals", numLayoutCbarTickDecimals.Value.ToString() },
+                        { "LayoutAxisTickDecimals", numLayoutAxisTickDecimals.Value.ToString() },
+                        { "LayoutPadM", txtLayoutPadM.Text },
+                    };
+                }
+                else
+                {
+                    MessageBox.Show("Worng Input! Please check the inputs and try again!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
-            //else if (comboPlotType.SelectedItem.ToString() == "Plot Transect Velocities")
-            //{
-            //    inputs = new Dictionary<string, string>
-            //    {
-            //        { "Task", "PlotTransectVelocities" },
-            //        { "EPSG", _project.GetSetting("EPSG") },
-            //        { "Water", waterProp.OuterXml.ToString() },
-            //        { "Sediment", sedimentProp.OuterXml.ToString() },
-            //        { "Instrument", adcp.OuterXml.ToString() },
-            //        { "BinSelection", numericNBins.Value.ToString()},
-            //        { "UseMean", checkUseMean.Checked ? "Yes" : "No"},
-            //        { "VectorScale", txtScale.Text},
-            //        { "Colormap", combocmap.SelectedItem.ToString()},
-            //        { "vmin", txtvmin.Text},
-            //        { "vmax", txtvmax.Text},
-            //        { "Title", txtTitle.Text},
-            //        { "LineWidth", txtLineWidth.Text},
-            //        { "LineAlpha", txtLineAlpha.Text},
-            //        { "HistBins", numericHistBins.Value.ToString()}
-            //    };
-            //}
-            //else if (comboPlotType.SelectedItem.ToString() == "Beam Geometry Animation")
-            //{
-            //    inputs = new Dictionary<string, string>
-            //    {
-            //        { "Task", "PlotBeamGeometryAnimation" },
-            //        { "EPSG", _project.GetSetting("EPSG") },
-            //        { "Water", waterProp.OuterXml.ToString() },
-            //        { "Sediment", sedimentProp.OuterXml.ToString() },
-            //        { "Instrument", adcp.OuterXml.ToString() }
-            //    };
-            //}
-            //else if (comboPlotType.SelectedItem.ToString() == "Transect Animation")
-            //{
-            //    inputs = new Dictionary<string, string>
-            //    {
-            //        { "Task", "PlotTransectAnimation" },
-            //        { "EPSG", _project.GetSetting("EPSG") },
-            //        { "Water", waterProp.OuterXml.ToString() },
-            //        { "Sediment", sedimentProp.OuterXml.ToString() },
-            //        { "Instrument", adcp.OuterXml.ToString() },
-            //        { "Colormap", combocmap.SelectedItem.ToString()},
-            //        { "vmin", txtvmin.Text},
-            //        { "vmax", txtvmax.Text}
-            //    };
-            //}
-            else
+            else if (comboPlotType.SelectedItem.ToString() == "MT and HD Comparison Animation")
             {
-                return;
-            }
+                if (ValidInputs(type: "Animation"))
+                {
+                    var selectedMTModel = comboMTModel.SelectedItem as ComboBoxItem;
+                    var selectedHDModel = comboHDModel.SelectedItem as ComboBoxItem;
+                    string layoutBBox = txtAnimationBBox.Text;
+                    if (!File.Exists(layoutBBox))
+                    {
+                        MessageBox.Show("Bounding Box Shapefile does not exist!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    inputs = new Dictionary<string, string>
+                    {
+                        { "Task", "HDMTAnimation" },
+                        { "Project", _Globals.Config.OuterXml.ToString() },
+                        { "MTModelID", selectedMTModel.ID },
+                        { "HDModelID", selectedHDModel.ID },
+                        { "SSCScale", comboSSCScale.SelectedItem.ToString() },
+                        { "SSCLevels", txtSSCLevels.Text },
+                        { "SSCvmin", txtSSCvmin.Text },
+                        { "SSCvmax", txtSSCvmax.Text },
+                        { "SSCCmapName", comboSSCcmap.SelectedItem.ToString() },
+                        { "SSCBottomThreshold", txtSSCBottomThreshold.Text },
+                        { "SSCPixelSizeM", txtSSCPixelSizeM.Text },
+                        { "ModelFieldPixelSizeM", txtModelFieldPixelSizeM.Text },
+                        { "ModelFieldQuiverStrideN", numModelFieldQuiverStrideN.Value.ToString() },
+                        { "ModelQuiverScale", txtModelQuiverScale.Text },
+                        { "ModelQuiverWidth", txtModelQuiverWidth.Text },
+                        { "ModelQuiverHeadWidth", txtModelQuiverHeadWidth.Text },
+                        { "ModelQuiverHeadLength", txtModelQuiverHeadLength.Text },
+                        { "ModelQuiverColor", ColorTranslator.ToHtml(pnlModelQuiverColor.BackColor) },
+                        { "AnimationStartIndex", checkAnimationUseStart.Checked ? "Start" : numAnimationStartIndex.Value.ToString() },
+                        { "AnimationEndIndex", checkAnimationUseEnd.Checked ? "End" : numAnimationEndIndex.Value.ToString() },
+                        { "AnimationTimeStep", numAnimationTimeStep.Value.ToString() },
+                        { "AnimationInterval", numAnimationInterval.Value.ToString() },
+                        { "AnimationOutputFile", txtAnimationOutputFile.Text },
+                        { "LayoutCbarTickDecimals", numLayoutCbarTickDecimals.Value.ToString() },
+                        { "LayoutAxisTickDecimals", numLayoutAxisTickDecimals.Value.ToString() },
+                        { "LayoutBBox", layoutBBox}
 
+                    };
+                }
+
+                else
+                {
+                    return;
+                }
+            }
+                    
             string xmlInput = _Tools.GenerateInput(inputs);
             XmlDocument result = _Tools.CallPython(xmlInput);
             Dictionary<string, string> outputs = _Tools.ParseOutput(result);
@@ -1323,55 +1183,55 @@ namespace CSEMMPGUI_v1
             }
         }
 
-        private void checkBinTarget_CheckedChanged(object? sender, EventArgs e)
+        private void checkADCPSeriesTarget_CheckedChanged(object? sender, EventArgs e)
         {
-            if (checkBinTarget.Checked)
+            if (checkADCPSeriesTarget.Checked)
             {
-                numBinTarget.Enabled = false;
-                txtBinTarget.Enabled = false;
+                numADCPSeriesTarget.Enabled = false;
+                txtADCPSeriesTarget.Enabled = false;
             }
             else
             {
-                numBinTarget.Enabled = true;
-                txtBinTarget.Enabled = true;
+                numADCPSeriesTarget.Enabled = true;
+                txtADCPSeriesTarget.Enabled = true;
             }
         }
 
-        private void comboBinConfiguration_SelectedIndexChanged(object? sender, EventArgs e)
+        private void checkAnimationUseStart_CheckedChanged(object? sender, EventArgs e)
         {
-            if (comboBinConfiguration.SelectedItem.ToString() == "Bin")
+            if (checkAnimationUseStart.Checked)
             {
-                numBinTarget.Visible = true;
-                txtBinTarget.Visible = false;
+                numAnimationStartIndex.Enabled = false;
             }
             else
             {
-                numBinTarget.Visible = false;
-                txtBinTarget.Visible = true;
+                numAnimationStartIndex.Enabled = true;
             }
         }
 
-        private void checkAnimationStartIndex_CheckedChanged(object? sender, EventArgs e)
+        private void checkAnimationUseEnd_CheckedChanged(object? sender, EventArgs e)
         {
-            if (checkAnimationStartIndex.Checked)
+            if (checkAnimationUseEnd.Checked)
             {
-                numericAnimationStartIndex.Enabled = false;
+                numAnimationEndIndex.Enabled = false;
             }
             else
             {
-                numericAnimationStartIndex.Enabled = true;
+                numAnimationEndIndex.Enabled = true;
             }
         }
 
-        private void checkAnimationEndIndex_CheckedChanged(object? sender, EventArgs e)
+        private void btnAnimationBBox_Click(object? sender, EventArgs e)
         {
-            if (checkAnimationEndIndex.Checked)
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                numericAnimationEndIndex.Enabled = false;
-            }
-            else
-            {
-                numericAnimationEndIndex.Enabled = true;
+                ofd.Title = "Select Animation Bounding Box Shapefile";
+                ofd.Filter = "Polygon Shapefile (*.shp)|*.shp";
+                ofd.DefaultExt = "shp";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    txtAnimationBBox.Text = ofd.FileName;
+                }
             }
         }
 
@@ -1389,14 +1249,30 @@ namespace CSEMMPGUI_v1
             }
         }
 
+        private void btnAnimatiobBBox_Click(object? sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Select Animation Bounding Box Shapefile";
+                ofd.Filter = "Polygon Shapefile (*.shp)|*.shp";
+                ofd.DefaultExt = "shp";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    txtAnimationBBox.Text = ofd.FileName;
+                }
+            }
+        }
+
         private void btnChangeColor_Click(object? sender, EventArgs e)
         {
             Button btn = sender as Button;
             Panel pnl = null;
-            if (btn.Name == "btnTransectColor")
-                pnl = pnlTransectCOlor;
-            else if (btn.Name == "btnQuiverColor")
-                pnl = pnlQuiverColor;
+            if (btn.Name == "btnModelQuiverColor")
+                pnl = pnlModelQuiverColor;
+            else if (btn.Name == "btnADCPQuiverColor")
+                pnl = pnlADCPQuiverColor;
+            else if (btn.Name == "btnADCPTransectColor")
+                pnl = pnlADCPTransectColor;
             if (pnl == null)
                 return;
             using (ColorDialog cd = new ColorDialog())

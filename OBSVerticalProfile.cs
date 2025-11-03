@@ -79,6 +79,10 @@ namespace CSEMMPGUI_v1
                     comboNTU.Items.Add(columnName);
                 }
             }
+            XmlNode headerNode = fileInfoNode?.SelectSingleNode("Header");
+            _headerLine = int.TryParse(headerNode?.InnerText, out int header) ? header : 0;
+            XmlNode sepNode = fileInfoNode?.SelectSingleNode("Sep");
+            _delimiter = sepNode?.InnerText ?? ",";
             void SelectComboItem(ComboBox combo, string value)
             {
                 int index = combo.Items.IndexOf(value.Trim());

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "+gqg5jSir4s=",
+  "dgSpecHash": "iodUlR0J0O8=",
   "success": true,
   "projectFilePath": "C:\\Users\\abja\\OneDrive - DHI\\61803553-05 EMMP Support Group\\github\\CSEMMPGUI\\CSEMMPGUI_v1.csproj",
   "expectedPackageFiles": [
@@ -19,7 +19,7 @@
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.platforms\\2.1.2\\microsoft.netcore.platforms.2.1.2.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",
-    "C:\\Users\\abja\\.nuget\\packages\\microsoft.web.webview2\\1.0.3485.44\\microsoft.web.webview2.1.0.3485.44.nupkg.sha512",
+    "C:\\Users\\abja\\.nuget\\packages\\microsoft.web.webview2\\1.0.3595.46\\microsoft.web.webview2.1.0.3595.46.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\microsoft.win32.primitives\\4.3.0\\microsoft.win32.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\netstandard.library\\1.6.1\\netstandard.library.1.6.1.nupkg.sha512",
     "C:\\Users\\abja\\.nuget\\packages\\nettopologysuite\\2.0.0\\nettopologysuite.2.0.0.nupkg.sha512",

@@ -10,23 +10,12 @@ from typing import List
 from sklearn.linear_model import LinearRegression
 import matplotlib.dates as mdates
 
-from .adcp import ADCP as ADCPDataset
-from .pd0 import Pd0Decoder
-from .utils import Utils, Constants
-from .obs import OBS as OBSDataset
-from .watersample import WaterSample as WaterSampleDataset
-from .plotting import PlottingShell
-from .mapview2D import TransectViewer2D, create_temp_html
-from .mapview3D import TransectViewer3D
-from .utils_xml import XMLUtils
-from .utils_crs import CRSHelper
-from .utils_dfsu2d import DfsuUtils2D
-from .comparison_hd import plot_hd_vs_adcp_transect
-from .comparison_mt import mt_model_transect_comparison
-from .comparison_hd_mt import plot_mixed_mt_hd_transect
-from .utils_shapefile import ShapefileLayer
-from .utils_dfs2_conversion import Dfs2_to_Dfsu
-from .sscmodel import NTU2SSC, BKS2SSC, BKS2NTU, PlotNTU2SSC, PlotBKS2SSC, PlotBKS2SSCTrans, PlotBKS2NTU, PlotBKS2NTUTrans
+from pyEMMP import ADCP as ADCPDataset
+from pyEMMP import OBS as OBSDataset
+from pyEMMP import WaterSample as WaterSampleDataset
+from pyEMMP import Pd0Decoder, Utils, Constants, PlottingShell, TransectViewer2D, TransectViewer3D, XMLUtils, CRSHelper, DfsuUtils2D, ShapefileLayer, Dfs2_to_Dfsu
+from pyEMMP import create_temp_html, plot_hd_vs_adcp_transect, mt_model_transect_comparison, plot_mixed_mt_hd_transect, make_ssc_currents_animation
+from pyEMMP import NTU2SSC, BKS2SSC, BKS2NTU, PlotNTU2SSC, PlotBKS2SSC, PlotBKS2SSCTrans, PlotBKS2NTU, PlotBKS2NTUTrans
 
 def GenerateOutputXML(xml):
     result = ET.Element("Result")
@@ -446,35 +435,54 @@ def CallMapViewer3D(project: str):
     except:
         return {"Error": traceback.format_exc()}
 
-def HDComparison(project: ET.Element, model_id: str, adcp_id: str, model_quiver_mode: str, field_pixel_size: float, field_quiver_stride_n: int, cmap: str):
+def HDComparison(project, model_id, adcp_id,
+                 adcp_series_mode, adcp_series_target, adcp_transect_color, adcp_quiver_scale, adcp_quiver_width, adcp_quiver_headwidth, adcp_quiver_headlength, adcp_quiver_color,
+                 model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color, model_quiver_mode, model_levels, model_vmin, model_vmax, model_cmap_name, model_bottom_thresh,
+                 cbar_tick_decimals, axis_tick_decimals, pad_m, distance_bin_m, bar_width_scale):
     try:
         proj_xml = XMLUtils(project)
         settings, map_settings = proj_xml.parse_settings()
         crs_helper = CRSHelper(project_crs=settings["epsg"])
         adcp_cfg = proj_xml.get_cfg_by_instrument(instrument_type="VesselMountedADCP", instrument_id=adcp_id, add_ssc=True)
         adcp = ADCPDataset(adcp_cfg, name = adcp_cfg['name'])
-        xq = np.asarray(adcp.position.x).ravel()
-        yq = np.asarray(adcp.position.y).ravel()
-        t  = adcp.time.ensemble_datetimes
         hd_model_element = proj_xml.find_element(elem_id=model_id, _type="HDModel")
         hd_model_path = hd_model_element.find("Path").text
         u_item_number = int(hd_model_element.find("UItemNumber").text)
         v_item_number = int(hd_model_element.find("VItemNumber").text)
         hd_model = DfsuUtils2D(hd_model_path, crs_helper=crs_helper)
-
+        
         fig, axes = plot_hd_vs_adcp_transect(
             hd_model=hd_model,
             adcp=adcp,
-            xq=xq, yq=yq, t=t,
             crs_helper=crs_helper,
-            # common tweaks
             u_item_number=u_item_number,
             v_item_number=v_item_number,
+            adcp_series_mode=adcp_series_mode,
+            adcp_series_target=adcp_series_target,
+            adcp_transect_color=adcp_transect_color,
+            adcp_quiver_scale=adcp_quiver_scale,
+            adcp_quiver_width=adcp_quiver_width,
+            adcp_quiver_headwidth=adcp_quiver_headwidth,
+            adcp_quiver_headlength=adcp_quiver_headlength,
+            adcp_quiver_color=adcp_quiver_color,
+            model_field_pixel_size_m=model_field_pixel_size_m,
+            model_field_quiver_stride_n=model_field_quiver_stride_n,
+            model_quiver_scale=model_quiver_scale,
+            model_quiver_width=model_quiver_width,
+            model_quiver_headwidth=model_quiver_headwidth,
+            model_quiver_headlength=model_quiver_headlength,
+            model_quiver_color=model_quiver_color,
             model_quiver_mode=model_quiver_mode,
-            field_pixel_size_m=field_pixel_size,
-            field_quiver_stride_n=field_quiver_stride_n,
-            levels=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5],      #TODO: make user defined
-            cmap_name=cmap,
+            model_levels=model_levels,
+            model_vmin=model_vmin,
+            model_vmax=model_vmax,
+            model_cmap_name=model_cmap_name,
+            model_bottom_thresh=model_bottom_thresh,
+            cbar_tick_decimals=cbar_tick_decimals,
+            axis_tick_decimals=axis_tick_decimals,
+            pad_m=pad_m,
+            distance_bin_m=distance_bin_m,
+            bar_width_scale=bar_width_scale,
             shapefile_layers=map_settings["Shapefiles"],
         )
 
@@ -483,7 +491,10 @@ def HDComparison(project: ET.Element, model_id: str, adcp_id: str, model_quiver_
     except Exception as e:
         return {"Error": traceback.format_exc() + "\n" + str(e)}
 
-def MTComparison(project, model_id, adcp_id, scale, vmin, vmax, cmap, colorbar_tick_decimals, axis_tick_decimals, pad_m, pixel_size_m, cmap_bottom_threshold, transect_color, bin_configuration, bin_target):
+def MTComparison(project, model_id, adcp_id,
+                 adcp_series_mode, adcp_series_target, adcp_transect_color,
+                 ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh, ssc_pixel_size_m,
+                 cbar_tick_decimals, axis_tick_decimals, pad_m, distance_bin_m, bar_width_scale):
     try:
         proj_xml = XMLUtils(project)
         settings, map_settings = proj_xml.parse_settings()
@@ -494,27 +505,28 @@ def MTComparison(project, model_id, adcp_id, scale, vmin, vmax, cmap, colorbar_t
         mt_model_path = mt_model_element.find("Path").text
         ssc_item_number = int(mt_model_element.find("ItemNumber").text)
         mt_model = DfsuUtils2D(mt_model_path, crs_helper=crs_helper)
-
+        if ssc_scale.lower() == "logarithmic":
+            ssc_scale = "log"
         fig, axes = mt_model_transect_comparison(
             mt_model=mt_model,
             adcp=adcp,
             crs_helper=crs_helper,
-            mt_model_item_number=ssc_item_number,
-            scale=scale,
-            vmin=vmin,
-            vmax=vmax,
-            levels=[.01,0.1, 1, 10,50],
-            cmap_name=cmap,
-            tick_decimals=colorbar_tick_decimals,
-            tick_decimal_precision=axis_tick_decimals,
+            ssc_item_number=ssc_item_number,
+            adcp_series_mode=adcp_series_mode,
+            adcp_series_target=adcp_series_target,
+            adcp_transect_color=adcp_transect_color,
+            ssc_scale=ssc_scale,
+            ssc_levels=ssc_levels,
+            ssc_vmin=ssc_vmin,
+            ssc_vmax=ssc_vmax,
+            ssc_cmap_name=ssc_cmap_name,
+            ssc_bottom_thresh=ssc_bottom_thresh,
+            ssc_pixel_size_m=ssc_pixel_size_m,
+            cbar_tick_decimals=cbar_tick_decimals,
+            axis_tick_decimals=axis_tick_decimals,
             pad_m=pad_m,
-            pixel_size_m=pixel_size_m,
-            cmap_bottom_thresh=cmap_bottom_threshold,
-            adcp_transect_color=transect_color,
-            distance_bin_m=50,
-            bar_width_scale=0.15,
-            adcp_series_mode=bin_configuration.lower(),
-            adcp_series_target=bin_target,
+            distance_bin_m=distance_bin_m,
+            bar_width_scale=bar_width_scale,
             shapefile_layers=map_settings["Shapefiles"],
         )
 
@@ -523,7 +535,11 @@ def MTComparison(project, model_id, adcp_id, scale, vmin, vmax, cmap, colorbar_t
     except Exception as e:
         return {"Error": traceback.format_exc() + "\n" + str(e)}
 
-def HDMTComparison(project, hd_model_id, mt_model_id, adcp_id, scale, vmin, vmax, cmap, cmap_bottom_threshold, pixel_size_m, pad_m, colorbar_tick_decimals, axis_tick_decimals, model_quiver_mode, quiver_every_n, quiver_scale, quiver_color_model, transect_line_width, field_pixel_size, field_quiver_stride_n, bin_configuration, bin_target):
+def HDMTComparison(project, hd_model_id, mt_model_id, adcp_id,
+                                 adcp_transect_lw, adcp_series_mode, adcp_series_target, adcp_quiver_every_n, adcp_quiver_width, adcp_quiver_headwidth, adcp_quiver_headlength, adcp_quiver_scale,
+                                 ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh,
+                                 model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color, model_quiver_mode,
+                                 cbar_tick_decimals, axis_tick_decimals, pad_m):
     try:
         proj_xml = XMLUtils(project)
         settings, map_settings = proj_xml.parse_settings()
@@ -539,48 +555,105 @@ def HDMTComparison(project, hd_model_id, mt_model_id, adcp_id, scale, vmin, vmax
         u_item_number = int(hd_model_element.find("UItemNumber").text)
         v_item_number = int(hd_model_element.find("VItemNumber").text)
         hd_model = DfsuUtils2D(hd_model_path, crs_helper=crs_helper)
+        if ssc_scale.lower() == "logarithmic":
+            ssc_scale = "log"
         fig, (ax_map, ax_meta) = plot_mixed_mt_hd_transect(
-            mt_model=mt_model,
             hd_model=hd_model,
+            mt_model=mt_model,
             adcp=adcp,
             crs_helper=crs_helper,
-            mt_item_number=ssc_item_number,
             u_item_number=u_item_number,
             v_item_number=v_item_number,
-            cmap_name=cmap,
-            vmin=vmin,
-            vmax=vmax,
-            cmap_bottom_thresh=cmap_bottom_threshold,
-            levels=(0.01, 0.1, 1, 10, 100),
-            scale=scale,
-            pixel_size_m=pixel_size_m,
-            pad_m=pad_m,
+            ssc_item_number=ssc_item_number,
+            adcp_transect_lw=adcp_transect_lw,
+            adcp_series_mode=adcp_series_mode,
+            adcp_series_target=adcp_series_target,
+            adcp_quiver_every_n=adcp_quiver_every_n,
+            adcp_quiver_width=adcp_quiver_width,
+            adcp_quiver_headwidth=adcp_quiver_headwidth,
+            adcp_quiver_headlength=adcp_quiver_headlength,
+            adcp_quiver_scale=adcp_quiver_scale,
+            ssc_scale=ssc_scale,
+            ssc_levels=ssc_levels,
+            ssc_vmin=ssc_vmin,
+            ssc_vmax=ssc_vmax,
+            ssc_cmap_name=ssc_cmap_name,
+            ssc_bottom_thresh=ssc_bottom_thresh,
+            model_field_pixel_size_m=model_field_pixel_size_m,
+            model_field_quiver_stride_n=model_field_quiver_stride_n,
+            model_quiver_scale=model_quiver_scale,
+            model_quiver_width=model_quiver_width,
+            model_quiver_headwidth=model_quiver_headwidth,
+            model_quiver_headlength=model_quiver_headlength,
+            model_quiver_color=model_quiver_color,
             model_quiver_mode=model_quiver_mode,
-            quiver_every_n=quiver_every_n,
-            quiver_scale=quiver_scale,
-            quiver_color_model=quiver_color_model,
-            adcp_transect_lw=transect_line_width,
-            field_pixel_size_m=field_pixel_size,
-            field_quiver_stride_n=field_quiver_stride_n,
-            tick_decimals=colorbar_tick_decimals,
-            tick_decimal_precision=axis_tick_decimals,
-            adcp_series_mode=bin_configuration.lower(),
-            adcp_series_target=bin_target,
+            cbar_tick_decimals=cbar_tick_decimals,
+            axis_tick_decimals=axis_tick_decimals,
+            pad_m=pad_m,
             shapefile_layers=map_settings["Shapefiles"],
-            FIG_W=6.5,
-            FIG_H=9.0,
-            LEFT=0.06,
-            RIGHT=0.90,
-            TOP=0.98, 
-            BOTTOM=0.00,
-            HSPACE=0.22,
-            CB_WIDTH=0.012,
-            CB_GAP=0.008,
-            META_TOP_Y=0.95,
-            META_SECTION_GAP=0.20,
-            META_LINE_GAP=0.16,
-            META_LEFT_OVERSHOOT=0.0,
-            META_COL_START=0.02, META_COL_END=0.70, META_COLS=3,
+        )
+
+        plt.show()
+        return {"Result": "Success"}
+    except Exception as e:
+        return {"Error": traceback.format_exc() + "\n" + str(e)}
+    
+
+def HDMTAnimation(project, hd_model_id, mt_model_id,
+                                ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh,
+                                model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color,
+                                animation_start_index, animation_end_index, animation_time_step, animation_interval, animation_output_file,
+                                cbar_tick_decimals, axis_tick_decimals, bbox_path):
+    try:
+        proj_xml = XMLUtils(project)
+        settings, map_settings = proj_xml.parse_settings()
+        crs_helper = CRSHelper(project_crs=settings["epsg"])
+        mt_model_element = proj_xml.find_element(elem_id=mt_model_id, _type="MTModel")
+        mt_model_path = mt_model_element.find("Path").text
+        ssc_item_number = int(mt_model_element.find("ItemNumber").text)
+        mt_model = DfsuUtils2D(mt_model_path, crs_helper=crs_helper)
+        hd_model_element = proj_xml.find_element(elem_id=hd_model_id, _type="HDModel")
+        hd_model_path = hd_model_element.find("Path").text
+        u_item_number = int(hd_model_element.find("UItemNumber").text)
+        v_item_number = int(hd_model_element.find("VItemNumber").text)
+        hd_model = DfsuUtils2D(hd_model_path, crs_helper=crs_helper)
+        bbox_layer = ShapefileLayer(path=bbox_path, crs_helper=crs_helper, kind="polygon")
+        if ssc_scale.lower() == "logarithmic":
+            ssc_scale = "log"
+        save_output = True
+        if animation_output_file is None:
+            save_output = False
+        fig, (ax_map, ax_meta) = make_ssc_currents_animation(
+            hd_model=hd_model,
+            mt_model=mt_model,
+            crs_helper=crs_helper,
+            u_item_number=u_item_number,
+            v_item_number=v_item_number,
+            ssc_item_number=ssc_item_number,
+            ssc_scale=ssc_scale,
+            ssc_levels=ssc_levels,
+            ssc_vmin=ssc_vmin,
+            ssc_vmax=ssc_vmax,
+            ssc_cmap_name=ssc_cmap_name,
+            ssc_bottom_thresh=ssc_bottom_thresh,
+            model_field_pixel_size_m=model_field_pixel_size_m,
+            model_field_quiver_stride_n=model_field_quiver_stride_n,
+            model_quiver_scale=model_quiver_scale,
+            model_quiver_width=model_quiver_width,
+            model_quiver_headwidth=model_quiver_headwidth,
+            model_quiver_headlength=model_quiver_headlength,
+            model_quiver_color=model_quiver_color,
+            animation_time_start_idx=animation_start_index,
+            animation_time_end_idx=animation_end_index,
+            animation_time_step=animation_time_step,
+            animation_interval_ms=animation_interval,
+            animation_out_path=animation_output_file,
+            cbar_tick_decimals=cbar_tick_decimals,
+            axis_tick_decimals=axis_tick_decimals,
+            shapefile_layers=map_settings["Shapefiles"],
+            bbox_layer=bbox_layer,
+            save_output=save_output
+
         )
 
         plt.show()

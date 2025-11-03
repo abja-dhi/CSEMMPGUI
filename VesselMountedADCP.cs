@@ -532,7 +532,6 @@ namespace CSEMMPGUI_v1
                 {
                     Filter = "PD0 files (*.000)|*.000",
                     Title = "Select PD0 File",
-                    InitialDirectory = _project.GetSetting(settingName: "Directory")
                 };
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
@@ -558,7 +557,6 @@ namespace CSEMMPGUI_v1
                     string[] columns = Array.Empty<string>();
                     fbd.Description = "Select folder containing .000 and .csv files";
                     fbd.SelectedPath = _project.GetSetting("Directory");
-                    fbd.InitialDirectory = _project.GetSetting("Directory");
 
                     if (fbd.ShowDialog() == DialogResult.OK)
                     {
@@ -610,6 +608,41 @@ namespace CSEMMPGUI_v1
                             txtFirstEnsemble.Text = "1";
                             txtLastEnsemble.Text = "9999";
                             btnPrintConfig.Enabled = false;
+
+                            XmlNodeList bks2sscModels = _project.GetObjects(type: "BKS2SSC");
+                            XmlNodeList bks2ntuModels = _project.GetObjects(type: "BKS2NTU");
+                            var sscModels = bks2sscModels.Cast<XmlNode>()
+                                      .Concat(bks2ntuModels.Cast<XmlNode>())
+                                      .ToList();
+                            if (sscModels.Count > 0)
+                            {
+                                comboSSCModel.Items.Clear();
+                                foreach (XmlNode modelNode in sscModels)
+                                {
+                                    XmlElement model = modelNode as XmlElement;
+                                    comboSSCModel.Items.Add(new
+                                    {
+                                        Display = model.GetAttribute("name"),
+                                        Tag = model.GetAttribute("id")
+                                    });
+                                }
+                                comboSSCModel.DisplayMember = "Display";
+                                comboSSCModel.Enabled = true; // Enable if models are available
+                                lblSSCModel.Enabled = true; // Enable label if models are available
+                                comboSSCModel.SelectedIndex = 0; // Select the first model by default
+                            }
+                            else
+                            {
+                                MessageBox.Show(
+                                    "No SSC model found. Please add one and update the setting later",
+                                    Text = "Warning",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                                comboSSCModel.Items.Clear();
+                                comboSSCModel.Enabled = false; // Disable if no models are available
+                                lblSSCModel.Enabled = false; // Disable label if no models are available
+                            }
+
                             isSaved = false; // Mark as unsaved after loading a new position file
                         }
                         else

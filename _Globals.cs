@@ -12,7 +12,7 @@ namespace CSEMMPGUI_v1
     {
         public static string basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         // Basic configuration settings
-        public static string PythonDllPath = @"C:\Program Files\Python311\python311.dll";
+        public static string PythonDllPath = Path.Combine(basePath, "python", "python313.dll");
         public static string PythonModulePath = basePath;
         public static string BackendModuleName = "backend.backend";
         public static string CMapsPath = Path.Combine(basePath, "colormaps");

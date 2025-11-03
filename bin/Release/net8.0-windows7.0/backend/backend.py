@@ -239,75 +239,170 @@ def Call(XML):
         project = ET.fromstring(root.find("Project").text)
         model_id = root.find("ModelID").text
         adcp_id = root.find("ADCPID").text
-        model_quiver_mode = root.find("ModelQuiverMode").text.lower()
-        field_pixel_size = float(root.find("FieldPixelSize").text)
-        field_quiver_stride_n = int(root.find("FieldQuiverStrideN").text)
-        cmap = XMLUtils._get_value(root, "Colormap", "viridis").lower()
+        adcp_series_mode = XMLUtils._get_value(root, "ADCPSeriesMode", "bin").lower()
+        use_mean = XMLUtils._get_value(root, "UseMean", "no").lower() == 'yes'
+        if use_mean:
+            adcp_series_target = "mean"
+        else:
+            if adcp_series_mode == "bin":
+                adcp_series_target = int(XMLUtils._get_value(root, "ADCPSeriesTarget", "1"))
+            else:
+                adcp_series_target = float(XMLUtils._get_value(root, "ADCPSeriesTarget", "0"))
+        adcp_transect_color = XMLUtils._get_value(root, "ADCPTransectColor", "black")
+        adcp_quiver_scale = float(XMLUtils._get_value(root, "ADCPQuiverScale", "1.0"))
+        adcp_quiver_width = float(XMLUtils._get_value(root, "ADCPQuiverWidth", "0.005"))
+        adcp_quiver_headwidth = float(XMLUtils._get_value(root, "ADCPQuiverHeadWidth", "3.0"))
+        adcp_quiver_headlength = float(XMLUtils._get_value(root, "ADCPQuiverHeadLength", "2.5"))
+        adcp_quiver_color = XMLUtils._get_value(root, "ADCPQuiverColor", "black")
+        model_field_pixel_size_m = float(XMLUtils._get_value(root, "ModelFieldPixelSizeM", "100.0"))
+        model_field_quiver_stride_n = int(XMLUtils._get_value(root, "ModelFieldQuiverStrideN", "3"))
+        model_quiver_scale = float(XMLUtils._get_value(root, "ModelQuiverScale", "1.0"))
+        model_quiver_width = float(XMLUtils._get_value(root, "ModelQuiverWidth", "0.005"))
+        model_quiver_headwidth = float(XMLUtils._get_value(root, "ModelQuiverHeadWidth", "3.0"))
+        model_quiver_headlength = float(XMLUtils._get_value(root, "ModelQuiverHeadLength", "2.5"))
+        model_quiver_color = XMLUtils._get_value(root, "ModelQuiverColor", "black")
+        model_quiver_mode = XMLUtils._get_value(root, "ModelQuiverMode", "field").lower()
+        model_levels = [float(l) for l in XMLUtils._get_value(root, "ModelLevels", "0.0,0.1,0.2,0.3,0.4,0.5").split(",")]
+        model_vmin = XMLUtils._get_value(root, "Modelvmin", None)
+        model_vmin = float(model_vmin) if model_vmin is not None else None
+        model_vmax = XMLUtils._get_value(root, "Modelvmax", None)
+        model_vmax = float(model_vmax) if model_vmax is not None else None
+        model_cmap_name = XMLUtils._get_value(root, "ModelCmapName", "viridis").lower()
+        model_bottom_thresh = float(XMLUtils._get_value(root, "ModelBottomThreshold", "0.001"))
+        cbar_tick_decimals = int(XMLUtils._get_value(root, "LayoutCbarTickDecimals", "2"))
+        axis_tick_decimals = int(XMLUtils._get_value(root, "LayoutAxisTickDecimals", "3"))
+        pad_m = float(XMLUtils._get_value(root, "LayoutPadM", "2000"))
+        distance_bin_m = float(XMLUtils._get_value(root, "LayoutDistanceBinM", "50"))
+        bar_width_scale = float(XMLUtils._get_value(root, "LayoutBarWidthScale", "0.15"))
+        results = HDComparison(project, model_id, adcp_id,
+                               adcp_series_mode, adcp_series_target, adcp_transect_color, adcp_quiver_scale, adcp_quiver_width, adcp_quiver_headwidth, adcp_quiver_headlength, adcp_quiver_color,
+                               model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color, model_quiver_mode, model_levels, model_vmin, model_vmax, model_cmap_name, model_bottom_thresh,
+                               cbar_tick_decimals, axis_tick_decimals, pad_m, distance_bin_m, bar_width_scale)
         
-        results = HDComparison(project, model_id, adcp_id, model_quiver_mode, field_pixel_size, field_quiver_stride_n, cmap)
-
     elif task_type == "MTComparison":
         project = ET.fromstring(root.find("Project").text)
         model_id = root.find("ModelID").text
         adcp_id = root.find("ADCPID").text
-        scale = XMLUtils._get_value(root, "Scale", "log").lower()
-        vmin = XMLUtils._get_value(root, "vmin", None)
-        vmin = float(vmin) if vmin is not None else None
-        vmax = XMLUtils._get_value(root, "vmax", None)
-        vmax = float(vmax) if vmax is not None else None
-        cmap = XMLUtils._get_value(root, "Colormap", "viridis").lower()
-        colorbar_tick_decimals = int(XMLUtils._get_value(root, "ColorBarTickDecimals", 2))
-        axis_tick_decimals = int(XMLUtils._get_value(root, "AxisTickDecimals", 2))
-        pad_m = float(XMLUtils._get_value(root, "PadM", 0.0))
-        pixel_size_m = float(XMLUtils._get_value(root, "PixelSizeM", 50.0))
-        cmap_bottom_threshold = float(XMLUtils._get_value(root, "CmapBottomThreshold", 0.0))
-        transect_color = XMLUtils._get_value(root, "TransectColor", "black")
-        bin_configuration = XMLUtils._get_value(root, "BinConfiguration", "bin").lower()
-        use_mean = root.find("UseMean").text.lower() == 'yes'
+        adcp_series_mode = XMLUtils._get_value(root, "ADCPSeriesMode", "bin").lower()
+        use_mean = XMLUtils._get_value(root, "UseMean", "no").lower() == 'yes'
         if use_mean:
-            bin_target = "mean"
+            adcp_series_target = "mean"
         else:
-            if bin_configuration == "bin":
-                bin_target = int(XMLUtils._get_value(root, "BinTarget", "1"))
+            if adcp_series_mode == "bin":
+                adcp_series_target = int(XMLUtils._get_value(root, "ADCPSeriesTarget", "1"))
             else:
-                bin_target = float(XMLUtils._get_value(root, "BinTarget", "0"))
-        results = MTComparison(project, model_id, adcp_id, scale, vmin, vmax, cmap, colorbar_tick_decimals, axis_tick_decimals, pad_m, pixel_size_m, cmap_bottom_threshold, transect_color, bin_configuration, bin_target)
+                adcp_series_target = float(XMLUtils._get_value(root, "ADCPSeriesTarget", "0"))
+        adcp_transect_color = XMLUtils._get_value(root, "ADCPTransectColor", "black")
+        ssc_scale = XMLUtils._get_value(root, "SSCScale", "log").lower()
+        ssc_levels = [float(l) for l in XMLUtils._get_value(root, "SSCLevels", "0.001,0.01,0.1,1.0,10.0").split(",")]
+        ssc_vmin = XMLUtils._get_value(root, "SSCvmin", None)
+        ssc_vmin = float(ssc_vmin) if ssc_vmin is not None else None
+        ssc_vmax = XMLUtils._get_value(root, "SSCvmax", None)
+        ssc_vmax = float(ssc_vmax) if ssc_vmax is not None else None
+        ssc_cmap_name = XMLUtils._get_value(root, "SSCCmapName", "viridis").lower()
+        ssc_bottom_thresh = float(XMLUtils._get_value(root, "SSCBottomThreshold", "0.001"))
+        ssc_pixel_size_m = float(XMLUtils._get_value(root, "SSCPixelSizeM", "10.0"))
+        cbar_tick_decimals = int(XMLUtils._get_value(root, "LayoutCbarTickDecimals", "2"))
+        axis_tick_decimals = int(XMLUtils._get_value(root, "LayoutAxisTickDecimals", "3"))
+        pad_m = float(XMLUtils._get_value(root, "LayoutPadM", "2000"))
+        distance_bin_m = float(XMLUtils._get_value(root, "LayoutDistanceBinM", "50"))
+        bar_width_scale = float(XMLUtils._get_value(root, "LayoutBarWidthScale", "0.15"))
+        results = MTComparison(project, model_id, adcp_id,
+                               adcp_series_mode, adcp_series_target, adcp_transect_color,
+                               ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh, ssc_pixel_size_m,
+                               cbar_tick_decimals, axis_tick_decimals, pad_m, distance_bin_m, bar_width_scale)
 
     elif task_type == "HDMTComparison":
         project = ET.fromstring(root.find("Project").text)
         hd_model_id = root.find("HDModelID").text
         mt_model_id = root.find("MTModelID").text
         adcp_id = root.find("ADCPID").text
-        scale = XMLUtils._get_value(root, "Scale", "log").lower()
-        vmin = XMLUtils._get_value(root, "vmin", None)
-        vmin = float(vmin) if vmin is not None else None
-        vmax = XMLUtils._get_value(root, "vmax", None)
-        vmax = float(vmax) if vmax is not None else None
-        cmap = XMLUtils._get_value(root, "Colormap", "viridis").lower()
-        cmap_bottom_threshold = float(XMLUtils._get_value(root, "CmapBottomThreshold", 0.0))
-        pixel_size_m = float(XMLUtils._get_value(root, "PixelSizeM", 50.0))
-        pad_m = float(XMLUtils._get_value(root, "PadM", 0.0))
-        colorbar_tick_decimals = int(XMLUtils._get_value(root, "ColorBarTickDecimals", 2))
-        axis_tick_decimals = int(XMLUtils._get_value(root, "AxisTickDecimals", 2))
-        model_quiver_mode = XMLUtils._get_value(root, "ModelQuiverMode", "field").lower()
-        quiver_every_n = int(XMLUtils._get_value(root, "QuiverEveryN", 20))
-        quiver_scale = float(XMLUtils._get_value(root, "QuiverScale", 3.0))
-        quiver_color_model = XMLUtils._get_value(root, "QuiverColorModel", "black").lower()
-        transect_line_width = float(XMLUtils._get_value(root, "TransectLineWidth", 1.8))
-        field_pixel_size = float(XMLUtils._get_value(root, "FieldPixelSize", 100.0))
-        field_quiver_stride_n = int(XMLUtils._get_value(root, "FieldQuiverStrideN", 3))
-        bin_configuration = XMLUtils._get_value(root, "BinConfiguration", "bin").lower()
-        use_mean = root.find("UseMean").text.lower() == 'yes'
+        adcp_transect_lw = float(XMLUtils._get_value(root, "ADCPTransectLineWidth", "1.8"))
+        adcp_series_mode = XMLUtils._get_value(root, "ADCPSeriesMode", "bin").lower()
+        use_mean = XMLUtils._get_value(root, "UseMean", "no").lower() == 'yes'
         if use_mean:
-            bin_target = "mean"
+            adcp_series_target = "mean"
         else:
-            if bin_configuration == "bin":
-                bin_target = int(XMLUtils._get_value(root, "BinTarget", "1"))
+            if adcp_series_mode == "bin":
+                adcp_series_target = int(XMLUtils._get_value(root, "ADCPSeriesTarget", "1"))
             else:
-                bin_target = float(XMLUtils._get_value(root, "BinTarget", "0"))
-        results = HDMTComparison(project, hd_model_id, mt_model_id, adcp_id, scale, vmin, vmax, cmap, cmap_bottom_threshold, pixel_size_m, pad_m, colorbar_tick_decimals, axis_tick_decimals, model_quiver_mode, quiver_every_n, quiver_scale, quiver_color_model, transect_line_width, field_pixel_size, field_quiver_stride_n, bin_configuration, bin_target)
+                adcp_series_target = float(XMLUtils._get_value(root, "ADCPSeriesTarget", "0"))
+        adcp_quiver_every_n = int(XMLUtils._get_value(root, "ADCPQuiverEveryN", "20"))
+        adcp_quiver_width = float(XMLUtils._get_value(root, "ADCPQuiverWidth", "0.002"))
+        adcp_quiver_headwidth = float(XMLUtils._get_value(root, "ADCPQuiverHeadWidth", "2.0"))
+        adcp_quiver_headlength = float(XMLUtils._get_value(root, "ADCPQuiverHeadLength", "2.5"))
+        adcp_quiver_scale = float(XMLUtils._get_value(root, "ADCPQuiverScale", "3.0"))
+        ssc_scale = XMLUtils._get_value(root, "SSCScale", "log").lower()
+        ssc_levels = [float(l) for l in XMLUtils._get_value(root, "SSCLevels", "0.001,0.01,0.1,1.0,10.0").split(",")]
+        ssc_vmin = XMLUtils._get_value(root, "SSCvmin", None)
+        ssc_vmin = float(ssc_vmin) if ssc_vmin is not None else None
+        ssc_vmax = XMLUtils._get_value(root, "SSCvmax", None)
+        ssc_vmax = float(ssc_vmax) if ssc_vmax is not None else None
+        ssc_cmap_name = XMLUtils._get_value(root, "SSCCmapName", "viridis").lower()
+        ssc_bottom_thresh = float(XMLUtils._get_value(root, "SSCBottomThreshold", "0.001"))
+        model_field_pixel_size_m = float(XMLUtils._get_value(root, "ModelFieldPixelSizeM", "100.0"))
+        model_field_quiver_stride_n = int(XMLUtils._get_value(root, "ModelFieldQuiverStrideN", "3"))
+        model_quiver_scale = float(XMLUtils._get_value(root, "ModelQuiverScale", "1.0"))
+        model_quiver_width = float(XMLUtils._get_value(root, "ModelQuiverWidth", "0.005"))
+        model_quiver_headwidth = float(XMLUtils._get_value(root, "ModelQuiverHeadWidth", "3.0"))
+        model_quiver_headlength = float(XMLUtils._get_value(root, "ModelQuiverHeadLength", "2.5"))
+        model_quiver_color = XMLUtils._get_value(root, "ModelQuiverColor", "black")
+        model_quiver_mode = XMLUtils._get_value(root, "ModelQuiverMode", "field").lower()
+        cbar_tick_decimals = int(XMLUtils._get_value(root, "LayoutCbarTickDecimals", "2"))
+        axis_tick_decimals = int(XMLUtils._get_value(root, "LayoutAxisTickDecimals", "3"))
+        pad_m = float(XMLUtils._get_value(root, "LayoutPadM", "2000"))
+        results = HDMTComparison(project, hd_model_id, mt_model_id, adcp_id,
+                                 adcp_transect_lw, adcp_series_mode, adcp_series_target, adcp_quiver_every_n, adcp_quiver_width, adcp_quiver_headwidth, adcp_quiver_headlength, adcp_quiver_scale,
+                                 ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh,
+                                 model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color, model_quiver_mode,
+                                 cbar_tick_decimals, axis_tick_decimals, pad_m)
 
-    
+    elif task_type == "HDMTAnimation":
+        project = ET.fromstring(root.find("Project").text)
+        hd_model_id = root.find("HDModelID").text
+        mt_model_id = root.find("MTModelID").text
+        ssc_scale = XMLUtils._get_value(root, "SSCScale", "log").lower()
+        ssc_levels = [float(l) for l in XMLUtils._get_value(root, "SSCLevels", "0.001,0.01,0.1,1.0,10.0").split(",")]
+        ssc_vmin = XMLUtils._get_value(root, "SSCvmin", None)
+        ssc_vmin = float(ssc_vmin) if ssc_vmin is not None else None
+        ssc_vmax = XMLUtils._get_value(root, "SSCvmax", None)
+        ssc_vmax = float(ssc_vmax) if ssc_vmax is not None else None
+        ssc_cmap_name = XMLUtils._get_value(root, "SSCCmapName", "viridis").lower()
+        ssc_bottom_thresh = float(XMLUtils._get_value(root, "SSCBottomThreshold", "0.001"))
+        model_field_pixel_size_m = float(XMLUtils._get_value(root, "ModelFieldPixelSizeM", "100.0"))
+        model_field_quiver_stride_n = int(XMLUtils._get_value(root, "ModelFieldQuiverStrideN", "3"))
+        model_quiver_scale = float(XMLUtils._get_value(root, "ModelQuiverScale", "1.0"))
+        model_quiver_width = float(XMLUtils._get_value(root, "ModelQuiverWidth", "0.005"))
+        model_quiver_headwidth = float(XMLUtils._get_value(root, "ModelQuiverHeadWidth", "3.0"))
+        model_quiver_headlength = float(XMLUtils._get_value(root, "ModelQuiverHeadLength", "2.5"))
+        model_quiver_color = XMLUtils._get_value(root, "ModelQuiverColor", "black")
+        animation_start_index = XMLUtils._get_value(root, "AnimationStartIndex", "Start")
+        if animation_start_index.lower() != "start":
+            animation_start_index = int(animation_start_index)
+        else:
+            animation_start_index = 0
+        animation_end_index = XMLUtils._get_value(root, "AnimationEndIndex", "End")
+        if animation_end_index.lower() != "end":
+            animation_end_index = int(animation_end_index)
+        else:
+            animation_end_index = None
+        animation_time_step = int(XMLUtils._get_value(root, "AnimationTimeStep", "1"))
+        animation_interval = int(XMLUtils._get_value(root, "AnimationInterval", "200"))
+        animation_output_file = XMLUtils._get_value(root, "AnimationOutputFile", "")
+        if animation_output_file == "":
+            animation_output_file = None
+        cbar_tick_decimals = int(XMLUtils._get_value(root, "LayoutCbarTickDecimals", "2"))
+        axis_tick_decimals = int(XMLUtils._get_value(root, "LayoutAxisTickDecimals", "3"))
+        bbox_path = XMLUtils._get_value(root, "LayoutBBox", None)
+        if bbox_path is None:
+            results = {"Error": "For HD-MT animation, a bounding box shapefile must be provided in BBox Layer."}
+            return GenerateOutputXML(results)
+
+        results = HDMTAnimation(project, hd_model_id, mt_model_id,
+                                ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh,
+                                model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color,
+                                animation_start_index, animation_end_index, animation_time_step, animation_interval, animation_output_file,
+                                cbar_tick_decimals, axis_tick_decimals, bbox_path)
 
     else:
         results = {"Status": "Error", "Message": "Unknown task type"}

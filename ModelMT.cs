@@ -227,7 +227,6 @@ namespace CSEMMPGUI_v1
                 Title = "Select Model File",
                 Filter = "DFSU (*.dfsu)|*.dfsu",
                 Multiselect = false,
-                InitialDirectory = _project.GetSetting(settingName: "Directory"),
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
@@ -324,7 +323,6 @@ namespace CSEMMPGUI_v1
                 Title = "Select Model File",
                 Filter = "DFS2 (*.dfs2)|*.dfs2",
                 Multiselect = false,
-                InitialDirectory = _project.GetSetting(settingName: "Directory"),
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {

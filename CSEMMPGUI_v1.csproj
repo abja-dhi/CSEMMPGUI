@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="DHI.MikeCore" Version="23.0.3" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3485.44" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3595.46" />
     <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="2.1.0" />
     <PackageReference Include="pythonnet" Version="3.0.5" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />

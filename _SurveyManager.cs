@@ -37,13 +37,14 @@ namespace CSEMMPGUI_v1
             return survey.GetAttribute(attribute);
         }
 
-        public void SaveSurvey(string? name = null,
-            double? waterDensity = 1023.0,
-            double? waterSalinity = 32.0,
-            double? waterTemperature = null,
-            double? waterPH = 8.1,
-            double? sedimentDiameter = 2.5e-4,
-            double? sedimentDensity = 2650)
+        public void SaveSurvey(string? name = null)
+            //double? waterDensity = 1023.0,
+            //double? waterSalinity = 32.0,
+            //double? waterTemperature = null,
+            //double? waterPH = 8.1,
+            //double? sedimentDiameter = 2.5e-4,
+            //double? sedimentDensity = 2650
+            //)
         {
             if (survey == null)
             {
@@ -54,50 +55,50 @@ namespace CSEMMPGUI_v1
             {
                 survey.SetAttribute("name", name);
             }
-            XmlNode waterExist = survey.SelectSingleNode("Water");
-            if ( waterExist == null)
-            {
-                XmlElement? water = _Globals.Config.CreateElement("Water");
-                water.SetAttribute("Density", waterDensity.ToString());
-                water.SetAttribute("Salinity", waterSalinity.ToString());
-                water.SetAttribute("Temperature", waterTemperature.ToString());
-                water.SetAttribute("pH", waterPH.ToString());
-                survey.AppendChild(water);
-            }
-            else
-            {
-                if (waterExist is XmlElement existingWater)
-                {
-                    existingWater.SetAttribute("Density", waterDensity.ToString());
-                    existingWater.SetAttribute("Salinity", waterSalinity.ToString());
-                    existingWater.SetAttribute("Temperature", waterTemperature.ToString());
-                    existingWater.SetAttribute("pH", waterPH.ToString());
-                }
-                else
-                {
-                    throw new InvalidOperationException("Existing water node is not an XmlElement.");
-                }
-            }
-            XmlNode sedimentExist = survey.SelectSingleNode("Sediment");
-            if (sedimentExist == null)
-            {
-                XmlElement? sediment = _Globals.Config.CreateElement("Sediment");
-                sediment.SetAttribute("Diameter", sedimentDiameter.ToString());
-                sediment.SetAttribute("Density", sedimentDensity.ToString());
-                survey.AppendChild(sediment);
-            }
-            else
-            {
-                if (sedimentExist is XmlElement existingSediment)
-                {
-                    existingSediment.SetAttribute("Diameter", sedimentDiameter.ToString());
-                    existingSediment.SetAttribute("Density", sedimentDensity.ToString());
-                }
-                else
-                {
-                    throw new InvalidOperationException("Existing sediment node is not an XmlElement.");
-                }
-            }
+            //XmlNode waterExist = survey.SelectSingleNode("Water");
+            //if ( waterExist == null)
+            //{
+            //    XmlElement? water = _Globals.Config.CreateElement("Water");
+            //    water.SetAttribute("Density", waterDensity.ToString());
+            //    water.SetAttribute("Salinity", waterSalinity.ToString());
+            //    water.SetAttribute("Temperature", waterTemperature.ToString());
+            //    water.SetAttribute("pH", waterPH.ToString());
+            //    survey.AppendChild(water);
+            //}
+            //else
+            //{
+            //    if (waterExist is XmlElement existingWater)
+            //    {
+            //        existingWater.SetAttribute("Density", waterDensity.ToString());
+            //        existingWater.SetAttribute("Salinity", waterSalinity.ToString());
+            //        existingWater.SetAttribute("Temperature", waterTemperature.ToString());
+            //        existingWater.SetAttribute("pH", waterPH.ToString());
+            //    }
+            //    else
+            //    {
+            //        throw new InvalidOperationException("Existing water node is not an XmlElement.");
+            //    }
+            //}
+            //XmlNode sedimentExist = survey.SelectSingleNode("Sediment");
+            //if (sedimentExist == null)
+            //{
+            //    XmlElement? sediment = _Globals.Config.CreateElement("Sediment");
+            //    sediment.SetAttribute("Diameter", sedimentDiameter.ToString());
+            //    sediment.SetAttribute("Density", sedimentDensity.ToString());
+            //    survey.AppendChild(sediment);
+            //}
+            //else
+            //{
+            //    if (sedimentExist is XmlElement existingSediment)
+            //    {
+            //        existingSediment.SetAttribute("Diameter", sedimentDiameter.ToString());
+            //        existingSediment.SetAttribute("Density", sedimentDensity.ToString());
+            //    }
+            //    else
+            //    {
+            //        throw new InvalidOperationException("Existing sediment node is not an XmlElement.");
+            //    }
+            //}
             string id = GetAttribute(attribute: "id");
             string xpath = $"//Project/Survey[@id='{id}' and @type='Survey']";
             XmlNode? existingSurvey = _Globals.Config.DocumentElement?.SelectSingleNode(xpath);

@@ -290,7 +290,7 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "Microsoft.Web.WebView2/1.0.3485.44": {
+      "Microsoft.Web.WebView2/1.0.3595.46": {
         "type": "package",
         "build": {
           "buildTransitive/Microsoft.Web.WebView2.targets": {}
@@ -2014,10 +2014,10 @@
         "runtime.json"
       ]
     },
-    "Microsoft.Web.WebView2/1.0.3485.44": {
-      "sha512": "4hk+MDJcW6Hcvtfb0qv0zba9mpBFxM2GO9gJ+8Nq/zoAdwFanmt7jzvM07NPB/UcuQ/jZpKh9IUDL/eVOEFh2A==",
+    "Microsoft.Web.WebView2/1.0.3595.46": {
+      "sha512": "j+yzqAKwC8Zn+3FL5XJxm6N0Rh5iDqTANBfFaYvnjyRpbpqt3qkpFcqMWLjqEBGiWEClh3zLCkJINwRUcr1KxQ==",
       "type": "package",
-      "path": "microsoft.web.webview2/1.0.3485.44",
+      "path": "microsoft.web.webview2/1.0.3595.46",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -2063,7 +2063,7 @@
         "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.WinForms.xml",
         "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.dll",
         "lib_manual/netcoreapp3.0/Microsoft.Web.WebView2.Wpf.xml",
-        "microsoft.web.webview2.1.0.3485.44.nupkg.sha512",
+        "microsoft.web.webview2.1.0.3595.46.nupkg.sha512",
         "microsoft.web.webview2.nuspec",
         "runtimes/win-arm64/native/WebView2Loader.dll",
         "runtimes/win-arm64/native_uap/Microsoft.Web.WebView2.Core.dll",
@@ -5516,7 +5516,7 @@
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
       "DHI.MikeCore >= 23.0.3",
-      "Microsoft.Web.WebView2 >= 1.0.3485.44",
+      "Microsoft.Web.WebView2 >= 1.0.3595.46",
       "NetTopologySuite.IO.ShapeFile >= 2.1.0",
       "WindowsAPICodePack-Shell >= 1.1.1",
       "pythonnet >= 3.0.5"
@@ -5578,7 +5578,7 @@
           },
           "Microsoft.Web.WebView2": {
             "target": "Package",
-            "version": "[1.0.3485.44, )"
+            "version": "[1.0.3595.46, )"
           },
           "NetTopologySuite.IO.ShapeFile": {
             "target": "Package",

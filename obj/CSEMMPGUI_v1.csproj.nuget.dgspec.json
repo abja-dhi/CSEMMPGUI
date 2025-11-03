@@ -56,7 +56,7 @@
             },
             "Microsoft.Web.WebView2": {
               "target": "Package",
-              "version": "[1.0.3485.44, )"
+              "version": "[1.0.3595.46, )"
             },
             "NetTopologySuite.IO.ShapeFile": {
               "target": "Package",

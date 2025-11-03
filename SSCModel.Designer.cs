@@ -42,16 +42,19 @@
             tableModelMode = new TableLayoutPanel();
             rbManual = new RadioButton();
             rbAuto = new RadioButton();
-            comboFits = new ComboBox();
+            tableThresholds = new TableLayoutPanel();
+            lblDepthThreshold = new Label();
+            lblTimeThreshold = new Label();
+            txtDepthThreshold = new TextBox();
+            txtTimeThreshold = new TextBox();
+            comboTimeThresholdUnit = new ComboBox();
             tableManual = new TableLayoutPanel();
             lblParamName = new Label();
             lblParamValue = new Label();
             lblA = new Label();
             lblB = new Label();
-            lblC = new Label();
             txtA = new TextBox();
             txtB = new TextBox();
-            txtC = new TextBox();
             tableModelName = new TableLayoutPanel();
             lblModelName = new Label();
             txtModelName = new TextBox();
@@ -63,6 +66,7 @@
             tableMain.SuspendLayout();
             tableModelType.SuspendLayout();
             tableModelMode.SuspendLayout();
+            tableThresholds.SuspendLayout();
             tableManual.SuspendLayout();
             tableModelName.SuspendLayout();
             tableTrees.SuspendLayout();
@@ -188,12 +192,12 @@
             // 
             tableModelMode.ColumnCount = 3;
             tableMain.SetColumnSpan(tableModelMode, 3);
-            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
-            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
-            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34F));
+            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableModelMode.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
             tableModelMode.Controls.Add(rbManual, 0, 0);
             tableModelMode.Controls.Add(rbAuto, 1, 0);
-            tableModelMode.Controls.Add(comboFits, 2, 0);
+            tableModelMode.Controls.Add(tableThresholds, 2, 0);
             tableModelMode.Dock = DockStyle.Fill;
             tableModelMode.Location = new Point(3, 45);
             tableModelMode.Name = "tableModelMode";
@@ -208,7 +212,7 @@
             rbManual.Dock = DockStyle.Fill;
             rbManual.Location = new Point(3, 3);
             rbManual.Name = "rbManual";
-            rbManual.Size = new Size(295, 30);
+            rbManual.Size = new Size(177, 30);
             rbManual.TabIndex = 0;
             rbManual.Text = "Manual";
             rbManual.UseVisualStyleBackColor = true;
@@ -219,26 +223,86 @@
             rbAuto.AutoSize = true;
             rbAuto.Checked = true;
             rbAuto.Dock = DockStyle.Fill;
-            rbAuto.Location = new Point(304, 3);
+            rbAuto.Location = new Point(186, 3);
             rbAuto.Name = "rbAuto";
-            rbAuto.Size = new Size(295, 30);
+            rbAuto.Size = new Size(177, 30);
             rbAuto.TabIndex = 1;
             rbAuto.TabStop = true;
             rbAuto.Text = "Automatic";
             rbAuto.UseVisualStyleBackColor = true;
             // 
-            // comboFits
+            // tableThresholds
             // 
-            comboFits.Dock = DockStyle.Fill;
-            comboFits.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboFits.FormattingEnabled = true;
-            comboFits.Items.AddRange(new object[] { "Linear", "Log-Linear", "Exponential" });
-            comboFits.Location = new Point(605, 3);
-            comboFits.Name = "comboFits";
-            comboFits.Size = new Size(307, 23);
-            comboFits.TabIndex = 2;
-            comboFits.Visible = false;
-            comboFits.SelectedIndexChanged += input_Changed;
+            tableThresholds.ColumnCount = 5;
+            tableThresholds.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableThresholds.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableThresholds.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableThresholds.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableThresholds.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tableThresholds.Controls.Add(lblDepthThreshold, 0, 0);
+            tableThresholds.Controls.Add(lblTimeThreshold, 2, 0);
+            tableThresholds.Controls.Add(txtDepthThreshold, 1, 0);
+            tableThresholds.Controls.Add(txtTimeThreshold, 3, 0);
+            tableThresholds.Controls.Add(comboTimeThresholdUnit, 4, 0);
+            tableThresholds.Dock = DockStyle.Fill;
+            tableThresholds.Location = new Point(369, 3);
+            tableThresholds.Name = "tableThresholds";
+            tableThresholds.RowCount = 1;
+            tableThresholds.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableThresholds.Size = new Size(543, 30);
+            tableThresholds.TabIndex = 2;
+            // 
+            // lblDepthThreshold
+            // 
+            lblDepthThreshold.AutoSize = true;
+            lblDepthThreshold.Dock = DockStyle.Fill;
+            lblDepthThreshold.Location = new Point(3, 0);
+            lblDepthThreshold.Name = "lblDepthThreshold";
+            lblDepthThreshold.Size = new Size(102, 30);
+            lblDepthThreshold.TabIndex = 0;
+            lblDepthThreshold.Text = "Depth Threshold";
+            lblDepthThreshold.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lblTimeThreshold
+            // 
+            lblTimeThreshold.AutoSize = true;
+            lblTimeThreshold.Dock = DockStyle.Fill;
+            lblTimeThreshold.Location = new Point(219, 0);
+            lblTimeThreshold.Name = "lblTimeThreshold";
+            lblTimeThreshold.Size = new Size(102, 30);
+            lblTimeThreshold.TabIndex = 1;
+            lblTimeThreshold.Text = "Time Threshold";
+            lblTimeThreshold.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // txtDepthThreshold
+            // 
+            txtDepthThreshold.Dock = DockStyle.Fill;
+            txtDepthThreshold.Location = new Point(111, 3);
+            txtDepthThreshold.Name = "txtDepthThreshold";
+            txtDepthThreshold.Size = new Size(102, 23);
+            txtDepthThreshold.TabIndex = 2;
+            txtDepthThreshold.TextChanged += input_Changed;
+            // 
+            // txtTimeThreshold
+            // 
+            txtTimeThreshold.Dock = DockStyle.Fill;
+            txtTimeThreshold.Location = new Point(327, 3);
+            txtTimeThreshold.Name = "txtTimeThreshold";
+            txtTimeThreshold.Size = new Size(102, 23);
+            txtTimeThreshold.TabIndex = 3;
+            txtTimeThreshold.TextChanged += input_Changed;
+            // 
+            // comboTimeThresholdUnit
+            // 
+            comboTimeThresholdUnit.Dock = DockStyle.Fill;
+            comboTimeThresholdUnit.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboTimeThresholdUnit.FormattingEnabled = true;
+            comboTimeThresholdUnit.Items.AddRange(new object[] { "Second", "Minute", "Hour", "Day" });
+            comboTimeThresholdUnit.Location = new Point(435, 3);
+            comboTimeThresholdUnit.Name = "comboTimeThresholdUnit";
+            comboTimeThresholdUnit.Size = new Size(105, 23);
+            comboTimeThresholdUnit.TabIndex = 4;
+            comboTimeThresholdUnit.SelectedIndexChanged += input_Changed;
             // 
             // tableManual
             // 
@@ -250,10 +314,8 @@
             tableManual.Controls.Add(lblParamValue, 1, 0);
             tableManual.Controls.Add(lblA, 0, 1);
             tableManual.Controls.Add(lblB, 0, 2);
-            tableManual.Controls.Add(lblC, 0, 3);
             tableManual.Controls.Add(txtA, 1, 1);
             tableManual.Controls.Add(txtB, 1, 2);
-            tableManual.Controls.Add(txtC, 1, 3);
             tableManual.Dock = DockStyle.Fill;
             tableManual.Enabled = false;
             tableManual.Location = new Point(3, 87);
@@ -316,18 +378,6 @@
             lblB.Text = "B";
             lblB.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lblC
-            // 
-            lblC.AutoSize = true;
-            lblC.Dock = DockStyle.Fill;
-            lblC.Location = new Point(3, 99);
-            lblC.Name = "lblC";
-            lblC.Size = new Size(298, 33);
-            lblC.TabIndex = 4;
-            lblC.Text = "C";
-            lblC.TextAlign = ContentAlignment.MiddleLeft;
-            lblC.Visible = false;
-            // 
             // txtA
             // 
             txtA.Dock = DockStyle.Fill;
@@ -345,16 +395,6 @@
             txtB.Size = new Size(298, 23);
             txtB.TabIndex = 6;
             txtB.TextChanged += input_Changed;
-            // 
-            // txtC
-            // 
-            txtC.Dock = DockStyle.Fill;
-            txtC.Location = new Point(307, 102);
-            txtC.Name = "txtC";
-            txtC.Size = new Size(298, 23);
-            txtC.TabIndex = 7;
-            txtC.Visible = false;
-            txtC.TextChanged += input_Changed;
             // 
             // tableModelName
             // 
@@ -400,8 +440,8 @@
             tableTrees.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
             tableTrees.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34F));
             tableTrees.Controls.Add(treeNTU2SSC, 0, 0);
-            tableTrees.Controls.Add(treeBKS2SSC, 1, 0);
-            tableTrees.Controls.Add(treeBKS2NTU, 2, 0);
+            tableTrees.Controls.Add(treeBKS2SSC, 2, 0);
+            tableTrees.Controls.Add(treeBKS2NTU, 1, 0);
             tableTrees.Dock = DockStyle.Fill;
             tableTrees.Location = new Point(617, 87);
             tableTrees.Name = "tableTrees";
@@ -422,17 +462,18 @@
             // 
             treeBKS2SSC.Dock = DockStyle.Fill;
             treeBKS2SSC.Enabled = false;
-            treeBKS2SSC.Location = new Point(203, 3);
+            treeBKS2SSC.Location = new Point(403, 3);
             treeBKS2SSC.Name = "treeBKS2SSC";
-            treeBKS2SSC.Size = new Size(194, 330);
+            treeBKS2SSC.Size = new Size(202, 330);
             treeBKS2SSC.TabIndex = 5;
             // 
             // treeBKS2NTU
             // 
             treeBKS2NTU.Dock = DockStyle.Fill;
-            treeBKS2NTU.Location = new Point(403, 3);
+            treeBKS2NTU.Enabled = false;
+            treeBKS2NTU.Location = new Point(203, 3);
             treeBKS2NTU.Name = "treeBKS2NTU";
-            treeBKS2NTU.Size = new Size(202, 330);
+            treeBKS2NTU.Size = new Size(194, 330);
             treeBKS2NTU.TabIndex = 6;
             // 
             // SSCModel
@@ -454,6 +495,8 @@
             tableModelType.PerformLayout();
             tableModelMode.ResumeLayout(false);
             tableModelMode.PerformLayout();
+            tableThresholds.ResumeLayout(false);
+            tableThresholds.PerformLayout();
             tableManual.ResumeLayout(false);
             tableManual.PerformLayout();
             tableModelName.ResumeLayout(false);
@@ -477,7 +520,6 @@
         private RadioButton rbBKS2SSC;
         private RadioButton rbManual;
         private RadioButton rbAuto;
-        private ComboBox comboFits;
         private TableLayoutPanel tableManual;
         private Label lblParamName;
         private Label lblParamValue;
@@ -491,9 +533,13 @@
         private TextBox txtModelName;
         private TreeView treeBKS2SSC;
         private TableLayoutPanel tableTrees;
-        private Label lblC;
-        private TextBox txtC;
         private RadioButton rbBKS2NTU;
         private TreeView treeBKS2NTU;
+        private TableLayoutPanel tableThresholds;
+        private Label lblDepthThreshold;
+        private Label lblTimeThreshold;
+        private TextBox txtDepthThreshold;
+        private TextBox txtTimeThreshold;
+        private ComboBox comboTimeThresholdUnit;
     }
 }
