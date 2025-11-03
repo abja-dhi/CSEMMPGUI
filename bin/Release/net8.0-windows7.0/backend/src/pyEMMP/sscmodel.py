@@ -13,6 +13,9 @@ from .watersample import WaterSample as WaterSampleDataset
 from .utils_xml import XMLUtils
 from .plotting import PlottingShell
 
+import numpy as np
+import pandas as pd
+
 
 def NTU2SSC(project: ET.Element, sscmodel: ET.Element) -> dict:
     time_mappers = {"Second": "S", "Minute": "min", "Hour": "h", "Day": "D"}
@@ -53,13 +56,12 @@ def NTU2SSC(project: ET.Element, sscmodel: ET.Element) -> dict:
             return {"Error": "No OBS data found for SSC calibration"}
         df_obs = combine_obs(obss, obsIDs)
         df_water = combine_watersamples(watersamples, watersampleIDs)
-
         parameters = calculate_params(x_df=df_obs,
                                       x_col_name="ntu",
                                       x_id_name="NTU",
-                                      y_df=df_water,
-                                      y_col_name="ssc",
-                                      y_id_name="SSC",
+                                      water_df=df_water,
+                                      ssc_col_name="ssc",
+                                      ssc_id_name="SSC",
                                       time_tolerance=time_threshold,
                                       depth_tolerance=depth_threshold,
                                       fit_intercept=False,
@@ -122,7 +124,7 @@ def PlotNTU2SSC(project: ET.Element, sscmodelid: str, title: str = None):
         return {"Error": str(e)}
 
 def BKS2SSC(project: ET.Element, sscmodel: ET.Element) -> dict:
-    time_mappers = {"Second": "S", "Minute": "min", "Hour": "H", "Day": "D"}
+    time_mappers = {"Second": "S", "Minute": "min", "Hour": "h", "Day": "D"}
     proj_xml = XMLUtils(project)
     ssc_params = {}
     mode = sscmodel.find("Mode").text
@@ -177,6 +179,7 @@ def BKS2SSC(project: ET.Element, sscmodel: ET.Element) -> dict:
 
         for key, value in parameters.items():
             ssc_params[key] = value
+        
         return ssc_params
 
 def PlotBKS2SSC(project: ET.Element, sscmodelid: str, title: str) -> dict:
@@ -298,7 +301,7 @@ def PlotBKS2SSCTrans(project, sscmodelid, beam_sel, field_name, yAxisMode, cmap,
         return {"Error": tb_str + "\n" + str(e)}
 
 def BKS2NTU(project: ET.Element, sscmodel: ET.Element) -> dict:
-    time_mappers = {"Second": "S", "Minute": "min", "Hour": "H", "Day": "D"}
+    time_mappers = {"Second": "S", "Minute": "min", "Hour": "h", "Day": "D"}
     proj_xml = XMLUtils(project)
     ssc_params = {}
     mode = sscmodel.find("Mode").text
@@ -343,17 +346,20 @@ def BKS2NTU(project: ET.Element, sscmodel: ET.Element) -> dict:
         parameters = calculate_params(x_df=df_adcp,
                                       x_col_name="bks",
                                       x_id_name="AbsoluteBackscatter",
-                                      y_df=df_obs,
-                                      y_col_name="ntu",
-                                      y_id_name="SSC",
-                                      time_tolerance="2H",
-                                      depth_tolerance=1,
+                                      water_df=df_obs,
+                                      ssc_col_name="ntu",
+                                      ssc_id_name="SSC",
+                                      time_tolerance=time_threshold,
+                                      depth_tolerance=depth_threshold,
                                       fit_intercept=True,
                                       relation="loglinear",
                                       weighted=True)
         
         for key, value in parameters.items():
             ssc_params[key] = value
+        for key, value in ssc_params.items():
+            print(f"{key}: {value}")
+        
         return ssc_params
 
 def PlotBKS2NTU(project: ET.Element, sscmodelid: str, title: str) -> dict:
@@ -529,96 +535,110 @@ def combine_watersamples(water_list: List[WaterSampleDataset], water_ids: List[s
     return pd.concat(dfs, ignore_index=True)
 
 def match_datasets(
-    x_df, y_df,
-    x_col_name, y_col_name,
-    time_tolerance=None, depth_tolerance=None
-):
-    """
-    For each row in source, find the closest row in target.
-    Priority:
-      1. Minimize depth difference
-      2. If tie, minimize datetime difference
+    df1: pd.DataFrame,
+    df_water: pd.DataFrame,
+    time_col: str = "datetime",
+    depth_col: str = "depth",
+    value_col: str = "ntu",
+    time_tolerance: str | pd.Timedelta = "5min",
+    depth_tolerance: float = 0.5,
+    out_value_col: str = "ntu_mean",
+    out_depth_col: str = "depth_mean_df1",
+    out_time_col: str = "datetime_mean_df1",
+    out_count_col: str = "match_count"
+) -> pd.DataFrame:
+    df1 = df1.copy()
+    df2 = df_water.copy()
+    df1[time_col] = pd.to_datetime(df1[time_col])
+    df2[time_col] = pd.to_datetime(df2[time_col])
 
-    Parameters
-    ----------
-    source : DataFrame
-        The dataframe driving the matching.
-    target : DataFrame
-        The dataframe to match against.
-    on_time : str
-        Column name for datetime.
-    on_depth : str
-        Column name for depth.
-    col_name : str
-        Column name of target value to bring back.
-    time_tolerance : str or pd.Timedelta, optional
-        Maximum allowed datetime difference (e.g. "5min").
-    depth_tolerance : float, optional
-        Maximum allowed depth difference (same units as depth).
-    """
-    # Cross join
-    merged = x_df.merge(y_df, how='cross', suffixes=('_x', '_y'))   # Creates a dataframe that includes all combinations of rows from source and target
-    # Differences
-    merged["depth_diff"] = (merged[f"depth_x"] - merged[f"depth_y"]).abs()
-    merged["time_diff"] = (merged[f"datetime_x"] - merged[f"datetime_y"]).abs().dt.total_seconds()
+    df1 = df1.sort_values(time_col).reset_index(drop=True)
 
-    # Apply tolerances
-    if depth_tolerance is not None:
-        merged = merged[merged["depth_diff"] <= depth_tolerance]
-    if time_tolerance is not None:
-        tol = pd.Timedelta(time_tolerance).total_seconds()
-        merged = merged[merged["time_diff"] <= tol]
+    t1 = df1[time_col].to_numpy().astype("int64")  # ns since epoch
+    z1 = df1[depth_col].to_numpy()
+    v1 = df1[value_col].to_numpy()
+    ids1 = df1["id"].to_numpy()
 
-    # Sort by depth first, then time
-    merged = merged.sort_values(["depth_diff", "time_diff"])
-    # Pick best match per source row
-    nearest = (merged.groupby([f"datetime_x", f"depth_x"]).first().reset_index())
+    dt_ns = pd.to_timedelta(time_tolerance).value
+    dz = float(depth_tolerance)
 
-    x_out = nearest[[f"datetime_x", f"depth_x", x_col_name, "id_x", "type_x"]].rename(
-        columns={f"datetime_x": "datetime", f"depth_x": "depth", "id_x": "id", "type_x": "type"}
-    )
+    n = len(df2)
+    out_val = np.full(n, np.nan).astype(float)
+    out_dep = np.full(n, np.nan).astype(float)
+    out_tim = np.full(n, np.datetime64("NaT")).astype("datetime64[ns]")
+    out_cnt = np.zeros(n).astype(int)
+    out_ids = [None] * n
 
-    y_out = nearest[[f"datetime_y", f"depth_y", y_col_name, "id_y", "type_y"]].rename(
-        columns={f"datetime_y": "datetime", f"depth_y": "depth", "id_y": "id", "type_y": "type"}
-    )
+    t2 = df2[time_col].to_numpy().astype("int64")  # ns since epoch
+    z2 = df2[depth_col].to_numpy()
 
-    return x_out, y_out
+    left_idx = np.searchsorted(t1, t2 - dt_ns, side="left")
+    right_idx = np.searchsorted(t1, t2 + dt_ns, side="right")
+
+    for i, (L, R) in enumerate(zip(left_idx, right_idx)):
+        if L >= R:
+            continue
+        slice_depths = z1[L:R]
+        m = np.abs(slice_depths - z2[i]) <= dz
+        if not m.any():
+            continue
+
+        out_cnt[i] = int(m.sum())
+        out_val[i] = np.nanmean(v1[L:R][m])
+        out_dep[i] = np.nanmean(slice_depths[m])
+        matched_ids = np.unique(ids1[L:R][m]).tolist()
+        out_ids[i] = matched_ids
+
+        # average datetime (in ns) from df1 matches
+        mean_ns = int(np.round(np.mean(t1[L:R][m].astype(np.float64))))
+        out_tim[i] = np.datetime64(mean_ns, "ns")
+
+    df2[out_value_col] = out_val
+    df2[out_depth_col] = out_dep
+    df2[out_time_col] = out_tim
+    df2[out_count_col] = out_cnt
+    df2["matched_ids"] = out_ids
+    return df2
 
 def calculate_params(x_df: pd.DataFrame,
                      x_col_name: str,
                      x_id_name: str,
-                     y_df: pd.DataFrame,
-                     y_col_name: str,
-                     y_id_name: str,
+                     water_df: pd.DataFrame,
+                     ssc_col_name: str,
+                     ssc_id_name: str,
                      time_tolerance: str,
                      depth_tolerance: float,
                      fit_intercept: bool,
                      relation: str,
                      weighted: bool):
+    mapper = {'ssc': 'WaterSample', 'ntu': 'OBSVerticalProfile', 'bks': 'VesselMountedADCP'}
     np.set_printoptions(threshold=np.inf)
 
-    x_df_matched, y_df_matched = match_datasets(x_df=x_df,
-                                                    y_df=y_df,
-                                                    x_col_name=x_col_name,
-                                                    y_col_name=y_col_name,
-                                                    time_tolerance=time_tolerance,
-                                                    depth_tolerance=depth_tolerance)
-    print(x_df_matched)
-    print("-----")
-    print(y_df_matched)
-    x_vals = x_df_matched[x_col_name].to_numpy()
-    y_vals = y_df_matched[y_col_name].to_numpy()
+    df_water_matched = match_datasets(df1=x_df,
+                                      df_water=water_df,
+                                      time_col="datetime",
+                                      depth_col="depth",
+                                      value_col=x_col_name,
+                                      time_tolerance=time_tolerance,
+                                      depth_tolerance=depth_tolerance,
+                                      out_value_col=f"{x_col_name}_mean",
+                                      out_depth_col="depth_mean",
+                                      out_time_col="datetime_mean",
+                                      out_count_col="match_count")
+    df_water_matched = df_water_matched.dropna(subset=[f"{x_col_name}_mean", ssc_col_name])
+    x_vals = df_water_matched[f"{x_col_name}_mean"].to_numpy()
+    y_vals = df_water_matched[ssc_col_name].to_numpy()
     
     if len(y_vals) == 0:
         return {"Error": "No valid data points found for SSC calibration"}
     if relation == "linear":
-        y_vals = y_df_matched[y_col_name].to_numpy()
+        y_vals = df_water_matched[ssc_col_name].to_numpy()
     else:
-        y_vals = np.log10(y_df_matched[y_col_name].to_numpy())
+        y_vals = np.log10(df_water_matched[ssc_col_name].to_numpy())
     X = x_vals.reshape(-1, 1)
     Y = y_vals.reshape(-1, 1)
     if weighted:
-        dt = (x_df_matched["datetime"] - y_df_matched["datetime"]).dt.total_seconds().abs()
+        dt = (df_water_matched["datetime"] - df_water_matched["datetime_mean"]).dt.total_seconds().abs()
         reg = LinearRegression(fit_intercept=fit_intercept).fit(X, Y, sample_weight=1/(dt+1))  # add 1 to avoid division by zero
     else:
         reg = LinearRegression(fit_intercept=fit_intercept).fit(X, Y)
@@ -634,16 +654,18 @@ def calculate_params(x_df: pd.DataFrame,
     ssc_params['RMSE'] = np.sqrt(np.mean((A + x_vals * B - y_vals) ** 2))
     ssc_params['R2'] = reg.score(X, Y)
     ssc_params[x_id_name] = x_vals
-    ssc_params[y_id_name] = y_vals
-    pairs_df = pd.DataFrame({"id_from": x_df_matched["id"], "type_from": x_df_matched["type"], "id_to": y_df_matched["id"], "type_to": y_df_matched["type"]})
-    pairs = (pairs_df.drop_duplicates().to_dict(orient="records"))
-    # Format nicely: {"WaterSample": 26, "VesselMountedADCP": 13}
+    ssc_params[ssc_col_name] = y_vals
+    
     typed_pairs = []
-    for p in pairs:
-        typed_pairs.append({
-            p["type_from"]: p["id_from"],
-            p["type_to"]: p["id_to"]
-        })
+    for index, row in df_water_matched.iterrows():
+        matched_ids = row["matched_ids"]
+        if matched_ids is None:
+            continue
+        for mid in matched_ids:
+            data = {mapper[x_col_name]: mid, mapper[ssc_col_name]: row["id"]}
+            if data not in typed_pairs:
+                typed_pairs.append(data)
+    # Format nicely: {"WaterSample": 26, "VesselMountedADCP": 13}
     ssc_params["Pairs"] = str(typed_pairs)
     return ssc_params
 
