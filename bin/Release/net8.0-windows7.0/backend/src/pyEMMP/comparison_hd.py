@@ -356,6 +356,7 @@ def plot_hd_vs_adcp_transect(
     except Exception: pass
     ax1.set_position([p0.x0, p1.y0, p0.width, p1.height])
     ax1.set_ylim(cbar_min, cbar_max)
+    ax1.legend(frameon=False, fontsize=7, ncol=2)
 
     # -------------------- BOTTOM: metadata panel
     t_arr   = np.asarray(t)[:n]

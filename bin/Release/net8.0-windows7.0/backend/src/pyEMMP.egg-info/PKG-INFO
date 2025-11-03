@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: pyEMMP
-Version: 0.0.1
+Version: 0.0.2
 Summary: A Python package developed to support EMMP tasks
 Author-email: Abbas Jazaeri <abja@dhigroup.com>, Andy Banks <anba@dhigroup.com>
 License: Copyright (c) 2025 DHI Water and Environment Inc
