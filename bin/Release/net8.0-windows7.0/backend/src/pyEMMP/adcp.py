@@ -65,6 +65,8 @@ class ADCP():
             transect_shift_y: float = field(metadata={"desc": "Shifting distance of entire ADCP transect for model calibration (Y axis, meters)"})
             transect_shift_t: float = field(metadata={"desc": "Shifting time of entire ADCP transect for model calibration (time axis, hours)"})
             velocity_average_window_len: int = field(metadata={"desc": "Number of ensembles to average (via rolling window) for velocity data"})
+            background_ssc: float = field(metadata={"desc": "Background suspended solids concentration (e.g., mg/L) to subtract from SSC estimates"})
+            background_ssc_mode: str = field(metadata={"desc": "Method to apply background SSC correction: 'fixed' subtracts a constant value; 'percentile' subtracts a percentile-based value; 'none' applies no correction"})
             
         self.corrections = ADCPCorrections(
             magnetic_declination=float(get_valid(self._cfg, 'magnetic_declination', 0)),
@@ -72,7 +74,9 @@ class ADCP():
             transect_shift_x=float(get_valid(self._cfg, 'transect_shift_x', 0)),
             transect_shift_y=float(get_valid(self._cfg, 'transect_shift_y', 0)),
             transect_shift_t=float(get_valid(self._cfg, 'transect_shift_t', 0)),
-            velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 5))
+            velocity_average_window_len = int(get_valid(self._cfg, 'velocity_average_window_len', 5)),
+            background_ssc_mode = get_valid(self._cfg, 'background_ssc_mode', 'fixed'),
+            background_ssc = float(get_valid(self._cfg, 'background_ssc', 0)),
         )
         
         ## Time class
@@ -2005,8 +2009,18 @@ class ADCP():
         return term1 + term2 + term3
         
     def _backscatter_to_ssc(self,backscatter):
-        return 10**(self.ssc_params.A + backscatter*self.ssc_params.B)
-    
+        ssc = 10**(self.ssc_params.A + backscatter*self.ssc_params.B)
+        background_ssc_mode = self.corrections.background_ssc_mode
+        background_ssc = self.corrections.background_ssc
+        if background_ssc_mode.lower() == 'percentile':
+            background_ssc = np.nanpercentile(ssc, self.corrections.background_ssc_percentile)
+        mask = ~np.isnan(ssc)
+        ssc[mask] = ssc[mask] - background_ssc
+        mask = ssc < 0
+        ssc[mask] = 0.0
+        return ssc
+        
+        
    
     def _calculate_ssc(self):
         """

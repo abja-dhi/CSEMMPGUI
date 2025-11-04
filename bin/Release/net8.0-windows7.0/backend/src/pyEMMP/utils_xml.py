@@ -306,6 +306,7 @@ class XMLUtils:
         maskCurrentSpeed = masking.find("MaskCurrentSpeed") if masking is not None else None
         maskErrorVelocity = masking.find("MaskErrorVelocity") if masking is not None else None
         maskAbsoluteBackscatter = masking.find("MaskAbsoluteBackscatter") if masking is not None else None
+        backgroundSSC = masking.find("BackgroundSSC") if masking is not None else None
 
         # Percent good
         pg_min = float(self._get_value(maskPercentGood, "Min", 0)) if _enabled(maskPercentGood) else 0
@@ -355,6 +356,9 @@ class XMLUtils:
         first_good_ensemble = int(fge) if fge is not None else None
         lge = self._get_value(masking, "LastEnsemble", None)
         last_good_ensemble = int(lge) if lge is not None else None
+
+        background_ssc_mode = self._get_value(backgroundSSC, "Mode", "fixed").lower()
+        background_ssc_value = float(self._get_value(backgroundSSC, "Value", 0)) if backgroundSSC is not None else 0
 
         # Configuration and coordinate parameters
         magnetic_declination = float(self._get_value(configuration, "MagneticDeclination", 0))
@@ -438,6 +442,7 @@ class XMLUtils:
             'start_datetime': start_datetime, 'end_datetime': end_datetime,
             'first_good_ensemble': first_good_ensemble, 'last_good_ensemble': last_good_ensemble,
             'abs_min': absback_min, 'abs_max': absback_max,
+            'background_ssc_mode': background_ssc_mode, 'background_ssc': background_ssc_value,
             'magnetic_declination': magnetic_declination, 'velocity_average_window_len': velocity_average_window_len, 'utc_offset': utc_offset,
             'crp_rotation_angle': crp_rotation_angle,
             'crp_offset_x': crp_offset_x, 'crp_offset_y': crp_offset_y, 'crp_offset_z': crp_offset_z,

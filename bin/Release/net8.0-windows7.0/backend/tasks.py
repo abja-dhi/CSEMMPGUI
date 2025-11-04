@@ -598,7 +598,6 @@ def HDMTComparison(project, hd_model_id, mt_model_id, adcp_id,
     except Exception as e:
         return {"Error": traceback.format_exc() + "\n" + str(e)}
     
-
 def HDMTAnimation(project, hd_model_id, mt_model_id,
                                 ssc_scale, ssc_levels, ssc_vmin, ssc_vmax, ssc_cmap_name, ssc_bottom_thresh,
                                 model_field_pixel_size_m, model_field_quiver_stride_n, model_quiver_scale, model_quiver_width, model_quiver_headwidth, model_quiver_headlength, model_quiver_color,
@@ -623,7 +622,7 @@ def HDMTAnimation(project, hd_model_id, mt_model_id,
         save_output = True
         if animation_output_file is None:
             save_output = False
-        fig, (ax_map, ax_meta) = make_ssc_currents_animation(
+        fig, ani = make_ssc_currents_animation(
             hd_model=hd_model,
             mt_model=mt_model,
             crs_helper=crs_helper,

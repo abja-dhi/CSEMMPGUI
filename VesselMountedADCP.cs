@@ -92,6 +92,8 @@ namespace CSEMMPGUI_v1
             txtMaxAbs.Text = String.Empty;
             txtMinAbs.Enabled = false;
             txtMaxAbs.Enabled = false;
+            txtBackgroundSSC.Text = "0.0";
+            comboBackgroundSSC.SelectedIndex = 0;
             boxConfiguration.Enabled = false;
             boxMasking.Enabled = false;
             boxPosition.Enabled = false;
@@ -222,6 +224,15 @@ namespace CSEMMPGUI_v1
             checkMaskingAbs.Checked = (maskAbsNode as XmlElement)?.GetAttribute("Enabled") == "true";
             txtMinAbs.Text = maskAbsNode?.SelectSingleNode("Min")?.InnerText ?? string.Empty;
             txtMaxAbs.Text = maskAbsNode?.SelectSingleNode("Max")?.InnerText ?? string.Empty;
+            void SelectComboItem(ComboBox combo, string value)
+            {
+                int index = combo.Items.IndexOf(value.Trim());
+                if (index >= 0)
+                    combo.SelectedIndex = index;
+            }
+            XmlNode backgroundSSCNode = pd0Node?.SelectSingleNode("BackgroundSSC");
+            txtBackgroundSSC.Text = backgroundSSCNode?.SelectSingleNode("Value")?.InnerText ?? string.Empty;
+            SelectComboItem(comboBackgroundSSC, backgroundSSCNode?.SelectSingleNode("Mode")?.InnerText ?? "");
             // Position related attributes
             XmlNode positionNode = adcpElement.SelectSingleNode("PositionData");
             txtPositionPath.Text = positionNode?.SelectSingleNode("Path")?.InnerText ?? string.Empty;
@@ -243,12 +254,6 @@ namespace CSEMMPGUI_v1
                         comboHeading.Items.Add(columnName);
                     }
                 }
-            }
-            void SelectComboItem(ComboBox combo, string value)
-            {
-                int index = combo.Items.IndexOf(value.Trim());
-                if (index >= 0)
-                    combo.SelectedIndex = index;
             }
             SelectComboItem(comboDateTime, positionNode?.SelectSingleNode("DateTimeColumn")?.InnerText ?? "");
             SelectComboItem(comboX, positionNode?.SelectSingleNode("XColumn")?.InnerText ?? "");
@@ -1130,6 +1135,15 @@ namespace CSEMMPGUI_v1
             maskAbs.AppendChild(maskAbsMax);
             masking.AppendChild(maskAbs);
 
+            XmlElement backgroundSSC = project.CreateElement("BackgroundSSC");
+            XmlElement backgroundSSCValue = project.CreateElement("Value");
+            backgroundSSCValue.InnerText = txtBackgroundSSC.Text.Trim();
+            backgroundSSC.AppendChild(backgroundSSCValue);
+            XmlElement backgroundSSCMethod = project.CreateElement("Mode");
+            backgroundSSCMethod.InnerText = comboBackgroundSSC.Text.Trim();
+            backgroundSSC.AppendChild(backgroundSSCMethod);
+            masking.AppendChild(backgroundSSC);
+
             pd0.AppendChild(masking);
 
             adcpElement.AppendChild(pd0);
@@ -1322,6 +1336,11 @@ namespace CSEMMPGUI_v1
             minAbsNode.InnerText = txtMinAbs.Text.Trim();
             XmlNode? maxAbsNode = maskAbsElement.SelectSingleNode("Max");
             maxAbsNode.InnerText = txtMaxAbs.Text.Trim();
+            XmlElement backgroundSSCElement = maskingElement.SelectSingleNode("BackgroundSSC") as XmlElement;
+            XmlNode? backgroundSSCValueNode = backgroundSSCElement.SelectSingleNode("Value");
+            backgroundSSCValueNode.InnerText = txtBackgroundSSC.Text.Trim();
+            XmlNode? backgroundSSCMethodNode = backgroundSSCElement.SelectSingleNode("Mode");
+            backgroundSSCMethodNode.InnerText = comboBackgroundSSC.Text.Trim();
             XmlElement positionElement = adcpElement.SelectSingleNode("PositionData") as XmlElement;
             XmlNode? positionPathNode = positionElement.SelectSingleNode("Path");
             positionPathNode.InnerText = txtPositionPath.Text.Trim();

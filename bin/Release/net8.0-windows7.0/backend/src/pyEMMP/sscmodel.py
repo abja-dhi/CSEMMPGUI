@@ -168,9 +168,9 @@ def BKS2SSC(project: ET.Element, sscmodel: ET.Element) -> dict:
         parameters = calculate_params(x_df=df_adcp,
                                       x_col_name="bks",
                                       x_id_name="AbsoluteBackscatter",
-                                      y_df=df_water,
-                                      y_col_name="ssc",
-                                      y_id_name="SSC",
+                                      water_df=df_water,
+                                      ssc_col_name="ssc",
+                                      ssc_id_name="SSC",
                                       time_tolerance=time_threshold,
                                       depth_tolerance=depth_threshold,
                                       fit_intercept=True,
@@ -656,7 +656,7 @@ def calculate_params(x_df: pd.DataFrame,
     ssc_params['RMSE'] = np.sqrt(np.mean((A + x_vals * B - y_vals) ** 2))
     ssc_params['R2'] = reg.score(X, Y)
     ssc_params[x_id_name] = x_vals
-    ssc_params[ssc_col_name] = y_vals
+    ssc_params[ssc_id_name] = y_vals
     
     typed_pairs = []
     for index, row in df_water_matched.iterrows():

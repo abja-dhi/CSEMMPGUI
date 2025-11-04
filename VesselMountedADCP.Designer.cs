@@ -156,6 +156,10 @@
             checkEndDatetime = new CheckBox();
             txtStartDatetime = new TextBox();
             txtEndDatetime = new TextBox();
+            tableBackgroundSSC = new TableLayoutPanel();
+            lblBackgroundSSC = new Label();
+            txtBackgroundSSC = new TextBox();
+            comboBackgroundSSC = new ComboBox();
             tableMode = new TableLayoutPanel();
             rbSingle = new RadioButton();
             rbBatch = new RadioButton();
@@ -183,6 +187,7 @@
             tableMaskingEnsembles.SuspendLayout();
             tableMaskingAbs.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
+            tableBackgroundSSC.SuspendLayout();
             tableMode.SuspendLayout();
             SuspendLayout();
             // 
@@ -251,7 +256,7 @@
             lblPD0File.Dock = DockStyle.Fill;
             lblPD0File.Location = new Point(3, 0);
             lblPD0File.Name = "lblPD0File";
-            lblPD0File.Size = new Size(78, 27);
+            lblPD0File.Size = new Size(78, 31);
             lblPD0File.TabIndex = 1;
             lblPD0File.Text = ".000 File";
             lblPD0File.TextAlign = ContentAlignment.MiddleCenter;
@@ -260,9 +265,9 @@
             // 
             lblPositionFile.AutoSize = true;
             lblPositionFile.Dock = DockStyle.Fill;
-            lblPositionFile.Location = new Point(3, 27);
+            lblPositionFile.Location = new Point(3, 31);
             lblPositionFile.Name = "lblPositionFile";
-            lblPositionFile.Size = new Size(78, 28);
+            lblPositionFile.Size = new Size(78, 31);
             lblPositionFile.TabIndex = 2;
             lblPositionFile.Text = "Position File";
             lblPositionFile.TextAlign = ContentAlignment.MiddleCenter;
@@ -279,7 +284,7 @@
             // txtPositionPath
             // 
             txtPositionPath.Dock = DockStyle.Fill;
-            txtPositionPath.Location = new Point(87, 30);
+            txtPositionPath.Location = new Point(87, 34);
             txtPositionPath.Name = "txtPositionPath";
             txtPositionPath.Size = new Size(290, 23);
             txtPositionPath.TabIndex = 4;
@@ -290,7 +295,7 @@
             btnLoadPD0.Dock = DockStyle.Fill;
             btnLoadPD0.Location = new Point(383, 3);
             btnLoadPD0.Name = "btnLoadPD0";
-            btnLoadPD0.Size = new Size(38, 21);
+            btnLoadPD0.Size = new Size(38, 25);
             btnLoadPD0.TabIndex = 5;
             btnLoadPD0.Text = "...";
             btnLoadPD0.UseVisualStyleBackColor = true;
@@ -299,9 +304,9 @@
             // btnLoadPosition
             // 
             btnLoadPosition.Dock = DockStyle.Fill;
-            btnLoadPosition.Location = new Point(383, 30);
+            btnLoadPosition.Location = new Point(383, 34);
             btnLoadPosition.Name = "btnLoadPosition";
-            btnLoadPosition.Size = new Size(38, 22);
+            btnLoadPosition.Size = new Size(38, 25);
             btnLoadPosition.TabIndex = 6;
             btnLoadPosition.Text = "...";
             btnLoadPosition.UseVisualStyleBackColor = true;
@@ -350,7 +355,7 @@
             tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 28F));
             tableConfig.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             tableConfig.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableConfig.Size = new Size(315, 551);
+            tableConfig.Size = new Size(315, 600);
             tableConfig.TabIndex = 7;
             // 
             // lblCRPOffsets
@@ -932,24 +937,24 @@
             tablePosition.Location = new Point(3, 19);
             tablePosition.Name = "tablePosition";
             tablePosition.RowCount = 8;
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 6F));
-            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 58F));
-            tablePosition.Size = new Size(424, 467);
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tablePosition.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tablePosition.Size = new Size(424, 509);
             tablePosition.TabIndex = 8;
             // 
             // lblYColumn
             // 
             lblYColumn.AutoSize = true;
             lblYColumn.Dock = DockStyle.Fill;
-            lblYColumn.Location = new Point(3, 56);
+            lblYColumn.Location = new Point(3, 60);
             lblYColumn.Name = "lblYColumn";
-            lblYColumn.Size = new Size(206, 28);
+            lblYColumn.Size = new Size(206, 30);
             lblYColumn.TabIndex = 4;
             lblYColumn.Text = "Y";
             lblYColumn.TextAlign = ContentAlignment.MiddleLeft;
@@ -958,9 +963,9 @@
             // 
             lblXColumn.AutoSize = true;
             lblXColumn.Dock = DockStyle.Fill;
-            lblXColumn.Location = new Point(3, 28);
+            lblXColumn.Location = new Point(3, 30);
             lblXColumn.Name = "lblXColumn";
-            lblXColumn.Size = new Size(206, 28);
+            lblXColumn.Size = new Size(206, 30);
             lblXColumn.TabIndex = 2;
             lblXColumn.Text = "X";
             lblXColumn.TextAlign = ContentAlignment.MiddleLeft;
@@ -970,7 +975,7 @@
             comboX.Dock = DockStyle.Fill;
             comboX.DropDownStyle = ComboBoxStyle.DropDownList;
             comboX.FormattingEnabled = true;
-            comboX.Location = new Point(215, 31);
+            comboX.Location = new Point(215, 33);
             comboX.Name = "comboX";
             comboX.Size = new Size(206, 23);
             comboX.TabIndex = 3;
@@ -982,7 +987,7 @@
             lblDateTimeColumn.Dock = DockStyle.Fill;
             lblDateTimeColumn.Location = new Point(3, 0);
             lblDateTimeColumn.Name = "lblDateTimeColumn";
-            lblDateTimeColumn.Size = new Size(206, 28);
+            lblDateTimeColumn.Size = new Size(206, 30);
             lblDateTimeColumn.TabIndex = 0;
             lblDateTimeColumn.Text = "DateTime";
             lblDateTimeColumn.TextAlign = ContentAlignment.MiddleLeft;
@@ -1002,9 +1007,9 @@
             // 
             lblHeadingColumn.AutoSize = true;
             lblHeadingColumn.Dock = DockStyle.Fill;
-            lblHeadingColumn.Location = new Point(3, 84);
+            lblHeadingColumn.Location = new Point(3, 90);
             lblHeadingColumn.Name = "lblHeadingColumn";
-            lblHeadingColumn.Size = new Size(206, 28);
+            lblHeadingColumn.Size = new Size(206, 30);
             lblHeadingColumn.TabIndex = 6;
             lblHeadingColumn.Text = "Heading";
             lblHeadingColumn.TextAlign = ContentAlignment.MiddleLeft;
@@ -1014,7 +1019,7 @@
             comboHeading.Dock = DockStyle.Fill;
             comboHeading.DropDownStyle = ComboBoxStyle.DropDownList;
             comboHeading.FormattingEnabled = true;
-            comboHeading.Location = new Point(215, 87);
+            comboHeading.Location = new Point(215, 93);
             comboHeading.Name = "comboHeading";
             comboHeading.Size = new Size(206, 23);
             comboHeading.TabIndex = 7;
@@ -1025,7 +1030,7 @@
             comboY.Dock = DockStyle.Fill;
             comboY.DropDownStyle = ComboBoxStyle.DropDownList;
             comboY.FormattingEnabled = true;
-            comboY.Location = new Point(215, 59);
+            comboY.Location = new Point(215, 63);
             comboY.Name = "comboY";
             comboY.Size = new Size(206, 23);
             comboY.TabIndex = 5;
@@ -1035,9 +1040,9 @@
             // 
             lblSSCModel.AutoSize = true;
             lblSSCModel.Dock = DockStyle.Fill;
-            lblSSCModel.Location = new Point(3, 112);
+            lblSSCModel.Location = new Point(3, 120);
             lblSSCModel.Name = "lblSSCModel";
-            lblSSCModel.Size = new Size(206, 28);
+            lblSSCModel.Size = new Size(206, 30);
             lblSSCModel.TabIndex = 8;
             lblSSCModel.Text = "Absolute Backscatter to SSC Model";
             lblSSCModel.TextAlign = ContentAlignment.MiddleLeft;
@@ -1046,9 +1051,9 @@
             // 
             lblPitch.AutoSize = true;
             lblPitch.Dock = DockStyle.Fill;
-            lblPitch.Location = new Point(3, 140);
+            lblPitch.Location = new Point(3, 150);
             lblPitch.Name = "lblPitch";
-            lblPitch.Size = new Size(206, 28);
+            lblPitch.Size = new Size(206, 30);
             lblPitch.TabIndex = 9;
             lblPitch.Text = "Picth";
             lblPitch.TextAlign = ContentAlignment.MiddleLeft;
@@ -1058,9 +1063,9 @@
             // 
             lblRoll.AutoSize = true;
             lblRoll.Dock = DockStyle.Fill;
-            lblRoll.Location = new Point(3, 168);
+            lblRoll.Location = new Point(3, 180);
             lblRoll.Name = "lblRoll";
-            lblRoll.Size = new Size(206, 28);
+            lblRoll.Size = new Size(206, 30);
             lblRoll.TabIndex = 10;
             lblRoll.Text = "Roll";
             lblRoll.TextAlign = ContentAlignment.MiddleLeft;
@@ -1071,7 +1076,7 @@
             comboSSCModel.Dock = DockStyle.Fill;
             comboSSCModel.DropDownStyle = ComboBoxStyle.DropDownList;
             comboSSCModel.FormattingEnabled = true;
-            comboSSCModel.Location = new Point(215, 115);
+            comboSSCModel.Location = new Point(215, 123);
             comboSSCModel.Name = "comboSSCModel";
             comboSSCModel.Size = new Size(206, 23);
             comboSSCModel.TabIndex = 11;
@@ -1080,7 +1085,7 @@
             // txtPitch
             // 
             txtPitch.Dock = DockStyle.Fill;
-            txtPitch.Location = new Point(215, 143);
+            txtPitch.Location = new Point(215, 153);
             txtPitch.Name = "txtPitch";
             txtPitch.Size = new Size(206, 23);
             txtPitch.TabIndex = 12;
@@ -1090,7 +1095,7 @@
             // txtRoll
             // 
             txtRoll.Dock = DockStyle.Fill;
-            txtRoll.Location = new Point(215, 171);
+            txtRoll.Location = new Point(215, 183);
             txtRoll.Name = "txtRoll";
             txtRoll.Size = new Size(206, 23);
             txtRoll.TabIndex = 13;
@@ -1101,9 +1106,9 @@
             // 
             btnPrintConfig.Dock = DockStyle.Fill;
             btnPrintConfig.Enabled = false;
-            btnPrintConfig.Location = new Point(441, 617);
+            btnPrintConfig.Location = new Point(441, 668);
             btnPrintConfig.Name = "btnPrintConfig";
-            btnPrintConfig.Size = new Size(321, 27);
+            btnPrintConfig.Size = new Size(321, 31);
             btnPrintConfig.TabIndex = 9;
             btnPrintConfig.Text = "View Instrument Config";
             btnPrintConfig.UseVisualStyleBackColor = true;
@@ -1127,7 +1132,7 @@
             tableInputs.RowCount = 2;
             tableInputs.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableInputs.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableInputs.Size = new Size(424, 55);
+            tableInputs.Size = new Size(424, 62);
             tableInputs.TabIndex = 10;
             // 
             // tableMain
@@ -1151,16 +1156,16 @@
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 13F));
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 77F));
             tableMain.RowStyles.Add(new RowStyle(SizeType.Percent, 5F));
-            tableMain.Size = new Size(1094, 648);
+            tableMain.Size = new Size(1094, 703);
             tableMain.TabIndex = 11;
             // 
             // boxFileInfo
             // 
             boxFileInfo.Controls.Add(tableInputs);
             boxFileInfo.Dock = DockStyle.Fill;
-            boxFileInfo.Location = new Point(4, 37);
+            boxFileInfo.Location = new Point(4, 39);
             boxFileInfo.Name = "boxFileInfo";
-            boxFileInfo.Size = new Size(430, 77);
+            boxFileInfo.Size = new Size(430, 84);
             boxFileInfo.TabIndex = 12;
             boxFileInfo.TabStop = false;
             boxFileInfo.Text = "File Information";
@@ -1170,9 +1175,9 @@
             boxPosition.Controls.Add(tablePosition);
             boxPosition.Dock = DockStyle.Fill;
             boxPosition.Enabled = false;
-            boxPosition.Location = new Point(4, 121);
+            boxPosition.Location = new Point(4, 130);
             boxPosition.Name = "boxPosition";
-            boxPosition.Size = new Size(430, 489);
+            boxPosition.Size = new Size(430, 531);
             boxPosition.TabIndex = 13;
             boxPosition.TabStop = false;
             boxPosition.Text = "Position Information";
@@ -1182,10 +1187,10 @@
             boxConfiguration.Controls.Add(tableConfig);
             boxConfiguration.Dock = DockStyle.Fill;
             boxConfiguration.Enabled = false;
-            boxConfiguration.Location = new Point(441, 37);
+            boxConfiguration.Location = new Point(441, 39);
             boxConfiguration.Name = "boxConfiguration";
             tableMain.SetRowSpan(boxConfiguration, 2);
-            boxConfiguration.Size = new Size(321, 573);
+            boxConfiguration.Size = new Size(321, 622);
             boxConfiguration.TabIndex = 14;
             boxConfiguration.TabStop = false;
             boxConfiguration.Text = "Configurations";
@@ -1195,10 +1200,10 @@
             boxMasking.Controls.Add(tableMasking);
             boxMasking.Dock = DockStyle.Fill;
             boxMasking.Enabled = false;
-            boxMasking.Location = new Point(769, 37);
+            boxMasking.Location = new Point(769, 39);
             boxMasking.Name = "boxMasking";
             tableMain.SetRowSpan(boxMasking, 2);
-            boxMasking.Size = new Size(321, 573);
+            boxMasking.Size = new Size(321, 622);
             boxMasking.TabIndex = 15;
             boxMasking.TabStop = false;
             boxMasking.Text = "Masking";
@@ -1215,20 +1220,22 @@
             tableMasking.Controls.Add(tableMaskingEnsembles, 0, 0);
             tableMasking.Controls.Add(tableMaskingAbs, 0, 7);
             tableMasking.Controls.Add(tableLayoutPanel1, 0, 1);
+            tableMasking.Controls.Add(tableBackgroundSSC, 0, 8);
             tableMasking.Dock = DockStyle.Fill;
             tableMasking.Location = new Point(3, 19);
             tableMasking.Name = "tableMasking";
-            tableMasking.RowCount = 9;
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 12F));
-            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 4F));
-            tableMasking.Size = new Size(315, 551);
+            tableMasking.RowCount = 10;
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 65F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
+            tableMasking.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMasking.Size = new Size(315, 600);
             tableMasking.TabIndex = 11;
             tableMasking.Tag = "";
             // 
@@ -1244,12 +1251,13 @@
             tableMaskingErrorVelocity.Controls.Add(txtMinErrorVelocity, 1, 1);
             tableMaskingErrorVelocity.Controls.Add(txtMaxErrorVelocity, 2, 1);
             tableMaskingErrorVelocity.Dock = DockStyle.Fill;
-            tableMaskingErrorVelocity.Location = new Point(3, 399);
+            tableMaskingErrorVelocity.Location = new Point(3, 393);
             tableMaskingErrorVelocity.Name = "tableMaskingErrorVelocity";
-            tableMaskingErrorVelocity.RowCount = 2;
-            tableMaskingErrorVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingErrorVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingErrorVelocity.Size = new Size(309, 60);
+            tableMaskingErrorVelocity.RowCount = 3;
+            tableMaskingErrorVelocity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingErrorVelocity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingErrorVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingErrorVelocity.Size = new Size(309, 59);
             tableMaskingErrorVelocity.TabIndex = 5;
             // 
             // lblMaxErrorVelocity
@@ -1331,12 +1339,13 @@
             tableMaskingCorrelationMagnitude.Controls.Add(txtMinCorrelationMagnitude, 1, 1);
             tableMaskingCorrelationMagnitude.Controls.Add(txtMaxCorrelationMagnitude, 2, 1);
             tableMaskingCorrelationMagnitude.Dock = DockStyle.Fill;
-            tableMaskingCorrelationMagnitude.Location = new Point(3, 333);
+            tableMaskingCorrelationMagnitude.Location = new Point(3, 328);
             tableMaskingCorrelationMagnitude.Name = "tableMaskingCorrelationMagnitude";
-            tableMaskingCorrelationMagnitude.RowCount = 2;
-            tableMaskingCorrelationMagnitude.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingCorrelationMagnitude.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingCorrelationMagnitude.Size = new Size(309, 60);
+            tableMaskingCorrelationMagnitude.RowCount = 3;
+            tableMaskingCorrelationMagnitude.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingCorrelationMagnitude.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingCorrelationMagnitude.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingCorrelationMagnitude.Size = new Size(309, 59);
             tableMaskingCorrelationMagnitude.TabIndex = 4;
             // 
             // lblMaxCorrelationMagnitude
@@ -1420,12 +1429,13 @@
             tableMaskingVelocity.Controls.Add(txtMinVelocity, 1, 1);
             tableMaskingVelocity.Controls.Add(txtMaxVelocity, 2, 1);
             tableMaskingVelocity.Dock = DockStyle.Fill;
-            tableMaskingVelocity.Location = new Point(3, 267);
+            tableMaskingVelocity.Location = new Point(3, 263);
             tableMaskingVelocity.Name = "tableMaskingVelocity";
-            tableMaskingVelocity.RowCount = 2;
-            tableMaskingVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingVelocity.Size = new Size(309, 60);
+            tableMaskingVelocity.RowCount = 3;
+            tableMaskingVelocity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingVelocity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingVelocity.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingVelocity.Size = new Size(309, 59);
             tableMaskingVelocity.TabIndex = 3;
             // 
             // lblMaxVelocity
@@ -1505,12 +1515,13 @@
             tableMaskingPercentGood.Controls.Add(lblMinPercentGood, 1, 0);
             tableMaskingPercentGood.Controls.Add(txtMinPercentGood, 1, 1);
             tableMaskingPercentGood.Dock = DockStyle.Fill;
-            tableMaskingPercentGood.Location = new Point(3, 201);
+            tableMaskingPercentGood.Location = new Point(3, 198);
             tableMaskingPercentGood.Name = "tableMaskingPercentGood";
-            tableMaskingPercentGood.RowCount = 2;
-            tableMaskingPercentGood.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingPercentGood.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingPercentGood.Size = new Size(309, 60);
+            tableMaskingPercentGood.RowCount = 3;
+            tableMaskingPercentGood.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingPercentGood.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingPercentGood.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingPercentGood.Size = new Size(309, 59);
             tableMaskingPercentGood.TabIndex = 2;
             // 
             // checkMaskPercentGood
@@ -1568,12 +1579,13 @@
             tableMaskingEchoIntensity.Controls.Add(txtMinEchoIntensity, 1, 1);
             tableMaskingEchoIntensity.Controls.Add(txtMaxEchoIntensity, 2, 1);
             tableMaskingEchoIntensity.Dock = DockStyle.Fill;
-            tableMaskingEchoIntensity.Location = new Point(3, 135);
+            tableMaskingEchoIntensity.Location = new Point(3, 133);
             tableMaskingEchoIntensity.Name = "tableMaskingEchoIntensity";
-            tableMaskingEchoIntensity.RowCount = 2;
-            tableMaskingEchoIntensity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingEchoIntensity.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingEchoIntensity.Size = new Size(309, 60);
+            tableMaskingEchoIntensity.RowCount = 3;
+            tableMaskingEchoIntensity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingEchoIntensity.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingEchoIntensity.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingEchoIntensity.Size = new Size(309, 59);
             tableMaskingEchoIntensity.TabIndex = 0;
             // 
             // lblMaxEchoIntensity
@@ -1658,10 +1670,11 @@
             tableMaskingEnsembles.Dock = DockStyle.Fill;
             tableMaskingEnsembles.Location = new Point(3, 3);
             tableMaskingEnsembles.Name = "tableMaskingEnsembles";
-            tableMaskingEnsembles.RowCount = 2;
-            tableMaskingEnsembles.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingEnsembles.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingEnsembles.Size = new Size(309, 60);
+            tableMaskingEnsembles.RowCount = 3;
+            tableMaskingEnsembles.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingEnsembles.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingEnsembles.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingEnsembles.Size = new Size(309, 59);
             tableMaskingEnsembles.TabIndex = 1;
             // 
             // checkFirstEnsemble
@@ -1704,12 +1717,13 @@
             tableMaskingAbs.Controls.Add(txtMinAbs, 1, 1);
             tableMaskingAbs.Controls.Add(txtMaxAbs, 2, 1);
             tableMaskingAbs.Dock = DockStyle.Fill;
-            tableMaskingAbs.Location = new Point(3, 465);
+            tableMaskingAbs.Location = new Point(3, 458);
             tableMaskingAbs.Name = "tableMaskingAbs";
-            tableMaskingAbs.RowCount = 2;
-            tableMaskingAbs.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingAbs.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableMaskingAbs.Size = new Size(309, 60);
+            tableMaskingAbs.RowCount = 3;
+            tableMaskingAbs.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingAbs.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableMaskingAbs.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableMaskingAbs.Size = new Size(309, 59);
             tableMaskingAbs.TabIndex = 6;
             // 
             // checkMaskingAbs
@@ -1789,12 +1803,13 @@
             tableLayoutPanel1.Controls.Add(txtStartDatetime, 1, 0);
             tableLayoutPanel1.Controls.Add(txtEndDatetime, 1, 1);
             tableLayoutPanel1.Dock = DockStyle.Fill;
-            tableLayoutPanel1.Location = new Point(3, 69);
+            tableLayoutPanel1.Location = new Point(3, 68);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(309, 60);
+            tableLayoutPanel1.RowCount = 3;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Size = new Size(309, 59);
             tableLayoutPanel1.TabIndex = 7;
             // 
             // checkStartDatetime
@@ -1849,6 +1864,55 @@
             toolTip.SetToolTip(txtEndDatetime, "End time for valid ensemble masking window. Applies to masks for velocity and beam data.");
             txtEndDatetime.TextChanged += input_Changed;
             // 
+            // tableBackgroundSSC
+            // 
+            tableBackgroundSSC.ColumnCount = 3;
+            tableBackgroundSSC.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 34F));
+            tableBackgroundSSC.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+            tableBackgroundSSC.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33F));
+            tableBackgroundSSC.Controls.Add(lblBackgroundSSC, 0, 0);
+            tableBackgroundSSC.Controls.Add(txtBackgroundSSC, 1, 0);
+            tableBackgroundSSC.Controls.Add(comboBackgroundSSC, 2, 0);
+            tableBackgroundSSC.Dock = DockStyle.Fill;
+            tableBackgroundSSC.Location = new Point(3, 523);
+            tableBackgroundSSC.Name = "tableBackgroundSSC";
+            tableBackgroundSSC.RowCount = 1;
+            tableBackgroundSSC.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableBackgroundSSC.Size = new Size(309, 29);
+            tableBackgroundSSC.TabIndex = 8;
+            // 
+            // lblBackgroundSSC
+            // 
+            lblBackgroundSSC.AutoSize = true;
+            lblBackgroundSSC.Dock = DockStyle.Fill;
+            lblBackgroundSSC.Location = new Point(3, 0);
+            lblBackgroundSSC.Name = "lblBackgroundSSC";
+            lblBackgroundSSC.Size = new Size(99, 29);
+            lblBackgroundSSC.TabIndex = 0;
+            lblBackgroundSSC.Text = "Background SSC";
+            lblBackgroundSSC.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // txtBackgroundSSC
+            // 
+            txtBackgroundSSC.Dock = DockStyle.Fill;
+            txtBackgroundSSC.Location = new Point(108, 3);
+            txtBackgroundSSC.Name = "txtBackgroundSSC";
+            txtBackgroundSSC.Size = new Size(95, 23);
+            txtBackgroundSSC.TabIndex = 1;
+            txtBackgroundSSC.Text = "0.0";
+            txtBackgroundSSC.TextChanged += input_Changed;
+            // 
+            // comboBackgroundSSC
+            // 
+            comboBackgroundSSC.Dock = DockStyle.Fill;
+            comboBackgroundSSC.FormattingEnabled = true;
+            comboBackgroundSSC.Items.AddRange(new object[] { "Fixed", "Percentile" });
+            comboBackgroundSSC.Location = new Point(209, 3);
+            comboBackgroundSSC.Name = "comboBackgroundSSC";
+            comboBackgroundSSC.Size = new Size(97, 23);
+            comboBackgroundSSC.TabIndex = 2;
+            comboBackgroundSSC.SelectedIndexChanged += input_Changed;
+            // 
             // tableMode
             // 
             tableMode.ColumnCount = 2;
@@ -1861,7 +1925,7 @@
             tableMode.Name = "tableMode";
             tableMode.RowCount = 1;
             tableMode.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableMode.Size = new Size(430, 26);
+            tableMode.Size = new Size(430, 28);
             tableMode.TabIndex = 16;
             // 
             // rbSingle
@@ -1892,7 +1956,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1094, 672);
+            ClientSize = new Size(1094, 727);
             Controls.Add(tableMain);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -1938,6 +2002,8 @@
             tableMaskingAbs.PerformLayout();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            tableBackgroundSSC.ResumeLayout(false);
+            tableBackgroundSSC.PerformLayout();
             tableMode.ResumeLayout(false);
             tableMode.PerformLayout();
             ResumeLayout(false);
@@ -2077,5 +2143,9 @@
         private ToolStripMenuItem menuBatchExtern2CSV;
         private Label lblEnsAveInterval;
         private TextBox txtEnsAveInterval;
+        private TableLayoutPanel tableBackgroundSSC;
+        private Label lblBackgroundSSC;
+        private TextBox txtBackgroundSSC;
+        private ComboBox comboBackgroundSSC;
     }
 }
