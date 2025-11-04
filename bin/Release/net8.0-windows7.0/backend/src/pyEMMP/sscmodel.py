@@ -455,17 +455,19 @@ def PlotBKS2NTUTrans(project, sscmodelid, beam_sel, field_name, yAxisMode, cmap,
                 mask = mask
                 )
             t_num = mdates.date2num(obs.data.datetime.astype("M8[ms]").astype("O"))
+            depth = obs.data.depth
+            if yAxisMode.lower() == "depth":
+                depth = -depth  # Convert to positive down
             x_min, x_max = ax.get_xlim()
             y_min, y_max = ax.get_ylim()
-            data_mask = (t_num >= x_min) & (t_num <= x_max) & (obs.data.depth >= min(y_min, y_max)) & (obs.data.depth <= max(y_min, y_max))
-            
+            data_mask = (t_num >= x_min) & (t_num <= x_max) & (depth >= min(y_min, y_max)) & (depth <= max(y_min, y_max))
             im = ax.images[0]
             norm = im.norm
             cmap = im.cmap
 
             # Filter data
             t_num = t_num[data_mask]
-            depth = obs.data.depth[data_mask]
+            depth = depth[data_mask]
             if len(t_num) == 0:
                 plt.close(fig)
                 continue

@@ -1,7 +1,7 @@
 
 import xml.etree.ElementTree as ET
 from .tasks import *
-from .utils_xml import XMLUtils
+from pyEMMP import XMLUtils
 
 def Call(XML):
 

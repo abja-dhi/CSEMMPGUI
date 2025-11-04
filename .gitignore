@@ -8,3 +8,6 @@
 .vs/
 obj/
 *.dll
+bin/Release/net8.0-windows7.0/backend/build/*
+bin/Release/net8.0-windows7.0/backend/dist/*
+bin/Release/net8.0-windows7.0/CSEMMPGUI_v1.exe.WebView2/*
